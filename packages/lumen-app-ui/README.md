@@ -6,6 +6,13 @@ import `@lumen/app-ui/styles.css` once in the host application. Material UI
 provides the interaction primitives. The package does not depend on hbar's
 runtime or preview application.
 
+Application roots should use `LumenProvider` with a host-owned
+`LumenAppearance`. The provider projects the resolved mode, control size, text
+size, corner size, square or rounded shape, glow intensity, and motion setting
+without persisting any preference itself. It installs the MUI theme and an
+optional transparent `CssBaseline`, leaving the window or browser host in
+control of the actual app background.
+
 The hbar source used for the later component-family migration was frozen from
 the current worktree at commit `3e2e13219e4654b4f0b5781a7780b66fbd270145`.
 The [source manifest](source-manifest.json) records 367 file hashes and the

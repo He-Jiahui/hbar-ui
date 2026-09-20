@@ -32,3 +32,52 @@
   --lumen-glow-near: 0.45rem;
   --lumen-glow-far: 0.95rem;
 }
+
+[data-lumen-control-size='s'] {
+  --lumen-control-size: 1.875rem;
+  --lumen-control-padding-inline: 0.625rem;
+}
+
+[data-lumen-control-size='m'] {
+  --lumen-control-size: 2.25rem;
+  --lumen-control-padding-inline: 0.75rem;
+}
+
+[data-lumen-control-size='l'] {
+  --lumen-control-size: 2.625rem;
+  --lumen-control-padding-inline: 0.875rem;
+}
+
+[data-lumen-text-size='s'] {
+  --lumen-font-size: 0.8125rem;
+}
+
+[data-lumen-text-size='m'] {
+  --lumen-font-size: 0.875rem;
+}
+
+[data-lumen-text-size='l'] {
+  --lumen-font-size: 1rem;
+}
+
+[data-lumen-corner-size='s'] {
+  --lumen-radius-base: 0.25rem;
+}
+
+[data-lumen-corner-size='m'] {
+  --lumen-radius-base: 0.375rem;
+}
+
+[data-lumen-corner-size='l'] {
+  --lumen-radius-base: 0.5rem;
+}
+
+[data-lumen-shape='rounded'] {
+  --lumen-radius-control: var(--lumen-radius-base, 0.375rem);
+  --lumen-radius-surface: calc(var(--lumen-radius-base, 0.375rem) * 2);
+}
+
+[data-lumen-shape='square'] {
+  --lumen-radius-control: 0;
+  --lumen-radius-surface: 0;
+}

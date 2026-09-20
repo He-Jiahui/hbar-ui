@@ -1,3 +1,5 @@
+export { default as LumenProvider } from './LumenProvider';
+export type { LumenProviderProps } from './LumenProvider';
 export { default as LumenSurface } from './LumenSurface';
 export type { LumenSurfaceProps } from './LumenSurface';
 export { default as LumenIndicator } from './LumenIndicator';
@@ -7,4 +9,6 @@ export type { LumenFieldProps } from './LumenField';
 export { default as LumenSlider } from './LumenSlider';
 export type { LumenSliderProps } from './LumenSlider';
 export { default as createLumenTheme } from './theme';
-export type { LumenMode } from './theme';
+export type { LumenThemeOptions } from './theme';
+export { DEFAULT_LUMEN_APPEARANCE, LUMEN_SIZES, normalizeLumenGlow } from './appearance';
+export type { LumenAppearance, LumenMode, LumenShape, LumenSize } from './appearance';
