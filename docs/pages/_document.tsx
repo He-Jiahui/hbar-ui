@@ -1,5 +1,5 @@
 import * as React from 'react';
-import NextDocument from 'next/document';
+import NextDocument, { Html, Head, Main, NextScript } from 'next/document';
 import { ServerStyleSheet } from 'styled-components';
 import {
   Document as MuiDocsDocument,
@@ -7,7 +7,7 @@ import {
   type DocumentProps,
 } from '@mui/internal-core-docs/Document';
 
-export default class MuiDocument extends NextDocument {
+export default class MuiDocument extends NextDocument<DocumentProps> {
   static getInitialProps = createGetInitialProps({
     createPlugin: () => {
       const sheet = new ServerStyleSheet();
@@ -24,6 +24,17 @@ export default class MuiDocument extends NextDocument {
   });
 
   render() {
-    return <MuiDocsDocument {...(this.props as unknown as DocumentProps)} />;
+    if (this.props.canonicalAsServer.replace(/\/$/, '') === '/experiments/lumen-workbench') {
+      return (
+        <Html lang="zh-CN">
+          <Head />
+          <body>
+            <Main />
+            <NextScript />
+          </body>
+        </Html>
+      );
+    }
+    return <MuiDocsDocument {...this.props} />;
   }
 }

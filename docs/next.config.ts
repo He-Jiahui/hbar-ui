@@ -61,6 +61,7 @@ const markdownLoaderBase = {
 };
 
 export default withDocsInfra({
+  ...(process.env.LUMEN_DEMO === '1' ? { devIndicators: false, agentRules: false } : {}),
   experimental: {
     // The TS7 side-by-side alias (@typescript/typescript6) ships no `tsc` bin,
     // which the Next.js >= 16.3 setup check requires even with

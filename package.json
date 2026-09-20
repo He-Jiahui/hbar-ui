@@ -24,6 +24,7 @@
     "docs:build-color-preview": "babel-node scripts/buildColorTypes",
     "docs:deploy": "pnpm --filter docs run deploy",
     "docs:dev": "pnpm --filter docs dev",
+    "lumen:dev": "cross-env LUMEN_DEMO=1 pnpm --filter docs dev --hostname 127.0.0.1 --port 3020",
     "docs:icons": "pnpm --filter docs icons",
     "docs:size-why": "cross-env DOCS_STATS_ENABLED=true pnpm docs:build",
     "docs:start": "pnpm --filter docs start",

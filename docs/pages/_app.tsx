@@ -292,7 +292,7 @@ function useDemoDisplayName() {
   }, [productId]);
 }
 
-export default function MyApp(props: AppProps) {
+function DocsApplication(props: AppProps) {
   const { Component } = props;
   const pageProps = React.useMemo(
     () => ({
@@ -333,6 +333,24 @@ export default function MyApp(props: AppProps) {
   );
 }
 
+export default function MyApp(props: AppProps) {
+  // Keep the standalone workbench outside documentation analytics, consent,
+  // and theme providers. Other documentation routes retain their full shell.
+  if (props.router.pathname === '/experiments/lumen-workbench') {
+    const { Component, pageProps } = props;
+    return <Component {...pageProps} />;
+  }
+  return <DocsApplication {...props} />;
+}
+
 // See note above about turbopack re-export detection — wrap rather than
 // `export { reportWebVitals }` so _app.tsx stays the Custom App.
-export const reportWebVitals: typeof _reportWebVitals = (...args) => _reportWebVitals(...args);
+export const reportWebVitals: typeof _reportWebVitals = (...args) => {
+  if (
+    typeof window !== 'undefined' &&
+    window.location.pathname.startsWith('/experiments/lumen-workbench')
+  ) {
+    return;
+  }
+  _reportWebVitals(...args);
+};
