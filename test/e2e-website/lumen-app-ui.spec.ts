@@ -79,6 +79,7 @@ test('fields and standalone controls retain directional boundary lamps', async (
   await expect(dropzone.locator(':scope > [data-length="area"]')).toHaveCount(2);
   const choose = dropzone.getByText('选择文件');
   await expect(choose.locator('[data-length="action"]')).toBeVisible();
+  await expect(choose.locator('[data-length="action"]')).toHaveCSS('position', 'absolute');
   await dropzone.hover();
   await page.screenshot({
     path: testInfo.outputPath('dropzone-boundary-dark.png'),
