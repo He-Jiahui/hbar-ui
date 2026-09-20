@@ -117,8 +117,8 @@ test('selected navigation uses a straight content-side lamp at each breakpoint',
   const horizontal = selected.locator(':scope > [data-edge="bottom"]');
   await expect(vertical).toBeVisible();
   await expect(horizontal).toBeHidden();
-  expect(await selected.evaluate((button) => getComputedStyle(button, '::before').width)).toBe(
-    '2px',
+  expect(await selected.evaluate((button) => getComputedStyle(button, '::before').content)).toBe(
+    'none',
   );
   await page.screenshot({
     path: testInfo.outputPath('navigation-vertical-dark.png'),
@@ -136,6 +136,15 @@ test('selected navigation uses a straight content-side lamp at each breakpoint',
   ).toBe('none');
 
   const next = navigation.getByRole('button', { name: /02 · 无搜索结果/ });
+  const selectedLabelX = await selected
+    .locator(':scope > span')
+    .first()
+    .evaluate((label) => label.getBoundingClientRect().x);
+  const nextLabelX = await next
+    .locator(':scope > span')
+    .first()
+    .evaluate((label) => label.getBoundingClientRect().x);
+  expect(selectedLabelX).toBeCloseTo(nextLabelX, 1);
   const idle = next.locator(':scope > [data-edge="right"] > span');
   const shortHeight = await idle.evaluate((beam) => beam.getBoundingClientRect().height);
   await next.hover();
@@ -156,7 +165,7 @@ test('selected navigation uses a straight content-side lamp at each breakpoint',
 
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(next.locator(':scope > [data-edge="right"]')).toBeHidden();
-  expect(await next.evaluate((button) => getComputedStyle(button, '::before').display)).toBe(
+  expect(await next.evaluate((button) => getComputedStyle(button, '::before').content)).toBe(
     'none',
   );
   expect(await next.evaluate((button) => getComputedStyle(button).outlineStyle)).toBe('none');
