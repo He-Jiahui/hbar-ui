@@ -1,7 +1,13 @@
 import * as React from 'react';
 import { describe, expect, it } from 'vitest';
 import { createRenderer, screen } from '@mui/internal-test-utils';
-import { LumenField, LumenProvider, LumenSurface, type LumenAppearance } from '@lumen/app-ui';
+import {
+  applyLumenAppearance,
+  LumenField,
+  LumenProvider,
+  LumenSurface,
+  type LumenAppearance,
+} from '@lumen/app-ui';
 
 describe('LumenProvider', () => {
   const { render } = createRenderer();
@@ -63,5 +69,25 @@ describe('LumenProvider', () => {
       throw new Error('Expected the updated Lumen provider scope to render.');
     }
     expect(updatedProvider.style.getPropertyValue('--lumen-glow')).to.equal('0.65');
+  });
+
+  it('projects the same appearance tokens onto a host root for portalled content', () => {
+    const dataset: Record<string, string> = {};
+    const properties = new Map<string, string>();
+    const style = {
+      colorScheme: '',
+      setProperty: (name: string, value: string) => properties.set(name, value),
+    };
+    applyLumenAppearance({ dataset, style }, appearance);
+    expect(dataset).to.deep.include({
+      lumenMode: 'dark',
+      lumenControlSize: 's',
+      lumenTextSize: 'l',
+      lumenCornerSize: 'l',
+      lumenShape: 'square',
+      lumenMotion: 'off',
+    });
+    expect(style.colorScheme).to.equal('dark');
+    expect(properties.get('--lumen-glow')).to.equal('1');
   });
 });

@@ -10,5 +10,16 @@ export { default as LumenSlider } from './LumenSlider';
 export type { LumenSliderProps } from './LumenSlider';
 export { default as createLumenTheme } from './theme';
 export type { LumenThemeOptions } from './theme';
-export { DEFAULT_LUMEN_APPEARANCE, LUMEN_SIZES, normalizeLumenGlow } from './appearance';
-export type { LumenAppearance, LumenMode, LumenShape, LumenSize } from './appearance';
+export {
+  applyLumenAppearance,
+  DEFAULT_LUMEN_APPEARANCE,
+  LUMEN_SIZES,
+  normalizeLumenGlow,
+} from './appearance';
+export type {
+  LumenAppearance,
+  LumenAppearanceRoot,
+  LumenMode,
+  LumenShape,
+  LumenSize,
+} from './appearance';

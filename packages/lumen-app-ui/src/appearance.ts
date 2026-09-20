@@ -25,9 +25,38 @@ export const DEFAULT_LUMEN_APPEARANCE: Readonly<LumenAppearance> = Object.freeze
   motion: true,
 });
 
+export interface LumenAppearanceRoot {
+  readonly dataset: {
+    lumenMode?: string | undefined;
+    lumenControlSize?: string | undefined;
+    lumenTextSize?: string | undefined;
+    lumenCornerSize?: string | undefined;
+    lumenShape?: string | undefined;
+    lumenMotion?: string | undefined;
+  };
+  readonly style: {
+    colorScheme: string;
+    setProperty(name: string, value: string): void;
+  };
+}
+
 export function normalizeLumenGlow(value: number): number {
   if (!Number.isFinite(value)) {
     return DEFAULT_LUMEN_APPEARANCE.glow;
   }
   return Math.min(100, Math.max(0, value));
+}
+
+export function applyLumenAppearance(
+  root: LumenAppearanceRoot,
+  appearance: Readonly<LumenAppearance>,
+): void {
+  root.dataset.lumenMode = appearance.mode;
+  root.dataset.lumenControlSize = appearance.controlSize;
+  root.dataset.lumenTextSize = appearance.textSize;
+  root.dataset.lumenCornerSize = appearance.cornerSize;
+  root.dataset.lumenShape = appearance.shape;
+  root.dataset.lumenMotion = appearance.motion ? 'on' : 'off';
+  root.style.colorScheme = appearance.mode;
+  root.style.setProperty('--lumen-glow', String(normalizeLumenGlow(appearance.glow) / 100));
 }
