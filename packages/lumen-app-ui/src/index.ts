@@ -34,6 +34,12 @@ export type {
   LumenSelectProps,
   LumenTextareaProps,
 } from './forms';
+export { LumenCommandList } from './command-list';
+export type {
+  LumenCommandItem,
+  LumenCommandListLabels,
+  LumenCommandListProps,
+} from './command-list';
 export {
   LumenButton,
   LumenIconButton,

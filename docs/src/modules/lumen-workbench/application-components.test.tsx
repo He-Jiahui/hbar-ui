@@ -4,6 +4,7 @@ import { createRenderer, screen } from '@mui/internal-test-utils';
 import {
   LumenBarSeries,
   LumenCheckBox,
+  LumenCommandList,
   LumenComboBox,
   LumenCompactMetrics,
   LumenDialog,
@@ -106,5 +107,49 @@ describe('Lumen application components', () => {
     expect(screen.getByRole('region', { name: 'Files' })).not.toBeNull();
     expect(screen.getByRole('img', { name: 'Activity' })).not.toBeNull();
     expect(screen.getByText('Dialog body')).not.toBeNull();
+  });
+
+  it('keeps command query, selection, and execution in the host', async () => {
+    const onQueryChange = vi.fn();
+    const onSelect = vi.fn();
+    const onMove = vi.fn();
+    const onExecute = vi.fn();
+    const { user } = render(
+      <LumenProvider appearance={appearance} withCssBaseline={false}>
+        <LumenCommandList
+          labels={{
+            search: 'Search commands',
+            available: 'Available commands',
+            empty: 'No commands',
+            unavailable: 'Selection unavailable',
+            navigate: 'Navigate',
+            execute: 'Execute',
+            close: 'Close',
+            count: (count) => `${count} commands`,
+            navigateKeys: 'Arrow keys',
+            executeKey: 'Enter',
+            closeKey: 'Escape',
+          }}
+          items={[{ id: 'open', label: 'Open workspace', group: 'Workspace', navigates: true }]}
+          query=""
+          selectedId="open"
+          onQueryChange={onQueryChange}
+          onSelect={onSelect}
+          onMove={onMove}
+          onExecute={onExecute}
+        />
+      </LumenProvider>,
+    );
+
+    const input = screen.getByRole('searchbox', { name: 'Search commands' });
+    await user.type(input, 'open');
+    await user.keyboard('{ArrowDown}{Enter}');
+    expect(onQueryChange).toHaveBeenCalled();
+    expect(onMove).toHaveBeenCalledWith(1);
+    expect(onExecute).toHaveBeenCalledWith('open');
+    expect(screen.getByRole('option', { name: /Open workspace/ })).to.have.attribute(
+      'aria-selected',
+      'true',
+    );
   });
 });
