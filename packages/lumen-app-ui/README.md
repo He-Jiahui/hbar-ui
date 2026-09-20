@@ -46,6 +46,13 @@ semantic text and status colors without owning any visible copy.
 command inside a responsive glass surface. It accepts the shared square or
 rounded geometry while keeping localization and command values in the host.
 
+The workbench primitives compose a responsive `LumenAppShell` and
+`LumenAppSidebar` from host-owned slots. The project tree owns its scrolling,
+the tool pane becomes a bounded overlay below 80rem, and the narrowest layout
+gives an open navigation pane the full viewport. `LumenSidebarAction`,
+`LumenActionMenu`, and the semantic `LumenIcon` scale keep navigation controls
+consistent without owning application commands or labels.
+
 Wrap controlled MUI text fields or inputs in `LumenField`. Use a `horizontal`
 boundary when the field sits above or below other controls, and a `vertical`
 boundary when it sits beside them. Both sides retain a visible short lamp and

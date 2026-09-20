@@ -34,6 +34,24 @@ export type {
   LumenWorkbenchNoticeProps,
 } from './LumenWorkbenchNotice';
 export {
+  LumenActionMenu,
+  LumenAppShell,
+  LumenAppSidebar,
+  LumenIcon,
+  LumenShellHeaderAction,
+  LumenSidebarAction,
+} from './workbench';
+export type {
+  LumenActionMenuItem,
+  LumenActionMenuProps,
+  LumenAppShellProps,
+  LumenAppSidebarProps,
+  LumenAppSidebarStatus,
+  LumenIconProps,
+  LumenIconTier,
+  LumenSidebarActionProps,
+} from './workbench';
+export {
   applyLumenAppearance,
   DEFAULT_LUMEN_APPEARANCE,
   LUMEN_SIZES,
