@@ -14,9 +14,12 @@ is in the ignored `tmp/lumen-source-snapshot` directory. This source is MIT
 licensed; see [LICENSE](LICENSE).
 
 The package is private and is not published. Its source exports are the
-workspace contract; `pnpm -F @lumen/app-ui build` also verifies a standalone
-library bundle. Lumen's glass filter applies to the background layer, so
-foreground text stays sharp. Unsupported browsers render frosted glass.
+workspace contract. `pnpm -F @lumen/app-ui build` creates a standalone ESM
+bundle, CSS, and declaration files, while `pnpm -F @lumen/app-ui pack` applies
+the host-facing `publishConfig` exports. Material UI, Emotion, React, and React
+DOM stay peer dependencies so a host uses one runtime instance. Lumen's glass
+filter applies to the background layer, so foreground text stays sharp.
+Unsupported browsers render frosted glass.
 
 `LumenSlider` accepts a numeric controlled value and callback, normalizes its
 current `min`/`max` range, and lets the theme scale thumb and filled-track glow

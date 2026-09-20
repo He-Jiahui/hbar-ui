@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "noEmit": false,
+    "outDir": "./dist/types",
+    "paths": {
+      "@mui/material": ["./node_modules/@lumen/mui-material-types"],
+      "@mui/material/*": ["./node_modules/@lumen/mui-material-types/*"]
+    },
+    "rootDir": "./src"
+  }
+}
