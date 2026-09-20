@@ -65,7 +65,7 @@ scrolls within a bounded pane. Duplicate option IDs retain their first item.
 The opt-in `@lumen/app-ui/catalog` export records all 300 source IDs and their
 presentation profiles. `LUMEN_MIGRATED_VARIANT_IDS` lists only validated ports;
 the other source entries are inventory, not components or placeholder exports.
-Three of the 38 families, totaling 18 variants, are migrated so far.
+Four of the 38 families, totaling 22 variants, are migrated so far.
 The docs-only directory at `/experiments/lumen-app-ui/catalog/` makes all 38
 families and 300 source IDs searchable, identifies pending entries as source
 structure rather than completed components, and links validated ports back to

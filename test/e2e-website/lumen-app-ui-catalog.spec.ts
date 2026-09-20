@@ -7,7 +7,7 @@ test('catalog reaches 38 families and 300 source IDs without calling pending ent
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/experiments/lumen-app-ui/catalog/');
   await expect(page.getByRole('heading', { name: '墨光 · Application UI 目录' })).toBeVisible();
-  await expect(page.getByText('38 类 · 300 项来源 · 18 项已迁移')).toBeVisible();
+  await expect(page.getByText('38 类 · 300 项来源 · 22 项已迁移')).toBeVisible();
   const categories = page.getByRole('navigation', { name: '组件类别' });
   const entries = page.getByRole('navigation', { name: '稳定变体 ID' });
   const buttons = categories.getByRole('button');

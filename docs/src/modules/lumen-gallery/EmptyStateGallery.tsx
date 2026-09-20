@@ -14,8 +14,10 @@ import getEmptyStateFixtures, { type GalleryLocale } from './emptyStateFixtures'
 import ScenarioPreview, { type ScenarioKind } from './ScenarioPreview';
 import FeedbackGallery from './FeedbackGallery';
 import PromptInputGallery from './PromptInputGallery';
+import FileManagerGallery from './FileManagerGallery';
 import getFeedbackFixtures from './feedbackFixtures';
 import getPromptInputFixtures from './promptInputFixtures';
+import getFileManagerFixtures from './fileManagerFixtures';
 import { getScenarioFixtures } from './scenarioFixtures';
 import styles from './gallery.module.css';
 
@@ -44,7 +46,7 @@ export default function EmptyStateGallery() {
   );
   React.useEffect(() => {
     const requested = Number(new URLSearchParams(window.location.search).get('variant'));
-    if (Number.isInteger(requested) && requested >= 1 && requested <= 22) {
+    if (Number.isInteger(requested) && requested >= 1 && requested <= 26) {
       setVariant(requested);
     }
   }, []);
@@ -52,6 +54,7 @@ export default function EmptyStateGallery() {
   const scenarios = getScenarioFixtures(locale);
   const feedback = getFeedbackFixtures(locale);
   const promptInput = getPromptInputFixtures(locale);
+  const fileManager = getFileManagerFixtures(locale);
   const theme = React.useMemo(() => createLumenTheme(mode), [mode]);
   React.useEffect(() => {
     selectedButton.current?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
@@ -128,7 +131,9 @@ export default function EmptyStateGallery() {
     )),
   ];
   let activeGallery: React.ReactNode = sample[variant - 1];
-  if (variant > 15) {
+  if (variant > 22) {
+    activeGallery = <FileManagerGallery variant={variant - 22} locale={locale} />;
+  } else if (variant > 15) {
     activeGallery = <PromptInputGallery variant={variant - 15} locale={locale} />;
   } else if (variant > 9) {
     activeGallery = <FeedbackGallery variant={variant - 9} locale={locale} />;
@@ -217,6 +222,24 @@ export default function EmptyStateGallery() {
                 <LumenIndicator
                   edge="bottom"
                   state={variant === index + 16 ? 'selected' : 'idle'}
+                />
+              </Button>
+            ))}
+            <h2 className={styles.navigationHeading}>{fileManager.group}</h2>
+            {fileManager.names.map((name, index) => (
+              <Button
+                key={name}
+                ref={variant === index + 23 ? selectedButton : undefined}
+                aria-current={variant === index + 23 ? 'page' : undefined}
+                onClick={() => setVariant(index + 23)}
+              >
+                <span className={styles.navigationLabel}>
+                  {String(index + 23).padStart(2, '0')} · {name}
+                </span>
+                <LumenIndicator edge="right" state={variant === index + 23 ? 'selected' : 'idle'} />
+                <LumenIndicator
+                  edge="bottom"
+                  state={variant === index + 23 ? 'selected' : 'idle'}
                 />
               </Button>
             ))}

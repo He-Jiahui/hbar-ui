@@ -9,7 +9,7 @@ describe('Lumen source catalog', () => {
     expect(new Set(ids).size).toBe(300);
     expect(new Set(LUMEN_SOURCE_VARIANTS.map((variant) => variant.category)).size).toBe(38);
     expect(new Set(LUMEN_MIGRATED_VARIANT_IDS).size).toBe(LUMEN_MIGRATED_VARIANT_IDS.length);
-    expect(LUMEN_MIGRATED_VARIANT_IDS).toHaveLength(18);
+    expect(LUMEN_MIGRATED_VARIANT_IDS).toHaveLength(22);
 
     for (const id of LUMEN_MIGRATED_VARIANT_IDS) {
       expect(ids).toContain(id);

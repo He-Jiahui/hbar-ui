@@ -108,6 +108,9 @@ function galleryVariant(category: string, variant: number) {
   if (category === 'prompt-input') {
     return variant + 15;
   }
+  if (category === 'file-manager') {
+    return variant + 22;
+  }
   return null;
 }
 

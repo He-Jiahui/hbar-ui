@@ -49,3 +49,16 @@ export type {
   PromptBaseActions,
   PromptBaseState,
 } from './PromptInput';
+export {
+  HbarAppUiFileManager01,
+  HbarAppUiFileManager02,
+  HbarAppUiFileManager03,
+  HbarAppUiFileManager04,
+} from './FileManager';
+export type {
+  FileManagerTransfer,
+  HbarAppUiFileManager01Props,
+  HbarAppUiFileManager02Props,
+  HbarAppUiFileManager03Props,
+  HbarAppUiFileManager04Props,
+} from './FileManager';
