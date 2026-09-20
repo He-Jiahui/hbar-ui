@@ -205,12 +205,34 @@ test('fields and standalone controls retain directional boundary lamps', async (
   expect(await search.evaluate((element) => getComputedStyle(element).borderTopStyle)).toBe(
     'solid',
   );
+  expect(
+    await search.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return [style.borderLeftColor, style.borderRightColor];
+    }),
+  ).toEqual(['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)']);
   const topBeam = search.locator('[data-edge="top"] > span');
+  const bottomBeam = search.locator('[data-edge="bottom"] > span');
   const restingWidth = await topBeam.evaluate((element) => element.getBoundingClientRect().width);
+  const restingBottomWidth = await bottomBeam.evaluate(
+    (element) => element.getBoundingClientRect().width,
+  );
+  const fieldWidth = await search.evaluate((element) => element.getBoundingClientRect().width);
+  expect(restingWidth).toBeCloseTo(fieldWidth, 0);
+  expect(restingBottomWidth).toBeCloseTo(fieldWidth, 0);
   await search.getByRole('textbox', { name: '搜索' }).focus();
   await expect
     .poll(() => topBeam.evaluate((element) => element.getBoundingClientRect().width))
-    .toBeGreaterThan(restingWidth);
+    .toBeCloseTo(restingWidth, 0);
+  await expect
+    .poll(() => bottomBeam.evaluate((element) => element.getBoundingClientRect().width))
+    .toBeCloseTo(restingBottomWidth, 0);
+  expect(
+    await search.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return [style.borderLeftColor, style.borderRightColor];
+    }),
+  ).toEqual(['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)']);
   await page.screenshot({
     path: testInfo.outputPath('search-boundary-dark.png'),
     animations: 'disabled',

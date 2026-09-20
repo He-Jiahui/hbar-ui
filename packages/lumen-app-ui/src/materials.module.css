@@ -228,8 +228,14 @@
   backdrop-filter: blur(0.75rem);
   transition: border-color 180ms ease;
 }
+.field[data-boundary='horizontal'] {
+  border-inline-color: transparent;
+}
 .field:focus-within {
   border-color: var(--lumen-ink);
+}
+.field[data-boundary='horizontal']:focus-within {
+  border-inline-color: transparent;
 }
 .fieldContent {
   display: flex;
@@ -251,18 +257,20 @@
 }
 .field .indicator[data-edge='top'] {
   top: -0.0625rem;
-  left: 0;
+  left: -0.0625rem;
   justify-content: flex-end;
-  padding-right: 0.375rem;
+  padding-inline: 0;
   box-sizing: border-box;
+  width: calc(100% + 0.125rem);
 }
 .field .indicator[data-edge='bottom'] {
   bottom: -0.0625rem;
-  left: 0;
+  left: -0.0625rem;
   align-items: flex-end;
   justify-content: flex-start;
-  padding-left: 0.375rem;
+  padding-inline: 0;
   box-sizing: border-box;
+  width: calc(100% + 0.125rem);
 }
 .field .indicator[data-edge='left'] {
   left: -0.0625rem;
@@ -278,12 +286,16 @@
   opacity: 0.8;
 }
 .field:focus-within .indicator[data-edge='bottom'] .beam {
-  width: 80%;
+  width: 100%;
   opacity: 1;
 }
 .field:focus-within .indicator[data-edge='top'] .beam {
-  width: 60%;
+  width: 100%;
   opacity: 1;
+}
+.field[data-boundary='horizontal'] .indicator[data-edge='top'] .beam,
+.field[data-boundary='horizontal'] .indicator[data-edge='bottom'] .beam {
+  width: 100%;
 }
 .field:focus-within .indicator[data-edge='left'] .beam,
 .field:focus-within .indicator[data-edge='right'] .beam {
@@ -296,7 +308,7 @@
 :global([data-lumen-dropzone]:hover) .indicator[data-length='area'] .beam,
 :global([data-lumen-dropzone]:focus-within) .indicator[data-length='area'] .beam,
 :global([data-lumen-dropzone][data-dragging='true']) .indicator[data-length='area'] .beam {
-  width: 80%;
+  width: 100%;
   opacity: 1;
 }
 :global([data-lumen-dropzone]:hover) .indicator[data-length='area'] .halo,
