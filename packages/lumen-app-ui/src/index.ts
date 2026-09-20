@@ -28,6 +28,11 @@ export type {
 } from './primitives';
 export { default as createLumenTheme } from './theme';
 export type { LumenThemeOptions } from './theme';
+export { default as LumenWorkbenchNotice } from './LumenWorkbenchNotice';
+export type {
+  LumenWorkbenchNoticeCommand,
+  LumenWorkbenchNoticeProps,
+} from './LumenWorkbenchNotice';
 export {
   applyLumenAppearance,
   DEFAULT_LUMEN_APPEARANCE,

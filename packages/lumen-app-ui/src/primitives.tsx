@@ -131,10 +131,10 @@ export function LumenNavigationButton({
 }
 
 export type LumenTextTone = 'neutral' | 'muted' | 'subtle' | 'success' | 'warning' | 'danger';
-export type LumenTextVariant = 'body' | 'label' | 'supporting' | 'code';
+export type LumenTextVariant = 'title' | 'heading' | 'body' | 'label' | 'supporting' | 'code';
 
 export interface LumenTextProps extends React.HTMLAttributes<HTMLElement> {
-  as?: 'span' | 'p' | 'small' | 'code' | undefined;
+  as?: 'h1' | 'h2' | 'h3' | 'span' | 'p' | 'small' | 'strong' | 'code' | undefined;
   size?: LumenSize | undefined;
   tone?: LumenTextTone | undefined;
   variant?: LumenTextVariant | undefined;

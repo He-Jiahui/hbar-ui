@@ -42,6 +42,10 @@ feedback. `LumenNavigationButton` adds the selected indicator and standard
 `aria-current="page"` semantics. `LumenText` and `LumenStatus` provide the same
 semantic text and status colors without owning any visible copy.
 
+`LumenWorkbenchNotice` centers a host-labelled title, description, and optional
+command inside a responsive glass surface. It accepts the shared square or
+rounded geometry while keeping localization and command values in the host.
+
 Wrap controlled MUI text fields or inputs in `LumenField`. Use a `horizontal`
 boundary when the field sits above or below other controls, and a `vertical`
 boundary when it sits beside them. Both sides retain a visible short lamp and
