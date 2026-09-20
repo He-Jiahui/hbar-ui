@@ -8,6 +8,24 @@ export { default as LumenField } from './LumenField';
 export type { LumenFieldProps } from './LumenField';
 export { default as LumenSlider } from './LumenSlider';
 export type { LumenSliderProps } from './LumenSlider';
+export {
+  LumenButton,
+  LumenIconButton,
+  LumenNavigationButton,
+  LumenStatus,
+  LumenText,
+} from './primitives';
+export type {
+  LumenActionTone,
+  LumenActionVariant,
+  LumenButtonProps,
+  LumenIconButtonProps,
+  LumenNavigationButtonProps,
+  LumenStatusProps,
+  LumenTextProps,
+  LumenTextTone,
+  LumenTextVariant,
+} from './primitives';
 export { default as createLumenTheme } from './theme';
 export type { LumenThemeOptions } from './theme';
 export {

@@ -1,7 +1,8 @@
 # Lumen composition package
 
 Private workspace package for the Lumen design language. Import
-`LumenSurface`, `LumenIndicator`, `LumenField`, `LumenSlider`, and `createLumenTheme` from `@lumen/app-ui`;
+`LumenSurface`, `LumenIndicator`, `LumenField`, `LumenSlider`, the application
+primitives, and `createLumenTheme` from `@lumen/app-ui`;
 import `@lumen/app-ui/styles.css` once in the host application. Material UI
 provides the interaction primitives. The package does not depend on hbar's
 runtime or preview application.
@@ -33,6 +34,13 @@ foreground text stays sharp. Unsupported browsers render frosted glass.
 current `min`/`max` range, and lets the theme scale thumb and filled-track glow
 with progress. The theme also renders MUI switches as an unlit hollow circle or
 a lit solid circle over a flat line.
+
+Use `LumenButton` and `LumenIconButton` for application actions. Buttons expose
+the Lumen `solid`, `outlined`, and `text` variants, semantic tones, shared size
+tiers, square or rounded geometry, disabled and loading states, and scoped glow
+feedback. `LumenNavigationButton` adds the selected indicator and standard
+`aria-current="page"` semantics. `LumenText` and `LumenStatus` provide the same
+semantic text and status colors without owning any visible copy.
 
 Wrap controlled MUI text fields or inputs in `LumenField`. Use a `horizontal`
 boundary when the field sits above or below other controls, and a `vertical`
