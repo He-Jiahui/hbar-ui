@@ -7,6 +7,7 @@ import {
   LumenAppSidebar,
   LumenProvider,
   LumenSidebarAction,
+  LumenWindowTitlebar,
   type LumenAppearance,
 } from '@lumen/app-ui';
 
@@ -88,5 +89,37 @@ describe('Lumen workbench shell', () => {
     await user.click(screen.getByRole('menuitem', { name: 'Archive' }));
     expect(onNavigate).toHaveBeenCalledTimes(1);
     expect(onAction).toHaveBeenCalledWith('archive');
+  });
+
+  it('keeps native titlebar behavior and labels in the host', async () => {
+    const onMinimize = vi.fn();
+    const onToggleMaximize = vi.fn();
+    const onClose = vi.fn();
+    const { user } = render(
+      <LumenProvider appearance={appearance} withCssBaseline={false}>
+        <LumenWindowTitlebar
+          title="hbar"
+          platform="windows"
+          maximized={false}
+          labels={{
+            minimize: 'Minimize window',
+            maximize: 'Maximize window',
+            restore: 'Restore window',
+            close: 'Close window',
+          }}
+          onMinimize={onMinimize}
+          onToggleMaximize={onToggleMaximize}
+          onClose={onClose}
+        />
+      </LumenProvider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Minimize window' }));
+    await user.click(screen.getByRole('button', { name: 'Maximize window' }));
+    await user.click(screen.getByRole('button', { name: 'Close window' }));
+    expect(onMinimize).toHaveBeenCalledTimes(1);
+    expect(onToggleMaximize).toHaveBeenCalledTimes(1);
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('hbar')).to.have.attribute('data-tauri-drag-region');
   });
 });

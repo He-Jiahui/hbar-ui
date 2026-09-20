@@ -53,6 +53,11 @@ gives an open navigation pane the full viewport. `LumenSidebarAction`,
 `LumenActionMenu`, and the semantic `LumenIcon` scale keep navigation controls
 consistent without owning application commands or labels.
 
+Native hosts can place `LumenWindowTitlebar` in the shell's `titlebar` slot.
+The host supplies localized labels, maximized state, window callbacks, and the
+current platform. The component exposes Tauri drag regions and adapts its
+controls for Windows/Linux or macOS without importing a desktop runtime.
+
 Wrap controlled MUI text fields or inputs in `LumenField`. Use a `horizontal`
 boundary when the field sits above or below other controls, and a `vertical`
 boundary when it sits beside them. Both sides retain a visible short lamp and

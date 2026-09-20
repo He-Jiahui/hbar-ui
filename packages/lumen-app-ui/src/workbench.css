@@ -8,11 +8,125 @@
   min-inline-size: 0;
   min-block-size: 0;
   block-size: 100%;
+  flex-direction: column;
   overflow: hidden;
   color: var(--lumen-ink);
   background: transparent;
   font: inherit;
   line-height: 1.5;
+}
+
+.lumen-app-workspace {
+  display: flex;
+  min-inline-size: 0;
+  min-block-size: 0;
+  flex: 1 1 auto;
+}
+
+.lumen-window-titlebar {
+  display: flex;
+  min-inline-size: 0;
+  min-block-size: 2.5rem;
+  flex: 0 0 auto;
+  align-items: center;
+  border-block-end: 0.0625rem solid var(--lumen-edge);
+  background: color-mix(in srgb, var(--lumen-frost) 88%, transparent);
+  backdrop-filter: blur(1.5rem);
+  user-select: none;
+}
+
+.lumen-window-titlebar-leading,
+.lumen-window-titlebar-trailing {
+  display: flex;
+  min-inline-size: 0;
+  align-items: center;
+}
+
+.lumen-window-title {
+  min-inline-size: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  padding-inline: 0.75rem;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lumen-window-controls {
+  display: flex;
+  min-inline-size: 0;
+  align-self: stretch;
+  flex: 0 0 auto;
+}
+
+.lumen-window-control {
+  inline-size: 2.875rem;
+  block-size: 100%;
+  min-block-size: 2.5rem;
+  border-block: 0;
+}
+
+.lumen-window-control:hover {
+  background: color-mix(in srgb, var(--lumen-ink) 12%, transparent);
+}
+
+.lumen-window-close:hover {
+  background: color-mix(in srgb, var(--lumen-danger) 82%, transparent);
+  color: var(--lumen-contrast);
+}
+
+.lumen-window-glyph {
+  inline-size: 1rem;
+  block-size: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.25;
+}
+
+.lumen-window-titlebar[data-platform='macos'] {
+  padding-inline-end: 0.75rem;
+}
+
+.lumen-window-titlebar[data-platform='macos'] .lumen-window-controls {
+  gap: 0.5rem;
+  align-items: center;
+  padding-inline-start: 0.75rem;
+}
+
+.lumen-window-titlebar[data-platform='macos'] .lumen-window-control {
+  inline-size: 0.875rem;
+  block-size: 0.875rem;
+  min-block-size: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--lumen-muted);
+  color: transparent;
+  box-shadow: none;
+}
+
+.lumen-window-titlebar[data-platform='macos'] .lumen-window-control:hover,
+.lumen-window-titlebar[data-platform='macos'] .lumen-window-control:focus-visible {
+  color: color-mix(in srgb, #000 65%, transparent);
+}
+
+.lumen-window-titlebar[data-platform='macos'] .lumen-window-control:first-child {
+  background: var(--lumen-warning);
+}
+
+.lumen-window-titlebar[data-platform='macos'] .lumen-window-control:nth-child(2) {
+  background: var(--lumen-success);
+}
+
+.lumen-window-titlebar[data-platform='macos'] .lumen-window-close {
+  background: var(--lumen-danger);
+  order: -1;
+}
+
+.lumen-window-titlebar[data-platform='macos'] .lumen-window-glyph {
+  inline-size: 0.625rem;
+  block-size: 0.625rem;
 }
 
 .lumen-app-sidebar-drawer {
@@ -288,11 +402,16 @@
 }
 
 @media (forced-colors: active) {
+  .lumen-window-titlebar,
   .lumen-app-header,
   .lumen-app-sidebar,
   .lumen-app-tool-drawer,
   .lumen-action-menu-popup {
     background: Canvas;
     backdrop-filter: none;
+  }
+
+  .lumen-window-control {
+    border-color: ButtonBorder;
   }
 }

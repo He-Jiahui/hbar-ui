@@ -40,6 +40,7 @@ export {
   LumenIcon,
   LumenShellHeaderAction,
   LumenSidebarAction,
+  LumenWindowTitlebar,
 } from './workbench';
 export type {
   LumenActionMenuItem,
@@ -50,6 +51,9 @@ export type {
   LumenIconProps,
   LumenIconTier,
   LumenSidebarActionProps,
+  LumenWindowPlatform,
+  LumenWindowTitlebarLabels,
+  LumenWindowTitlebarProps,
 } from './workbench';
 export {
   applyLumenAppearance,

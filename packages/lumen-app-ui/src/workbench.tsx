@@ -32,6 +32,7 @@ export function LumenIcon({ icon: Icon, tier = 'md', className, ...other }: Lume
 
 export interface LumenAppShellProps {
   label: string;
+  titlebar?: React.ReactNode;
   sidebar?: React.ReactNode;
   sidebarWidthRem: number;
   toolWidthRem?: number | undefined;
@@ -48,6 +49,7 @@ export interface LumenAppShellProps {
 /** Host content stays in flow; only the bounded tool pane is an overlay below 80rem. */
 export function LumenAppShell({
   label,
+  titlebar,
   sidebar,
   sidebarWidthRem,
   toolWidthRem = 24,
@@ -73,40 +75,141 @@ export function LumenAppShell({
       data-sidebar-open={sidebarOpen}
       style={style}
     >
-      {sidebar ? (
-        <div
-          className="lumen-app-sidebar-drawer hbar-app-ui-app-sidebar-drawer"
-          data-open={sidebarOpen}
-        >
-          <div className="lumen-app-sidebar-drawer-panel hbar-app-ui-app-sidebar-drawer-panel">
-            {sidebar}
+      {titlebar}
+      <div className="lumen-app-workspace">
+        {sidebar ? (
+          <div
+            className="lumen-app-sidebar-drawer hbar-app-ui-app-sidebar-drawer"
+            data-open={sidebarOpen}
+          >
+            <div className="lumen-app-sidebar-drawer-panel hbar-app-ui-app-sidebar-drawer-panel">
+              {sidebar}
+            </div>
+            <button
+              type="button"
+              className="lumen-app-sidebar-backdrop hbar-app-ui-app-sidebar-backdrop"
+              aria-label={closeSidebarLabel}
+              onClick={onCloseSidebar}
+            />
           </div>
-          <button
-            type="button"
-            className="lumen-app-sidebar-backdrop hbar-app-ui-app-sidebar-backdrop"
-            aria-label={closeSidebarLabel}
-            onClick={onCloseSidebar}
-          />
-        </div>
-      ) : null}
-      <div className="lumen-app-frame hbar-app-ui-app-frame">
-        {header ? <div className="lumen-app-header hbar-app-ui-app-header">{header}</div> : null}
-        <div className="lumen-app-body hbar-app-ui-app-body">
-          <main className="lumen-app-main hbar-app-ui-app-main" aria-label={label}>
-            {children}
-          </main>
-          {tool ? (
-            <aside
-              className="lumen-app-tool-drawer hbar-app-ui-app-tool-drawer"
-              aria-label={toolLabel}
-            >
-              {tool}
-            </aside>
-          ) : null}
+        ) : null}
+        <div className="lumen-app-frame hbar-app-ui-app-frame">
+          {header ? <div className="lumen-app-header hbar-app-ui-app-header">{header}</div> : null}
+          <div className="lumen-app-body hbar-app-ui-app-body">
+            <main className="lumen-app-main hbar-app-ui-app-main" aria-label={label}>
+              {children}
+            </main>
+            {tool ? (
+              <aside
+                className="lumen-app-tool-drawer hbar-app-ui-app-tool-drawer"
+                aria-label={toolLabel}
+              >
+                {tool}
+              </aside>
+            ) : null}
+          </div>
         </div>
       </div>
       {overlay}
     </div>
+  );
+}
+
+export type LumenWindowPlatform = 'windows' | 'macos' | 'linux';
+
+export interface LumenWindowTitlebarLabels {
+  minimize: string;
+  maximize: string;
+  restore: string;
+  close: string;
+}
+
+export interface LumenWindowTitlebarProps {
+  title: string;
+  platform: LumenWindowPlatform;
+  labels: LumenWindowTitlebarLabels;
+  maximized: boolean;
+  onMinimize: () => void;
+  onToggleMaximize: () => void;
+  onClose: () => void;
+  leading?: React.ReactNode;
+  trailing?: React.ReactNode;
+}
+
+function WindowGlyph({ name }: { name: 'minimize' | 'maximize' | 'restore' | 'close' }) {
+  return (
+    <svg className="lumen-window-glyph" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      {name === 'minimize' ? <path d="M3 8.5h10" /> : null}
+      {name === 'maximize' ? <rect x="3.5" y="3.5" width="9" height="9" rx="0.75" /> : null}
+      {name === 'restore' ? (
+        <React.Fragment>
+          <path d="M5.5 3.5h7v7" />
+          <rect x="3.5" y="5.5" width="7" height="7" rx="0.75" />
+        </React.Fragment>
+      ) : null}
+      {name === 'close' ? <path d="m4 4 8 8m0-8-8 8" /> : null}
+    </svg>
+  );
+}
+
+/** Native window behavior is host-owned; this component only renders its labelled controls. */
+export function LumenWindowTitlebar({
+  title,
+  platform,
+  labels,
+  maximized,
+  onMinimize,
+  onToggleMaximize,
+  onClose,
+  leading,
+  trailing,
+}: LumenWindowTitlebarProps) {
+  const controls = (
+    <div className="lumen-window-controls">
+      <LumenIconButton
+        className="lumen-window-control"
+        label={labels.minimize}
+        shape="square"
+        onClick={onMinimize}
+      >
+        <WindowGlyph name="minimize" />
+      </LumenIconButton>
+      <LumenIconButton
+        className="lumen-window-control"
+        label={maximized ? labels.restore : labels.maximize}
+        shape="square"
+        onClick={onToggleMaximize}
+      >
+        <WindowGlyph name={maximized ? 'restore' : 'maximize'} />
+      </LumenIconButton>
+      <LumenIconButton
+        className="lumen-window-control lumen-window-close"
+        label={labels.close}
+        shape="square"
+        tone="danger"
+        onClick={onClose}
+      >
+        <WindowGlyph name="close" />
+      </LumenIconButton>
+    </div>
+  );
+
+  return (
+    <header className="lumen-window-titlebar" data-platform={platform} data-tauri-drag-region>
+      {platform === 'macos' ? controls : null}
+      <div className="lumen-window-titlebar-leading">{leading}</div>
+      <LumenText
+        as="strong"
+        className="lumen-window-title"
+        variant="label"
+        data-tauri-drag-region
+        onDoubleClick={onToggleMaximize}
+      >
+        {title}
+      </LumenText>
+      <div className="lumen-window-titlebar-trailing">{trailing}</div>
+      {platform === 'macos' ? null : controls}
+    </header>
   );
 }
 
