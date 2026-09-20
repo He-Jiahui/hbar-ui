@@ -1,7 +1,7 @@
 # Lumen composition package
 
 Private workspace package for the Lumen design language. Import
-`LumenSurface`, `LumenIndicator`, and `createLumenTheme` from `@lumen/app-ui`;
+`LumenSurface`, `LumenIndicator`, `LumenSlider`, and `createLumenTheme` from `@lumen/app-ui`;
 import `@lumen/app-ui/styles.css` once in the host application. Material UI
 provides the interaction primitives. The package does not depend on hbar's
 runtime or preview application.
@@ -17,6 +17,11 @@ The package is private and is not published. Its source exports are the
 workspace contract; `pnpm -F @lumen/app-ui build` also verifies a standalone
 library bundle. Lumen's glass filter applies to the background layer, so
 foreground text stays sharp. Unsupported browsers render frosted glass.
+
+`LumenSlider` accepts a numeric controlled value and callback, normalizes its
+current `min`/`max` range, and lets the theme scale thumb and filled-track glow
+with progress. The theme also renders MUI switches as an unlit hollow circle or
+a lit solid circle over a flat line.
 
 The first migrated family is `HbarAppUiEmptyState01` through
 `HbarAppUiEmptyState05` from `@lumen/app-ui/variants`. Their stable IDs preserve

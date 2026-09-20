@@ -1,9 +1,8 @@
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import InputBase from '@mui/material/InputBase';
-import Slider from '@mui/material/Slider';
 import Switch from '@mui/material/Switch';
-import { LumenIndicator, LumenSurface } from '@lumen/app-ui';
+import { LumenIndicator, LumenSlider, LumenSurface } from '@lumen/app-ui';
 import type { ScenarioCopy, ScenarioFile } from './scenarioFixtures';
 import styles from './scenario.module.css';
 
@@ -231,22 +230,14 @@ function Appearance({ copy }: { copy: ScenarioCopy }) {
             {copy.appearance.glow}
             <output>{glow}%</output>
           </span>
-          <Slider
-            value={glow}
-            onChange={(_event, value) => setGlow(value)}
-            aria-label={copy.appearance.glow}
-          />
+          <LumenSlider value={glow} onChange={setGlow} aria-label={copy.appearance.glow} />
         </label>
         <label className={styles.control}>
           <span>
             {copy.appearance.glass}
             <output>{glass}%</output>
           </span>
-          <Slider
-            value={glass}
-            onChange={(_event, value) => setGlass(value)}
-            aria-label={copy.appearance.glass}
-          />
+          <LumenSlider value={glass} onChange={setGlass} aria-label={copy.appearance.glass} />
         </label>
         <label className={styles.switch}>
           <span>{copy.appearance.motion}</span>

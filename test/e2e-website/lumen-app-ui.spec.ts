@@ -380,3 +380,109 @@ test('four local scenes respond across themes and widths', async ({
   );
   expect(errors).toEqual([]);
 });
+
+test('appearance controls use a flat switch line and progress-sensitive light', async ({
+  page,
+}, testInfo) => {
+  await page.goto('/experiments/lumen-app-ui/');
+  await page
+    .getByRole('navigation', { name: '组件与场景' })
+    .getByRole('button', { name: /09 · 外观设置/ })
+    .click();
+  const appearance = page.getByRole('region', { name: '外观设置' });
+  const motion = appearance.getByRole('switch', { name: '允许呼吸动画' });
+  const switchThumb = appearance.locator('.MuiSwitch-thumb');
+  const switchTrack = appearance.locator('.MuiSwitch-track');
+  await motion.uncheck();
+  await expect(motion).not.toBeChecked();
+  await page.waitForTimeout(220);
+  const off = await switchThumb.evaluate((thumb) => ({
+    fill: getComputedStyle(thumb).backgroundColor,
+    shadow: getComputedStyle(thumb).boxShadow,
+  }));
+  expect(off.fill).toBe('rgb(23, 23, 23)');
+  expect(off.shadow).toBe('none');
+  expect(await switchTrack.evaluate((track) => getComputedStyle(track).height)).toBe('2px');
+  expect(await switchTrack.evaluate((track) => getComputedStyle(track).borderRadius)).toBe('0px');
+  await motion.check();
+  await expect(motion).toBeChecked();
+  await page.waitForTimeout(220);
+  const on = await switchThumb.evaluate((thumb) => ({
+    fill: getComputedStyle(thumb).backgroundColor,
+    shadow: getComputedStyle(thumb).boxShadow,
+  }));
+  expect(on.fill).toBe('rgb(238, 238, 238)');
+  expect(on.shadow).not.toBe('none');
+
+  const glass = appearance.getByRole('slider', { name: '玻璃强度' });
+  const slider = appearance.locator('.MuiSlider-root').nth(1);
+  const sample = async (value: number) => {
+    await glass.fill(String(value));
+    await expect(glass).toHaveAttribute('aria-valuenow', String(value));
+    return slider.evaluate((root) => ({
+      progress: getComputedStyle(root).getPropertyValue('--lumen-range-progress').trim(),
+      thumb: getComputedStyle(root.querySelector('.MuiSlider-thumb')!).boxShadow,
+      track: getComputedStyle(root.querySelector('.MuiSlider-track')!).boxShadow,
+    }));
+  };
+  const low = await sample(0);
+  const middle = await sample(50);
+  const high = await sample(100);
+  expect([low.progress, middle.progress, high.progress]).toEqual(['0', '0.5', '1']);
+  expect(low.thumb).not.toBe(middle.thumb);
+  expect(middle.thumb).not.toBe(high.thumb);
+  expect(low.track).not.toBe(middle.track);
+  expect(middle.track).not.toBe(high.track);
+  await glass.evaluate((element) => (element as HTMLElement).blur());
+  await page.screenshot({
+    path: testInfo.outputPath('appearance-dark-on-100.png'),
+    animations: 'disabled',
+  });
+  await motion.uncheck();
+  await sample(0);
+  await glass.evaluate((element) => (element as HTMLElement).blur());
+  await page.screenshot({
+    path: testInfo.outputPath('appearance-dark-off-0.png'),
+    animations: 'disabled',
+  });
+  await page.getByRole('button', { name: '切换黑白主题' }).click();
+  await motion.check();
+  await page.waitForTimeout(220);
+  await sample(100);
+  await glass.evaluate((element) => (element as HTMLElement).blur());
+  expect(await switchThumb.evaluate((thumb) => getComputedStyle(thumb).backgroundColor)).toBe(
+    'rgb(23, 23, 23)',
+  );
+  await expect(switchTrack).toHaveCSS('height', '2px');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({
+    path: testInfo.outputPath('appearance-light-on-100-390.png'),
+    animations: 'disabled',
+  });
+  const bounds = await slider.boundingBox();
+  expect(bounds).not.toBeNull();
+  if (bounds) {
+    const y = bounds.y + bounds.height / 2;
+    await page.mouse.move(bounds.x + bounds.width * 0.2, y);
+    await page.mouse.down();
+    await expect
+      .poll(() =>
+        slider.evaluate((root) =>
+          Number(getComputedStyle(root).getPropertyValue('--lumen-range-progress')),
+        ),
+      )
+      .toBeGreaterThan(0.1);
+    await page.mouse.move(bounds.x + bounds.width * 0.8, y, { steps: 6 });
+    await expect
+      .poll(() =>
+        slider.evaluate((root) =>
+          Number(getComputedStyle(root).getPropertyValue('--lumen-range-progress')),
+        ),
+      )
+      .toBeGreaterThan(0.7);
+    await page.mouse.up();
+  }
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(switchThumb).toHaveCSS('transition-duration', '0s');
+  await expect(slider.locator('.MuiSlider-thumb')).toHaveCSS('transition-duration', '0s');
+});

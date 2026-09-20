@@ -3,11 +3,10 @@ import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import Drawer from '@mui/material/Drawer';
 import Popover from '@mui/material/Popover';
-import Slider from '@mui/material/Slider';
 import Switch from '@mui/material/Switch';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { ThemeProvider } from '@mui/material/styles';
-import { LumenSurface, createLumenTheme } from '@lumen/app-ui';
+import { LumenSlider, LumenSurface, createLumenTheme } from '@lumen/app-ui';
 import TaskNavigation from './TaskNavigation';
 import TaskInspector from './TaskInspector';
 import TaskContent from './TaskContent';
@@ -268,23 +267,19 @@ export default function LumenWorkbench({
                 {copy.glow}
                 <span>{preferences.glow}%</span>
               </label>
-              <Slider
+              <LumenSlider
                 aria-labelledby="lumen-glow-label"
                 value={preferences.glow}
-                onChange={(_event, value) =>
-                  typeof value === 'number' && onPreferences({ ...preferences, glow: value })
-                }
+                onChange={(value) => onPreferences({ ...preferences, glow: value })}
               />
               <label className={styles.rangeLabel} id="lumen-glass-label">
                 {copy.glass}
                 <span>{preferences.glass}%</span>
               </label>
-              <Slider
+              <LumenSlider
                 aria-labelledby="lumen-glass-label"
                 value={preferences.glass}
-                onChange={(_event, value) =>
-                  typeof value === 'number' && onPreferences({ ...preferences, glass: value })
-                }
+                onChange={(value) => onPreferences({ ...preferences, glass: value })}
               />
               <label className={styles.motionLabel}>
                 {copy.motion}
