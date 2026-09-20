@@ -162,35 +162,33 @@ export default function LumenWorkbench({
         </header>
 
         <main className={styles.frame} aria-label={copy.workspace}>
-          {!narrow && (
-            <LumenSurface className={styles.navigation} glassStrength={preferences.glass}>
-              {navigation}
-            </LumenSurface>
-          )}
-          <LumenSurface className={styles.mainPanel} glassStrength={preferences.glass}>
-            {task && state ? (
-              <TaskContent
-                key={task.id}
-                copy={copy}
-                task={task}
-                state={state}
-                onDraft={(value) => actions.setDraft(task.id, value)}
-                onRun={() => actions.run(task.id)}
-                onCancel={() => actions.cancel(task.id)}
-                inspectorOpen={compact ? mobileInspector : inspectorOpen}
-                onToggleInspector={() =>
-                  compact ? setMobileInspector((open) => !open) : setInspectorOpen((open) => !open)
-                }
-              />
-            ) : (
-              <p className={styles.empty}>{copy.empty}</p>
-            )}
+          <LumenSurface className={styles.windowSurface} glassStrength={preferences.glass}>
+            <div className={styles.windowContent}>
+              {!narrow && <div className={styles.navigation}>{navigation}</div>}
+              <div className={styles.mainPanel}>
+                {task && state ? (
+                  <TaskContent
+                    key={task.id}
+                    copy={copy}
+                    task={task}
+                    state={state}
+                    onDraft={(value) => actions.setDraft(task.id, value)}
+                    onRun={() => actions.run(task.id)}
+                    onCancel={() => actions.cancel(task.id)}
+                    inspectorOpen={compact ? mobileInspector : inspectorOpen}
+                    onToggleInspector={() =>
+                      compact
+                        ? setMobileInspector((open) => !open)
+                        : setInspectorOpen((open) => !open)
+                    }
+                  />
+                ) : (
+                  <p className={styles.empty}>{copy.empty}</p>
+                )}
+              </div>
+              {!compact && inspectorOpen && <div className={styles.inspector}>{inspector}</div>}
+            </div>
           </LumenSurface>
-          {!compact && inspectorOpen && (
-            <LumenSurface className={styles.inspector} glassStrength={preferences.glass}>
-              {inspector}
-            </LumenSurface>
-          )}
         </main>
         <footer className={styles.footer}>
           <span>{copy.footer}</span>
@@ -245,7 +243,7 @@ export default function LumenWorkbench({
           transformOrigin={{ vertical: 'top', horizontal: 'right' }}
           slotProps={{ paper: { className: styles.popoverPaper } }}
         >
-          <LumenSurface material="frost">
+          <LumenSurface material="frost" interactive>
             <section className={styles.appearance} role="dialog" aria-label={copy.appearance}>
               <div className={styles.appearanceHeading}>
                 <h2>{copy.appearance}</h2>

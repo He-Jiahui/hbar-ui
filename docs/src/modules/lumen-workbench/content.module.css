@@ -57,7 +57,7 @@
 .tabs.tabs {
   min-height: 0;
   flex-shrink: 0;
-  border-bottom: 0.0625rem solid var(--lumen-line);
+  border-bottom: 0.0625rem solid transparent;
   padding: 0 1.25rem;
 }
 .tab.tab {
@@ -84,6 +84,14 @@
   overscroll-behavior: contain;
   scrollbar-width: thin;
   scrollbar-color: var(--lumen-line) transparent;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--lumen-reading) 12%,
+    var(--lumen-reading) 88%,
+    transparent
+  );
+  backdrop-filter: blur(0.75rem);
 }
 .pane:focus-visible,
 .content button:focus-visible,
@@ -99,7 +107,7 @@
   min-width: 0;
 }
 .prompt {
-  border-left: 0.0625rem solid var(--lumen-line);
+  border-left: 0.0625rem solid transparent;
   padding: 0 0 0 1rem;
   margin: 0 0 2rem;
 }
@@ -154,7 +162,7 @@
   display: flex;
   gap: 1.125rem;
   padding: 1rem 0;
-  border-top: 0.0625rem solid var(--lumen-line);
+  border-top: 0.0625rem solid transparent;
 }
 .decisionIndex {
   font-size: 0.625rem;
@@ -183,8 +191,8 @@
 .submitted {
   margin-top: 1.5rem;
   padding: 1rem;
-  border-left: 0.0625rem solid var(--lumen-ink);
-  background: color-mix(in srgb, var(--lumen-ink) 4%, transparent);
+  border-left: 0.0625rem solid transparent;
+  background: color-mix(in srgb, var(--lumen-ink) 2%, transparent);
 }
 .sectionLabel {
   font-size: 0.75rem;
@@ -212,7 +220,7 @@
   color: var(--lumen-ink);
 }
 .codePreview {
-  border: 0.0625rem solid var(--lumen-line);
+  border: 0.0625rem solid transparent;
 }
 .codeHeading {
   display: flex;
@@ -221,7 +229,7 @@
   padding: 0.75rem 1rem;
   color: var(--lumen-muted);
   font-size: 0.625rem;
-  border-bottom: 0.0625rem solid var(--lumen-line);
+  border-bottom: 0.0625rem solid transparent;
 }
 .codePreview pre,
 .diff {
@@ -242,8 +250,8 @@
 }
 .diff {
   padding: 1rem 0;
-  border-top: 0.0625rem solid var(--lumen-line);
-  border-bottom: 0.0625rem solid var(--lumen-line);
+  border-top: 0.0625rem solid transparent;
+  border-bottom: 0.0625rem solid transparent;
 }
 .diffLine {
   display: flex;
@@ -290,14 +298,26 @@
   overflow-wrap: anywhere;
 }
 .composer {
-  border: 0.0625rem solid var(--lumen-line);
+  border: 0.0625rem solid transparent;
   border-radius: 0.375rem;
   padding: 0.875rem 1rem 0.5rem;
-  background: var(--lumen-frost);
+  background: color-mix(in srgb, var(--lumen-ink) 2%, transparent);
   backdrop-filter: blur(0.75rem);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+.composer:hover {
+  border-color: color-mix(in srgb, var(--lumen-ink) 22%, transparent);
+  box-shadow: 0 0 0.75rem color-mix(in srgb, var(--lumen-ink) 4%, transparent);
 }
 .composer:focus-within {
-  border-color: var(--lumen-muted);
+  border-color: color-mix(in srgb, var(--lumen-ink) 65%, transparent);
+  box-shadow: 0 0 0.875rem color-mix(in srgb, var(--lumen-ink) 8%, transparent);
+}
+.composer:active {
+  border-color: var(--lumen-ink);
+  box-shadow: 0 0 1rem color-mix(in srgb, var(--lumen-ink) 12%, transparent);
 }
 .input.input {
   font-size: 0.8125rem;
@@ -338,6 +358,35 @@
   align-items: center;
   justify-content: flex-end;
   gap: 0.875rem;
+}
+.inspectorButton.inspectorButton,
+.tab.tab,
+.fileButton.fileButton,
+.runButton.runButton {
+  outline: 0.0625rem solid transparent;
+  outline-offset: -0.0625rem;
+  transition:
+    outline-color 180ms ease,
+    box-shadow 180ms ease;
+}
+.inspectorButton.inspectorButton:hover,
+.tab.tab:hover,
+.fileButton.fileButton:hover,
+.runButton.runButton:hover {
+  outline-color: color-mix(in srgb, var(--lumen-ink) 22%, transparent);
+}
+.inspectorButton.inspectorButton:active,
+.tab.tab:active,
+.fileButton.fileButton:active,
+.runButton.runButton:active {
+  outline-color: color-mix(in srgb, var(--lumen-ink) 65%, transparent);
+  box-shadow: 0 0 0.75rem color-mix(in srgb, var(--lumen-ink) 8%, transparent);
+}
+.inspectorButton.inspectorButton:focus-visible,
+.tab.tab:focus-visible,
+.fileButton.fileButton:focus-visible,
+.runButton.runButton:focus-visible {
+  outline-color: var(--lumen-ink);
 }
 @media (max-width: 47.999rem) {
   .header {

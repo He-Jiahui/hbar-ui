@@ -6,6 +6,13 @@ export default {
   extends: '@mui/internal-code-infra/stylelint',
   overrides: [
     {
+      files: ['**/*.module.css'],
+      rules: {
+        // CSS Modules uses these scoping markers before emitting browser CSS.
+        'selector-pseudo-class-no-unknown': [true, { ignorePseudoClasses: ['global', 'local'] }],
+      },
+    },
+    {
       files: [
         'docs/data/material/integrations/interoperability/**/*.js',
         'docs/data/material/integrations/interoperability/**/*.tsx',

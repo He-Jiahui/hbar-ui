@@ -1,7 +1,7 @@
 import * as React from 'react';
 import ButtonBase from '@mui/material/ButtonBase';
 import LumenIndicator from './LumenIndicator';
-import type { LumenState } from './LumenIndicator';
+import type { LumenState, LumenTone } from './LumenIndicator';
 import type { LumenCopy, LumenTask, LumenTaskState } from './types';
 import styles from './panels.module.css';
 
@@ -34,16 +34,23 @@ export default function TaskInspector({ copy, task, state, onRetry }: TaskInspec
               status = 'completed';
             }
             let indicator: LumenState = 'idle';
+            let tone: LumenTone = 'neutral';
             if (completed) {
               indicator = 'selected';
+              tone = 'success';
             } else if (current && state.status === 'running') {
               indicator = 'running';
+              tone = 'info';
             } else if (current && state.status === 'failed') {
               indicator = 'failed';
+              tone = 'danger';
+            } else if (current && state.status === 'cancelled') {
+              indicator = 'selected';
+              tone = 'warning';
             }
             return (
               <li key={step} className={styles.step} data-current={current}>
-                <LumenIndicator edge="left" state={indicator} />
+                <LumenIndicator edge="left" state={indicator} tone={tone} />
                 <div className={styles.stepText}>
                   <span className={styles.stepTitle}>{step}</span>
                   <span className={styles.stepStatus}>{copy.status[status]}</span>

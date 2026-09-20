@@ -5,11 +5,13 @@ import styles from './materials.module.css';
 export interface LumenSurfaceProps extends React.HTMLAttributes<HTMLDivElement> {
   material?: 'glass' | 'frost';
   glassStrength?: number;
+  interactive?: boolean;
 }
 
 export default function LumenSurface({
   material = 'glass',
   glassStrength = 65,
+  interactive = false,
   className = '',
   children,
   ...props
@@ -63,6 +65,7 @@ export default function LumenSurface({
       ref={root}
       className={`${styles.surface} ${className}`}
       data-material={material}
+      data-interactive={interactive}
       data-lens={map && glassStrength > 0 ? 'refractive' : 'frost'}
     >
       {map && (

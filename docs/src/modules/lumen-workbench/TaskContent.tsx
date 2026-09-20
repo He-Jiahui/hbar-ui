@@ -20,6 +20,13 @@ export interface TaskContentProps {
 
 const contentTabs: readonly ContentTab[] = ['conversation', 'files', 'changes'];
 const changePrefix = { add: '+', remove: '−', context: ' ' };
+const statusTone = {
+  ready: 'info',
+  running: 'info',
+  completed: 'success',
+  cancelled: 'warning',
+  failed: 'danger',
+} as const;
 
 export default function TaskContent({
   copy,
@@ -265,7 +272,10 @@ export default function TaskContent({
                   )}
                 </svg>
               </span>
-              <LumenIndicator state={running ? 'running' : 'selected'} />
+              <LumenIndicator
+                state={running ? 'running' : 'selected'}
+                tone={statusTone[state.status]}
+              />
             </ButtonBase>
           </div>
         </div>

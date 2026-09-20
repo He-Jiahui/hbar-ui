@@ -1,8 +1,17 @@
 import * as React from 'react';
 import ButtonBase from '@mui/material/ButtonBase';
 import LumenIndicator from './LumenIndicator';
-import type { LumenCopy, LumenTask, LumenTaskState } from './types';
+import type { LumenTone } from './LumenIndicator';
+import type { LumenCopy, LumenTask, LumenTaskState, TaskStatus } from './types';
 import styles from './panels.module.css';
+
+const statusTone: Record<TaskStatus, LumenTone> = {
+  ready: 'neutral',
+  running: 'info',
+  completed: 'success',
+  cancelled: 'warning',
+  failed: 'danger',
+};
 
 export interface TaskNavigationProps {
   copy: LumenCopy;
@@ -47,7 +56,7 @@ export default function TaskNavigation({
                     <span className={styles.taskTitle}>{task.title}</span>
                     <span className={styles.taskStatus}>{copy.status[status]}</span>
                   </span>
-                  <LumenIndicator edge="right" state={indicator} />
+                  <LumenIndicator edge="right" state={indicator} tone={statusTone[status]} />
                 </ButtonBase>
               </li>
             );
