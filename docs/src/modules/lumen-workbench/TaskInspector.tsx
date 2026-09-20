@@ -1,7 +1,6 @@
 import * as React from 'react';
 import ButtonBase from '@mui/material/ButtonBase';
-import LumenIndicator from './LumenIndicator';
-import type { LumenState, LumenTone } from './LumenIndicator';
+import { LumenIndicator, type LumenState, type LumenTone } from '@lumen/app-ui';
 import type { LumenCopy, LumenTask, LumenTaskState } from './types';
 import styles from './panels.module.css';
 

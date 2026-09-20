@@ -3,7 +3,7 @@ import ButtonBase from '@mui/material/ButtonBase';
 import InputBase from '@mui/material/InputBase';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
-import LumenIndicator from './LumenIndicator';
+import { LumenIndicator } from '@lumen/app-ui';
 import type { ContentTab, LumenCopy, LumenTask, LumenTaskState } from './types';
 import styles from './content.module.css';
 

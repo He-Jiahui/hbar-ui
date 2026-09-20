@@ -272,6 +272,7 @@ export default withDocsInfra({
   // falls back to the pnpm symlink (→ `packages/mui-material/build/`), which
   // is empty unless the package has been built.
   transpilePackages: [
+    '@lumen/app-ui',
     '@mui/x-charts',
     '@mui/x-data-grid',
     '@mui/x-data-grid-pro',

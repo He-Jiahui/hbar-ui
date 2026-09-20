@@ -3,9 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 import Button from '@mui/material/Button';
 import { ThemeProvider } from '@mui/material/styles';
 import { createRenderer, screen } from '@mui/internal-test-utils';
-import LumenIndicator from './LumenIndicator';
-import LumenSurface from './LumenSurface';
-import createLumenTheme from './theme';
+import { LumenIndicator, LumenSurface, createLumenTheme } from '@lumen/app-ui';
 
 describe('Lumen materials', () => {
   const { render } = createRenderer();

@@ -5,9 +5,9 @@ export type LumenState = 'idle' | 'selected' | 'running' | 'failed' | 'disabled'
 export type LumenTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 
 export interface LumenIndicatorProps {
-  edge?: 'top' | 'bottom' | 'left' | 'right';
-  state?: LumenState;
-  tone?: LumenTone;
+  edge?: 'top' | 'bottom' | 'left' | 'right' | undefined;
+  state?: LumenState | undefined;
+  tone?: LumenTone | undefined;
 }
 
 export default function LumenIndicator({

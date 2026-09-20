@@ -1,11 +1,13 @@
+'use client';
+
 import * as React from 'react';
 import createLensMap from './lensMap';
 import styles from './materials.module.css';
 
 export interface LumenSurfaceProps extends React.HTMLAttributes<HTMLDivElement> {
-  material?: 'glass' | 'frost';
-  glassStrength?: number;
-  interactive?: boolean;
+  material?: 'glass' | 'frost' | undefined;
+  glassStrength?: number | undefined;
+  interactive?: boolean | undefined;
 }
 
 export default function LumenSurface({

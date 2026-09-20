@@ -18,6 +18,7 @@
     "link-check": "tsx ./scripts/reportBrokenLinks.mts"
   },
   "dependencies": {
+    "@lumen/app-ui": "workspace:*",
     "@babel/core": "^7.29.7",
     "@babel/runtime": "^7.29.7",
     "@base-ui/react": "catalog:docs",

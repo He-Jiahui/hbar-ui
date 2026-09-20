@@ -1,4 +1,4 @@
-import type { LumenMode } from './theme';
+import type { LumenMode } from '@lumen/app-ui';
 
 export type TaskStatus = 'ready' | 'running' | 'completed' | 'cancelled' | 'failed';
 export type ContentTab = 'conversation' | 'files' | 'changes';
