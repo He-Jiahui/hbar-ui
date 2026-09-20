@@ -3,17 +3,23 @@ import { describe, expect, it, vi } from 'vitest';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import {
   LumenBarSeries,
+  LumenApprovalRequest,
   LumenCheckBox,
   LumenCommandList,
   LumenComboBox,
   LumenCompactMetrics,
+  LumenCompactUsage,
+  LumenConversation,
   LumenDialog,
   LumenFormField,
   LumenFileDocument,
   LumenInput,
   LumenPageHeader,
   LumenPlanEditor,
+  LumenPromptComposer,
   LumenProvider,
+  LumenQuestionnaire,
+  LumenRunActivity,
   LumenToolPane,
   LumenWorkspaceFiles,
   type LumenAppearance,
@@ -257,5 +263,140 @@ describe('Lumen application components', () => {
     expect(onOpen).toHaveBeenCalledWith('src');
     expect(onRefresh).toHaveBeenCalledTimes(1);
     expect(screen.getByRole('textbox', { name: 'README.md' })).to.have.value('Content');
+  });
+
+  it('keeps session messages and decisions controlled by the host', async () => {
+    const onChange = vi.fn();
+    const onSubmit = vi.fn();
+    const onDecision = vi.fn();
+    const onAnswer = vi.fn();
+    const { user } = render(
+      <LumenProvider appearance={appearance} withCssBaseline={false}>
+        <LumenConversation
+          title="Conversation"
+          messages={[
+            {
+              id: 'message',
+              role: 'assistant',
+              author: 'Assistant',
+              avatar: 'A',
+              copyLabel: 'Copy',
+              children: 'Ready',
+            },
+          ]}
+          empty="No messages"
+          composer={
+            <LumenPromptComposer
+              value="Draft"
+              labels={{
+                input: 'Prompt',
+                placeholder: 'Ask',
+                send: 'Send',
+                submitTitle: 'Send prompt',
+                stop: 'Stop',
+                uploading: 'Uploading',
+                addAttachment: 'Attach',
+                removeAttachment: (item) => `Remove ${item.name}`,
+              }}
+              attachments={[]}
+              submitting={false}
+              uploading={false}
+              canSubmit
+              canStop={false}
+              onChange={onChange}
+              onRemoveAttachment={() => undefined}
+              onSubmit={onSubmit}
+              onStop={() => undefined}
+            />
+          }
+        />
+        <LumenRunActivity
+          runs={[{ id: 'run', label: 'Run 1', status: 'running' }]}
+          labels={{
+            title: 'Runs',
+            emptyTitle: 'No runs',
+            emptyDescription: 'Nothing is running',
+            cancelLabel: 'Cancel',
+            cancellingLabel: 'Cancelling',
+            retryLabel: 'Retry',
+            retryingLabel: 'Retrying',
+            planTitle: 'Plan',
+            planProgress: (done, total) => `${done}/${total}`,
+            planStatusLabel: (status) => status,
+            countLabel: (count) => `${count} runs`,
+            statusLabel: (status) => status,
+          }}
+          listStrategy="content-grown"
+        />
+        <LumenApprovalRequest
+          id="approval"
+          tool="write"
+          summary="Write file"
+          labels={{
+            title: 'Approval',
+            detailsLabel: 'Details',
+            statusLabel: 'Waiting',
+            denyLabel: 'Deny',
+            allowLabel: 'Allow',
+            savingLabel: 'Saving',
+            completeLabel: 'Complete',
+            failureMessage: 'Failed',
+          }}
+          state={{ status: 'idle' }}
+          onDecision={onDecision}
+        />
+        <LumenQuestionnaire
+          requestId="request"
+          questions={[
+            {
+              id: 'choice',
+              header: 'Mode',
+              prompt: 'Choose',
+              options: [{ value: 'fast', label: 'Fast' }],
+            },
+          ]}
+          answers={{}}
+          labels={{
+            title: 'Questions',
+            countLabel: (count) => `${count} questions`,
+            customAnswerLabel: 'Other',
+            customAnswerPlaceholder: 'Type',
+            freeformLabel: 'Answer',
+            submitLabel: 'Submit answers',
+            submittingLabel: 'Submitting',
+            submittedLabel: 'Submitted',
+            incompleteMessage: 'Incomplete',
+            rejectedMessage: 'Rejected',
+            failureMessage: 'Failed',
+          }}
+          state={{ status: 'idle' }}
+          onAnswer={onAnswer}
+          onSubmit={() => undefined}
+        />
+        <LumenCompactUsage
+          density="inline"
+          title="Usage"
+          description="Current usage"
+          value="120 tokens"
+          detail="80 remaining"
+          progress={0.6}
+          progressLabel="60%"
+          tone="accent"
+          sparkline={[]}
+          sparklineLabel="Token trend"
+          metrics={[{ id: 'cost', label: 'Cost', value: '$0.10' }]}
+        />
+      </LumenProvider>,
+    );
+
+    await user.type(screen.getByRole('textbox', { name: 'Prompt' }), ' more');
+    await user.click(screen.getByRole('button', { name: 'Send' }));
+    await user.click(screen.getByRole('button', { name: 'Allow' }));
+    await user.click(screen.getByRole('radio', { name: /Fast/ }));
+    expect(onChange).toHaveBeenCalled();
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onDecision).toHaveBeenCalledWith('approval', 'allow');
+    expect(onAnswer).toHaveBeenCalledWith('request', 'choice', { kind: 'option', value: 'fast' });
+    expect(screen.getByText('120 tokens')).not.toBeNull();
   });
 });
