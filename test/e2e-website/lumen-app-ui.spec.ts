@@ -1,5 +1,50 @@
 import { test, expect } from '@playwright/test';
 
+test('selected navigation uses a straight content-side lamp at each breakpoint', async ({
+  page,
+}) => {
+  await page.goto('/experiments/lumen-app-ui/');
+  const navigation = page.getByRole('navigation', { name: '空状态变体' });
+  const selected = navigation.locator('button[aria-current="page"]');
+  const vertical = selected.locator(':scope > [data-edge="right"]');
+  const horizontal = selected.locator(':scope > [data-edge="bottom"]');
+  await expect(vertical).toBeVisible();
+  await expect(horizontal).toBeHidden();
+  const height = await vertical
+    .locator(':scope > span')
+    .evaluate((beam) => beam.getBoundingClientRect().height);
+  expect(height).toBeGreaterThan(20);
+  expect(await selected.evaluate((button) => getComputedStyle(button).boxShadow)).toBe('none');
+  expect(
+    await vertical
+      .locator(':scope > span > span')
+      .evaluate((halo) => getComputedStyle(halo).animationName),
+  ).toBe('none');
+
+  const next = navigation.getByRole('button', { name: /02 · 无搜索结果/ });
+  const idle = next.locator(':scope > [data-edge="right"] > span');
+  const shortHeight = await idle.evaluate((beam) => beam.getBoundingClientRect().height);
+  await next.hover();
+  await expect
+    .poll(() => idle.evaluate((beam) => beam.getBoundingClientRect().height))
+    .toBeGreaterThan(shortHeight * 2);
+  await next.click();
+  await expect(next.locator(':scope > [data-edge="right"]')).toHaveAttribute(
+    'data-state',
+    'selected',
+  );
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(next.locator(':scope > [data-edge="right"]')).toBeHidden();
+  const bottom = next.locator(':scope > [data-edge="bottom"]');
+  await expect(bottom).toBeVisible();
+  const width = await bottom
+    .locator(':scope > span')
+    .evaluate((beam) => beam.getBoundingClientRect().width);
+  expect(width).toBeGreaterThan(30);
+  expect(await next.evaluate((button) => getComputedStyle(button).boxShadow)).toBe('none');
+});
+
 test('five controlled empty states preserve actions, localization, and visual states', async ({
   page,
   browserName,
@@ -70,6 +115,7 @@ test('five controlled empty states preserve actions, localization, and visual st
   for (const height of choiceHeights) {
     expect(height).toBeLessThan(180);
   }
+  await page.getByRole('heading', { name: 'Lumen · Compositions' }).hover();
   await page.screenshot({
     path: testInfo.outputPath('empty-light-390.png'),
     animations: 'disabled',

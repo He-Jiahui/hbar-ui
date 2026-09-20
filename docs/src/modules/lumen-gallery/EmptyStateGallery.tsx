@@ -2,7 +2,7 @@ import * as React from 'react';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
-import { createLumenTheme } from '@lumen/app-ui';
+import { createLumenTheme, LumenIndicator } from '@lumen/app-ui';
 import {
   HbarAppUiEmptyState01,
   HbarAppUiEmptyState02,
@@ -122,7 +122,11 @@ export default function EmptyStateGallery() {
                 aria-current={variant === index + 1 ? 'page' : undefined}
                 onClick={() => setVariant(index + 1)}
               >
-                {String(index + 1).padStart(2, '0')} · {name}
+                <span className={styles.navigationLabel}>
+                  {String(index + 1).padStart(2, '0')} · {name}
+                </span>
+                <LumenIndicator edge="right" state={variant === index + 1 ? 'selected' : 'idle'} />
+                <LumenIndicator edge="bottom" state={variant === index + 1 ? 'selected' : 'idle'} />
               </Button>
             ))}
           </nav>
