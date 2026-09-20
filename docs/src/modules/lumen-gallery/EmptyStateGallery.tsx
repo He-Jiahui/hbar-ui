@@ -42,6 +42,12 @@ export default function EmptyStateGallery() {
     },
     [],
   );
+  React.useEffect(() => {
+    const requested = Number(new URLSearchParams(window.location.search).get('variant'));
+    if (Number.isInteger(requested) && requested >= 1 && requested <= 22) {
+      setVariant(requested);
+    }
+  }, []);
   const copy = getEmptyStateFixtures(locale);
   const scenarios = getScenarioFixtures(locale);
   const feedback = getFeedbackFixtures(locale);
@@ -141,6 +147,9 @@ export default function EmptyStateGallery() {
               {copy.switchTheme}
             </Button>
             <Button onClick={() => setVariant(6)}>{copy.sceneShortcut}</Button>
+            <Button component="a" href="/experiments/lumen-app-ui/catalog/">
+              {copy.catalog}
+            </Button>
           </div>
         </header>
         <div className={styles.layout}>
