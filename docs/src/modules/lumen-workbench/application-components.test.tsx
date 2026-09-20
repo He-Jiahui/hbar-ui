@@ -9,11 +9,13 @@ import {
   LumenCompactMetrics,
   LumenDialog,
   LumenFormField,
+  LumenFileDocument,
   LumenInput,
   LumenPageHeader,
   LumenPlanEditor,
   LumenProvider,
   LumenToolPane,
+  LumenWorkspaceFiles,
   type LumenAppearance,
 } from '@lumen/app-ui';
 
@@ -204,5 +206,56 @@ describe('Lumen application components', () => {
     expect(onTitleChange).toHaveBeenCalled();
     expect(onMove).not.toHaveBeenCalled();
     expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps file navigation and document persistence in the host', async () => {
+    const onOpen = vi.fn();
+    const onRefresh = vi.fn();
+    const { user } = render(
+      <LumenProvider appearance={appearance} withCssBaseline={false}>
+        <LumenWorkspaceFiles
+          items={[
+            { id: 'src', name: 'src', directory: true },
+            { id: 'README.md', name: 'README.md', directory: false },
+          ]}
+          path="."
+          loading={false}
+          labels={{
+            title: 'Files',
+            parent: 'Parent',
+            refresh: 'Refresh',
+            loading: 'Loading',
+            empty: 'Empty',
+            retry: 'Retry',
+            readOnly: 'Text file',
+          }}
+          onOpen={onOpen}
+          onParent={() => undefined}
+          onRefresh={onRefresh}
+        />
+        <LumenFileDocument
+          path="README.md"
+          loading={false}
+          labels={{
+            title: 'Files',
+            parent: 'Parent',
+            refresh: 'Refresh document',
+            loading: 'Loading',
+            empty: 'Empty',
+            retry: 'Retry',
+            readOnly: 'Text file',
+          }}
+          onRetry={onRefresh}
+        >
+          <textarea aria-label="README.md" defaultValue="Content" />
+        </LumenFileDocument>
+      </LumenProvider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'src' }));
+    await user.click(screen.getByRole('button', { name: 'Refresh document' }));
+    expect(onOpen).toHaveBeenCalledWith('src');
+    expect(onRefresh).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('textbox', { name: 'README.md' })).to.have.value('Content');
   });
 });

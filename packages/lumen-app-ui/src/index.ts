@@ -49,6 +49,13 @@ export type {
   LumenPlanState,
   LumenPlanStep,
 } from './plan-editor';
+export { LumenFileDocument, LumenWorkspaceFiles } from './file-workspace';
+export type {
+  LumenFileDocumentProps,
+  LumenWorkspaceFile,
+  LumenWorkspaceFileLabels,
+  LumenWorkspaceFilesProps,
+} from './file-workspace';
 export {
   LumenButton,
   LumenIconButton,
