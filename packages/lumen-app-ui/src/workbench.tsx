@@ -139,10 +139,8 @@ export function LumenAppSidebar({
   treeAction,
   actions,
 }: LumenAppSidebarProps) {
-  const titleId = React.useId();
-
   return (
-    <aside className="lumen-app-sidebar hbar-app-ui-app-sidebar" aria-labelledby={titleId}>
+    <aside className="lumen-app-sidebar hbar-app-ui-app-sidebar" aria-label={title}>
       <header>
         <div className="lumen-app-brand-row">
           <LumenText as="strong" variant="title" className="lumen-app-brand">
@@ -153,7 +151,7 @@ export function LumenAppSidebar({
         {primaryActions}
       </header>
       <div className="lumen-app-sidebar-title">
-        <LumenText as="h2" id={titleId} variant="label" tone="muted">
+        <LumenText as="h2" variant="label" tone="muted">
           {title}
         </LumenText>
         {treeAction}

@@ -1,8 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import Button, { type ButtonProps } from '@mui/material/Button';
-import IconButton, { type IconButtonProps } from '@mui/material/IconButton';
 import type { LumenShape, LumenSize } from './appearance';
 import LumenIndicator, { type LumenState, type LumenTone } from './LumenIndicator';
 import styles from './primitives.module.css';
@@ -11,9 +9,10 @@ export type LumenActionVariant = 'solid' | 'outlined' | 'text';
 export type LumenActionTone = 'neutral' | 'primary' | 'success' | 'warning' | 'danger';
 
 export interface LumenButtonProps extends Omit<
-  ButtonProps,
-  'color' | 'loading' | 'size' | 'variant'
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  'color' | 'type'
 > {
+  type?: 'button' | 'submit' | undefined;
   variant?: LumenActionVariant | undefined;
   tone?: LumenActionTone | undefined;
   size?: LumenSize | undefined;
@@ -38,6 +37,7 @@ export function LumenButton({
   className,
   children,
   disabled,
+  type = 'button',
   ...other
 }: LumenButtonProps) {
   let state = indicatorState;
@@ -47,11 +47,10 @@ export function LumenButton({
     state = 'running';
   }
   return (
-    <Button
+    <button
       {...other}
+      type={type === 'submit' ? 'submit' : 'button'}
       className={[styles.button, className].filter(Boolean).join(' ')}
-      color="inherit"
-      variant="text"
       data-variant={variant}
       data-tone={tone}
       data-size={size}
@@ -68,11 +67,15 @@ export function LumenButton({
           length="action"
         />
       ) : null}
-    </Button>
+    </button>
   );
 }
 
-export interface LumenIconButtonProps extends Omit<IconButtonProps, 'color' | 'loading' | 'size'> {
+export interface LumenIconButtonProps extends Omit<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  'color' | 'size' | 'type'
+> {
+  type?: 'button' | 'submit' | undefined;
   label: string;
   tone?: LumenActionTone | undefined;
   size?: LumenSize | undefined;
@@ -89,13 +92,14 @@ export function LumenIconButton({
   className,
   disabled,
   children,
+  type = 'button',
   ...other
 }: LumenIconButtonProps) {
   return (
-    <IconButton
+    <button
       {...other}
+      type={type === 'submit' ? 'submit' : 'button'}
       className={[styles.iconButton, className].filter(Boolean).join(' ')}
-      color="inherit"
       data-tone={tone}
       data-size={size}
       data-shape={shape}
@@ -105,7 +109,7 @@ export function LumenIconButton({
       disabled={disabled || loading}
     >
       {children}
-    </IconButton>
+    </button>
   );
 }
 
