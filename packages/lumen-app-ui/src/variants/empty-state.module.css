@@ -11,9 +11,23 @@
 .centered,
 .choice,
 .dropzone {
+  position: relative;
   display: flex;
   flex-direction: column;
   min-width: 0;
+}
+.dropzone > [data-edge='top'],
+.dropzone > [data-edge='bottom'] {
+  position: absolute;
+  left: 0;
+  width: 100%;
+}
+.dropzone > [data-edge='top'] {
+  top: 0;
+}
+.dropzone > [data-edge='bottom'] {
+  bottom: 0;
+  align-items: flex-end;
 }
 
 .body {

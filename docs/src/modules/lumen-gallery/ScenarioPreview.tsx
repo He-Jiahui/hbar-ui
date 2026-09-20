@@ -2,7 +2,7 @@ import * as React from 'react';
 import Button from '@mui/material/Button';
 import InputBase from '@mui/material/InputBase';
 import Switch from '@mui/material/Switch';
-import { LumenIndicator, LumenSlider, LumenSurface } from '@lumen/app-ui';
+import { LumenField, LumenIndicator, LumenSlider, LumenSurface } from '@lumen/app-ui';
 import type { ScenarioCopy, ScenarioFile } from './scenarioFixtures';
 import styles from './scenario.module.css';
 
@@ -83,23 +83,29 @@ function Conversation({ copy }: { copy: ScenarioCopy }) {
         ))}
       </div>
       <div className={styles.composer}>
-        <InputBase
-          multiline
-          maxRows={5}
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
-          aria-label={copy.conversation.noteLabel}
-          placeholder={copy.conversation.notePlaceholder}
-          onKeyDown={(event) => {
-            if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
-              event.preventDefault();
-              addNote();
-            }
-          }}
-        />
+        <LumenField className={styles.composerField} boundary="vertical">
+          <InputBase
+            multiline
+            maxRows={5}
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
+            aria-label={copy.conversation.noteLabel}
+            placeholder={copy.conversation.notePlaceholder}
+            onKeyDown={(event) => {
+              if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+                event.preventDefault();
+                addNote();
+              }
+            }}
+          />
+        </LumenField>
         <Button onClick={addNote} disabled={!draft.trim()}>
           {copy.conversation.addNote}
-          <LumenIndicator edge="bottom" state={draft.trim() ? 'idle' : 'disabled'} />
+          <LumenIndicator
+            edge="bottom"
+            length="action"
+            state={draft.trim() ? 'idle' : 'disabled'}
+          />
         </Button>
       </div>
     </Frame>

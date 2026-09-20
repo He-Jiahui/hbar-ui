@@ -28,7 +28,38 @@ export default function createLumenTheme(mode: LumenMode) {
       MuiButtonBase: { defaultProps: { disableRipple: true } },
       MuiButton: {
         defaultProps: { disableElevation: true, color: 'inherit' },
-        styleOverrides: { root: { minWidth: 0, '&:hover': { backgroundColor: 'transparent' } } },
+        styleOverrides: {
+          root: {
+            minWidth: 0,
+            '&:hover': { backgroundColor: 'transparent' },
+            '&:not(:has(> [data-edge]))::after': {
+              content: '""',
+              position: 'absolute',
+              bottom: '0.125rem',
+              left: '50%',
+              width: '34%',
+              height: '0.125rem',
+              pointerEvents: 'none',
+              transform: 'translateX(-50%)',
+              borderRadius: '1rem',
+              backgroundColor: ink,
+              opacity: 0.5,
+              transition: 'width 180ms ease, opacity 180ms ease, box-shadow 180ms ease',
+            },
+            '&:not(:has(> [data-edge])):is(:hover, .Mui-focusVisible)::after': {
+              width: '70%',
+              opacity: 1,
+              boxShadow: `0 0 0.5rem ${controlGlow}`,
+            },
+            '&:disabled::after': { opacity: 0.12, boxShadow: 'none' },
+            '@media (prefers-reduced-motion: reduce)': {
+              '&::after': { transition: 'none' },
+            },
+            '@media (forced-colors: active)': {
+              '&::after': { backgroundColor: 'CanvasText', opacity: 1 },
+            },
+          },
+        },
       },
       MuiIconButton: {
         styleOverrides: { root: { '&:hover': { backgroundColor: 'transparent' } } },

@@ -2,6 +2,8 @@ export { default as LumenSurface } from './LumenSurface';
 export type { LumenSurfaceProps } from './LumenSurface';
 export { default as LumenIndicator } from './LumenIndicator';
 export type { LumenIndicatorProps, LumenState, LumenTone } from './LumenIndicator';
+export { default as LumenField } from './LumenField';
+export type { LumenFieldProps } from './LumenField';
 export { default as LumenSlider } from './LumenSlider';
 export type { LumenSliderProps } from './LumenSlider';
 export { default as createLumenTheme } from './theme';

@@ -3,6 +3,7 @@
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
+import LumenField from '../LumenField';
 import LumenIndicator from '../LumenIndicator';
 import LumenSurface from '../LumenSurface';
 import styles from './empty-state.module.css';
@@ -130,7 +131,7 @@ function Action({ children, onClick }: { children: React.ReactNode; onClick: () 
   return (
     <Button className={styles.action} onClick={onClick}>
       {children}
-      <LumenIndicator edge="bottom" />
+      <LumenIndicator edge="bottom" length="action" />
     </Button>
   );
 }
@@ -180,13 +181,14 @@ export function HbarAppUiEmptyState02({
   return (
     <Frame id="hbar-app-ui-empty-state-2" {...copy} glassStrength={glassStrength}>
       <div className={styles.stack}>
-        <TextField
-          className={styles.query}
-          size="small"
-          label={copy.queryLabel}
-          value={content.query}
-          onChange={(event) => actions.onQueryChange(event.target.value)}
-        />
+        <LumenField className={styles.query} boundary="horizontal">
+          <TextField
+            size="small"
+            label={copy.queryLabel}
+            value={content.query}
+            onChange={(event) => actions.onQueryChange(event.target.value)}
+          />
+        </LumenField>
         <strong>{copy.noMatches(content.query)}</strong>
         <p>{copy.guidance}</p>
         <div className={styles.actions}>
@@ -268,6 +270,7 @@ export function HbarAppUiEmptyState04({
             {state.status === 'retrying' ? copy.retrying : copy.retry}
             <LumenIndicator
               edge="bottom"
+              length="action"
               state={state.status === 'retrying' ? 'running' : 'idle'}
               tone="info"
             />
@@ -303,6 +306,7 @@ export function HbarAppUiEmptyState05({
     <Frame id="hbar-app-ui-empty-state-5" {...copy} glassStrength={glassStrength}>
       <div
         className={styles.dropzone}
+        data-lumen-dropzone
         data-dragging={dragging}
         onDragEnter={() => setDragging(true)}
         onDragLeave={() => setDragging(false)}
@@ -316,6 +320,7 @@ export function HbarAppUiEmptyState05({
           }
         }}
       >
+        <LumenIndicator edge="top" length="area" />
         <strong>{dragging ? copy.release : copy.drop}</strong>
         <p>{copy.supported}</p>
         <Button className={styles.action} component="label">
@@ -333,9 +338,10 @@ export function HbarAppUiEmptyState05({
               event.target.value = '';
             }}
           />
-          <LumenIndicator edge="bottom" />
+          <LumenIndicator edge="bottom" length="action" />
         </Button>
         <small>{copy.storage}</small>
+        <LumenIndicator edge="bottom" length="area" />
       </div>
     </Frame>
   );

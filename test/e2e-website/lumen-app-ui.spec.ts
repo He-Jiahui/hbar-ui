@@ -1,5 +1,71 @@
 import { test, expect } from '@playwright/test';
 
+test('fields and standalone controls retain directional boundary lamps', async ({
+  page,
+}, testInfo) => {
+  await page.goto('/experiments/lumen-app-ui/');
+  const nav = page.getByRole('navigation', { name: '组件与场景' });
+  const plainButton = page.getByRole('button', { name: 'English' });
+  const buttonLine = async () =>
+    plainButton.evaluate((element) => getComputedStyle(element, '::after').width);
+  const shortLine = parseFloat(await buttonLine());
+  expect(shortLine).toBeGreaterThan(0);
+  await plainButton.hover();
+  await expect.poll(async () => parseFloat(await buttonLine())).toBeGreaterThan(shortLine);
+  await nav.getByRole('button', { name: /02 · 无搜索结果/ }).click();
+  const search = page.locator(
+    '[data-hbar-app-ui-variant="hbar-app-ui-empty-state-2"] [data-boundary]',
+  );
+  await expect(search).toHaveAttribute('data-boundary', 'horizontal');
+  await expect(search.locator('[data-edge="top"]')).toBeVisible();
+  await expect(search.locator('[data-edge="bottom"]')).toBeVisible();
+  expect(await search.evaluate((element) => getComputedStyle(element).borderTopStyle)).toBe(
+    'solid',
+  );
+  const topBeam = search.locator('[data-edge="top"] > span');
+  const restingWidth = await topBeam.evaluate((element) => element.getBoundingClientRect().width);
+  await search.getByRole('textbox', { name: '搜索' }).focus();
+  await expect
+    .poll(() => topBeam.evaluate((element) => element.getBoundingClientRect().width))
+    .toBeGreaterThan(restingWidth);
+  await page.screenshot({
+    path: testInfo.outputPath('search-boundary-dark.png'),
+    animations: 'disabled',
+  });
+
+  await nav.getByRole('button', { name: /05 · 空文件夹/ }).click();
+  const dropzone = page.locator('[data-lumen-dropzone]');
+  await expect(dropzone.locator(':scope > [data-length="area"]')).toHaveCount(2);
+  const choose = dropzone.getByText('选择文件');
+  await expect(choose.locator('[data-length="action"]')).toBeVisible();
+  await dropzone.hover();
+  await page.screenshot({
+    path: testInfo.outputPath('dropzone-boundary-dark.png'),
+    animations: 'disabled',
+  });
+
+  await nav.getByRole('button', { name: /10 · 意见表单/ }).click();
+  const feedback = page.getByRole('region', { name: '发送反馈' });
+  await expect(feedback.locator('[data-boundary="horizontal"]')).toHaveCount(1);
+  await expect(feedback.getByText('添加截图').locator('[data-length="action"]')).toBeVisible();
+  await page.screenshot({
+    path: testInfo.outputPath('feedback-boundary-dark.png'),
+    animations: 'disabled',
+  });
+
+  await nav.getByRole('button', { name: /06 · 对话与输入/ }).click();
+  const composer = page.locator('[data-boundary="vertical"]');
+  await expect(composer.locator('[data-edge="left"]')).toBeVisible();
+  await expect(composer.locator('[data-edge="right"]')).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole('button', { name: '切换黑白主题' }).click();
+  await page.screenshot({
+    path: testInfo.outputPath('composer-boundary-light-390.png'),
+    animations: 'disabled',
+  });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
+});
+
 test('selected navigation uses a straight content-side lamp at each breakpoint', async ({
   page,
 }, testInfo) => {

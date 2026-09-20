@@ -3,7 +3,7 @@ import ButtonBase from '@mui/material/ButtonBase';
 import InputBase from '@mui/material/InputBase';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
-import { LumenIndicator } from '@lumen/app-ui';
+import { LumenField, LumenIndicator } from '@lumen/app-ui';
 import type { ContentTab, LumenCopy, LumenTask, LumenTaskState } from './types';
 import styles from './content.module.css';
 
@@ -236,29 +236,31 @@ export default function TaskContent({
           )}
         </div>
         <div className={styles.composer}>
-          <InputBase
-            className={styles.input}
-            fullWidth
-            multiline
-            minRows={2}
-            maxRows={5}
-            value={state.draft}
-            disabled={running}
-            placeholder={copy.placeholder}
-            inputProps={{ 'aria-label': copy.inputLabel }}
-            onChange={(event) => onDraft(event.target.value)}
-            onKeyDown={(event) => {
-              if (
-                (event.ctrlKey || event.metaKey) &&
-                event.key === 'Enter' &&
-                !running &&
-                !event.nativeEvent.isComposing
-              ) {
-                event.preventDefault();
-                onRun();
-              }
-            }}
-          />
+          <LumenField className={styles.composerField} boundary="horizontal">
+            <InputBase
+              className={styles.input}
+              fullWidth
+              multiline
+              minRows={2}
+              maxRows={5}
+              value={state.draft}
+              disabled={running}
+              placeholder={copy.placeholder}
+              inputProps={{ 'aria-label': copy.inputLabel }}
+              onChange={(event) => onDraft(event.target.value)}
+              onKeyDown={(event) => {
+                if (
+                  (event.ctrlKey || event.metaKey) &&
+                  event.key === 'Enter' &&
+                  !running &&
+                  !event.nativeEvent.isComposing
+                ) {
+                  event.preventDefault();
+                  onRun();
+                }
+              }}
+            />
+          </LumenField>
           <div className={styles.composerActions}>
             <span className={styles.shortcut}>{copy.shortcut}</span>
             <ButtonBase className={styles.runButton} onClick={running ? onCancel : onRun}>

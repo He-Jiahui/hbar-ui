@@ -3,6 +3,7 @@
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
+import LumenField from '../LumenField';
 import LumenIndicator from '../LumenIndicator';
 import LumenSurface from '../LumenSurface';
 import type {
@@ -80,7 +81,7 @@ function Action({
   return (
     <Button className={styles.action} onClick={onClick} disabled={disabled}>
       {children}
-      <LumenIndicator edge="bottom" state={disabled ? 'disabled' : 'idle'} />
+      <LumenIndicator edge="bottom" length="action" state={disabled ? 'disabled' : 'idle'} />
     </Button>
   );
 }
@@ -190,17 +191,20 @@ export function HbarAppUiFeedback01({ copy, content, state, actions }: HbarAppUi
             disabled={busy}
           />
           {content.types.length === 0 && <p>{copy.empty}</p>}
-          <TextField
-            multiline
-            minRows={4}
-            label={copy.messageLabel}
-            value={state.text}
-            disabled={busy}
-            onChange={(event) => actions.onTextChange(content.id, event.target.value)}
-          />
+          <LumenField boundary="horizontal">
+            <TextField
+              multiline
+              minRows={4}
+              label={copy.messageLabel}
+              value={state.text}
+              disabled={busy}
+              onChange={(event) => actions.onTextChange(content.id, event.target.value)}
+            />
+          </LumenField>
           <div className={styles.row}>
             <Button className={styles.attachment} component="label" disabled={busy}>
               {copy.attachment}
+              <LumenIndicator edge="bottom" length="action" state={busy ? 'disabled' : 'idle'} />
               <input
                 hidden
                 type="file"
@@ -286,14 +290,16 @@ export function HbarAppUiFeedback02({ copy, content, state, actions }: HbarAppUi
             onSelect={(id) => actions.onReasonToggle(content.id, id)}
             disabled={busy || !scoreValid}
           />
-          <TextField
-            multiline
-            minRows={3}
-            label={copy.comment}
-            value={state.comment}
-            disabled={busy}
-            onChange={(event) => actions.onCommentChange(content.id, event.target.value)}
-          />
+          <LumenField boundary="horizontal">
+            <TextField
+              multiline
+              minRows={3}
+              label={copy.comment}
+              value={state.comment}
+              disabled={busy}
+              onChange={(event) => actions.onCommentChange(content.id, event.target.value)}
+            />
+          </LumenField>
           <Submission
             copy={copy}
             state={state.submission}
@@ -362,14 +368,16 @@ export function HbarAppUiFeedback03({ copy, content, state, actions }: HbarAppUi
             disabled={!ratingValid || busy}
             onSelect={(id) => actions.onReasonChange(content.id, id)}
           />
-          <TextField
-            multiline
-            minRows={3}
-            label={copy.comment}
-            value={state.comment}
-            disabled={busy}
-            onChange={(event) => actions.onCommentChange(content.id, event.target.value)}
-          />
+          <LumenField boundary="horizontal">
+            <TextField
+              multiline
+              minRows={3}
+              label={copy.comment}
+              value={state.comment}
+              disabled={busy}
+              onChange={(event) => actions.onCommentChange(content.id, event.target.value)}
+            />
+          </LumenField>
           <Submission
             copy={copy}
             state={state.submission}
@@ -409,12 +417,14 @@ export function HbarAppUiFeedback04({ copy, content, state, actions }: HbarAppUi
         />
         <Action onClick={() => actions.onNewRequest(content.boardId)}>{copy.newRequest}</Action>
       </div>
-      <TextField
-        size="small"
-        label={copy.search}
-        value={state.query}
-        onChange={(event) => actions.onQueryChange(content.boardId, event.target.value)}
-      />
+      <LumenField boundary="horizontal">
+        <TextField
+          size="small"
+          label={copy.search}
+          value={state.query}
+          onChange={(event) => actions.onQueryChange(content.boardId, event.target.value)}
+        />
+      </LumenField>
       <div className={styles.scrollList} aria-label={copy.title}>
         {requests.length === 0 && <p>{copy.empty}</p>}
         {requests.map((request) => (
@@ -496,13 +506,15 @@ export function HbarAppUiFeedback05({ copy, content, state, actions }: HbarAppUi
               ))}
               <Action onClick={() => actions.onAddTag(selected.id)}>{copy.addTag}</Action>
             </div>
-            <TextField
-              multiline
-              minRows={3}
-              label={copy.note}
-              value={state.note}
-              onChange={(event) => actions.onNoteChange(selected.id, event.target.value)}
-            />
+            <LumenField boundary="horizontal">
+              <TextField
+                multiline
+                minRows={3}
+                label={copy.note}
+                value={state.note}
+                onChange={(event) => actions.onNoteChange(selected.id, event.target.value)}
+              />
+            </LumenField>
             {state.error && (
               <p role="alert" className={styles.error}>
                 {state.error}

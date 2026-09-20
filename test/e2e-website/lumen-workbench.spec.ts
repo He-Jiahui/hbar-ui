@@ -142,6 +142,10 @@ test('boundaries emerge only around interaction and remain absent from static co
   page,
 }) => {
   const input = page.getByRole('textbox', { name: '任务指令' });
+  const field = page.locator('[data-boundary="horizontal"]').filter({ has: input });
+  await expect(field.locator('[data-edge="top"]')).toBeVisible();
+  await expect(field.locator('[data-edge="bottom"]')).toBeVisible();
+  await expect(field).toHaveCSS('border-top-style', 'solid');
   const composer = page.locator('footer > div').filter({ has: input });
   const banner = page.locator('[data-lumen-mode] > header');
   const prompt = page.getByRole('tabpanel', { name: '对话' }).locator('article').first();

@@ -325,6 +325,9 @@
   line-height: 1.8;
   color: var(--lumen-ink);
 }
+.composerField {
+  padding: 0.5rem 0.625rem;
+}
 .input textarea::placeholder {
   color: var(--lumen-muted);
   opacity: 1;

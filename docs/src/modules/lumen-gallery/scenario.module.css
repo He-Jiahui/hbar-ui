@@ -116,6 +116,11 @@
   min-width: 0;
   color: var(--lumen-ink);
 }
+.composerField {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.875rem;
+}
 
 .composer button,
 .activityFooter button {
