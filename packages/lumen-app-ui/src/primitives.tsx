@@ -138,7 +138,7 @@ export type LumenTextTone = 'neutral' | 'muted' | 'subtle' | 'success' | 'warnin
 export type LumenTextVariant = 'title' | 'heading' | 'body' | 'label' | 'supporting' | 'code';
 
 export interface LumenTextProps extends React.HTMLAttributes<HTMLElement> {
-  as?: 'h1' | 'h2' | 'h3' | 'span' | 'p' | 'small' | 'strong' | 'code' | undefined;
+  as?: 'h1' | 'h2' | 'h3' | 'span' | 'p' | 'small' | 'strong' | 'code' | 'dt' | 'dd' | undefined;
   size?: LumenSize | undefined;
   tone?: LumenTextTone | undefined;
   variant?: LumenTextVariant | undefined;

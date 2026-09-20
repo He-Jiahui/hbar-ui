@@ -8,6 +8,32 @@ export { default as LumenField } from './LumenField';
 export type { LumenFieldProps } from './LumenField';
 export { default as LumenSlider } from './LumenSlider';
 export type { LumenSliderProps } from './LumenSlider';
+export { LumenDialog } from './dialog';
+export type { LumenDialogProps } from './dialog';
+export {
+  LumenCheckBox,
+  LumenCheckBoxControl,
+  LumenComboBox,
+  LumenFormField,
+  LumenInput,
+  LumenMultiSelect,
+  LumenSelect,
+  LumenTextarea,
+} from './forms';
+export type {
+  LumenCheckBoxControlProps,
+  LumenCheckBoxProps,
+  LumenComboBoxLabels,
+  LumenComboBoxProps,
+  LumenControlOption,
+  LumenFieldVariant,
+  LumenFormFieldProps,
+  LumenInputProps,
+  LumenMultiSelectLabels,
+  LumenMultiSelectProps,
+  LumenSelectProps,
+  LumenTextareaProps,
+} from './forms';
 export {
   LumenButton,
   LumenIconButton,
@@ -55,6 +81,23 @@ export type {
   LumenWindowTitlebarLabels,
   LumenWindowTitlebarProps,
 } from './workbench';
+export {
+  LumenBarSeries,
+  LumenCompactMetrics,
+  LumenPageAction,
+  LumenPageHeader,
+  LumenSettingsList,
+  LumenToolPane,
+} from './workspace-components';
+export type {
+  LumenBarPoint,
+  LumenCompactMetric,
+  LumenPageActionProps,
+  LumenPageHeaderProps,
+  LumenSettingsListItem,
+  LumenSettingsListProps,
+  LumenToolPaneProps,
+} from './workspace-components';
 export {
   applyLumenAppearance,
   DEFAULT_LUMEN_APPEARANCE,
