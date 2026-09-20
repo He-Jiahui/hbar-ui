@@ -1,4 +1,3 @@
-import * as React from 'react';
 import styles from './materials.module.css';
 
 export type LumenState = 'idle' | 'selected' | 'running' | 'failed' | 'disabled';
