@@ -11,6 +11,8 @@ import {
   HbarAppUiEmptyState05,
 } from '@lumen/app-ui/variants';
 import getEmptyStateFixtures, { type GalleryLocale } from './emptyStateFixtures';
+import ScenarioPreview, { type ScenarioKind } from './ScenarioPreview';
+import { getScenarioFixtures } from './scenarioFixtures';
 import styles from './gallery.module.css';
 
 export default function EmptyStateGallery() {
@@ -36,8 +38,15 @@ export default function EmptyStateGallery() {
     [],
   );
   const copy = getEmptyStateFixtures(locale);
+  const scenarios = getScenarioFixtures(locale);
   const theme = React.useMemo(() => createLumenTheme(mode), [mode]);
   const remember = (action: string) => setEvent(action);
+  const scenarioKinds: readonly ScenarioKind[] = [
+    'conversation',
+    'activity',
+    'files',
+    'appearance',
+  ];
   const sample = [
     <HbarAppUiEmptyState01
       key="first"
@@ -98,6 +107,9 @@ export default function EmptyStateGallery() {
       content={{ accept: '.png,.jpg,.jpeg,.pdf,.csv,.md', multiple: true }}
       actions={{ onUpload: (files, origin) => remember(`${origin}:${files.length}`) }}
     />,
+    ...scenarioKinds.map((kind) => (
+      <ScenarioPreview key={kind} kind={kind} copy={scenarios.copy} files={scenarios.files} />
+    )),
   ];
   return (
     <ThemeProvider theme={theme}>
@@ -112,10 +124,12 @@ export default function EmptyStateGallery() {
             <Button onClick={() => setMode((current) => (current === 'dark' ? 'light' : 'dark'))}>
               {copy.switchTheme}
             </Button>
+            <Button onClick={() => setVariant(6)}>{copy.sceneShortcut}</Button>
           </div>
         </header>
         <div className={styles.layout}>
           <nav className={styles.navigation} aria-label={copy.navigation}>
+            <h2 className={styles.navigationHeading}>{copy.migratedGroup}</h2>
             {copy.variants.map((name, index) => (
               <Button
                 key={name}
@@ -129,12 +143,28 @@ export default function EmptyStateGallery() {
                 <LumenIndicator edge="bottom" state={variant === index + 1 ? 'selected' : 'idle'} />
               </Button>
             ))}
+            <h2 className={styles.navigationHeading}>{scenarios.copy.group}</h2>
+            {scenarios.copy.names.map((name, index) => (
+              <Button
+                key={scenarioKinds[index]}
+                aria-current={variant === index + 6 ? 'page' : undefined}
+                onClick={() => setVariant(index + 6)}
+              >
+                <span className={styles.navigationLabel}>
+                  {String(index + 6).padStart(2, '0')} · {name}
+                </span>
+                <LumenIndicator edge="right" state={variant === index + 6 ? 'selected' : 'idle'} />
+                <LumenIndicator edge="bottom" state={variant === index + 6 ? 'selected' : 'idle'} />
+              </Button>
+            ))}
           </nav>
           <div className={styles.stage}>
             {sample[variant - 1]}
-            <p role="status">
-              {copy.event}: {event ?? copy.none}
-            </p>
+            {variant <= 5 && (
+              <p role="status">
+                {copy.event}: {event ?? copy.none}
+              </p>
+            )}
           </div>
         </div>
       </main>

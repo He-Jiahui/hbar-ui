@@ -1,0 +1,258 @@
+.scenario {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  gap: 1rem;
+}
+
+.surface {
+  width: 100%;
+  max-width: 58rem;
+  min-width: 0;
+  min-height: 27rem;
+  color: var(--lumen-ink);
+}
+
+.frame {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+.header,
+.fileHeading,
+.activityFooter,
+.control > span,
+.switch {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header h2,
+.header p,
+.answer p,
+.materialSample p {
+  margin: 0;
+}
+
+.header h2 {
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+.eyebrow,
+.localDemo,
+.stepNumber,
+.step small,
+.fileHeading small,
+.materialSample p {
+  color: var(--lumen-muted);
+  font-size: 0.75rem;
+}
+
+.localDemo {
+  align-self: flex-start;
+  margin: 0;
+}
+
+.conversation {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 1.5rem;
+  overflow: auto;
+}
+
+.conversation > p,
+.note {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0;
+}
+
+.conversation small {
+  color: var(--lumen-muted);
+}
+
+.answer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border-radius: 0.375rem;
+  background: var(--lumen-reading);
+  backdrop-filter: blur(0.75rem);
+}
+
+.answer strong,
+.materialSample strong {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.composer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  background: var(--lumen-reading);
+  backdrop-filter: blur(0.75rem);
+}
+
+.composer :global(.MuiInputBase-root) {
+  flex: 1;
+  min-width: 0;
+  color: var(--lumen-ink);
+}
+
+.composer button,
+.activityFooter button {
+  display: flex;
+  flex-direction: column;
+  color: var(--lumen-ink);
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.stepTitle {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.activityFooter {
+  border-top: 0.0625rem solid var(--lumen-line);
+  padding-top: 0.875rem;
+}
+
+.fileLayout {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  gap: 1.5rem;
+}
+
+.fileList {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 12rem;
+  min-width: 0;
+  gap: 0.25rem;
+}
+
+.fileList button {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  min-width: 0;
+  gap: 0.5rem;
+  color: var(--lumen-ink);
+  text-align: start;
+}
+
+.fileList button > span:first-child {
+  align-self: center;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.filePreview {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  background: var(--lumen-reading);
+  backdrop-filter: blur(0.75rem);
+}
+
+.filePreview pre {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.8125rem;
+}
+
+.appearance,
+.control,
+.materialSample > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.appearance {
+  flex: 1;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.control output {
+  color: var(--lumen-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.materialSample {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  background: var(--lumen-reading);
+  backdrop-filter: blur(0.75rem);
+}
+
+@media (max-width: 48rem) {
+  .frame {
+    padding: 1rem;
+  }
+
+  .fileLayout {
+    flex-direction: column;
+  }
+
+  .fileList {
+    flex: 0 0 auto;
+  }
+
+  .filePreview {
+    min-height: 12rem;
+  }
+
+  .step small {
+    max-width: 4.5rem;
+    text-align: end;
+  }
+}
