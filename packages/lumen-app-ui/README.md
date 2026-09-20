@@ -28,3 +28,7 @@ duplicate IDs retain the first row. The preview at
 `/experiments/lumen-app-ui/` supplies local sample transitions in Chinese and
 English. This is one of 38 families, not a claim that all 300 variants have
 already migrated.
+
+The opt-in `@lumen/app-ui/catalog` export records all 300 source IDs and their
+presentation profiles. `LUMEN_MIGRATED_VARIANT_IDS` lists only validated ports;
+the other source entries are inventory, not components or placeholder exports.

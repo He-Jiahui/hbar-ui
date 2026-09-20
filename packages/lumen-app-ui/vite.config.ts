@@ -6,6 +6,7 @@ export default defineConfig({
     lib: {
       entry: {
         index: resolve(import.meta.dirname, 'src/index.ts'),
+        catalog: resolve(import.meta.dirname, 'src/catalog.ts'),
         variants: resolve(import.meta.dirname, 'src/variants/index.ts'),
       },
       formats: ['es'],
