@@ -36,7 +36,12 @@ test('selected navigation uses a straight content-side lamp at each breakpoint',
   await expect
     .poll(() => idle.evaluate((beam) => beam.getBoundingClientRect().height))
     .toBeGreaterThan(shortHeight * 2);
-  await next.click();
+  await page.waitForTimeout(220);
+  const hoverHeight = await idle.evaluate((beam) => beam.getBoundingClientRect().height);
+  await page.mouse.down();
+  const pressedHeight = await idle.evaluate((beam) => beam.getBoundingClientRect().height);
+  expect(pressedHeight).toBeCloseTo(hoverHeight, 1);
+  await page.mouse.up();
   await expect(next.locator(':scope > [data-edge="right"]')).toHaveAttribute(
     'data-state',
     'selected',
@@ -54,6 +59,16 @@ test('selected navigation uses a straight content-side lamp at each breakpoint',
     .locator(':scope > span')
     .evaluate((beam) => beam.getBoundingClientRect().width);
   expect(width).toBeGreaterThan(30);
+  await next.hover();
+  await page.waitForTimeout(220);
+  const horizontalBeam = bottom.locator(':scope > span');
+  const restingWidth = await horizontalBeam.evaluate((beam) => beam.getBoundingClientRect().width);
+  await page.mouse.down();
+  expect(await horizontalBeam.evaluate((beam) => beam.getBoundingClientRect().width)).toBeCloseTo(
+    restingWidth,
+    1,
+  );
+  await page.mouse.up();
   expect(await next.evaluate((button) => getComputedStyle(button).boxShadow)).toBe('none');
   await page.getByRole('button', { name: '切换黑白主题' }).click();
   await page.screenshot({

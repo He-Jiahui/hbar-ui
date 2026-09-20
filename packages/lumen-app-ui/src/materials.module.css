@@ -191,7 +191,6 @@
 }
 :global(button:active:not(:disabled)) > .indicator:not([data-state='disabled']) .beam {
   opacity: 1;
-  scale: 0.85;
 }
 :global(button:active:not(:disabled)) > .indicator:not([data-state='disabled']) .halo {
   opacity: min(1, calc(var(--lumen-glow, 0.65) * 1.3));
