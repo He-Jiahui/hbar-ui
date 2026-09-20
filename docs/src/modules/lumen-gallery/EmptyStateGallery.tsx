@@ -12,6 +12,8 @@ import {
 } from '@lumen/app-ui/variants';
 import getEmptyStateFixtures, { type GalleryLocale } from './emptyStateFixtures';
 import ScenarioPreview, { type ScenarioKind } from './ScenarioPreview';
+import FeedbackGallery from './FeedbackGallery';
+import getFeedbackFixtures from './feedbackFixtures';
 import { getScenarioFixtures } from './scenarioFixtures';
 import styles from './gallery.module.css';
 
@@ -28,6 +30,7 @@ export default function EmptyStateGallery() {
     'failed',
   );
   const [event, setEvent] = React.useState<string | null>(null);
+  const selectedButton = React.useRef<HTMLButtonElement | null>(null);
   const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   React.useEffect(
     () => () => {
@@ -39,7 +42,11 @@ export default function EmptyStateGallery() {
   );
   const copy = getEmptyStateFixtures(locale);
   const scenarios = getScenarioFixtures(locale);
+  const feedback = getFeedbackFixtures(locale);
   const theme = React.useMemo(() => createLumenTheme(mode), [mode]);
+  React.useEffect(() => {
+    selectedButton.current?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }, [locale, variant]);
   const remember = (action: string) => setEvent(action);
   const scenarioKinds: readonly ScenarioKind[] = [
     'conversation',
@@ -133,6 +140,7 @@ export default function EmptyStateGallery() {
             {copy.variants.map((name, index) => (
               <Button
                 key={name}
+                ref={variant === index + 1 ? selectedButton : undefined}
                 aria-current={variant === index + 1 ? 'page' : undefined}
                 onClick={() => setVariant(index + 1)}
               >
@@ -147,6 +155,7 @@ export default function EmptyStateGallery() {
             {scenarios.copy.names.map((name, index) => (
               <Button
                 key={scenarioKinds[index]}
+                ref={variant === index + 6 ? selectedButton : undefined}
                 aria-current={variant === index + 6 ? 'page' : undefined}
                 onClick={() => setVariant(index + 6)}
               >
@@ -157,9 +166,31 @@ export default function EmptyStateGallery() {
                 <LumenIndicator edge="bottom" state={variant === index + 6 ? 'selected' : 'idle'} />
               </Button>
             ))}
+            <h2 className={styles.navigationHeading}>{feedback.group}</h2>
+            {feedback.names.map((name, index) => (
+              <Button
+                key={index}
+                ref={variant === index + 10 ? selectedButton : undefined}
+                aria-current={variant === index + 10 ? 'page' : undefined}
+                onClick={() => setVariant(index + 10)}
+              >
+                <span className={styles.navigationLabel}>
+                  {String(index + 10).padStart(2, '0')} · {name}
+                </span>
+                <LumenIndicator edge="right" state={variant === index + 10 ? 'selected' : 'idle'} />
+                <LumenIndicator
+                  edge="bottom"
+                  state={variant === index + 10 ? 'selected' : 'idle'}
+                />
+              </Button>
+            ))}
           </nav>
           <div className={styles.stage}>
-            {sample[variant - 1]}
+            {variant > 9 ? (
+              <FeedbackGallery variant={variant - 9} locale={locale} />
+            ) : (
+              sample[variant - 1]
+            )}
             {variant <= 5 && (
               <p role="status">
                 {copy.event}: {event ?? copy.none}

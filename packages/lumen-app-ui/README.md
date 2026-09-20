@@ -26,9 +26,23 @@ Search filters and suggestions are content-grown, intended for short bounded
 lists of roughly a dozen items. Additional items wrap without truncation, and
 duplicate IDs retain the first row. The preview at
 `/experiments/lumen-app-ui/` supplies local sample transitions in Chinese and
-English. This is one of 38 families, not a claim that all 300 variants have
-already migrated.
+English. The gallery distinguishes completed ports from design previews.
+
+`HbarAppUiFeedback01` through `HbarAppUiFeedback06` now cover feedback entry,
+recommendation scoring, post-resolution rating, feature requests, triage inbox,
+and insights. Each component receives typed host-owned copy, content, state,
+and target-ID actions. The package has no sample records, asynchronous mock
+transitions, or hbar runtime imports. The gallery supplies local Chinese and
+English fixtures, including failed submissions and retries.
+
+The feature board and inbox use pane-owned scrolling for growing collections;
+their headers and controls remain outside the scroll area. The other feedback
+lists grow with their content. Duplicate entity IDs retain the first row, and
+the inbox falls back to the first available thread if its selected ID becomes
+stale. Hosts own pagination or virtualization if a source grows beyond a
+workbench pane's practical capacity.
 
 The opt-in `@lumen/app-ui/catalog` export records all 300 source IDs and their
 presentation profiles. `LUMEN_MIGRATED_VARIANT_IDS` lists only validated ports;
 the other source entries are inventory, not components or placeholder exports.
+Two of the 38 families, totaling 11 variants, are migrated so far.

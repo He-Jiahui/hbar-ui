@@ -26,4 +26,10 @@ export const LUMEN_MIGRATED_VARIANT_IDS = [
   'hbar-app-ui-empty-state-3',
   'hbar-app-ui-empty-state-4',
   'hbar-app-ui-empty-state-5',
+  'hbar-app-ui-feedback-1',
+  'hbar-app-ui-feedback-2',
+  'hbar-app-ui-feedback-3',
+  'hbar-app-ui-feedback-4',
+  'hbar-app-ui-feedback-5',
+  'hbar-app-ui-feedback-6',
 ] as const;
