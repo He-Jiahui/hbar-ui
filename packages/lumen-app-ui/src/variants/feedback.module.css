@@ -195,6 +195,10 @@
   overflow: auto;
 }
 
+.scrollList {
+  padding-inline: 0.25rem;
+}
+
 .request {
   align-items: flex-start;
   padding: 1rem 0;

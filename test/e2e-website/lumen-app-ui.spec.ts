@@ -1,5 +1,46 @@
 import { test, expect } from '@playwright/test';
 
+test('vote selection keeps its hover and focus boundary visible inside the scrolling list', async ({
+  page,
+}, testInfo) => {
+  await page.goto('/experiments/lumen-app-ui/');
+  await page
+    .getByRole('navigation', { name: '组件与场景' })
+    .getByRole('button', { name: /13 · 需求投票/ })
+    .click();
+  const board = page.getByRole('region', { name: '功能建议' });
+  const vote = board.locator('article').nth(1).getByRole('button');
+  await expect(vote).toHaveAccessibleName('取消支持 按设备调节玻璃折射');
+  const scroller = vote.locator('..').locator('..');
+  const visibleInset = async () => {
+    const buttonBox = await vote.boundingBox();
+    const scrollBox = await scroller.boundingBox();
+    expect(buttonBox).not.toBeNull();
+    expect(scrollBox).not.toBeNull();
+    return buttonBox!.x - scrollBox!.x;
+  };
+  await vote.hover();
+  await expect(vote).toHaveCSS('outline-style', 'solid');
+  expect(await visibleInset()).toBeGreaterThanOrEqual(4);
+  await page.screenshot({
+    path: testInfo.outputPath('vote-hover-dark.png'),
+    animations: 'disabled',
+  });
+  await vote.focus();
+  await expect(vote).toBeFocused();
+  expect(await visibleInset()).toBeGreaterThanOrEqual(4);
+  await vote.click();
+  await expect(vote).toHaveAttribute('aria-pressed', 'false');
+  await page.getByRole('button', { name: '切换黑白主题', exact: true }).click();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await vote.hover();
+  expect(await visibleInset()).toBeGreaterThanOrEqual(4);
+  await page.screenshot({
+    path: testInfo.outputPath('vote-hover-light-390.png'),
+    animations: 'disabled',
+  });
+});
+
 test('fields and standalone controls retain directional boundary lamps', async ({
   page,
 }, testInfo) => {
