@@ -197,6 +197,54 @@ test('file transfer progress columns stay aligned across states and widths', asy
   });
 });
 
+test('asset library filters keep horizontal labels at narrow widths', async ({
+  page,
+}, testInfo) => {
+  await page.goto('/experiments/lumen-app-ui/');
+  const navigation = page.locator('main nav').first();
+  const selectAssets = async () => {
+    await navigation.getByRole('button', { name: /24 · 资产网格/ }).click();
+    await expect(page.locator('[data-hbar-app-ui-variant]')).toHaveAttribute(
+      'data-hbar-app-ui-variant',
+      'hbar-app-ui-file-manager-2',
+    );
+  };
+  const root = page.locator('[data-hbar-app-ui-variant="hbar-app-ui-file-manager-2"]');
+  const filterButtons = root.locator('[role="group"] > button');
+
+  /* eslint-disable no-await-in-loop -- Each viewport is captured sequentially for visual verification. */
+  for (const [width, height] of [
+    [768, 900],
+    [390, 844],
+  ]) {
+    await page.setViewportSize({ width, height });
+    await selectAssets();
+    await expect(filterButtons).toHaveCount(3);
+    const boxes = await filterButtons.evaluateAll((elements) =>
+      elements.map((element) => {
+        const rect = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return { x: rect.x, y: rect.y, height: rect.height, whiteSpace: style.whiteSpace };
+      }),
+    );
+    expect(
+      Math.max(...boxes.map(({ y }) => y)) - Math.min(...boxes.map(({ y }) => y)),
+    ).toBeLessThanOrEqual(1);
+    expect(Math.max(...boxes.map(({ height: buttonHeight }) => buttonHeight))).toBeLessThanOrEqual(
+      48,
+    );
+    expect(boxes.map(({ whiteSpace }) => whiteSpace)).toEqual(['nowrap', 'nowrap', 'nowrap']);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+      width + 1,
+    );
+    await page.screenshot({
+      path: testInfo.outputPath(`asset-filters-dark-${width}.png`),
+      animations: 'disabled',
+    });
+  }
+  /* eslint-enable no-await-in-loop */
+});
+
 test('vote selection keeps its hover and focus boundary visible inside the scrolling list', async ({
   page,
 }, testInfo) => {

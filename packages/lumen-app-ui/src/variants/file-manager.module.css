@@ -125,6 +125,19 @@
   flex-wrap: wrap;
 }
 
+.filter > button {
+  position: relative;
+  flex: 0 0 auto;
+  min-width: max-content;
+  white-space: nowrap;
+}
+
+.filter > button > [data-edge='bottom'] {
+  position: absolute;
+  left: 0;
+  bottom: -0.375rem;
+}
+
 .query {
   flex: 1;
   min-width: min(14rem, 100%);
