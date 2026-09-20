@@ -24,7 +24,7 @@ export default class MuiDocument extends NextDocument<DocumentProps> {
   });
 
   render() {
-    if (this.props.canonicalAsServer.replace(/\/$/, '') === '/experiments/lumen-workbench') {
+    if (this.props.canonicalAsServer.replace(/\/$/, '').startsWith('/experiments/lumen-')) {
       return (
         <Html lang="zh-CN">
           <Head>

@@ -17,3 +17,14 @@ The package is private and is not published. Its source exports are the
 workspace contract; `pnpm -F @lumen/app-ui build` also verifies a standalone
 library bundle. Lumen's glass filter applies to the background layer, so
 foreground text stays sharp. Unsupported browsers render frosted glass.
+
+The first migrated family is `HbarAppUiEmptyState01` through
+`HbarAppUiEmptyState05` from `@lumen/app-ui/variants`. Their stable IDs preserve
+the hbar registry. The host supplies copy, content, state, and named actions;
+the package never performs a connection, retry, upload, or navigation itself.
+Search filters and suggestions are content-grown, intended for short bounded
+lists of roughly a dozen items. Additional items wrap without truncation, and
+duplicate IDs retain the first row. The preview at
+`/experiments/lumen-app-ui/` supplies local sample transitions in Chinese and
+English. This is one of 38 families, not a claim that all 300 variants have
+already migrated.

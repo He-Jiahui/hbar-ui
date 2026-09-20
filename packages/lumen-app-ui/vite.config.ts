@@ -4,9 +4,11 @@ import { resolve } from 'node:path';
 export default defineConfig({
   build: {
     lib: {
-      entry: resolve(import.meta.dirname, 'src/index.ts'),
+      entry: {
+        index: resolve(import.meta.dirname, 'src/index.ts'),
+        variants: resolve(import.meta.dirname, 'src/variants/index.ts'),
+      },
       formats: ['es'],
-      fileName: 'index',
     },
     rollupOptions: {
       external: [/^@mui\//, /^react($|\/)/, /^react-dom($|\/)/],

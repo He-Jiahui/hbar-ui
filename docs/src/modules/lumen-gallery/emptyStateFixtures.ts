@@ -1,0 +1,125 @@
+export type GalleryLocale = 'zh' | 'en';
+
+const zh = {
+  brand: '墨光 · 组合组件',
+  switchTheme: '切换黑白主题',
+  switchLocale: 'English',
+  navigation: '空状态变体',
+  event: '最近动作',
+  none: '等待操作',
+  variants: ['初次使用', '无搜索结果', '处理完毕', '加载失败', '空文件夹'],
+  first: {
+    heading: '欢迎来到工作区',
+    detail: '选择一个开始方式',
+    connect: { title: '连接本地 Host', description: '打开已有工作区。', action: '连接' },
+    create: { title: '创建工程', description: '从空白工程开始。', action: '创建' },
+    tour: { title: '查看导览', description: '了解动态、文件与设置。', action: '导览' },
+  },
+  search: {
+    heading: '没有搜索结果',
+    detail: '查询内容仍可编辑',
+    queryLabel: '搜索',
+    noMatches: (query: string) => `没有匹配 ${query} 的结果`,
+    guidance: '尝试更宽泛的查询，或移除筛选条件。',
+    removeFilter: (label: string) => `移除 ${label}`,
+    suggestions: '建议搜索',
+  },
+  caught: {
+    heading: '全部处理完毕',
+    detail: '目前没有需要关注的新动态。',
+    create: '开始新任务',
+    history: '查看历史',
+  },
+  failure: {
+    heading: '无法加载此视图',
+    detail: '读取工作区时超时。',
+    retryingHeading: '正在重新读取',
+    retryingDetail: '请稍候，状态会在本区域更新。',
+    recoveredHeading: '已恢复',
+    recoveredDetail: '视图已经可以继续使用。',
+    retry: '重试',
+    retrying: '重试中…',
+    requestId: '请求 ID',
+    traceId: '追踪 ID',
+    lastAttempt: '上次尝试',
+  },
+  dropzone: {
+    heading: '空文件夹',
+    detail: '添加文件以开始',
+    drop: '将文件拖到这里',
+    release: '松开以添加',
+    supported: '支持 PNG、JPG、PDF、CSV 和 Markdown',
+    choose: '选择文件',
+    storage: '可用空间 8.4 GB',
+  },
+};
+
+const en: typeof zh = {
+  brand: 'Lumen · Compositions',
+  switchTheme: 'Switch black and white theme',
+  switchLocale: '中文',
+  navigation: 'Empty state variants',
+  event: 'Last action',
+  none: 'Waiting for interaction',
+  variants: ['First run', 'No results', 'Caught up', 'Load failure', 'Empty folder'],
+  first: {
+    heading: 'Welcome to your workspace',
+    detail: 'Choose a starting path',
+    connect: {
+      title: 'Connect a local host',
+      description: 'Bring an existing workspace into view.',
+      action: 'Connect',
+    },
+    create: {
+      title: 'Create a project',
+      description: 'Start with a clean project.',
+      action: 'Create',
+    },
+    tour: {
+      title: 'View a tour',
+      description: 'Find activity, files and settings.',
+      action: 'Take tour',
+    },
+  },
+  search: {
+    heading: 'No results',
+    detail: 'The query stays editable',
+    queryLabel: 'Search',
+    noMatches: (query: string) => `No matches for ${query}`,
+    guidance: 'Try a broader search or remove a filter.',
+    removeFilter: (label: string) => `Remove ${label}`,
+    suggestions: 'Suggested searches',
+  },
+  caught: {
+    heading: "You're all caught up",
+    detail: 'No new activity needs your attention.',
+    create: 'Start a task',
+    history: 'View history',
+  },
+  failure: {
+    heading: 'Could not load this view',
+    detail: 'The workspace read timed out.',
+    retryingHeading: 'Reading again',
+    retryingDetail: 'Progress remains in this region.',
+    recoveredHeading: 'Recovered',
+    recoveredDetail: 'The view is ready to use.',
+    retry: 'Retry',
+    retrying: 'Retrying…',
+    requestId: 'Request ID',
+    traceId: 'Trace ID',
+    lastAttempt: 'Last attempt',
+  },
+  dropzone: {
+    heading: 'Empty folder',
+    detail: 'Add files to begin',
+    drop: 'Drop files here',
+    release: 'Release to add',
+    supported: 'PNG, JPG, PDF, CSV and Markdown',
+    choose: 'Choose files',
+    storage: '8.4 GB available',
+  },
+};
+
+export default function getEmptyStateFixtures(locale: GalleryLocale) {
+  return locale === 'zh' ? zh : en;
+}

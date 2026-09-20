@@ -337,7 +337,7 @@ function DocsApplication(props: AppProps) {
 export default function MyApp(props: AppProps) {
   // Keep the standalone workbench outside documentation analytics, consent,
   // and theme providers. Other documentation routes retain their full shell.
-  if (props.router.pathname === '/experiments/lumen-workbench') {
+  if (props.router.pathname.startsWith('/experiments/lumen-')) {
     const { Component, pageProps } = props;
     return <Component {...pageProps} />;
   }
@@ -347,10 +347,7 @@ export default function MyApp(props: AppProps) {
 // See note above about turbopack re-export detection — wrap rather than
 // `export { reportWebVitals }` so _app.tsx stays the Custom App.
 export const reportWebVitals: typeof _reportWebVitals = (...args) => {
-  if (
-    typeof window !== 'undefined' &&
-    window.location.pathname.startsWith('/experiments/lumen-workbench')
-  ) {
+  if (typeof window !== 'undefined' && window.location.pathname.startsWith('/experiments/lumen-')) {
     return;
   }
   _reportWebVitals(...args);
