@@ -13,7 +13,9 @@ import {
 import getEmptyStateFixtures, { type GalleryLocale } from './emptyStateFixtures';
 import ScenarioPreview, { type ScenarioKind } from './ScenarioPreview';
 import FeedbackGallery from './FeedbackGallery';
+import PromptInputGallery from './PromptInputGallery';
 import getFeedbackFixtures from './feedbackFixtures';
+import getPromptInputFixtures from './promptInputFixtures';
 import { getScenarioFixtures } from './scenarioFixtures';
 import styles from './gallery.module.css';
 
@@ -43,6 +45,7 @@ export default function EmptyStateGallery() {
   const copy = getEmptyStateFixtures(locale);
   const scenarios = getScenarioFixtures(locale);
   const feedback = getFeedbackFixtures(locale);
+  const promptInput = getPromptInputFixtures(locale);
   const theme = React.useMemo(() => createLumenTheme(mode), [mode]);
   React.useEffect(() => {
     selectedButton.current?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
@@ -118,6 +121,12 @@ export default function EmptyStateGallery() {
       <ScenarioPreview key={kind} kind={kind} copy={scenarios.copy} files={scenarios.files} />
     )),
   ];
+  let activeGallery: React.ReactNode = sample[variant - 1];
+  if (variant > 15) {
+    activeGallery = <PromptInputGallery variant={variant - 15} locale={locale} />;
+  } else if (variant > 9) {
+    activeGallery = <FeedbackGallery variant={variant - 9} locale={locale} />;
+  }
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -184,13 +193,27 @@ export default function EmptyStateGallery() {
                 />
               </Button>
             ))}
+            <h2 className={styles.navigationHeading}>{promptInput.group}</h2>
+            {promptInput.names.map((name, index) => (
+              <Button
+                key={name}
+                ref={variant === index + 16 ? selectedButton : undefined}
+                aria-current={variant === index + 16 ? 'page' : undefined}
+                onClick={() => setVariant(index + 16)}
+              >
+                <span className={styles.navigationLabel}>
+                  {String(index + 16).padStart(2, '0')} · {name}
+                </span>
+                <LumenIndicator edge="right" state={variant === index + 16 ? 'selected' : 'idle'} />
+                <LumenIndicator
+                  edge="bottom"
+                  state={variant === index + 16 ? 'selected' : 'idle'}
+                />
+              </Button>
+            ))}
           </nav>
           <div className={styles.stage}>
-            {variant > 9 ? (
-              <FeedbackGallery variant={variant - 9} locale={locale} />
-            ) : (
-              sample[variant - 1]
-            )}
+            {activeGallery}
             {variant <= 5 && (
               <p role="status">
                 {copy.event}: {event ?? copy.none}

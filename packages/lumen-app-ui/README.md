@@ -53,7 +53,16 @@ the inbox falls back to the first available thread if its selected ID becomes
 stale. Hosts own pagination or virtualization if a source grows beyond a
 workbench pane's practical capacity.
 
+`HbarAppUiPromptInput01` through `HbarAppUiPromptInput07` cover the seven
+prompt-composer structures in the source: commands and attachments, model and
+tool selection, suggestions and history, template variables, file upload
+progress, scoped mentions, and mode switching. Each receives host-owned copy,
+content, controlled state, and ID-bearing actions. The package contains no
+sample prompt text, upload timer, or simulated run; those live in the gallery.
+Suggestions and recent prompts grow with content, while the recent region
+scrolls within a bounded pane. Duplicate option IDs retain their first item.
+
 The opt-in `@lumen/app-ui/catalog` export records all 300 source IDs and their
 presentation profiles. `LUMEN_MIGRATED_VARIANT_IDS` lists only validated ports;
 the other source entries are inventory, not components or placeholder exports.
-Two of the 38 families, totaling 11 variants, are migrated so far.
+Three of the 38 families, totaling 18 variants, are migrated so far.

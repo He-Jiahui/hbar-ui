@@ -1,5 +1,147 @@
 import { test, expect } from '@playwright/test';
 
+test('seven controlled prompt inputs preserve actions, state, and responsive layouts', async ({
+  page,
+  browserName,
+}, testInfo) => {
+  test.setTimeout(240_000);
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto('/experiments/lumen-app-ui/');
+  const nav = page.locator('main nav').first();
+  const select = async (number: number, name: RegExp) => {
+    await nav.getByRole('button', { name }).click();
+    await expect(page.locator('[data-hbar-app-ui-variant]')).toHaveAttribute(
+      'data-hbar-app-ui-variant',
+      `hbar-app-ui-prompt-input-${number}`,
+    );
+  };
+  await select(1, /16 · 命令与附件/);
+  await page.getByRole('button', { name: '命令', exact: true }).click();
+  await page.getByRole('menuitem', { name: '制定计划' }).click();
+  await expect(page.getByRole('textbox', { name: '描述你的任务' })).toHaveValue('/plan ');
+  await page
+    .locator('[data-hbar-app-ui-variant="hbar-app-ui-prompt-input-1"] input[type="file"]')
+    .setInputFiles({
+      name: 'context.md',
+      mimeType: 'text/markdown',
+      buffer: Buffer.from('context'),
+    });
+  await expect(page.getByRole('button', { name: '移除 context.md' })).toBeVisible();
+  await page.getByRole('button', { name: '发送', exact: true }).click();
+  await expect(page.locator('[data-hbar-app-ui-variant] [role="alert"]')).toContainText(
+    '本地演示执行失败',
+  );
+  await page.getByRole('button', { name: '发送', exact: true }).click();
+  await expect(page.locator('[data-hbar-app-ui-variant] [role="alert"]')).toHaveCount(0);
+
+  await select(2, /17 · 模型与工具/);
+  await page.getByRole('combobox', { name: '模型' }).selectOption('reasoning');
+  await page.getByRole('button', { name: '浏览器' }).click();
+  await expect(page.getByRole('button', { name: '浏览器' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await page.getByRole('textbox', { name: '描述你的任务' }).fill('长一点的任务');
+  await expect(page.getByText(/tokens/)).toBeVisible();
+
+  await select(3, /18 · 灵感启动/);
+  await page.getByRole('button', { name: '规划版本发布' }).click();
+  await expect(page.getByRole('textbox', { name: '描述你的任务' })).toHaveValue('规划版本发布');
+  await page.getByRole('button', { name: '准备交接说明' }).click();
+  await expect(page.getByRole('textbox', { name: '描述你的任务' })).toHaveValue('准备交接说明');
+
+  await select(4, /19 · 模板变量/);
+  await page.getByRole('textbox', { name: '模板正文' }).fill('缺少变量');
+  await expect(page.locator('[data-hbar-app-ui-variant] [role="alert"]')).toBeVisible();
+  await expect(page.getByRole('button', { name: '保存模板' })).toBeDisabled();
+  await page.getByRole('textbox', { name: '模板正文' }).fill('总结 {{workspace}} 的变更');
+  await page.getByRole('button', { name: '保存模板' }).click();
+  await expect(page.getByRole('status')).toContainText('save');
+
+  await select(5, /20 · 文件进度/);
+  await page.getByRole('button', { name: '重试 notes.md' }).click();
+  await expect(page.getByRole('button', { name: '重试 notes.md' })).toHaveCount(0);
+  await page
+    .locator('[data-hbar-app-ui-variant="hbar-app-ui-prompt-input-5"] input[type="file"]')
+    .setInputFiles({ name: 'brief.txt', mimeType: 'text/plain', buffer: Buffer.from('brief') });
+  await expect(page.getByText('brief.txt')).toBeVisible();
+
+  await select(6, /21 · 上下文引用/);
+  await page.getByRole('button', { name: '提及资料' }).click();
+  await page.getByRole('menuitem', { name: 'README.md' }).click();
+  await expect(page.getByRole('button', { name: '移除 README.md' })).toBeVisible();
+  await page.getByRole('combobox', { name: '范围' }).selectOption('file');
+
+  await select(7, /22 · 模式切换/);
+  await page.getByRole('textbox', { name: '描述你的任务' }).fill('保留草稿');
+  await page.getByRole('button', { name: '代理' }).click();
+  await expect(page.getByRole('textbox', { name: '描述你的任务' })).toHaveValue('保留草稿');
+
+  const variants = [
+    /16 · 命令与附件/,
+    /17 · 模型与工具/,
+    /18 · 灵感启动/,
+    /19 · 模板变量/,
+    /20 · 文件进度/,
+    /21 · 上下文引用/,
+    /22 · 模式切换/,
+  ];
+  await page.reload();
+  /* eslint-disable no-await-in-loop -- One gallery page is navigated and captured sequentially. */
+  for (const [width, height] of [
+    [1440, 900],
+    [1024, 768],
+    [390, 844],
+  ]) {
+    await page.setViewportSize({ width, height });
+    for (const [index, name] of variants.entries()) {
+      await select(index + 1, name);
+      await page.screenshot({
+        path: testInfo.outputPath(`prompt-${index + 1}-dark-${width}.png`),
+        animations: 'disabled',
+      });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+        width + 1,
+      );
+    }
+  }
+  await page.getByRole('button', { name: '切换黑白主题', exact: true }).click();
+  await page.getByRole('button', { name: 'English' }).click();
+  const english = [
+    /16 · Commands & files/,
+    /17 · Model & tools/,
+    /18 · Prompt launcher/,
+    /19 · Template variables/,
+    /20 · File progress/,
+    /21 · Context mentions/,
+    /22 · Mode switcher/,
+  ];
+  for (const [width, height] of [
+    [1440, 900],
+    [1024, 768],
+    [390, 844],
+  ]) {
+    await page.setViewportSize({ width, height });
+    for (const [index, name] of english.entries()) {
+      await select(index + 1, name);
+      await page.screenshot({
+        path: testInfo.outputPath(`prompt-${index + 1}-light-${width}.png`),
+        animations: 'disabled',
+      });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+        width + 1,
+      );
+    }
+  }
+  /* eslint-enable no-await-in-loop */
+  await expect(page.locator('[data-lens]')).toHaveAttribute(
+    'data-lens',
+    browserName === 'chromium' ? 'refractive' : 'frost',
+  );
+  expect(errors).toEqual([]);
+});
+
 test('vote selection keeps its hover and focus boundary visible inside the scrolling list', async ({
   page,
 }, testInfo) => {
