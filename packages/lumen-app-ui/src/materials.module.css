@@ -251,6 +251,9 @@
 .fieldContent :global(.MuiOutlinedInput-notchedOutline) {
   border-color: transparent !important;
 }
+.fieldContent :global(.MuiInputLabel-root.MuiInputLabel-shrink) {
+  transform: translate(0.875rem, -0.9375rem) scale(0.75);
+}
 .field .indicator {
   position: absolute;
   z-index: 1;
