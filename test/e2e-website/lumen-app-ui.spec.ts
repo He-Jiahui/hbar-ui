@@ -142,6 +142,61 @@ test('seven controlled prompt inputs preserve actions, state, and responsive lay
   expect(errors).toEqual([]);
 });
 
+test('file transfer progress columns stay aligned across states and widths', async ({
+  page,
+}, testInfo) => {
+  await page.goto('/experiments/lumen-app-ui/');
+  const navigation = page.locator('main nav').first();
+  const selectQueue = async () => {
+    await navigation.getByRole('button', { name: /26 · 上传队列/ }).click();
+    await expect(page.locator('[data-hbar-app-ui-variant]')).toHaveAttribute(
+      'data-hbar-app-ui-variant',
+      'hbar-app-ui-file-manager-4',
+    );
+  };
+  const rows = page.locator('[data-hbar-app-ui-variant="hbar-app-ui-file-manager-4"] article');
+  const positions = async (selector: string) =>
+    rows.locator(`:scope > ${selector}`).evaluateAll((elements) =>
+      elements.map((element) => {
+        const rect = element.getBoundingClientRect();
+        return { x: rect.x, width: rect.width };
+      }),
+    );
+  const expectAligned = (values: readonly { x: number; width: number }[], edge = 'start') => {
+    const xPositions = values.map(({ x, width }) => (edge === 'end' ? x + width : x));
+    expect(Math.max(...xPositions) - Math.min(...xPositions)).toBeLessThanOrEqual(1);
+  };
+
+  await selectQueue();
+  await expect(rows).toHaveCount(3);
+  expectAligned(await positions('progress'));
+  expectAligned(await positions('span'), 'end');
+  await page.screenshot({
+    path: testInfo.outputPath('file-progress-aligned-dark-1440.png'),
+    animations: 'disabled',
+  });
+
+  await page.setViewportSize({ width: 768, height: 900 });
+  await selectQueue();
+  expectAligned(await positions('progress'));
+  expectAligned(await positions('span'), 'end');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(769);
+  await page.screenshot({
+    path: testInfo.outputPath('file-progress-aligned-dark-768.png'),
+    animations: 'disabled',
+  });
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await selectQueue();
+  expectAligned(await positions('progress'));
+  expectAligned(await positions('span'), 'end');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
+  await page.screenshot({
+    path: testInfo.outputPath('file-progress-aligned-dark-390.png'),
+    animations: 'disabled',
+  });
+});
+
 test('vote selection keeps its hover and focus boundary visible inside the scrolling list', async ({
   page,
 }, testInfo) => {

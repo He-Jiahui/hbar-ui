@@ -306,7 +306,9 @@
 }
 
 .transfer {
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 18rem minmax(0, 1fr) 4rem 12rem;
+  column-gap: 0.75rem;
   padding: 0.75rem;
   border-radius: 0.375rem;
   background: var(--lumen-reading);
@@ -315,13 +317,24 @@
 .transfer > div:first-child {
   display: flex;
   flex-direction: column;
-  flex: 1 1 12rem;
+  grid-column: 1;
   min-width: 0;
   overflow-wrap: anywhere;
 }
 
 .transfer progress {
-  flex: 2 1 12rem;
+  grid-column: 2;
+  min-width: 0;
+}
+
+.transfer > span {
+  grid-column: 3;
+  justify-self: end;
+}
+
+.transfer > button {
+  grid-column: 4;
+  min-width: 0;
 }
 
 @media (max-width: 48rem) {
@@ -339,5 +352,22 @@
   }
   .dropzone {
     padding: 1.25rem;
+  }
+}
+
+@media (max-width: 40rem) {
+  .transfer {
+    grid-template-columns: minmax(0, 1fr) 4rem;
+    row-gap: 0.5rem;
+  }
+  .transfer > div:first-child,
+  .transfer > button {
+    grid-column: 1 / -1;
+  }
+  .transfer progress {
+    grid-column: 1;
+  }
+  .transfer > span {
+    grid-column: 2;
   }
 }
