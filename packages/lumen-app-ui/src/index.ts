@@ -40,6 +40,15 @@ export type {
   LumenCommandListLabels,
   LumenCommandListProps,
 } from './command-list';
+export { LumenPlanEditor } from './plan-editor';
+export type {
+  LumenPlanEditorEditing,
+  LumenPlanEditorLabels,
+  LumenPlanEditorProps,
+  LumenPlanListStrategy,
+  LumenPlanState,
+  LumenPlanStep,
+} from './plan-editor';
 export {
   LumenButton,
   LumenIconButton,

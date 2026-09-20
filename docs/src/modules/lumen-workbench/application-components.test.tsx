@@ -11,6 +11,7 @@ import {
   LumenFormField,
   LumenInput,
   LumenPageHeader,
+  LumenPlanEditor,
   LumenProvider,
   LumenToolPane,
   type LumenAppearance,
@@ -151,5 +152,57 @@ describe('Lumen application components', () => {
       'aria-selected',
       'true',
     );
+  });
+
+  it('keeps plan edits and limits in the host', async () => {
+    const onTitleChange = vi.fn();
+    const onMove = vi.fn();
+    const onSubmit = vi.fn();
+    const { user } = render(
+      <LumenProvider appearance={appearance} withCssBaseline={false}>
+        <LumenPlanEditor
+          labels={{
+            title: 'Plan',
+            summary: 'Review the steps',
+            review: 'Ready to save',
+            addPlaceholder: 'New step',
+            add: 'Add',
+            start: (count) => `Save ${count}`,
+            moveUp: (title) => `Move ${title} up`,
+            moveDown: (title) => `Move ${title} down`,
+            skip: (title) => `Remove ${title}`,
+            restore: (title) => `Restore ${title}`,
+            newStepStateLabel: 'Pending',
+            empty: 'No steps',
+          }}
+          steps={[{ id: 'one', title: 'Inspect', state: 'queued', stateLabel: 'Pending' }]}
+          listStrategy={{ kind: 'pane-scroll', expectedMaximum: 100 }}
+          draft=""
+          busy={false}
+          canAdd
+          canSubmit
+          onDraftChange={() => undefined}
+          onAdd={() => undefined}
+          onMove={onMove}
+          onRemove={() => undefined}
+          onSubmit={onSubmit}
+          editing={{
+            titleLabel: (index) => `Step ${index}`,
+            statusLabel: (index) => `Step ${index} status`,
+            statuses: [{ id: 'queued', label: 'Pending' }],
+            onTitleChange,
+            onStatusChange: () => undefined,
+          }}
+        />
+      </LumenProvider>,
+    );
+
+    await user.clear(screen.getByRole('textbox', { name: 'Step 1' }));
+    await user.type(screen.getByRole('textbox', { name: 'Step 1' }), 'Build');
+    await user.click(screen.getByRole('button', { name: 'Move Inspect down' }));
+    await user.click(screen.getByRole('button', { name: 'Save 1' }));
+    expect(onTitleChange).toHaveBeenCalled();
+    expect(onMove).not.toHaveBeenCalled();
+    expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 });
