@@ -44,16 +44,5 @@
     "@mui/material": "^9.4.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
-  },
-  "devDependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
-    "@lumen/mui-material-types": "npm:@mui/material@9.4.0",
-    "@types/react": "19.3.0",
-    "@types/react-dom": "19.3.0",
-    "react": "19.3.0",
-    "react-dom": "19.3.0",
-    "typescript": "npm:@typescript/typescript6@6.0.2",
-    "vite": "^8.0.0"
   }
 }

@@ -17,9 +17,10 @@ The package is private and is not published. Its source exports are the
 workspace contract. `pnpm -F @lumen/app-ui build` creates a standalone ESM
 bundle, CSS, and declaration files, while `pnpm -F @lumen/app-ui pack` applies
 the host-facing `publishConfig` exports. Material UI, Emotion, React, and React
-DOM stay peer dependencies so a host uses one runtime instance. Lumen's glass
-filter applies to the background layer, so foreground text stays sharp.
-Unsupported browsers render frosted glass.
+DOM stay peer dependencies so a host uses one runtime instance; build tooling
+comes from this pnpm workspace rather than becoming part of a file consumer's
+dependency graph. Lumen's glass filter applies to the background layer, so
+foreground text stays sharp. Unsupported browsers render frosted glass.
 
 `LumenSlider` accepts a numeric controlled value and callback, normalizes its
 current `min`/`max` range, and lets the theme scale thumb and filled-track glow
