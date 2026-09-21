@@ -1,6 +1,15 @@
 import source from './source-catalog.json';
 import type * as React from 'react';
 import {
+  LumenPromptInput01,
+  LumenPromptInput02,
+  LumenPromptInput03,
+  LumenPromptInput04,
+  LumenPromptInput05,
+  LumenPromptInput06,
+  LumenPromptInput07,
+} from './prompt-input';
+import {
   LumenAgentActivity01,
   LumenAgentActivity02,
   LumenAgentActivity03,
@@ -193,6 +202,13 @@ export const LUMEN_SOURCE_VARIANTS: readonly LumenSourceVariant[] = source;
 
 /** Update only when a complete component family passes its behavior and visual checks. */
 export const LUMEN_MIGRATED_VARIANT_IDS = [
+  'hbar-app-ui-prompt-input-1',
+  'hbar-app-ui-prompt-input-2',
+  'hbar-app-ui-prompt-input-3',
+  'hbar-app-ui-prompt-input-4',
+  'hbar-app-ui-prompt-input-5',
+  'hbar-app-ui-prompt-input-6',
+  'hbar-app-ui-prompt-input-7',
   'hbar-app-ui-agent-activity-1',
   'hbar-app-ui-agent-activity-2',
   'hbar-app-ui-agent-activity-3',
@@ -337,6 +353,13 @@ export interface LumenVariantRegistryEntry extends LumenSourceVariant {
 }
 
 const migratedComponents: Readonly<Partial<Record<LumenMigratedVariantId, React.ElementType>>> = {
+  'hbar-app-ui-prompt-input-1': LumenPromptInput01,
+  'hbar-app-ui-prompt-input-2': LumenPromptInput02,
+  'hbar-app-ui-prompt-input-3': LumenPromptInput03,
+  'hbar-app-ui-prompt-input-4': LumenPromptInput04,
+  'hbar-app-ui-prompt-input-5': LumenPromptInput05,
+  'hbar-app-ui-prompt-input-6': LumenPromptInput06,
+  'hbar-app-ui-prompt-input-7': LumenPromptInput07,
   'hbar-app-ui-agent-activity-1': LumenAgentActivity01,
   'hbar-app-ui-agent-activity-2': LumenAgentActivity02,
   'hbar-app-ui-agent-activity-3': LumenAgentActivity03,
