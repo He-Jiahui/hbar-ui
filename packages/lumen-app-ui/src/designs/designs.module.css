@@ -627,7 +627,7 @@
 
 .notification {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: 0.75rem minmax(0, 1fr) 5rem 8rem;
   gap: 0.75rem;
   align-items: center;
   min-width: 0;
@@ -635,7 +635,20 @@
   border-bottom: 0.0625rem solid var(--lumen-line);
 }
 
+.notificationList {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.notification > [data-edge='left'] {
+  grid-column: 1;
+  grid-row: 1;
+}
+
 .notification > div:first-of-type {
+  grid-column: 2;
+  grid-row: 1;
   min-width: 0;
   overflow-wrap: anywhere;
 }
@@ -647,7 +660,10 @@
 }
 
 .notification > small {
+  grid-column: 3;
+  grid-row: 1;
   color: var(--lumen-muted);
+  text-align: end;
   white-space: nowrap;
 }
 
@@ -656,7 +672,10 @@
 }
 
 .notificationActions {
+  grid-column: 4;
+  grid-row: 1;
   display: flex;
+  justify-content: flex-end;
   gap: 0.25rem;
 }
 
@@ -1218,16 +1237,29 @@
   }
 
   .notification {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: 0.75rem minmax(0, 1fr) max-content;
+    align-items: start;
   }
 
-  .notification > small {
+  .notification > [data-edge='left'] {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+
+  .notification > div:first-of-type {
     grid-column: 2;
     grid-row: 1;
   }
 
+  .notification > small {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
   .notificationActions {
-    grid-column: 1 / -1;
+    grid-column: 2 / -1;
+    grid-row: 2;
+    justify-content: flex-start;
   }
 
   .settingsRow {

@@ -1067,6 +1067,22 @@ test('extended Lumen designs cover all non-ported catalog layouts and interactio
   await nav.getByRole('button', { name: '监控' }).click();
   await expect(page.getByText('运行中')).toBeVisible();
   await nav.getByRole('button', { name: '通知' }).click();
+  const notificationGeometry = await page
+    .locator('[data-lumen-design="lumen-design-notifications"] article')
+    .evaluateAll((items) =>
+      items.map((item) => ({
+        lampLeft:
+          item.querySelector(':scope > [data-edge="left"]')?.getBoundingClientRect().left ?? -1,
+        contentLeft:
+          item.querySelector(':scope > div:first-of-type')?.getBoundingClientRect().left ?? -1,
+        timeLeft: item.querySelector(':scope > small')?.getBoundingClientRect().left ?? -1,
+        actionsLeft:
+          item.querySelector(':scope > div:last-of-type')?.getBoundingClientRect().left ?? -1,
+      })),
+    );
+  for (const key of ['lampLeft', 'contentLeft', 'timeLeft', 'actionsLeft'] as const) {
+    expect(new Set(notificationGeometry.map((item) => Math.round(item[key]))).size).toBe(1);
+  }
   await page.getByRole('button', { name: '标为已读' }).first().click();
   await page.getByRole('button', { name: '消除' }).first().click();
   await nav.getByRole('button', { name: '设置表单' }).click();
