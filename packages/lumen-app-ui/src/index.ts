@@ -1109,6 +1109,33 @@ export type {
   LumenAppSidebarWorkflowVariantProps,
 } from './app-sidebar-workflows';
 export {
+  LumenAiChat,
+  LumenAiChat01,
+  LumenAiChat02,
+  LumenAiChat03,
+  LumenAiChat04,
+  LumenAiChat05,
+  LumenAiChat06,
+  LumenAiChat07,
+  LumenAiChat08,
+  LumenAiChat09,
+  LumenAiChatProvider,
+  selectLumenAiChatItem,
+  uniqueLumenAiChatItems,
+  useLumenAiChatContent,
+} from './ai-chat';
+export type {
+  LumenAiChatAction,
+  LumenAiChatChoice,
+  LumenAiChatContent,
+  LumenAiChatListStrategy,
+  LumenAiChatMessage,
+  LumenAiChatProviderChoice,
+  LumenAiChatProps,
+  LumenAiChatProviderProps,
+  LumenAiChatVariantProps,
+} from './ai-chat';
+export {
   LumenOnboarding,
   LumenOnboarding01,
   LumenOnboarding02,
