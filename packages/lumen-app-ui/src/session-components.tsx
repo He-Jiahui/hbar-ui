@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { LumenDisclosure } from './disclosure';
 import { LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { LumenCompactMetrics } from './workspace-components';
@@ -449,11 +450,15 @@ export function LumenRunActivity({
     const steps = uniqueById(value.steps);
     const completed = steps.filter((step) => step.status === 'completed').length;
     return (
-      <details className="lumen-run-plan">
-        <summary>
-          <strong>{labels.planTitle}</strong>
-          <span>{labels.planProgress(completed, steps.length)}</span>
-        </summary>
+      <LumenDisclosure
+        className="lumen-run-plan hbar-app-ui-run-activity-plan"
+        summary={
+          <React.Fragment>
+            <strong>{labels.planTitle}</strong>
+            <span>{labels.planProgress(completed, steps.length)}</span>
+          </React.Fragment>
+        }
+      >
         {value.explanation ? <p>{value.explanation}</p> : null}
         {steps.length > 0 ? (
           <ol>
@@ -466,28 +471,28 @@ export function LumenRunActivity({
             ))}
           </ol>
         ) : null}
-      </details>
+      </LumenDisclosure>
     );
   };
   return (
     <section
-      className="lumen-run-activity"
+      className={`lumen-run-activity hbar-app-ui-run-activity is-${listStrategy}`}
       data-list-strategy={listStrategy}
       aria-label={labels.title}
     >
-      <header>
+      <header className="hbar-app-ui-run-activity-heading">
         <LumenText as="strong" variant="heading">
           {labels.title}
         </LumenText>
         <LumenStatus value={labels.countLabel(runs.length)} />
       </header>
       {feedback ? (
-        <LumenText as="p" tone="danger" role="alert">
+        <LumenText className="hbar-app-ui-run-activity-feedback" as="p" tone="danger" role="alert">
           {feedback}
         </LumenText>
       ) : null}
       {runs.length > 0 ? (
-        <ol>
+        <ol className="hbar-app-ui-run-activity-list">
           {runs.map((run) => {
             const cancelling = cancellingRunIds.includes(run.id);
             const retrying = retryingRunIds.includes(run.id);
@@ -498,20 +503,26 @@ export function LumenRunActivity({
             const retryable = run.status === 'failed' || run.status === 'interrupted';
             return (
               <li key={run.id}>
-                <article className="lumen-run-item" data-status={run.status}>
-                  <button
-                    type="button"
+                <article
+                  className={`lumen-run-item hbar-app-ui-run-activity-item hbar-app-ui-run-status-${run.status}`}
+                  data-status={run.status}
+                >
+                  <LumenButton
+                    variant="text"
                     className="lumen-run-summary"
                     aria-current={selectedRunId === run.id ? 'true' : undefined}
                     disabled={!onSelectRun}
                     onClick={() => onSelectRun?.(run.id)}
                   >
-                    <span className="lumen-run-marker" aria-hidden="true" />
-                    <span className="lumen-run-copy">
+                    <span
+                      className="lumen-run-marker hbar-app-ui-run-activity-marker"
+                      aria-hidden="true"
+                    />
+                    <span className="lumen-run-copy hbar-app-ui-run-activity-copy">
                       <strong>{run.label}</strong>
                       {run.detail ? <small>{run.detail}</small> : null}
                     </span>
-                    <span className="lumen-run-status">
+                    <span className="lumen-run-status hbar-app-ui-run-activity-status">
                       <LumenStatus
                         value={
                           cancelling
@@ -522,9 +533,10 @@ export function LumenRunActivity({
                       />
                       {run.duration ? <small>{run.duration}</small> : null}
                     </span>
-                  </button>
+                  </LumenButton>
                   {active && onCancelRun ? (
                     <LumenIconButton
+                      className="hbar-app-ui-run-activity-cancel"
                       label={cancelling ? labels.cancellingLabel : labels.cancelLabel}
                       disabled={cancelling}
                       onClick={() => onCancelRun(run.id)}
@@ -534,6 +546,7 @@ export function LumenRunActivity({
                   ) : null}
                   {retryable && onRetryRun ? (
                     <LumenButton
+                      className="hbar-app-ui-run-activity-retry"
                       variant="outlined"
                       disabled={retrying}
                       onClick={() => onRetryRun(run.id)}
@@ -613,11 +626,11 @@ export function LumenApprovalRequest({
   }
   return (
     <section
-      className="lumen-decision"
+      className="lumen-decision hbar-app-ui-approval-request"
       aria-label={labels.title}
       aria-busy={state.status === 'pending' || undefined}
     >
-      <header>
+      <header className="hbar-app-ui-approval-request-heading">
         <SessionGlyph name="shield" />
         <div>
           <LumenText as="strong" variant="label">
@@ -630,21 +643,25 @@ export function LumenApprovalRequest({
           tone={state.status === 'complete' ? 'success' : 'warning'}
         />
       </header>
-      <div className="lumen-decision-target">
+      <div className="lumen-decision-target hbar-app-ui-approval-request-target">
         <strong>{summary}</strong>
         {details ? (
-          <details>
-            <summary>{labels.detailsLabel}</summary>
+          <LumenDisclosure summary={labels.detailsLabel}>
             <pre>{details}</pre>
-          </details>
+          </LumenDisclosure>
         ) : null}
       </div>
       {state.error ? (
-        <LumenText as="p" tone="danger" role="alert">
+        <LumenText
+          className="hbar-app-ui-approval-request-feedback"
+          as="p"
+          tone="danger"
+          role="alert"
+        >
           {state.error}
         </LumenText>
       ) : null}
-      <footer>
+      <footer className="hbar-app-ui-approval-request-actions">
         <LumenButton variant="outlined" disabled={disabled} onClick={() => onDecision(id, 'deny')}>
           <SessionGlyph name="remove" />
           {labels.denyLabel}
@@ -728,11 +745,11 @@ export function LumenQuestionnaire({
   }
   return (
     <section
-      className="lumen-questionnaire"
+      className="lumen-questionnaire hbar-app-ui-questionnaire"
       aria-label={labels.title}
       aria-busy={state.status === 'pending' || undefined}
     >
-      <header>
+      <header className="hbar-app-ui-questionnaire-heading">
         <LumenText as="strong" variant="heading">
           {labels.title}
         </LumenText>
@@ -745,7 +762,7 @@ export function LumenQuestionnaire({
           tone={state.status === 'complete' ? 'success' : 'neutral'}
         />
       </header>
-      <div className="lumen-questionnaire-questions">
+      <div className="lumen-questionnaire-questions hbar-app-ui-questionnaire-questions">
         {questions.map((question) => {
           const answer = answers[question.id];
           const options = uniqueById(
@@ -758,9 +775,12 @@ export function LumenQuestionnaire({
                 <strong>{question.header}</strong>
                 <span>{question.prompt}</span>
               </legend>
-              <div>
+              <div className="hbar-app-ui-questionnaire-options">
                 {options.map((option) => (
-                  <label className="lumen-question-option" key={option.value}>
+                  <label
+                    className="lumen-question-option hbar-app-ui-questionnaire-option"
+                    key={option.value}
+                  >
                     <input
                       type="radio"
                       name={`${requestId}:${question.id}`}
@@ -777,7 +797,7 @@ export function LumenQuestionnaire({
                   </label>
                 ))}
                 {hasOptions && question.acceptsCustomAnswer ? (
-                  <label className="lumen-question-option">
+                  <label className="lumen-question-option hbar-app-ui-questionnaire-option">
                     <input
                       type="radio"
                       name={`${requestId}:${question.id}`}
@@ -806,7 +826,7 @@ export function LumenQuestionnaire({
                   </label>
                 ) : null}
                 {!hasOptions ? (
-                  <div className="lumen-question-option lumen-question-freeform">
+                  <div className="lumen-question-option lumen-question-freeform hbar-app-ui-questionnaire-option hbar-app-ui-questionnaire-freeform">
                     <span>
                       <strong>{labels.freeformLabel}</strong>
                       <LumenInput
@@ -829,11 +849,11 @@ export function LumenQuestionnaire({
         })}
       </div>
       {state.error ? (
-        <LumenText as="p" tone="danger" role="alert">
+        <LumenText className="hbar-app-ui-questionnaire-feedback" as="p" tone="danger" role="alert">
           {state.error}
         </LumenText>
       ) : null}
-      <footer>
+      <footer className="hbar-app-ui-questionnaire-actions">
         <LumenButton
           tone="primary"
           disabled={disabled || questions.length === 0}
