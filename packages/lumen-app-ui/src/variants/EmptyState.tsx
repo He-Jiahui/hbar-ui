@@ -1,11 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
 import LumenField from '../LumenField';
 import LumenIndicator from '../LumenIndicator';
 import LumenSurface from '../LumenSurface';
+import { LumenFormField, LumenInput } from '../forms';
+import { LumenButton } from '../primitives';
 import styles from './empty-state.module.css';
 
 interface EmptyBaseProps {
@@ -129,10 +129,14 @@ function Frame({
 
 function Action({ children, onClick }: { children: React.ReactNode; onClick: () => void }) {
   return (
-    <Button className={styles.action} onClick={onClick}>
+    <LumenButton
+      className={styles.action}
+      variant="outlined"
+      indicatorState="idle"
+      onClick={onClick}
+    >
       {children}
-      <LumenIndicator edge="bottom" length="action" />
-    </Button>
+    </LumenButton>
   );
 }
 
@@ -182,12 +186,14 @@ export function HbarAppUiEmptyState02({
     <Frame id="hbar-app-ui-empty-state-2" {...copy} glassStrength={glassStrength}>
       <div className={styles.stack}>
         <LumenField className={styles.query} boundary="horizontal">
-          <TextField
-            size="small"
-            label={copy.queryLabel}
-            value={content.query}
-            onChange={(event) => actions.onQueryChange(event.target.value)}
-          />
+          <LumenFormField controlId="hbar-app-ui-empty-state-query" label={copy.queryLabel}>
+            <LumenInput
+              type="text"
+              inputMode="search"
+              value={content.query}
+              onChange={(event) => actions.onQueryChange(event.target.value)}
+            />
+          </LumenFormField>
         </LumenField>
         <strong>{copy.noMatches(content.query)}</strong>
         <p>{copy.guidance}</p>
@@ -262,19 +268,15 @@ export function HbarAppUiEmptyState04({
       <div className={styles.centered}>
         {state.error && <p role="alert">{state.error}</p>}
         {state.status !== 'recovered' && (
-          <Button
+          <LumenButton
             className={styles.action}
+            variant="outlined"
+            indicatorState={state.status === 'retrying' ? 'running' : 'idle'}
             disabled={state.status === 'retrying'}
             onClick={actions.onRetry}
           >
             {state.status === 'retrying' ? copy.retrying : copy.retry}
-            <LumenIndicator
-              edge="bottom"
-              length="action"
-              state={state.status === 'retrying' ? 'running' : 'idle'}
-              tone="info"
-            />
-          </Button>
+          </LumenButton>
         )}
         <dl className={styles.details}>
           <div>
@@ -302,6 +304,7 @@ export function HbarAppUiEmptyState05({
   glassStrength,
 }: HbarAppUiEmptyState05Props) {
   const [dragging, setDragging] = React.useState(false);
+  const inputRef = React.useRef<HTMLInputElement>(null);
   return (
     <Frame id="hbar-app-ui-empty-state-5" {...copy} glassStrength={glassStrength}>
       <div
@@ -323,23 +326,28 @@ export function HbarAppUiEmptyState05({
         <LumenIndicator edge="top" length="area" />
         <strong>{dragging ? copy.release : copy.drop}</strong>
         <p>{copy.supported}</p>
-        <Button className={styles.action} component="label">
+        <LumenButton
+          className={styles.action}
+          variant="outlined"
+          indicatorState="idle"
+          onClick={() => inputRef.current?.click()}
+        >
           {copy.choose}
-          <input
-            className={styles.fileInput}
-            type="file"
-            accept={content.accept}
-            multiple={content.multiple}
-            onChange={(event) => {
-              const files = Array.from(event.target.files ?? []);
-              if (files.length) {
-                actions.onUpload(files, 'picker');
-              }
-              event.target.value = '';
-            }}
-          />
-          <LumenIndicator edge="bottom" length="action" />
-        </Button>
+        </LumenButton>
+        <input
+          ref={inputRef}
+          className={styles.fileInput}
+          type="file"
+          accept={content.accept}
+          multiple={content.multiple}
+          onChange={(event) => {
+            const files = Array.from(event.target.files ?? []);
+            if (files.length) {
+              actions.onUpload(files, 'picker');
+            }
+            event.target.value = '';
+          }}
+        />
         <small>{copy.storage}</small>
         <LumenIndicator edge="bottom" length="area" />
       </div>

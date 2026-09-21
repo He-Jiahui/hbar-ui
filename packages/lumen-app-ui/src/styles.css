@@ -1,3 +1,5 @@
+@import './forms.css';
+
 /* Scoped tokens for hosts that render Lumen composition components. */
 [data-lumen-mode='dark'] {
   --lumen-ink: #eee;

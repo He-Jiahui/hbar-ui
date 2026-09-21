@@ -3,7 +3,6 @@
 import * as React from 'react';
 import type { LumenSize } from './appearance';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
-import './forms.css';
 
 export type LumenFieldVariant = 'outlined' | 'plain';
 

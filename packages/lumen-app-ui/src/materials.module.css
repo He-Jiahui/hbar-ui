@@ -242,14 +242,10 @@
   flex: 1;
   min-width: 0;
 }
-.fieldContent > :global(.MuiFormControl-root),
-.fieldContent > :global(.MuiInputBase-root) {
+.fieldContent > :global(.lumen-form-field) {
   flex: 1;
   min-width: 0;
   width: 100%;
-}
-.fieldContent :global(.MuiOutlinedInput-notchedOutline) {
-  border-color: transparent !important;
 }
 .field .indicator {
   position: absolute;
