@@ -20,7 +20,7 @@ export type LumenFrameElement =
 
 export type LumenFrameProps<Element extends LumenFrameElement = 'div'> = {
   as?: Element | undefined;
-} & Omit<React.ComponentPropsWithoutRef<Element>, 'as'>;
+} & Omit<React.ComponentPropsWithRef<Element>, 'as'>;
 
 /**
  * Semantic, flow-layout composition boundary for product-owned regions.
@@ -41,7 +41,7 @@ export type LumenCollectionElement = 'ul' | 'ol' | 'dl' | 'table' | 'thead' | 't
 
 export type LumenCollectionProps<Element extends LumenCollectionElement = 'ul'> = {
   as?: Element | undefined;
-} & Omit<React.ComponentPropsWithoutRef<Element>, 'as'>;
+} & Omit<React.ComponentPropsWithRef<Element>, 'as'>;
 
 /** Semantic collection container used by Lumen lists, descriptions and tables. */
 export function LumenCollection<Element extends LumenCollectionElement = 'ul'>({
@@ -56,7 +56,7 @@ export type LumenCollectionItemElement = 'li' | 'div' | 'dt' | 'dd' | 'tr' | 'th
 
 export type LumenCollectionItemProps<Element extends LumenCollectionItemElement = 'li'> = {
   as?: Element | undefined;
-} & Omit<React.ComponentPropsWithoutRef<Element>, 'as'>;
+} & Omit<React.ComponentPropsWithRef<Element>, 'as'>;
 
 /** Semantic record within a Lumen collection. */
 export function LumenCollectionItem<Element extends LumenCollectionItemElement = 'li'>({
