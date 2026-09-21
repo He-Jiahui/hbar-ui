@@ -1,0 +1,315 @@
+.lumen-usage {
+  min-width: 0;
+  color: var(--lumen-ink);
+}
+
+.lumen-usage-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  min-width: 0;
+}
+
+.lumen-usage-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block-end: 0.75rem;
+  border-block-end: 1px solid var(--lumen-line);
+}
+
+.lumen-usage-heading > div {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.lumen-usage-heading h2,
+.lumen-usage-budget-form p,
+.lumen-usage-content > p {
+  margin: 0;
+}
+
+.lumen-usage-glyph {
+  flex: 0 0 auto;
+  inline-size: 1rem;
+  block-size: 1rem;
+  fill: none;
+  stroke: currentcolor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+}
+
+.lumen-usage-progress {
+  overflow: hidden;
+  min-inline-size: 4rem;
+  block-size: 0.25rem;
+  background: var(--lumen-line);
+  border-radius: 999px;
+}
+
+.lumen-usage-progress > span {
+  display: block;
+  block-size: 100%;
+  background: var(--lumen-info);
+  box-shadow: 0 0 var(--lumen-glow-near) color-mix(in srgb, var(--lumen-info) 50%, transparent);
+}
+
+.lumen-usage-progress[data-tone='positive'] > span {
+  background: var(--lumen-success);
+}
+.lumen-usage-progress[data-tone='warning'] > span {
+  background: var(--lumen-warning);
+}
+.lumen-usage-progress[data-tone='danger'] > span {
+  background: var(--lumen-danger);
+}
+
+.lumen-usage-meter-list,
+.lumen-usage-list,
+.lumen-usage-budget-form {
+  display: grid;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+.lumen-usage-list[data-lumen-list-strategy='virtual'] {
+  max-block-size: 28rem;
+  overflow: auto;
+}
+
+.lumen-usage-meter,
+.lumen-usage-seat-row,
+.lumen-usage-model-row,
+.lumen-usage-request,
+.lumen-usage-budget-form {
+  padding: 0.75rem;
+  background: var(--lumen-glass);
+  border: 1px solid var(--lumen-line);
+  border-radius: var(--lumen-radius-surface, 0.75rem);
+}
+
+.lumen-usage-meter,
+.lumen-usage-meter > div,
+.lumen-usage-seat-row,
+.lumen-usage-model-row,
+.lumen-usage-table-heading,
+.lumen-usage-search,
+.lumen-usage-choice,
+.lumen-usage-cap,
+.lumen-usage-toggle-row,
+.lumen-usage-actions,
+.lumen-usage-overage,
+.lumen-usage-tabs,
+.lumen-usage-request-summary,
+.lumen-usage-secondary-metrics,
+.hbar-app-ui-inline-usage,
+.hbar-app-ui-inline-usage-summary,
+.hbar-app-ui-inline-usage dl,
+.hbar-app-ui-inline-usage dl > div {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+.lumen-usage-meter,
+.lumen-usage-seat-row > div,
+.lumen-usage-choice,
+.lumen-usage-cap {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.lumen-usage-meter > div,
+.lumen-usage-seat-row,
+.lumen-usage-toggle-row,
+.lumen-usage-request-summary {
+  justify-content: space-between;
+}
+
+.lumen-usage-tabs,
+.lumen-usage-actions,
+.lumen-usage-overage,
+.lumen-usage-secondary-metrics,
+.hbar-app-ui-inline-usage,
+.hbar-app-ui-inline-usage-summary,
+.hbar-app-ui-inline-usage dl {
+  flex-wrap: wrap;
+}
+
+.lumen-usage-actions {
+  justify-content: flex-end;
+}
+
+.lumen-usage-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+  gap: 0.625rem;
+  margin: 0;
+}
+
+.lumen-usage-metrics > div {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  background: var(--lumen-glass);
+  border: 1px solid var(--lumen-line);
+  border-radius: var(--lumen-radius-control, 0.375rem);
+}
+
+.lumen-usage-metrics dt,
+.lumen-usage-metrics dd,
+.hbar-app-ui-inline-usage dt,
+.hbar-app-ui-inline-usage dd {
+  margin: 0;
+}
+
+.lumen-usage-table-heading,
+.lumen-usage-model-row {
+  display: grid;
+  grid-template-columns: minmax(9rem, 1.5fr) minmax(6rem, 1fr) minmax(5rem, 0.7fr) minmax(
+      4rem,
+      0.6fr
+    );
+}
+
+.lumen-usage-table-heading {
+  padding-inline: 0.75rem;
+  color: var(--lumen-muted);
+  font-size: 0.75rem;
+}
+
+.lumen-usage-model-row b,
+.lumen-usage-model-row b > svg {
+  color: var(--lumen-success);
+}
+
+.lumen-usage-model-row b[data-direction='up'] {
+  color: var(--lumen-warning);
+}
+
+.lumen-usage-seat-row {
+  display: grid;
+  grid-template-columns: auto minmax(8rem, 1fr) minmax(6rem, 1fr) auto;
+}
+
+.lumen-usage-avatar {
+  display: grid;
+  place-items: center;
+  inline-size: 2rem;
+  block-size: 2rem;
+  border: 1px solid var(--lumen-edge);
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.lumen-usage-search > :last-child {
+  flex: 1 1 auto;
+}
+
+.lumen-usage-toggle-row > button i {
+  display: block;
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
+  background: currentcolor;
+  border-radius: 50%;
+}
+
+.lumen-usage-overage > * {
+  flex: 1 1 14rem;
+}
+
+.lumen-usage-request > summary {
+  padding: 0.625rem;
+}
+
+.lumen-usage-request-summary {
+  inline-size: 100%;
+}
+
+.lumen-usage-request-summary code {
+  flex: 1 1 auto;
+}
+
+.lumen-usage-request pre {
+  overflow: auto;
+  max-inline-size: 100%;
+  margin: 0;
+  padding: 0.75rem;
+  color: var(--lumen-muted);
+}
+
+.lumen-usage-compact {
+  display: grid;
+  grid-template-columns: minmax(8rem, 1fr) auto;
+  gap: 0.625rem 1rem;
+  align-items: center;
+  padding: 0.75rem;
+  background: var(--lumen-glass);
+  border: 1px solid var(--lumen-line);
+  border-radius: var(--lumen-radius-surface, 0.75rem);
+}
+
+.lumen-usage-sparkline {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: flex-end;
+  gap: 0.25rem;
+  block-size: 3rem;
+}
+
+.lumen-usage-sparkline i {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  background: var(--lumen-info);
+  box-shadow: 0 0 var(--lumen-glow-near) color-mix(in srgb, var(--lumen-info) 40%, transparent);
+}
+
+.lumen-usage-compact .lumen-usage-progress,
+.lumen-usage-secondary-metrics {
+  grid-column: 1 / -1;
+}
+
+.lumen-usage-secondary-metrics span {
+  display: flex;
+  gap: 0.375rem;
+  color: var(--lumen-muted);
+  font-size: 0.8125rem;
+}
+
+.hbar-app-ui-inline-usage {
+  justify-content: space-between;
+  color: var(--lumen-muted);
+  font-size: 0.75rem;
+}
+
+.hbar-app-ui-inline-usage-summary {
+  flex: 1 1 20rem;
+}
+
+.hbar-app-ui-inline-usage dl {
+  margin: 0;
+}
+
+.hbar-app-ui-inline-usage dl > div {
+  gap: 0.25rem;
+}
+
+@media (max-width: 42rem) {
+  .lumen-usage-table-heading {
+    display: none;
+  }
+
+  .lumen-usage-model-row,
+  .lumen-usage-seat-row {
+    grid-template-columns: 1fr;
+  }
+
+  .lumen-usage-request-summary {
+    flex-wrap: wrap;
+  }
+}
