@@ -285,12 +285,6 @@
   white-space: nowrap;
 }
 
-.invoice > [data-edge='bottom'] {
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
-}
-
 .boardHeader {
   padding-inline: 0.25rem;
 }
@@ -459,18 +453,11 @@
 }
 
 .dashboardRow {
-  position: relative;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0.625rem 0;
   border-bottom: 0.0625rem solid var(--lumen-line);
-}
-
-.dashboardRow > [data-edge='bottom'] {
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
 }
 
 .dashboardRow > span:first-child {
@@ -540,25 +527,25 @@
 }
 
 .tableRowButton {
-  position: relative;
-  flex-direction: column;
   align-items: flex-start;
   padding: 0;
 }
 
-.tableRowButton > [data-edge='bottom'] {
-  position: absolute;
-  inset-inline: 0;
-  bottom: -0.375rem;
-}
-
-.tableRowButton[aria-pressed='false'] > [data-edge='bottom'] {
-  opacity: 0;
+.tableShell tr[data-selected='true'] .tableRowButton {
+  font-weight: 700;
 }
 
 .tableRowButton:focus-visible {
   outline: 0.0625rem solid var(--lumen-ink);
   outline-offset: 0.1875rem;
+}
+
+.invoice::after,
+.dashboardRow::after,
+.tableRowButton::after,
+.categoryTable [role='cell'] button::after,
+.categoryTimelineItem > .categoryItem::after {
+  display: none;
 }
 
 .empty {

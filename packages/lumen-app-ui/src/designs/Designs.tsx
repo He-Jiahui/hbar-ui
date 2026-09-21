@@ -174,7 +174,6 @@ export function LumenBillingDesign({ copy, content, state, actions }: BillingDes
               </span>
               <span>{invoice.amount}</span>
               <small>{invoice.status}</small>
-              <LumenIndicator edge="bottom" length="action" />
             </Button>
           ))}
         </div>
@@ -352,7 +351,6 @@ export function LumenDashboardDesign({ copy, content, actions }: DashboardDesign
                   <small>{panel.detail}</small>
                 </span>
                 <span data-tone={panel.tone ?? 'neutral'}>{panel.value}</span>
-                <LumenIndicator edge="bottom" length="action" tone={panel.tone} />
               </Button>
             ))}
           </div>
@@ -418,11 +416,6 @@ export function LumenDataTableDesign({ copy, content, state, actions }: DataTabl
                           onClick={() => actions.onSelect(row.id)}
                         >
                           {value}
-                          <LumenIndicator
-                            edge="bottom"
-                            state={selected ? 'selected' : 'idle'}
-                            tone={row.tone}
-                          />
                         </Button>
                       ) : (
                         value
@@ -660,11 +653,13 @@ function CategoryItemButton({
   item,
   selected,
   edge = 'left',
+  indicator = true,
   onSelect,
 }: {
   item: CategoryDesignItem;
   selected: boolean;
   edge?: 'bottom' | 'left' | 'right' | undefined;
+  indicator?: boolean | undefined;
   onSelect: () => void;
 }) {
   return (
@@ -674,7 +669,9 @@ function CategoryItemButton({
       onClick={onSelect}
       data-selected={selected}
     >
-      <LumenIndicator edge={edge} state={selected ? 'selected' : 'idle'} tone={item.tone} />
+      {indicator && (
+        <LumenIndicator edge={edge} state={selected ? 'selected' : 'idle'} tone={item.tone} />
+      )}
       <span>
         <strong>{item.label}</strong>
         <small>{item.detail}</small>
@@ -967,7 +964,7 @@ export function LumenCategoryDesign({
             <CategoryItemButton
               item={item}
               selected={item.id === activeId}
-              edge="bottom"
+              indicator={false}
               onSelect={() => actions.onSelect(item.id)}
             />
           </article>

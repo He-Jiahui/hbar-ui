@@ -121,6 +121,35 @@ test('source page examples render all ten catalog surface structures at desktop 
     const preview = page.locator(`[data-lumen-source-id="${id}"]`);
     await expect(preview).toBeVisible();
     await expect(preview).toHaveAttribute('data-lumen-layout', surface);
+    if (surface === 'timeline') {
+      const rowEdges = await preview
+        .locator('article')
+        .evaluateAll((rows) =>
+          rows.map((row) =>
+            [...row.querySelectorAll(':scope > [data-edge]')].map((edge) =>
+              edge.getAttribute('data-edge'),
+            ),
+          ),
+        );
+      expect(rowEdges.every((edges) => edges.length === 1 && edges[0] === 'left')).toBe(true);
+      expect(
+        await preview
+          .locator('article button')
+          .evaluateAll((buttons) =>
+            buttons.every((button) => getComputedStyle(button, '::after').display === 'none'),
+          ),
+      ).toBe(true);
+    }
+    if (surface === 'table') {
+      await expect(preview.locator('[role="row"] [data-edge]')).toHaveCount(0);
+      expect(
+        await preview
+          .locator('[role="row"] button')
+          .evaluateAll((buttons) =>
+            buttons.every((button) => getComputedStyle(button, '::after').display === 'none'),
+          ),
+      ).toBe(true);
+    }
     await page.screenshot({
       path: testInfo.outputPath(`source-${surface}-1440.png`),
       animations: 'disabled',
