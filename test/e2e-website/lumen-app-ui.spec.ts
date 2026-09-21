@@ -920,19 +920,22 @@ test('MUI menus and select fields use Lumen surfaces and boundary lamps', async 
   );
 });
 
-test('extended Lumen designs cover analytics billing kanban and wizard layouts', async ({
+test('extended Lumen designs cover application UI layouts and interactions', async ({
   page,
 }, testInfo) => {
   await page.goto('/experiments/lumen-app-ui/designs/');
   const nav = page.getByRole('navigation', { name: 'Lumen design coverage' });
   const designs = [
     ['分析', 'lumen-design-analytics'],
+    ['弹层', 'lumen-design-app-dialog'],
     ['账单', 'lumen-design-billing'],
     ['仪表盘', 'lumen-design-dashboard'],
     ['数据表格', 'lumen-design-data-table'],
     ['看板', 'lumen-design-kanban'],
     ['监控', 'lumen-design-monitoring'],
     ['通知', 'lumen-design-notifications'],
+    ['初始引导', 'lumen-design-onboarding'],
+    ['设置表单', 'lumen-design-settings-form'],
     ['向导', 'lumen-design-wizard'],
   ] as const;
   /* eslint-disable no-await-in-loop -- Each design is verified sequentially on one page. */
@@ -956,6 +959,11 @@ test('extended Lumen designs cover analytics billing kanban and wizard layouts',
 
   await nav.getByRole('button', { name: '分析' }).click();
   await page.getByRole('combobox', { name: '时间范围' }).selectOption('month');
+  await nav.getByRole('button', { name: '弹层' }).click();
+  await page.getByRole('button', { name: '打开弹层' }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.getByRole('dialog').getByRole('button', { name: '确认' }).click();
+  await expect(page.getByRole('dialog')).toBeHidden();
   await nav.getByRole('button', { name: '账单' }).click();
   await page.getByRole('button', { name: /规模/ }).click();
   await nav.getByRole('button', { name: '仪表盘' }).click();
@@ -971,6 +979,16 @@ test('extended Lumen designs cover analytics billing kanban and wizard layouts',
   await nav.getByRole('button', { name: '通知' }).click();
   await page.getByRole('button', { name: '标为已读' }).first().click();
   await page.getByRole('button', { name: '消除' }).first().click();
+  await nav.getByRole('button', { name: '设置表单' }).click();
+  await page.getByRole('textbox', { name: '工作区名称' }).fill('新的墨光工作区');
+  await page.getByRole('button', { name: '保存设置' }).click();
+  await expect(page.getByRole('region', { name: '工作区设置' }).getByRole('status')).toHaveText(
+    '已保存',
+  );
+  await nav.getByRole('button', { name: '初始引导' }).click();
+  await page.getByRole('button', { name: '下一步' }).click();
+  await expect(page.getByRole('heading', { name: '调整光效' })).toBeVisible();
+  await page.getByRole('button', { name: '跳过' }).click();
   await nav.getByRole('button', { name: '向导' }).click();
   await page.getByRole('textbox', { name: '主题名称' }).fill('新主题');
   const wizardFields = page.locator(

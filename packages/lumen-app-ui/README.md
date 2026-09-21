@@ -82,15 +82,15 @@ the interactive gallery.
 
 The `@lumen/app-ui/designs` export adds composable design coverage for source
 families that do not have one-to-one ports yet: `LumenAnalyticsDesign`,
-`LumenBillingDesign`, `LumenDashboardDesign`, `LumenDataTableDesign`,
+`LumenDialogDesign`, `LumenBillingDesign`, `LumenDashboardDesign`, `LumenDataTableDesign`,
 `LumenKanbanDesign`, `LumenMonitoringDesign`, `LumenNotificationsDesign`,
-and `LumenWizardDesign`. These
+`LumenOnboardingDesign`, `LumenSettingsFormDesign`, and `LumenWizardDesign`. These
 components keep the same host-owned copy, content, state, and action contract,
 but they are intentionally design directions rather than migrated source IDs.
 The docs-only preview at `/experiments/lumen-app-ui/designs/` shows their dark
 and light Lumen treatment with long content, selection, movement, and step
 navigation states.
 
-The catalog exposes these eight names through
+The catalog exposes these eleven names through
 `LUMEN_DESIGN_COVERAGE_CATEGORIES`, so a design preview is visibly distinct
 from a validated source port in both code and the docs catalog.

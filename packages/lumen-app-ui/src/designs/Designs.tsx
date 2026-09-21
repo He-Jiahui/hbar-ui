@@ -11,10 +11,13 @@ import type {
   BillingDesignProps,
   DashboardDesignProps,
   DataTableDesignProps,
+  DialogDesignProps,
   KanbanCard,
   KanbanDesignProps,
   MonitoringDesignProps,
   NotificationsDesignProps,
+  OnboardingDesignProps,
+  SettingsFormDesignProps,
   WizardDesignProps,
 } from './designTypes';
 import styles from './designs.module.css';
@@ -28,7 +31,7 @@ function Frame({
   id: string;
   copy: { title: string; detail: string };
   children: React.ReactNode;
-  tone?: LumenTone;
+  tone?: LumenTone | undefined;
 }) {
   return (
     <LumenSurface className={styles.surface} data-lumen-design={id}>
@@ -437,22 +440,24 @@ export function LumenMonitoringDesign({ copy, content }: MonitoringDesignProps) 
           <span>{content.services.length}</span>
         </div>
         <div className={styles.serviceGrid}>
-          {content.services.map((service) => (
-            <article className={styles.service} key={service.id}>
-              <LumenIndicator
-                edge="left"
-                state={
-                  service.running ? 'running' : service.tone === 'danger' ? 'failed' : 'selected'
-                }
-                tone={service.tone}
-              />
-              <div>
-                <strong>{service.name}</strong>
-                <small>{service.detail}</small>
-              </div>
-              <span data-tone={service.tone}>{service.status}</span>
-            </article>
-          ))}
+          {content.services.map((service) => {
+            let state: 'running' | 'failed' | 'selected' = 'selected';
+            if (service.running) {
+              state = 'running';
+            } else if (service.tone === 'danger') {
+              state = 'failed';
+            }
+            return (
+              <article className={styles.service} key={service.id}>
+                <LumenIndicator edge="left" state={state} tone={service.tone} />
+                <div>
+                  <strong>{service.name}</strong>
+                  <small>{service.detail}</small>
+                </div>
+                <span data-tone={service.tone}>{service.status}</span>
+              </article>
+            );
+          })}
         </div>
       </section>
       <section className={styles.signalPanel} aria-label={copy.signal}>
@@ -505,6 +510,136 @@ export function LumenNotificationsDesign({
             );
           })}
           {items.length === 0 && <p className={styles.empty}>{copy.dismiss}</p>}
+        </div>
+      </section>
+    </Frame>
+  );
+}
+
+export function LumenDialogDesign({ copy, content, state, actions }: DialogDesignProps) {
+  return (
+    <Frame id="lumen-design-app-dialog" copy={copy} tone="warning">
+      <section className={styles.dialogStage} aria-label={copy.title}>
+        <div className={styles.dialogPreview}>
+          <strong>{copy.title}</strong>
+          <span>{content.body}</span>
+          <Button onClick={actions.onOpen}>
+            {copy.open}
+            <LumenIndicator edge="bottom" length="action" />
+          </Button>
+        </div>
+        {state.open && (
+          <div className={styles.dialogOverlay}>
+            <LumenSurface className={styles.dialogPanel} data-material="frost">
+              <section role="dialog" aria-modal="true" aria-labelledby="lumen-dialog-title">
+                <header className={styles.dialogHeader}>
+                  <div>
+                    <h3 id="lumen-dialog-title">{copy.title}</h3>
+                    <p>{content.body}</p>
+                  </div>
+                  <LumenIndicator edge="left" state="selected" tone="warning" />
+                </header>
+                <ul className={styles.dialogDetails}>
+                  {content.details.map((detail) => (
+                    <li key={detail}>{detail}</li>
+                  ))}
+                </ul>
+                <footer className={styles.dialogFooter}>
+                  <Button onClick={actions.onClose}>
+                    {copy.cancel}
+                    <LumenIndicator edge="bottom" />
+                  </Button>
+                  <Button onClick={actions.onConfirm}>
+                    {copy.confirm}
+                    <LumenIndicator edge="bottom" state="selected" tone="warning" />
+                  </Button>
+                </footer>
+              </section>
+            </LumenSurface>
+          </div>
+        )}
+      </section>
+    </Frame>
+  );
+}
+
+export function LumenSettingsFormDesign({
+  copy,
+  content,
+  state,
+  actions,
+}: SettingsFormDesignProps) {
+  return (
+    <Frame id="lumen-design-settings-form" copy={copy} tone="info">
+      <div className={styles.settingsForm}>
+        {content.fields.map((field) => (
+          <div className={styles.settingsRow} key={field.id}>
+            <div>
+              <strong>{field.label}</strong>
+              <small>{field.detail}</small>
+            </div>
+            <LumenField boundary="horizontal" className={styles.settingsField}>
+              <TextField
+                fullWidth
+                size="small"
+                label={field.label}
+                value={field.value}
+                placeholder={field.placeholder}
+                onChange={(event) => actions.onFieldChange(field.id, event.target.value)}
+              />
+            </LumenField>
+          </div>
+        ))}
+      </div>
+      <footer className={styles.settingsFooter}>
+        <span role="status">{state.saved ? copy.saved : copy.detail}</span>
+        <Button onClick={actions.onSave}>
+          {copy.save}
+          <LumenIndicator edge="bottom" state={state.saved ? 'selected' : 'idle'} tone="success" />
+        </Button>
+      </footer>
+    </Frame>
+  );
+}
+
+export function LumenOnboardingDesign({ copy, content, state, actions }: OnboardingDesignProps) {
+  const index = Math.max(0, Math.min(content.steps.length - 1, state.currentStep));
+  const step = content.steps[index];
+  return (
+    <Frame id="lumen-design-onboarding" copy={copy} tone="success">
+      <nav className={styles.onboardingRail} aria-label={copy.steps}>
+        {content.steps.map((item, itemIndex) => (
+          <Button
+            key={item.id}
+            aria-current={itemIndex === index ? 'step' : undefined}
+            onClick={() => actions.onStepChange(itemIndex)}
+          >
+            <span>
+              {String(itemIndex + 1).padStart(2, '0')} · {item.title}
+            </span>
+            <LumenIndicator
+              edge="bottom"
+              state={itemIndex === index ? 'selected' : 'idle'}
+              tone="success"
+            />
+          </Button>
+        ))}
+      </nav>
+      <section className={styles.onboardingBody} aria-labelledby="lumen-onboarding-title">
+        <LumenIndicator edge="left" state="running" tone="success" />
+        <h3 id="lumen-onboarding-title">{step?.title}</h3>
+        <p>{step?.detail}</p>
+        <div className={styles.onboardingFooter}>
+          <Button onClick={actions.onSkip}>
+            {copy.skip}
+            <LumenIndicator edge="bottom" />
+          </Button>
+          <Button
+            onClick={() => actions.onStepChange(Math.min(content.steps.length - 1, index + 1))}
+          >
+            {index === content.steps.length - 1 ? copy.finish : copy.next}
+            <LumenIndicator edge="bottom" state="selected" tone="success" />
+          </Button>
         </div>
       </section>
     </Frame>

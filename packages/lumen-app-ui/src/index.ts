@@ -10,12 +10,15 @@ export { default as createLumenTheme } from './theme';
 export type { LumenMode } from './theme';
 export {
   LumenAnalyticsDesign,
+  LumenDialogDesign,
   LumenBillingDesign,
   LumenDashboardDesign,
   LumenDataTableDesign,
   LumenKanbanDesign,
   LumenMonitoringDesign,
   LumenNotificationsDesign,
+  LumenOnboardingDesign,
+  LumenSettingsFormDesign,
   LumenWizardDesign,
 } from './designs';
 export type {
@@ -30,6 +33,7 @@ export type {
   DataTableColumn,
   DataTableDesignProps,
   DataTableRow,
+  DialogDesignProps,
   KanbanCard,
   KanbanColumn,
   KanbanDesignProps,
@@ -38,6 +42,10 @@ export type {
   MonitoringService,
   NotificationItem,
   NotificationsDesignProps,
+  OnboardingDesignProps,
+  OnboardingStep,
+  SettingsField,
+  SettingsFormDesignProps,
   WizardDesignProps,
   WizardField,
   WizardStep,

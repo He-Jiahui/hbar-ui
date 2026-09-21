@@ -612,6 +612,165 @@
   gap: 0.25rem;
 }
 
+.dialogStage {
+  position: relative;
+  min-height: 16rem;
+  padding: 1rem;
+  background: var(--lumen-reading);
+  border-radius: 0.375rem;
+}
+
+.dialogPreview {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.625rem;
+  max-width: 24rem;
+}
+
+.dialogPreview > span,
+.dialogHeader p,
+.dialogDetails,
+.settingsRow small,
+.settingsFooter span,
+.onboardingBody p {
+  color: var(--lumen-muted);
+  font-size: 0.75rem;
+}
+
+.dialogPreview button,
+.dialogFooter button,
+.settingsFooter button,
+.onboardingRail button,
+.onboardingFooter button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--lumen-ink);
+  text-transform: none;
+}
+
+.dialogOverlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(0 0 0 / 45%);
+  backdrop-filter: blur(0.5rem);
+}
+
+.dialogPanel {
+  width: min(100%, 28rem);
+  border-radius: 0.375rem;
+}
+
+.dialogPanel > section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.dialogHeader,
+.dialogFooter,
+.settingsFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.dialogHeader h3,
+.dialogHeader p {
+  margin: 0;
+}
+
+.dialogDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin: 0;
+  padding-inline-start: 1rem;
+}
+
+.dialogFooter,
+.settingsFooter {
+  padding-top: 0.75rem;
+  border-top: 0.0625rem solid var(--lumen-line);
+}
+
+.settingsForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.settingsRow {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.6fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: center;
+}
+
+.settingsRow > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.settingsField {
+  min-width: 0;
+}
+
+.onboardingRail {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.75rem;
+  border-bottom: 0.0625rem solid var(--lumen-line);
+}
+
+.onboardingRail button {
+  flex: 0 0 auto;
+  align-items: flex-start;
+  min-width: 8rem;
+}
+
+.onboardingBody {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 12rem;
+  padding: 1.25rem;
+  background: var(--lumen-reading);
+  border-radius: 0.375rem;
+}
+
+.onboardingBody h3,
+.onboardingBody p {
+  margin: 0;
+}
+
+.onboardingBody > [data-edge='left'] {
+  position: absolute;
+  left: -0.0625rem;
+  top: 0;
+  bottom: 0;
+}
+
+.onboardingFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: auto;
+  padding-top: 0.75rem;
+  border-top: 0.0625rem solid var(--lumen-line);
+}
+
 .notificationActions button {
   flex-direction: column;
   align-items: center;
@@ -679,6 +838,18 @@
 
   .notificationActions {
     grid-column: 1 / -1;
+  }
+
+  .settingsRow {
+    grid-template-columns: 1fr;
+  }
+
+  .dialogHeader,
+  .dialogFooter,
+  .settingsFooter,
+  .onboardingFooter {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 

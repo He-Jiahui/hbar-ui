@@ -185,3 +185,42 @@ export interface NotificationsDesignProps {
   state: { readIds: readonly string[]; dismissedIds: readonly string[] };
   actions: { onRead: (id: string) => void; onDismiss: (id: string) => void };
 }
+
+export interface DialogDesignProps {
+  copy: LumenDesignCopy & {
+    open: string;
+    cancel: string;
+    confirm: string;
+  };
+  content: { body: string; details: readonly string[] };
+  state: { open: boolean };
+  actions: { onOpen: () => void; onClose: () => void; onConfirm: () => void };
+}
+
+export interface SettingsField {
+  id: string;
+  label: string;
+  detail: string;
+  value: string;
+  placeholder?: string | undefined;
+}
+
+export interface SettingsFormDesignProps {
+  copy: LumenDesignCopy & { save: string; saved: string };
+  content: { fields: readonly SettingsField[] };
+  state: { saved: boolean };
+  actions: { onFieldChange: (fieldId: string, value: string) => void; onSave: () => void };
+}
+
+export interface OnboardingStep {
+  id: string;
+  title: string;
+  detail: string;
+}
+
+export interface OnboardingDesignProps {
+  copy: LumenDesignCopy & { skip: string; next: string; finish: string; steps: string };
+  content: { steps: readonly OnboardingStep[] };
+  state: { currentStep: number };
+  actions: { onStepChange: (step: number) => void; onSkip: () => void };
+}

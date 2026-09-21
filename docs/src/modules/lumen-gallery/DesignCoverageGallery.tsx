@@ -8,9 +8,12 @@ import {
   LumenBillingDesign,
   LumenDashboardDesign,
   LumenDataTableDesign,
+  LumenDialogDesign,
   LumenKanbanDesign,
   LumenMonitoringDesign,
   LumenNotificationsDesign,
+  LumenOnboardingDesign,
+  LumenSettingsFormDesign,
   LumenWizardDesign,
 } from '@lumen/app-ui';
 import type {
@@ -25,6 +28,8 @@ import type {
   KanbanColumn,
   MonitoringService,
   NotificationItem,
+  OnboardingStep,
+  SettingsField,
   WizardField,
 } from '@lumen/app-ui/designs';
 import styles from './design-coverage.module.css';
@@ -32,22 +37,28 @@ import styles from './design-coverage.module.css';
 type GalleryLocale = 'zh' | 'en';
 type DesignId =
   | 'analytics'
+  | 'app-dialog'
   | 'billing'
   | 'dashboard'
   | 'data-table'
   | 'kanban'
   | 'monitoring'
   | 'notifications'
+  | 'onboarding'
+  | 'settings-form'
   | 'wizard';
 
 const names: Record<DesignId, [string, string]> = {
   analytics: ['分析', 'Analytics'],
+  'app-dialog': ['弹层', 'App dialog'],
   billing: ['账单', 'Billing'],
   dashboard: ['仪表盘', 'Dashboard'],
   'data-table': ['数据表格', 'Data table'],
   kanban: ['看板', 'Kanban'],
   monitoring: ['监控', 'Monitoring'],
   notifications: ['通知', 'Notifications'],
+  onboarding: ['初始引导', 'Onboarding'],
+  'settings-form': ['设置表单', 'Settings form'],
   wizard: ['向导', 'Wizard'],
 };
 
@@ -65,6 +76,13 @@ const copy = {
       period: '时间范围',
       series: '活跃工作区',
       value: (value: number) => `${value} 次`,
+    },
+    'app-dialog': {
+      title: '确认发布主题',
+      detail: '弹层以玻璃表面承载需要确认的上下文。',
+      open: '打开弹层',
+      cancel: '取消',
+      confirm: '确认',
     },
     billing: {
       title: '账单与套餐',
@@ -110,6 +128,20 @@ const copy = {
       markRead: '标为已读',
       dismiss: '消除',
     },
+    onboarding: {
+      title: '首次使用引导',
+      detail: '用水平步骤线说明第一次进入工作台时的关键动作。',
+      skip: '跳过',
+      next: '下一步',
+      finish: '完成',
+      steps: '引导步骤',
+    },
+    'settings-form': {
+      title: '工作区设置',
+      detail: '保存前保持字段清晰可读，保存后给出就近状态。',
+      save: '保存设置',
+      saved: '已保存',
+    },
     wizard: {
       title: '设置向导',
       detail: '把多步骤表单收束为清晰的步骤线与字段边界。',
@@ -135,6 +167,13 @@ const copy = {
       period: 'Period',
       series: 'Active workspaces',
       value: (value: number) => `${value} runs`,
+    },
+    'app-dialog': {
+      title: 'Confirm theme release',
+      detail: 'Use a glass dialog to keep confirmation context close to the action.',
+      open: 'Open dialog',
+      cancel: 'Cancel',
+      confirm: 'Confirm',
     },
     billing: {
       title: 'Billing and plans',
@@ -179,6 +218,20 @@ const copy = {
       inbox: 'Recent notifications',
       markRead: 'Mark read',
       dismiss: 'Dismiss',
+    },
+    onboarding: {
+      title: 'First-use onboarding',
+      detail: 'Use a horizontal step rail to explain the first workspace actions.',
+      skip: 'Skip',
+      next: 'Next',
+      finish: 'Finish',
+      steps: 'Onboarding steps',
+    },
+    'settings-form': {
+      title: 'Workspace settings',
+      detail: 'Keep fields readable before saving and show state beside the action.',
+      save: 'Save settings',
+      saved: 'Saved',
     },
     wizard: {
       title: 'Settings wizard',
@@ -505,6 +558,66 @@ const wizardFields: Record<GalleryLocale, readonly WizardField[]> = {
   ],
 };
 
+const settingsFields: Record<GalleryLocale, readonly SettingsField[]> = {
+  zh: [
+    {
+      id: 'workspace-name',
+      label: '工作区名称',
+      detail: '显示在顶部工具栏和分享链接中。',
+      value: '墨光工作台',
+      placeholder: '输入工作区名称',
+    },
+    {
+      id: 'description',
+      label: '工作区描述',
+      detail: '用一句话说明这个工作区的用途。',
+      value: '黑白灯管与玻璃材质的设计复核。',
+      placeholder: '输入描述',
+    },
+  ],
+  en: [
+    {
+      id: 'workspace-name',
+      label: 'Workspace name',
+      detail: 'Shown in the top toolbar and sharing links.',
+      value: 'Lumen workspace',
+      placeholder: 'Enter a workspace name',
+    },
+    {
+      id: 'description',
+      label: 'Workspace description',
+      detail: 'Describe the purpose of this workspace in one sentence.',
+      value: 'Design review for monochrome lamps and glass surfaces.',
+      placeholder: 'Enter a description',
+    },
+  ],
+};
+
+const onboardingSteps: Record<GalleryLocale, readonly OnboardingStep[]> = {
+  zh: [
+    { id: 'space', title: '选择工作区', detail: '先选择一个工作区，让后续设置拥有明确归属。' },
+    { id: 'signal', title: '调整光效', detail: '设置灯条强度与玻璃折射，让状态更容易被识别。' },
+    { id: 'review', title: '开始使用', detail: '确认偏好后即可进入工作台，继续处理真实任务。' },
+  ],
+  en: [
+    {
+      id: 'space',
+      title: 'Choose a workspace',
+      detail: 'Start with a workspace so every setting has a clear owner.',
+    },
+    {
+      id: 'signal',
+      title: 'Tune the signal',
+      detail: 'Set lamp intensity and glass refraction so state stays readable.',
+    },
+    {
+      id: 'review',
+      title: 'Start working',
+      detail: 'Confirm your preferences and enter the workspace for real tasks.',
+    },
+  ],
+};
+
 export default function DesignCoverageGallery() {
   const [mode, setMode] = React.useState<'dark' | 'light'>('dark');
   const [locale, setLocale] = React.useState<GalleryLocale>('zh');
@@ -517,6 +630,10 @@ export default function DesignCoverageGallery() {
   const [columns, setColumns] = React.useState(initialColumns);
   const [currentStep, setCurrentStep] = React.useState(0);
   const [fields, setFields] = React.useState(wizardFields[locale]);
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [settingsValues, setSettingsValues] = React.useState(settingsFields[locale]);
+  const [settingsSaved, setSettingsSaved] = React.useState(false);
+  const [onboardingStep, setOnboardingStep] = React.useState(0);
   const [readNotificationIds, setReadNotificationIds] = React.useState<readonly string[]>([]);
   const [dismissedNotificationIds, setDismissedNotificationIds] = React.useState<readonly string[]>(
     [],
@@ -527,6 +644,9 @@ export default function DesignCoverageGallery() {
 
   React.useEffect(() => {
     setFields(wizardFields[locale]);
+    setSettingsValues(settingsFields[locale]);
+    setSettingsSaved(false);
+    setOnboardingStep(0);
   }, [locale]);
 
   const moveCard = (cardId: string, columnId: string) => {
@@ -570,6 +690,40 @@ export default function DesignCoverageGallery() {
           onPeriodChange: (value) => {
             setPeriodId(value);
             setEvent(value);
+          },
+        }}
+      />
+    ),
+    'app-dialog': (
+      <LumenDialogDesign
+        copy={localized['app-dialog']}
+        content={{
+          body:
+            locale === 'zh'
+              ? '确认后将把当前主题设置应用到工作区。'
+              : 'Confirm to apply the current theme settings to the workspace.',
+          details:
+            locale === 'zh'
+              ? ['保留当前黑白对比', '同步玻璃强度偏好', '不会修改来源文件']
+              : [
+                  'Keep the current monochrome contrast',
+                  'Sync glass intensity preference',
+                  'No source files are changed',
+                ],
+        }}
+        state={{ open: dialogOpen }}
+        actions={{
+          onOpen: () => {
+            setDialogOpen(true);
+            setEvent(localized['app-dialog'].open);
+          },
+          onClose: () => {
+            setDialogOpen(false);
+            setEvent(localized['app-dialog'].cancel);
+          },
+          onConfirm: () => {
+            setDialogOpen(false);
+            setEvent(localized['app-dialog'].confirm);
           },
         }}
       />
@@ -633,6 +787,39 @@ export default function DesignCoverageGallery() {
         actions={{
           onRead: (id) => setReadNotificationIds((current) => [...new Set([...current, id])]),
           onDismiss: (id) => setDismissedNotificationIds((current) => [...current, id]),
+        }}
+      />
+    ),
+    onboarding: (
+      <LumenOnboardingDesign
+        copy={localized.onboarding}
+        content={{ steps: onboardingSteps[locale] }}
+        state={{ currentStep: onboardingStep }}
+        actions={{
+          onStepChange: (step) => {
+            setOnboardingStep(step);
+            setEvent(onboardingSteps[locale][step]?.title ?? localized.onboarding.title);
+          },
+          onSkip: () => setEvent(localized.onboarding.skip),
+        }}
+      />
+    ),
+    'settings-form': (
+      <LumenSettingsFormDesign
+        copy={localized['settings-form']}
+        content={{ fields: settingsValues }}
+        state={{ saved: settingsSaved }}
+        actions={{
+          onFieldChange: (fieldId, value) => {
+            setSettingsSaved(false);
+            setSettingsValues((current) =>
+              current.map((field) => (field.id === fieldId ? { ...field, value } : field)),
+            );
+          },
+          onSave: () => {
+            setSettingsSaved(true);
+            setEvent(localized['settings-form'].saved);
+          },
         }}
       />
     ),
