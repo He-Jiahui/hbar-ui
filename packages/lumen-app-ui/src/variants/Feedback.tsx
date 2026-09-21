@@ -202,6 +202,7 @@ export function HbarAppUiFeedback01({ copy, content, state, actions }: HbarAppUi
               <LumenTextarea
                 rows={4}
                 value={state.text}
+                placeholder={copy.messagePlaceholder}
                 disabled={busy}
                 onChange={(event) => actions.onTextChange(content.id, event.target.value)}
               />

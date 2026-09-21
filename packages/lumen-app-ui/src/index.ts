@@ -133,6 +133,7 @@ export type {
   LumenFeedbackSurveyContent,
   LumenFeedbackSurveyReason,
   LumenFeedbackTheme,
+  LumenFeedbackTicket,
   LumenFeedbackType,
   LumenFeedbackTypeOption,
   LumenFeedbackVariantProps,

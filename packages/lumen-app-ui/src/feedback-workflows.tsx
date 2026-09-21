@@ -360,6 +360,7 @@ function Widget({
           reset: content.labels.sendAnother,
           typeLabel: content.labels.typeGroup,
           messageLabel: content.labels.prompt,
+          messagePlaceholder: content.labels.promptPlaceholder,
           attachment: content.labels.attachment,
           close: content.labels.close,
         }}
