@@ -215,7 +215,9 @@ export function uniqueLumenSupportItems<T extends { readonly id: string }>(
 ): readonly T[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -245,33 +247,23 @@ function Glyph({
     | 'external'
     | 'plus';
 }) {
-  const d =
-    name === 'search'
-      ? 'm11 11 3 3m-2-7a5 5 0 1 1-10 0 5 5 0 0 1 10 0Z'
-      : name === 'chevron'
-        ? 'm6 3 5 5-5 5'
-        : name === 'chat'
-          ? 'M2 3h12v8H7l-3 3v-3H2z'
-          : name === 'file'
-            ? 'M4 1.5h5l3 3v10H4zm5 0v3h3'
-            : name === 'attach'
-              ? 'M5 8.5 9.5 4a2 2 0 0 1 3 3L7 12.5a3 3 0 0 1-4-4L8 3.5'
-              : name === 'close'
-                ? 'M3 3l10 10M13 3 3 13'
-                : name === 'check'
-                  ? 'm3 8 3 3 7-7'
-                  : name === 'send'
-                    ? 'M2 3l12 5-12 5 2-5zm2 5h6'
-                    : name === 'lock'
-                      ? 'M4 7V5a4 4 0 0 1 8 0v2m-9 0h10v7H3z'
-                      : name === 'sparkle'
-                        ? 'M8 1l1.5 4.5L14 7 9.5 8.5 8 13 6.5 8.5 2 7l4.5-1.5z'
-                        : name === 'external'
-                          ? 'M8 3h5v5m0-5L7 9M6 4H3v9h9v-3'
-                          : 'M8 3v10M3 8h10';
+  const paths = {
+    search: 'm11 11 3 3m-2-7a5 5 0 1 1-10 0 5 5 0 0 1 10 0Z',
+    chevron: 'm6 3 5 5-5 5',
+    chat: 'M2 3h12v8H7l-3 3v-3H2z',
+    file: 'M4 1.5h5l3 3v10H4zm5 0v3h3',
+    attach: 'M5 8.5 9.5 4a2 2 0 0 1 3 3L7 12.5a3 3 0 0 1-4-4L8 3.5',
+    close: 'M3 3l10 10M13 3 3 13',
+    check: 'm3 8 3 3 7-7',
+    send: 'M2 3l12 5-12 5 2-5zm2 5h6',
+    lock: 'M4 7V5a4 4 0 0 1 8 0v2m-9 0h10v7H3z',
+    sparkle: 'M8 1l1.5 4.5L14 7 9.5 8.5 8 13 6.5 8.5 2 7l4.5-1.5z',
+    external: 'M8 3h5v5m0-5L7 9M6 4H3v9h9v-3',
+    plus: 'M8 3v10M3 8h10',
+  } as const;
   return (
     <svg className="lumen-support-glyph" viewBox="0 0 16 16" aria-hidden="true">
-      <path d={d} />
+      <path d={paths[name]} />
     </svg>
   );
 }
@@ -380,9 +372,10 @@ function Help(props: Omit<LumenSupportProps, 'content'> & { content: LumenSuppor
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
-      <label className="lumen-support-search">
+      <label className="lumen-support-search" htmlFor="lumen-support-help-search">
         <Glyph name="search" />
         <LumenInput
+          id="lumen-support-help-search"
           value={query}
           onChange={(event) => {
             setQuery(event.target.value);
@@ -692,7 +685,9 @@ function Thread(
             onSubmit={(event) => {
               event.preventDefault();
               const next = reply.trim();
-              if (!next) return;
+              if (!next) {
+                return;
+              }
               setSent(next);
               setReply('');
               report(props.onAction, 'reply', next);
@@ -762,7 +757,7 @@ function Assistant(
   const [message, setMessage] = React.useState('');
   const [sent, setSent] = React.useState<string>();
   const [handoff, setHandoff] = React.useState(false);
-  if (!open)
+  if (!open) {
     return (
       <Root {...props}>
         <LumenButton tone="primary" onClick={() => setOpen(true)}>
@@ -770,6 +765,7 @@ function Assistant(
         </LumenButton>
       </Root>
     );
+  }
   return (
     <Root {...props}>
       <section
@@ -855,7 +851,9 @@ function Assistant(
             onSubmit={(event) => {
               event.preventDefault();
               const next = message.trim();
-              if (!next) return;
+              if (!next) {
+                return;
+              }
               setSent(next);
               setMessage('');
               report(props.onAction, 'send', next);
@@ -929,9 +927,10 @@ function Requests(
             report(props.onAction, 'tabs', id);
           }}
         />
-        <label className="lumen-support-search">
+        <label className="lumen-support-search" htmlFor="lumen-support-request-search">
           <Glyph name="search" />
           <LumenInput
+            id="lumen-support-request-search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder={props.content.labels.search}
@@ -985,17 +984,23 @@ function empty(props: LumenSupportProps) {
   return <Root {...props}>{null}</Root>;
 }
 export function LumenSupport(props: LumenSupportProps) {
-  const content = props.content ?? useLumenSupportContent();
-  if (props.variant === 1)
+  const providerContent = useLumenSupportContent();
+  const content = props.content ?? providerContent;
+  if (props.variant === 1) {
     return content?.help ? <Help {...props} content={content.help} /> : empty(props);
-  if (props.variant === 2)
+  }
+  if (props.variant === 2) {
     return content?.ticket ? <Ticket {...props} content={content.ticket} /> : empty(props);
-  if (props.variant === 3)
+  }
+  if (props.variant === 3) {
     return content?.thread ? <Thread {...props} content={content.thread} /> : empty(props);
-  if (props.variant === 4)
+  }
+  if (props.variant === 4) {
     return content?.assistant ? <Assistant {...props} content={content.assistant} /> : empty(props);
-  if (props.variant === 5)
+  }
+  if (props.variant === 5) {
     return content?.requests ? <Requests {...props} content={content.requests} /> : empty(props);
+  }
   return empty(props);
 }
 function variant(value: number, props: LumenSupportVariantProps) {
