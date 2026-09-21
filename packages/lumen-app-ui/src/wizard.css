@@ -1,0 +1,342 @@
+.lumen-wizard-stage {
+  display: grid;
+  min-inline-size: 0;
+  min-block-size: 0;
+  flex: 1 1 auto;
+  place-items: center;
+  overflow: auto;
+  padding: clamp(0.75rem, 3vw, 2rem);
+  background: var(--lumen-reading);
+  color: var(--lumen-ink);
+}
+.lumen-wizard-stage *,
+.lumen-wizard-stage *::before,
+.lumen-wizard-stage *::after {
+  box-sizing: border-box;
+}
+.lumen-wizard-stage :where(h1, h2, p, dl, dd) {
+  margin: 0;
+}
+.lumen-wizard-frame {
+  display: grid;
+  inline-size: min(68rem, 100%);
+  min-block-size: min(42rem, 100%);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-panel);
+  background: var(--lumen-glass);
+  box-shadow: 0 1rem 3rem color-mix(in srgb, var(--lumen-ink) 12%, transparent);
+}
+.lumen-wizard-glyph {
+  inline-size: 1rem;
+  block-size: 1rem;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
+}
+.lumen-wizard-header,
+.lumen-wizard-footer {
+  display: flex;
+  min-inline-size: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem clamp(1rem, 3vw, 2rem);
+  border-block-end: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-wizard-header > div:first-child {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.lumen-wizard-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.lumen-wizard-footer {
+  border-block-start: 0.0625rem solid var(--lumen-edge);
+  border-block-end: 0;
+}
+.lumen-wizard-footer > button:last-child {
+  margin-inline-start: auto;
+}
+.lumen-wizard-main {
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: auto;
+  padding: clamp(1rem, 4vw, 2.5rem);
+}
+.lumen-wizard-main > h2 {
+  margin-block-end: 1rem;
+}
+.lumen-wizard-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  border-block-end: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-wizard-steps > button {
+  justify-content: flex-start;
+  color: var(--lumen-muted);
+}
+.lumen-wizard-steps > button > span {
+  display: grid;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  place-items: center;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: 999rem;
+  font-size: 0.7rem;
+}
+.lumen-wizard-steps > button[aria-current='step'] {
+  color: var(--lumen-accent);
+  background: color-mix(in srgb, var(--lumen-accent) 10%, transparent);
+}
+.lumen-wizard-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-block-start: 1.5rem;
+}
+.lumen-wizard-form-compact {
+  margin-block-start: 1rem;
+}
+.lumen-wizard-form .lumen-form-field {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.lumen-wizard-form :where(input, select) {
+  inline-size: 100%;
+}
+.lumen-wizard-card {
+  padding: clamp(1rem, 3vw, 2rem);
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-panel);
+  background: var(--lumen-reading);
+}
+.lumen-wizard-card > p {
+  margin-block-start: 1rem;
+}
+.lumen-wizard-split {
+  display: grid;
+  min-inline-size: 0;
+  min-block-size: 0;
+  grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 0.65fr);
+  gap: clamp(1rem, 3vw, 2rem);
+  overflow: auto;
+  padding: clamp(1rem, 4vw, 2.5rem);
+}
+.lumen-wizard-split > section > h2,
+.lumen-wizard-summary > h2 {
+  margin-block-end: 1rem;
+}
+.lumen-wizard-choice-list {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.lumen-wizard-choice-list > button {
+  display: grid;
+  inline-size: 100%;
+  grid-template-columns: minmax(0, 1fr) auto;
+  justify-content: stretch;
+  text-align: start;
+}
+.lumen-wizard-choice-list > button > span {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+}
+.lumen-wizard-choice-list > button > span:last-child {
+  align-items: flex-end;
+}
+.lumen-wizard-choice-list > button[aria-checked='true'] {
+  border-color: var(--lumen-accent);
+  box-shadow: inset 0 0 0 0.0625rem var(--lumen-accent);
+}
+.lumen-wizard-choice-list small,
+.lumen-wizard-service-grid small,
+.lumen-wizard-question-options small,
+.lumen-wizard-migration-list small {
+  color: var(--lumen-muted);
+}
+.lumen-wizard-summary {
+  align-self: start;
+  padding: 1.25rem;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-panel);
+  background: var(--lumen-reading);
+}
+.lumen-wizard-total {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-block: 1rem;
+  border-block: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-wizard-total strong {
+  font-size: 2rem;
+}
+.lumen-wizard-summary dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.65rem;
+  border-block-end: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-wizard-service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.75rem;
+}
+.lumen-wizard-service-grid > button {
+  min-block-size: 7rem;
+  justify-content: flex-start;
+  align-items: flex-start;
+  text-align: start;
+}
+.lumen-wizard-service-grid > button > span {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+.lumen-wizard-service-grid > button[aria-checked='true'] {
+  border-color: var(--lumen-accent);
+  background: color-mix(in srgb, var(--lumen-accent) 8%, transparent);
+}
+.lumen-wizard-review-sections,
+.lumen-wizard-migration-list,
+.lumen-wizard-question-options {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.lumen-wizard-review-sections > section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-control);
+  background: var(--lumen-reading);
+}
+.lumen-wizard-review-sections > section > div {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.lumen-wizard-migration-list > article {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-control);
+  background: var(--lumen-reading);
+}
+.lumen-wizard-migration-list > article > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.lumen-wizard-migration-list > article > div:first-child > span {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.lumen-wizard-progress {
+  block-size: 0.4rem;
+  overflow: hidden;
+  border-radius: 999rem;
+  background: var(--lumen-edge);
+}
+.lumen-wizard-progress > i {
+  display: block;
+  block-size: 100%;
+  border-radius: inherit;
+  background: var(--lumen-accent);
+}
+.lumen-wizard-question-options > button {
+  display: grid;
+  inline-size: 100%;
+  min-block-size: 4.5rem;
+  grid-template-columns: 1.5rem minmax(0, 1fr);
+  justify-content: stretch;
+  text-align: start;
+}
+.lumen-wizard-question-options > button > span:first-child {
+  display: grid;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  place-items: center;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: 999rem;
+}
+.lumen-wizard-question-options > button > span:last-child {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+}
+.lumen-wizard-question-options > button[aria-checked='true'] {
+  border-color: var(--lumen-accent);
+  background: color-mix(in srgb, var(--lumen-accent) 8%, transparent);
+}
+.lumen-wizard-empty {
+  padding: 2rem;
+  border: 0.0625rem dashed var(--lumen-edge);
+  border-radius: var(--lumen-radius-control);
+  text-align: center;
+}
+.lumen-wizard-stage [data-hbar-app-ui-list-strategy='pane-scroll'] {
+  max-block-size: 30rem;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+@media (max-width: 46rem) {
+  .lumen-wizard-stage {
+    padding: 0;
+  }
+  .lumen-wizard-frame {
+    min-block-size: 100%;
+    border: 0;
+    border-radius: 0;
+  }
+  .lumen-wizard-header,
+  .lumen-wizard-footer {
+    flex-wrap: wrap;
+  }
+  .lumen-wizard-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .lumen-wizard-form,
+  .lumen-wizard-split {
+    grid-template-columns: 1fr;
+  }
+  .lumen-wizard-review-sections > section {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .lumen-wizard-review-sections > section > button {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}
