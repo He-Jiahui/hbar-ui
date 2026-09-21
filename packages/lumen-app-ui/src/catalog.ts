@@ -25,13 +25,15 @@ import {
   HbarAppUiEmptyState03,
   HbarAppUiEmptyState04,
   HbarAppUiEmptyState05,
-  HbarAppUiFeedback01,
-  HbarAppUiFeedback02,
-  HbarAppUiFeedback03,
-  HbarAppUiFeedback04,
-  HbarAppUiFeedback05,
-  HbarAppUiFeedback06,
 } from './variants';
+import {
+  LumenFeedback01,
+  LumenFeedback02,
+  LumenFeedback03,
+  LumenFeedback04,
+  LumenFeedback05,
+  LumenFeedback06,
+} from './feedback-workflows';
 
 export interface LumenSourceVariant {
   id: string;
@@ -111,12 +113,12 @@ const migratedComponents: Readonly<Partial<Record<LumenMigratedVariantId, React.
   'hbar-app-ui-empty-state-3': HbarAppUiEmptyState03,
   'hbar-app-ui-empty-state-4': HbarAppUiEmptyState04,
   'hbar-app-ui-empty-state-5': HbarAppUiEmptyState05,
-  'hbar-app-ui-feedback-1': HbarAppUiFeedback01,
-  'hbar-app-ui-feedback-2': HbarAppUiFeedback02,
-  'hbar-app-ui-feedback-3': HbarAppUiFeedback03,
-  'hbar-app-ui-feedback-4': HbarAppUiFeedback04,
-  'hbar-app-ui-feedback-5': HbarAppUiFeedback05,
-  'hbar-app-ui-feedback-6': HbarAppUiFeedback06,
+  'hbar-app-ui-feedback-1': LumenFeedback01,
+  'hbar-app-ui-feedback-2': LumenFeedback02,
+  'hbar-app-ui-feedback-3': LumenFeedback03,
+  'hbar-app-ui-feedback-4': LumenFeedback04,
+  'hbar-app-ui-feedback-5': LumenFeedback05,
+  'hbar-app-ui-feedback-6': LumenFeedback06,
 };
 
 const migratedIds = new Set<string>(LUMEN_MIGRATED_VARIANT_IDS);
