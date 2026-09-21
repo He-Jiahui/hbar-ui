@@ -311,9 +311,14 @@ test('fields and standalone controls retain directional boundary lamps', async (
   expect(
     await search.evaluate((element) => {
       const style = getComputedStyle(element);
-      return [style.borderLeftColor, style.borderRightColor];
+      return [
+        style.borderTopColor,
+        style.borderRightColor,
+        style.borderBottomColor,
+        style.borderLeftColor,
+      ];
     }),
-  ).toEqual(['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)']);
+  ).toEqual(['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)']);
   const topBeam = search.locator('[data-edge="top"] > span');
   const bottomBeam = search.locator('[data-edge="bottom"] > span');
   const queryLabel = search.locator('label');
@@ -341,9 +346,14 @@ test('fields and standalone controls retain directional boundary lamps', async (
   expect(
     await search.evaluate((element) => {
       const style = getComputedStyle(element);
-      return [style.borderLeftColor, style.borderRightColor];
+      return [
+        style.borderTopColor,
+        style.borderRightColor,
+        style.borderBottomColor,
+        style.borderLeftColor,
+      ];
     }),
-  ).toEqual(['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)']);
+  ).toEqual(['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)']);
   await page.screenshot({
     path: testInfo.outputPath('search-boundary-dark.png'),
     animations: 'disabled',
@@ -373,6 +383,17 @@ test('fields and standalone controls retain directional boundary lamps', async (
   const composer = page.locator('[data-boundary="vertical"]');
   await expect(composer.locator('[data-edge="left"]')).toBeVisible();
   await expect(composer.locator('[data-edge="right"]')).toBeVisible();
+  expect(
+    await composer.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return [
+        style.borderTopColor,
+        style.borderRightColor,
+        style.borderBottomColor,
+        style.borderLeftColor,
+      ];
+    }),
+  ).toEqual(['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)']);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: '切换黑白主题' }).click();
   await page.screenshot({

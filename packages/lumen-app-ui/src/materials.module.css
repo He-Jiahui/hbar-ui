@@ -222,20 +222,10 @@
   position: relative;
   display: flex;
   min-width: 0;
-  border: 0.0625rem solid var(--lumen-edge);
+  border: 0.0625rem solid transparent;
   border-radius: 0.375rem;
   background: var(--lumen-reading);
   backdrop-filter: blur(0.75rem);
-  transition: border-color 180ms ease;
-}
-.field[data-boundary='horizontal'] {
-  border-inline-color: transparent;
-}
-.field:focus-within {
-  border-color: var(--lumen-ink);
-}
-.field[data-boundary='horizontal']:focus-within {
-  border-inline-color: transparent;
 }
 .fieldContent {
   display: flex;
@@ -335,11 +325,6 @@
 :global([data-lumen-motion='off']) .halo,
 :global([data-lumen-motion='off']) .beam {
   transition: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  .field {
-    transition: none;
-  }
 }
 @media (prefers-reduced-motion: reduce) {
   .halo {
