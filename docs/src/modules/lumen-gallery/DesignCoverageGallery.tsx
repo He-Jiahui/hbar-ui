@@ -10,6 +10,7 @@ import {
   LumenDashboardDesign,
   LumenDataTableDesign,
   LumenDialogDesign,
+  LumenIndicator,
   LumenKanbanDesign,
   LumenMonitoringDesign,
   LumenNotificationsDesign,
@@ -1152,7 +1153,7 @@ export default function DesignCoverageGallery() {
               }}
             >
               {names[id][locale === 'zh' ? 0 : 1]}
-              <span className={styles.navLine} data-active={id === design} />
+              <LumenIndicator edge="bottom" state={id === design ? 'selected' : 'idle'} />
             </Button>
           ))}
         </nav>
@@ -1163,7 +1164,7 @@ export default function DesignCoverageGallery() {
             onClick={() => setSourceId(null)}
           >
             {localized.overview}
-            <span className={styles.navLine} data-active={sourceId === null} />
+            <LumenIndicator edge="bottom" state={sourceId === null ? 'selected' : 'idle'} />
           </Button>
           {sourceVariants.map((item) => (
             <Button
@@ -1173,7 +1174,7 @@ export default function DesignCoverageGallery() {
               onClick={() => setSourceId(item.id)}
             >
               {String(item.variant).padStart(2, '0')} · {item.profile.surface}
-              <span className={styles.navLine} data-active={item.id === sourceId} />
+              <LumenIndicator edge="bottom" state={item.id === sourceId ? 'selected' : 'idle'} />
             </Button>
           ))}
         </nav>

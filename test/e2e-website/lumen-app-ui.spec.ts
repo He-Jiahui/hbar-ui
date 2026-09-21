@@ -944,6 +944,39 @@ test('MUI menus and select fields use Lumen surfaces and boundary lamps', async 
   );
 });
 
+test('design gallery button lists render one shared lamp per item', async ({ page }, testInfo) => {
+  const cases = [
+    { width: 1440, height: 900 },
+    { width: 390, height: 844 },
+  ] as const;
+
+  /* eslint-disable no-await-in-loop -- Each viewport is measured and captured independently. */
+  for (const { width, height } of cases) {
+    await page.setViewportSize({ width, height });
+    await page.goto('/experiments/lumen-app-ui/designs/');
+    const lists = [
+      page.getByRole('navigation', { name: 'Lumen design coverage' }),
+      page.getByRole('navigation', { name: 'Lumen source page examples' }),
+    ];
+    for (const list of lists) {
+      const lamps = await list.getByRole('button').evaluateAll((buttons) =>
+        buttons.map((button) => ({
+          indicatorCount: button.querySelectorAll(':scope > [data-edge="bottom"]').length,
+          generatedLamp: getComputedStyle(button, '::after').content,
+        })),
+      );
+      expect(lamps.length).toBeGreaterThan(0);
+      expect(lamps.every(({ indicatorCount }) => indicatorCount === 1)).toBe(true);
+      expect(lamps.every(({ generatedLamp }) => generatedLamp === 'none')).toBe(true);
+    }
+    await page.screenshot({
+      path: testInfo.outputPath(`button-lists-single-lamp-${width}.png`),
+      animations: 'disabled',
+    });
+  }
+  /* eslint-enable no-await-in-loop */
+});
+
 test('extended Lumen designs cover all non-ported catalog layouts and interactions', async ({
   page,
 }, testInfo) => {

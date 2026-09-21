@@ -112,27 +112,9 @@
   white-space: nowrap;
 }
 
-.navLine {
-  display: block;
-  width: 24%;
-  height: 0.125rem;
-  margin-top: 0.125rem;
-  background: var(--lumen-ink);
-  opacity: 0.25;
-  transition:
-    width 180ms ease,
-    opacity 180ms ease,
-    box-shadow 180ms ease;
-}
-
-.designNav button:hover .navLine,
-.designNav button:focus-visible .navLine,
-.variantNav button:hover .navLine,
-.variantNav button:focus-visible .navLine,
-.navLine[data-active='true'] {
-  width: 80%;
-  opacity: 1;
-  box-shadow: 0 0 0.625rem var(--lumen-ink);
+.designNav button > [data-edge='bottom'],
+.variantNav button > [data-edge='bottom'] {
+  flex: 0 0 0.75rem;
 }
 
 .stage {
@@ -178,11 +160,5 @@
 
   .designNav button {
     flex: 0 0 auto;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .navLine {
-    transition: none;
   }
 }
