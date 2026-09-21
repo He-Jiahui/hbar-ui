@@ -236,21 +236,24 @@ export function HbarAppUiPromptInput02({
   return (
     <Frame id="hbar-app-ui-prompt-input-2" title={copy.title} detail={copy.detail}>
       <div className={styles.toolbar}>
-        <TextField
-          select
-          size="small"
-          label={copy.model}
-          value={models.some((item) => item.id === state.modelId) ? state.modelId : ''}
-          onChange={(event) => actions.onModel(content.id, event.target.value)}
-          slotProps={{ select: { native: true } }}
-        >
-          <option value="">{copy.empty}</option>
-          {models.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.label}
-            </option>
-          ))}
-        </TextField>
+        <LumenField boundary="vertical" className={styles.selectField}>
+          <TextField
+            select
+            fullWidth
+            size="small"
+            label={copy.model}
+            value={models.some((item) => item.id === state.modelId) ? state.modelId : ''}
+            onChange={(event) => actions.onModel(content.id, event.target.value)}
+            slotProps={{ select: { native: true } }}
+          >
+            <option value="">{copy.empty}</option>
+            {models.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.label}
+              </option>
+            ))}
+          </TextField>
+        </LumenField>
         <span className={styles.muted}>{copy.tokens(state.tokenCount)}</span>
       </div>
       <div className={styles.pills} role="group" aria-label={copy.tools}>
@@ -452,21 +455,24 @@ export function HbarAppUiPromptInput06({
             </MenuItem>
           ))}
         </Menu>
-        <TextField
-          select
-          size="small"
-          label={copy.scope}
-          value={scopes.some((item) => item.id === state.scopeId) ? state.scopeId : ''}
-          onChange={(event) => actions.onScope(content.id, event.target.value)}
-          slotProps={{ select: { native: true } }}
-        >
-          <option value="">{copy.empty}</option>
-          {scopes.map((scope) => (
-            <option key={scope.id} value={scope.id}>
-              {scope.label}
-            </option>
-          ))}
-        </TextField>
+        <LumenField boundary="vertical" className={styles.selectField}>
+          <TextField
+            select
+            fullWidth
+            size="small"
+            label={copy.scope}
+            value={scopes.some((item) => item.id === state.scopeId) ? state.scopeId : ''}
+            onChange={(event) => actions.onScope(content.id, event.target.value)}
+            slotProps={{ select: { native: true } }}
+          >
+            <option value="">{copy.empty}</option>
+            {scopes.map((scope) => (
+              <option key={scope.id} value={scope.id}>
+                {scope.label}
+              </option>
+            ))}
+          </TextField>
+        </LumenField>
       </div>
       <div className={styles.pills}>
         {unique(content.sources)

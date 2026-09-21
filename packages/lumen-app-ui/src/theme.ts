@@ -5,6 +5,13 @@ export type LumenMode = 'dark' | 'light';
 export default function createLumenTheme(mode: LumenMode) {
   const ink = mode === 'dark' ? '#eeeeee' : '#171717';
   const controlGlow = mode === 'dark' ? 'rgb(255 255 255 / 75%)' : 'rgb(0 0 0 / 48%)';
+  const menuSurface = mode === 'dark' ? 'rgb(24 24 24 / 92%)' : 'rgb(250 250 250 / 94%)';
+  const menuEdge = mode === 'dark' ? 'rgb(255 255 255 / 17%)' : 'rgb(0 0 0 / 14%)';
+  const menuLine = mode === 'dark' ? 'rgb(255 255 255 / 10%)' : 'rgb(0 0 0 / 10%)';
+  const menuShadow =
+    mode === 'dark'
+      ? '0 0 0.75rem rgb(255 255 255 / 12%), 0 0 2rem rgb(255 255 255 / 6%)'
+      : '0 0 0.5rem rgb(0 0 0 / 18%), 0 0 1.25rem rgb(0 0 0 / 8%)';
   const thumbGlow = `0 0 calc(var(--lumen-range-progress, 0) * ${mode === 'dark' ? '0.8rem' : '0.45rem'}) calc(var(--lumen-range-progress, 0) * 0.125rem) ${controlGlow}`;
   const trackGlow = `0 0 calc(var(--lumen-range-progress, 0) * ${mode === 'dark' ? '0.7rem' : '0.35rem'}) calc(var(--lumen-range-progress, 0) * 0.0625rem) ${controlGlow}`;
   return createTheme({
@@ -65,6 +72,97 @@ export default function createLumenTheme(mode: LumenMode) {
         styleOverrides: { root: { '&:hover': { backgroundColor: 'transparent' } } },
       },
       MuiPaper: { styleOverrides: { root: { backgroundImage: 'none' } } },
+      MuiMenu: {
+        defaultProps: { disableAutoFocusItem: false },
+        styleOverrides: {
+          paper: {
+            backgroundColor: menuSurface,
+            backgroundImage: 'none',
+            backdropFilter: 'blur(0.75rem)',
+            border: `0.0625rem solid ${menuEdge}`,
+            borderRadius: '0.375rem',
+            boxShadow: menuShadow,
+          },
+          list: {
+            padding: '0.375rem',
+          },
+        },
+      },
+      MuiMenuItem: {
+        defaultProps: { disableRipple: true },
+        styleOverrides: {
+          root: {
+            position: 'relative',
+            minHeight: '2.25rem',
+            padding: '0.5rem 0.75rem',
+            borderRadius: '0.25rem',
+            color: ink,
+            backgroundColor: 'transparent',
+            transition: 'color 180ms ease, background-color 180ms ease',
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              bottom: '0.25rem',
+              left: '50%',
+              width: '12%',
+              height: '0.125rem',
+              pointerEvents: 'none',
+              transform: 'translateX(-50%)',
+              borderRadius: '1rem',
+              backgroundColor: ink,
+              opacity: 0.35,
+              boxShadow: `0 0 0.375rem ${menuLine}`,
+              transition: 'width 180ms ease, opacity 180ms ease, box-shadow 180ms ease',
+            },
+            '&:hover': {
+              backgroundColor: 'transparent',
+            },
+            '&:hover::after, &.Mui-focusVisible::after': {
+              width: '48%',
+              opacity: 0.8,
+              boxShadow: `0 0 0.5rem ${controlGlow}`,
+            },
+            '&.Mui-selected::after': {
+              width: '80%',
+              opacity: 1,
+              boxShadow: `0 0 0.75rem ${controlGlow}`,
+            },
+            '&.Mui-disabled': {
+              color: mode === 'dark' ? '#777' : '#999',
+              '&::after': { opacity: 0.12, boxShadow: 'none' },
+            },
+            '@media (prefers-reduced-motion: reduce)': {
+              transition: 'none',
+              '&::after': { transition: 'none' },
+            },
+          },
+        },
+      },
+      MuiOutlinedInput: {
+        styleOverrides: {
+          root: {
+            borderRadius: 6,
+            backgroundColor: 'transparent',
+            '& .MuiOutlinedInput-notchedOutline': { borderColor: 'transparent' },
+            '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'transparent' },
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'transparent' },
+          },
+          notchedOutline: { borderColor: 'transparent' },
+        },
+      },
+      MuiInputLabel: {
+        styleOverrides: {
+          root: {
+            color: mode === 'dark' ? '#aaa' : '#666',
+            '&.Mui-focused': { color: ink },
+          },
+        },
+      },
+      MuiFormHelperText: {
+        styleOverrides: {
+          root: { color: mode === 'dark' ? '#aaa' : '#666' },
+        },
+      },
       MuiSlider: {
         styleOverrides: {
           thumb: {

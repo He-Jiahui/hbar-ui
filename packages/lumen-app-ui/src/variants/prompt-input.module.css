@@ -64,7 +64,7 @@
 }
 
 .toolbar :global(.MuiFormControl-root) {
-  min-width: min(12rem, 100%);
+  min-width: 0;
 }
 
 .toolbar :global(.MuiInputBase-root) {
@@ -73,6 +73,15 @@
 
 .toolbar :global(.MuiInputLabel-root) {
   color: var(--lumen-muted);
+}
+
+.selectField {
+  flex: 0 1 min(12rem, 100%);
+  min-width: min(12rem, 100%);
+}
+
+.selectField :global(.MuiFormControl-root) {
+  width: 100%;
 }
 
 .action {
@@ -212,5 +221,9 @@
   }
   .toolbar :global(.MuiFormControl-root) {
     flex: 1;
+  }
+
+  .selectField {
+    flex: 1 1 min(12rem, 100%);
   }
 }

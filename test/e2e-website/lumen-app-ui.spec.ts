@@ -877,3 +877,44 @@ test('appearance controls use a flat switch line and progress-sensitive light', 
   await expect(switchThumb).toHaveCSS('transition-duration', '0s');
   await expect(slider.locator('.MuiSlider-thumb')).toHaveCSS('transition-duration', '0s');
 });
+
+test('MUI menus and select fields use Lumen surfaces and boundary lamps', async ({ page }) => {
+  await page.goto('/experiments/lumen-app-ui/');
+  const navigation = page.getByRole('navigation', { name: '组件与场景' });
+
+  await navigation.getByRole('button', { name: /16 · 命令与附件/ }).click();
+  await page.getByRole('button', { name: '命令', exact: true }).click();
+  const menu = page.locator('.MuiMenu-paper');
+  const menuItem = page.locator('.MuiMenuItem-root').last();
+  await expect(menu).toBeVisible();
+  expect(await menu.evaluate((element) => getComputedStyle(element).backdropFilter)).toBe(
+    'blur(12px)',
+  );
+  expect(await menu.evaluate((element) => getComputedStyle(element).boxShadow)).not.toContain(
+    'rgba(0, 0, 0, 0.2)',
+  );
+  expect(await menuItem.locator('.MuiTouchRipple-root')).toHaveCount(0);
+  const restingMenuLine = await menuItem.evaluate(
+    (element) => getComputedStyle(element, '::after').width,
+  );
+  await menuItem.hover();
+  await expect
+    .poll(() => menuItem.evaluate((element) => getComputedStyle(element, '::after').width))
+    .not.toBe(restingMenuLine);
+  await page.keyboard.press('Escape');
+
+  await navigation.getByRole('button', { name: /17 · 模型与工具/ }).click();
+  const selectField = page.locator(
+    '[data-hbar-app-ui-variant="hbar-app-ui-prompt-input-2"] [data-boundary="vertical"]',
+  );
+  await expect(selectField.locator('[data-edge="left"]')).toBeVisible();
+  await expect(selectField.locator('[data-edge="right"]')).toBeVisible();
+  const outline = selectField.locator('.MuiOutlinedInput-notchedOutline');
+  expect(await outline.evaluate((element) => getComputedStyle(element).borderColor)).toBe(
+    'rgba(0, 0, 0, 0)',
+  );
+  await selectField.getByRole('combobox').focus();
+  expect(await outline.evaluate((element) => getComputedStyle(element).borderColor)).toBe(
+    'rgba(0, 0, 0, 0)',
+  );
+});
