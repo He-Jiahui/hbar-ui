@@ -98,6 +98,47 @@ export type {
   LumenUsageSeatRow,
   LumenUsageVariantProps,
 } from './usage';
+export {
+  LumenFeedback,
+  LumenFeedback01,
+  LumenFeedback02,
+  LumenFeedback03,
+  LumenFeedback04,
+  LumenFeedback05,
+  LumenFeedback06,
+  LumenFeedbackProvider,
+  selectLumenFeedbackItem,
+  uniqueLumenFeedbackItems,
+  useLumenFeedbackContent,
+} from './feedback-workflows';
+export type {
+  LumenFeedbackAction,
+  LumenFeedbackAttachment,
+  LumenFeedbackContent,
+  LumenFeedbackFeatureBoardContent,
+  LumenFeedbackInboxContent,
+  LumenFeedbackInboxDetail,
+  LumenFeedbackInboxMetric,
+  LumenFeedbackInboxThread,
+  LumenFeedbackInsightsContent,
+  LumenFeedbackListStrategy,
+  LumenFeedbackMetric,
+  LumenFeedbackPostResolutionContent,
+  LumenFeedbackProps,
+  LumenFeedbackProviderProps,
+  LumenFeedbackRatingOption,
+  LumenFeedbackRequest,
+  LumenFeedbackRequestStatus,
+  LumenFeedbackSentiment,
+  LumenFeedbackSurveyContent,
+  LumenFeedbackSurveyReason,
+  LumenFeedbackTheme,
+  LumenFeedbackType,
+  LumenFeedbackTypeOption,
+  LumenFeedbackVariantProps,
+  LumenFeedbackVolumePoint,
+  LumenFeedbackWidgetContent,
+} from './feedback-workflows';
 export { LumenDisclosure } from './disclosure';
 export type { LumenDisclosureProps } from './disclosure';
 export {
