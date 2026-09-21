@@ -224,6 +224,10 @@
   background: var(--lumen-reading);
 }
 
+.lumen-run-activity {
+  container-type: inline-size;
+}
+
 .lumen-run-activity > header,
 .lumen-questionnaire > header {
   justify-content: space-between;
@@ -249,6 +253,19 @@
 .lumen-run-item {
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+.lumen-run-actions {
+  display: flex;
+  min-inline-size: 0;
+  flex: 0 0 clamp(7.5rem, 18%, 9rem);
+  align-items: center;
+  justify-content: flex-end;
+  margin-inline-start: auto;
+}
+
+.lumen-run-actions > button {
+  max-inline-size: 100%;
 }
 
 .lumen-run-summary {
@@ -346,6 +363,20 @@
   gap: 0.25rem;
   padding: 1rem;
   text-align: center;
+}
+
+@container (max-width: 32rem) {
+  .lumen-run-summary {
+    flex-basis: 100%;
+  }
+
+  .lumen-run-actions {
+    flex: 1 1 100%;
+  }
+
+  .lumen-run-actions:empty {
+    display: none;
+  }
 }
 
 .lumen-decision > header {

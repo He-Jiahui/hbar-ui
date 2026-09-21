@@ -534,27 +534,29 @@ export function LumenRunActivity({
                       {run.duration ? <small>{run.duration}</small> : null}
                     </span>
                   </LumenButton>
-                  {active && onCancelRun ? (
-                    <LumenIconButton
-                      className="hbar-app-ui-run-activity-cancel"
-                      label={cancelling ? labels.cancellingLabel : labels.cancelLabel}
-                      disabled={cancelling}
-                      onClick={() => onCancelRun(run.id)}
-                    >
-                      <SessionGlyph name="stop" />
-                    </LumenIconButton>
-                  ) : null}
-                  {retryable && onRetryRun ? (
-                    <LumenButton
-                      className="hbar-app-ui-run-activity-retry"
-                      variant="outlined"
-                      disabled={retrying}
-                      onClick={() => onRetryRun(run.id)}
-                    >
-                      <SessionGlyph name="retry" />
-                      {retrying ? labels.retryingLabel : labels.retryLabel}
-                    </LumenButton>
-                  ) : null}
+                  <div className="lumen-run-actions hbar-app-ui-run-activity-actions">
+                    {active && onCancelRun ? (
+                      <LumenIconButton
+                        className="hbar-app-ui-run-activity-cancel"
+                        label={cancelling ? labels.cancellingLabel : labels.cancelLabel}
+                        disabled={cancelling}
+                        onClick={() => onCancelRun(run.id)}
+                      >
+                        <SessionGlyph name="stop" />
+                      </LumenIconButton>
+                    ) : null}
+                    {retryable && onRetryRun ? (
+                      <LumenButton
+                        className="hbar-app-ui-run-activity-retry"
+                        variant="outlined"
+                        disabled={retrying}
+                        onClick={() => onRetryRun(run.id)}
+                      >
+                        <SessionGlyph name="retry" />
+                        {retrying ? labels.retryingLabel : labels.retryLabel}
+                      </LumenButton>
+                    ) : null}
+                  </div>
                   {plan?.runId === run.id ? renderPlan(plan) : null}
                 </article>
               </li>
