@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { LUMEN_MIGRATED_VARIANT_IDS, LUMEN_SOURCE_VARIANTS } from '@lumen/app-ui/catalog';
+import {
+  LUMEN_DESIGN_COVERAGE_CATEGORIES,
+  LUMEN_MIGRATED_VARIANT_IDS,
+  LUMEN_SOURCE_VARIANTS,
+} from '@lumen/app-ui/catalog';
 import * as variants from '@lumen/app-ui/variants';
 
 describe('Lumen source catalog', () => {
@@ -10,6 +14,12 @@ describe('Lumen source catalog', () => {
     expect(new Set(LUMEN_SOURCE_VARIANTS.map((variant) => variant.category)).size).toBe(38);
     expect(new Set(LUMEN_MIGRATED_VARIANT_IDS).size).toBe(LUMEN_MIGRATED_VARIANT_IDS.length);
     expect(LUMEN_MIGRATED_VARIANT_IDS).toHaveLength(22);
+    for (const category of LUMEN_DESIGN_COVERAGE_CATEGORIES) {
+      expect(ids.some((id) => id.startsWith(`hbar-app-ui-${category}-`))).toBe(true);
+      expect(
+        LUMEN_MIGRATED_VARIANT_IDS.some((id) => id.startsWith(`hbar-app-ui-${category}-`)),
+      ).toBe(false);
+    }
 
     for (const id of LUMEN_MIGRATED_VARIANT_IDS) {
       expect(ids).toContain(id);

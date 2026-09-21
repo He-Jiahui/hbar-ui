@@ -88,3 +88,7 @@ but they are intentionally design directions rather than migrated source IDs.
 The docs-only preview at `/experiments/lumen-app-ui/designs/` shows their dark
 and light Lumen treatment with long content, selection, movement, and step
 navigation states.
+
+The catalog exposes these four names through
+`LUMEN_DESIGN_COVERAGE_CATEGORIES`, so a design preview is visibly distinct
+from a validated source port in both code and the docs catalog.

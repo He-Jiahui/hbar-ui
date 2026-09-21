@@ -36,6 +36,13 @@ test('catalog reaches 38 families and 300 source IDs without calling pending ent
     animations: 'disabled',
   });
 
+  await categories.getByRole('button', { name: /分析/ }).click();
+  await expect(page.getByText('设计覆盖 · 可预览').first()).toBeVisible();
+  await expect(page.getByRole('link', { name: '查看扩展设计' }).first()).toHaveAttribute(
+    'href',
+    '/experiments/lumen-app-ui/designs/',
+  );
+
   await categories.getByRole('button', { name: /提示词输入/ }).click();
   await entries.getByRole('button', { name: /hbar-app-ui-prompt-input-7/ }).click();
   await expect(page.getByRole('link', { name: '打开 Lumen 案例' })).toHaveAttribute(

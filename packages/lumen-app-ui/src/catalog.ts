@@ -44,3 +44,11 @@ export const LUMEN_MIGRATED_VARIANT_IDS = [
   'hbar-app-ui-feedback-5',
   'hbar-app-ui-feedback-6',
 ] as const;
+
+/** Categories with a composable Lumen design preview but no one-to-one source port yet. */
+export const LUMEN_DESIGN_COVERAGE_CATEGORIES = [
+  'analytics',
+  'billing',
+  'kanban',
+  'wizard',
+] as const;
