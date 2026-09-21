@@ -173,6 +173,7 @@ export interface LumenTextProps extends React.HTMLAttributes<HTMLElement> {
     | 'code'
     | 'pre'
     | 'time'
+    | 'output'
     | 'legend'
     | 'dt'
     | 'dd'
