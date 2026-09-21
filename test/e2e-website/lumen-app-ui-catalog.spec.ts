@@ -190,6 +190,34 @@ test('overlay examples use theme-contrast outer glow at desktop and narrow width
     expect(await overlay.evaluate((element) => getComputedStyle(element).boxShadow)).toContain(
       glow,
     );
+    const stage = overlay.locator('..');
+    const content = overlay.locator('[data-lumen-overlay-content]');
+    const spacing = await content.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return {
+        paddingInlineStart: parseFloat(style.paddingInlineStart),
+        paddingInlineEnd: parseFloat(style.paddingInlineEnd),
+        paddingTop: parseFloat(style.paddingTop),
+        fitsInline: element.scrollWidth <= element.clientWidth,
+      };
+    });
+    expect(spacing.paddingInlineStart).toBeGreaterThanOrEqual(20);
+    expect(spacing.paddingInlineEnd).toBeGreaterThanOrEqual(20);
+    expect(spacing.paddingTop).toBeGreaterThanOrEqual(20);
+    expect(spacing.fitsInline).toBe(true);
+    const bounds = await Promise.all([
+      stage.boundingBox(),
+      overlay.boundingBox(),
+      content.locator(':scope > small').boundingBox(),
+    ]);
+    expect(bounds.every(Boolean)).toBe(true);
+    const [stageBounds, overlayBounds, firstTextBounds] = bounds;
+    expect(overlayBounds!.x - stageBounds!.x).toBeGreaterThanOrEqual(23);
+    expect(
+      stageBounds!.x + stageBounds!.width - overlayBounds!.x - overlayBounds!.width,
+    ).toBeGreaterThanOrEqual(23);
+    expect(firstTextBounds!.x - overlayBounds!.x).toBeGreaterThanOrEqual(19);
+    await expect(content.locator(':scope > [data-edge="top"]')).toHaveCSS('position', 'absolute');
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
       width + 1,
     );

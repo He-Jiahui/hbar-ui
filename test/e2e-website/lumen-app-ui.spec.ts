@@ -1023,6 +1023,52 @@ test('extended Lumen designs cover all non-ported catalog layouts and interactio
   expect(await dialogSurface.evaluate((element) => getComputedStyle(element).boxShadow)).toContain(
     'rgba(255, 255, 255, 0.26)',
   );
+  await expect(dialog).toHaveAttribute('data-lumen-dialog-content', 'true');
+  const dialogSpacing = await dialog.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      paddingInlineStart: parseFloat(style.paddingInlineStart),
+      paddingInlineEnd: parseFloat(style.paddingInlineEnd),
+      paddingTop: parseFloat(style.paddingTop),
+      fitsInline: element.scrollWidth <= element.clientWidth,
+      fitsBlock: element.scrollHeight <= element.clientHeight,
+    };
+  });
+  expect(dialogSpacing.paddingInlineStart).toBeGreaterThanOrEqual(24);
+  expect(dialogSpacing.paddingInlineEnd).toBeGreaterThanOrEqual(24);
+  expect(dialogSpacing.paddingTop).toBeGreaterThanOrEqual(24);
+  expect(dialogSpacing.fitsInline).toBe(true);
+  expect(dialogSpacing.fitsBlock).toBe(true);
+  expect(
+    await dialogSurface.evaluate((element) => element.scrollHeight <= element.clientHeight),
+  ).toBe(true);
+  await expect(dialog.getByRole('button', { name: '确认' })).toBeInViewport();
+  await page.screenshot({
+    path: testInfo.outputPath('dialog-open-1440.png'),
+    animations: 'disabled',
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(dialog).toBeVisible();
+  await dialog.scrollIntoViewIfNeeded();
+  await expect(dialog.getByRole('button', { name: '确认' })).toBeInViewport();
+  expect(
+    await dialogSurface.evaluate((element) => element.scrollHeight <= element.clientHeight),
+  ).toBe(true);
+  const narrowBounds = await Promise.all([
+    dialogSurface.locator('..').boundingBox(),
+    dialogSurface.boundingBox(),
+  ]);
+  expect(narrowBounds.every(Boolean)).toBe(true);
+  const [overlayBounds, dialogBounds] = narrowBounds;
+  expect(dialogBounds!.x - overlayBounds!.x).toBeGreaterThanOrEqual(19);
+  expect(
+    overlayBounds!.x + overlayBounds!.width - dialogBounds!.x - dialogBounds!.width,
+  ).toBeGreaterThanOrEqual(19);
+  await page.screenshot({
+    path: testInfo.outputPath('dialog-open-390.png'),
+    animations: 'disabled',
+  });
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.getByRole('dialog').getByRole('button', { name: '确认' }).click();
   await expect(page.getByRole('dialog')).toBeHidden();
   await nav.getByRole('button', { name: '账单' }).click();
