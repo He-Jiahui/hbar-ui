@@ -1,0 +1,254 @@
+.lumen-form-field,
+.lumen-checkbox-copy {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+}
+
+.lumen-form-field {
+  gap: 0.5rem;
+}
+
+.lumen-form-field > label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.lumen-form-field > p,
+.lumen-form-field > small {
+  margin: 0;
+}
+
+.lumen-control {
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-block-size: var(--lumen-control-size, 2.25rem);
+  padding: 0.25rem var(--lumen-control-padding-inline, 0.75rem);
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-control, 0.375rem);
+  outline: none;
+  background: var(--lumen-reading);
+  color: var(--lumen-ink);
+  font: inherit;
+}
+
+.lumen-control[data-size='s'] {
+  min-block-size: 1.875rem;
+  padding-inline: 0.625rem;
+  font-size: 0.8125rem;
+}
+
+.lumen-control[data-size='l'] {
+  min-block-size: 2.625rem;
+  padding-inline: 0.875rem;
+}
+
+.lumen-control[data-variant='plain'] {
+  border-color: transparent;
+  background: transparent;
+}
+
+textarea.lumen-control {
+  min-block-size: 6.5rem;
+  resize: vertical;
+}
+
+.lumen-control::placeholder {
+  color: var(--lumen-muted);
+  opacity: 0.72;
+}
+
+.lumen-control:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--lumen-ink) 38%, var(--lumen-edge));
+}
+
+.lumen-control:focus-visible,
+.lumen-combobox:focus-within .lumen-combobox-control {
+  border-color: var(--lumen-ink);
+  box-shadow: 0 0 0.75rem color-mix(in srgb, var(--lumen-ink) 22%, transparent);
+}
+
+.lumen-control:disabled,
+.lumen-checkbox-control:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.lumen-control[aria-invalid='true'],
+.lumen-form-field[data-invalid='true'] .lumen-control,
+.lumen-combobox-control[data-invalid='true'] {
+  border-color: var(--lumen-danger);
+}
+
+.lumen-checkbox {
+  display: flex;
+  min-inline-size: 0;
+  align-items: flex-start;
+  gap: 0.75rem;
+  color: var(--lumen-ink);
+  cursor: pointer;
+}
+
+.lumen-checkbox-control {
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+  flex: 0 0 auto;
+  margin: 0.25rem 0 0;
+  accent-color: var(--lumen-ink);
+  cursor: pointer;
+}
+
+.lumen-checkbox-control[data-size='s'] {
+  inline-size: 0.875rem;
+  block-size: 0.875rem;
+}
+
+.lumen-checkbox-control[data-size='l'] {
+  inline-size: 1.375rem;
+  block-size: 1.375rem;
+}
+
+.lumen-checkbox-copy {
+  gap: 0.25rem;
+}
+
+.lumen-form-glyph {
+  inline-size: 1rem;
+  block-size: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+}
+
+.lumen-combobox {
+  position: relative;
+  min-inline-size: 0;
+}
+
+.lumen-combobox-control {
+  display: flex;
+  min-inline-size: 0;
+  align-items: stretch;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-control, 0.375rem);
+  background: var(--lumen-reading);
+}
+
+.lumen-combobox-control[data-variant='plain'] {
+  border-color: transparent;
+  background: transparent;
+}
+
+.lumen-combobox-control .lumen-control {
+  min-inline-size: 0;
+  flex: 1 1 auto;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.lumen-combobox-toggle {
+  flex: 0 0 auto;
+  border: 0;
+}
+
+.hbar-app-ui-dialog-menu.lumen-combobox-popup {
+  position: absolute;
+  z-index: 30;
+  inset-block-start: calc(100% + 0.25rem);
+  inset-inline: 0;
+  overflow: hidden;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-control, 0.375rem);
+  background: var(--lumen-reading);
+  box-shadow: 0 0.75rem 2rem color-mix(in srgb, #000 35%, transparent);
+  backdrop-filter: blur(1.5rem);
+}
+
+.lumen-combobox-popup > [role='listbox'] {
+  display: flex;
+  max-block-size: 16rem;
+  flex-direction: column;
+  gap: 0.25rem;
+  overflow: auto;
+  padding: 0.25rem;
+}
+
+.lumen-combobox-popup p {
+  margin: 0;
+  padding: 0.75rem;
+}
+
+.lumen-combobox-option {
+  inline-size: 100%;
+  justify-content: space-between;
+  text-align: start;
+}
+
+.lumen-combobox-option > span:first-child {
+  display: flex;
+  min-inline-size: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.lumen-combobox-load-more {
+  inline-size: calc(100% - 0.5rem);
+  margin: 0 0.25rem 0.25rem;
+}
+
+.lumen-multi-select,
+.lumen-multi-select-values {
+  display: flex;
+  min-inline-size: 0;
+}
+
+.lumen-multi-select {
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.lumen-multi-select-values {
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.lumen-multi-select-values > span {
+  display: inline-flex;
+  min-inline-size: 0;
+  min-block-size: var(--lumen-control-size, 2.25rem);
+  align-items: center;
+  gap: 0.25rem;
+  padding-inline-start: var(--lumen-control-padding-inline, 0.75rem);
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-control, 0.375rem);
+  background: var(--lumen-reading);
+}
+
+.lumen-multi-select[data-disabled='true'] {
+  opacity: 0.48;
+}
+
+[data-lumen-shape='square']
+  :is(
+    .lumen-control,
+    .lumen-combobox-control,
+    .lumen-combobox-popup,
+    .lumen-multi-select-values > span
+  ) {
+  border-radius: 0;
+}
+
+@media (forced-colors: active) {
+  .lumen-control,
+  .lumen-combobox-control,
+  .lumen-combobox-popup,
+  .lumen-multi-select-values > span {
+    border-color: CanvasText;
+    background: Canvas;
+  }
+}

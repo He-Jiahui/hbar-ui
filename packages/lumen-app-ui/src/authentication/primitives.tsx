@@ -1,0 +1,482 @@
+import * as React from 'react';
+import { LumenInput } from '../forms';
+import { LumenButton } from '../primitives';
+import {
+  Apple,
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  ChevronRight,
+  CircleHelp,
+  Eye,
+  EyeOff,
+  GitBranch,
+  KeyRound,
+  Laptop,
+  Link2,
+  Mail,
+  Monitor,
+  MoreHorizontal,
+  MousePointer2,
+  QrCode,
+  Smartphone,
+  Upload,
+  Wifi,
+} from './glyphs';
+import {
+  type LumenAuthListStrategy,
+  type LumenAuthProviderChoice,
+  uniqueLumenAuthItems,
+} from './content';
+
+export interface LumenAuthCompositionProps {
+  readonly spec: {
+    readonly id: string;
+    readonly variant: number;
+    readonly density?: string | undefined;
+    readonly className?: string | undefined;
+    readonly profile: {
+      readonly surface?: string | undefined;
+      readonly initialState?: string | undefined;
+      readonly visualMode?: string | undefined;
+    };
+  };
+  readonly onAction?:
+    | ((event: {
+        readonly variantId: string;
+        readonly actionId: string;
+        readonly value?: string | undefined;
+      }) => void)
+    | undefined;
+}
+
+export function AuthFrame({
+  spec,
+  className,
+  children,
+}: Pick<LumenAuthCompositionProps, 'spec'> & {
+  readonly children: React.ReactNode;
+  readonly className?: string | undefined;
+}) {
+  return (
+    <section
+      className={[
+        'lumen-authentication',
+        'hbar-app-ui-variant',
+        'hbar-app-ui-auth-surface',
+        `hbar-app-ui-auth-variant-${spec.variant}`,
+        spec.density ? `hbar-app-ui-density-${spec.density}` : '',
+        spec.profile.surface ? `hbar-app-ui-surface-${spec.profile.surface}` : '',
+        spec.profile.initialState ? `hbar-app-ui-state-${spec.profile.initialState}` : '',
+        spec.profile.visualMode ? `hbar-app-ui-visual-${spec.profile.visualMode}` : '',
+        spec.className,
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
+      data-lumen-component="authentication"
+      data-lumen-variant={spec.variant}
+      data-hbar-app-ui-component={spec.id}
+      data-hbar-app-ui-surface={spec.profile.surface}
+      data-hbar-app-ui-state={spec.profile.initialState}
+    >
+      {children}
+    </section>
+  );
+}
+
+export function AuthCard({
+  children,
+  className = '',
+}: {
+  readonly children: React.ReactNode;
+  readonly className?: string | undefined;
+}) {
+  return <section className={`hbar-app-ui-auth-card ${className}`}>{children}</section>;
+}
+
+export function AuthIcon({
+  children,
+  tier = 'sm',
+}: {
+  readonly children: React.ReactNode;
+  readonly tier?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | undefined;
+}) {
+  return (
+    <span className={`hbar-app-ui-auth-icon hbar-app-ui-icon-${tier}`} aria-hidden="true">
+      {children}
+    </span>
+  );
+}
+
+export function AuthButton({
+  children,
+  tone = 'neutral',
+  className,
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  readonly tone?: 'neutral' | 'accent' | 'danger' | undefined;
+}) {
+  return (
+    <LumenButton
+      {...props}
+      tone={tone === 'accent' ? 'primary' : tone}
+      variant={tone === 'neutral' ? 'outlined' : 'solid'}
+      className={`hbar-app-ui-auth-button hbar-app-ui-auth-button-${tone} ${className ?? ''}`}
+    >
+      {children}
+    </LumenButton>
+  );
+}
+
+export function AuthIconButton({
+  label,
+  children,
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  readonly label: string;
+}) {
+  return (
+    <AuthButton
+      {...props}
+      className={`hbar-app-ui-auth-icon-button ${props.className ?? ''}`}
+      aria-label={props['aria-label'] ?? label}
+      title={props.title ?? label}
+    >
+      {children}
+    </AuthButton>
+  );
+}
+
+export function AuthBrand({
+  label,
+  compact = false,
+}: {
+  readonly label: string;
+  readonly compact?: boolean | undefined;
+}) {
+  return (
+    <div
+      className={`hbar-app-ui-auth-brand ${compact ? 'is-compact' : ''}`}
+      aria-label={label}
+      role="img"
+    >
+      <span aria-hidden="true">{label.slice(0, 1)}</span>
+      <strong>{label}</strong>
+    </div>
+  );
+}
+
+export function AuthDivider({ label }: { readonly label: string }) {
+  return (
+    <div className="hbar-app-ui-auth-divider">
+      <span aria-hidden="true" />
+      <small>{label}</small>
+      <span aria-hidden="true" />
+    </div>
+  );
+}
+
+export function AuthFooterLinks({
+  links,
+  onSelect,
+}: {
+  readonly links: readonly string[];
+  readonly onSelect: (value: string) => void;
+}) {
+  return (
+    <nav className="hbar-app-ui-auth-footer-links" aria-label={links.join(', ')}>
+      {links.map((link) => (
+        <LumenButton
+          type="button"
+          className="hbar-app-ui-auth-inline-link"
+          key={link}
+          onClick={() => onSelect(link)}
+        >
+          {link}
+        </LumenButton>
+      ))}
+    </nav>
+  );
+}
+
+export function AuthField({
+  label,
+  placeholder,
+  value,
+  type = 'text',
+  onChange,
+  children,
+  helper,
+}: {
+  readonly label: string;
+  readonly placeholder?: string | undefined;
+  readonly value?: string | undefined;
+  readonly type?: string | undefined;
+  readonly onChange?: ((value: string) => void) | undefined;
+  readonly children?: React.ReactNode;
+  readonly helper?: React.ReactNode;
+}) {
+  return (
+    <label className="hbar-app-ui-auth-field">
+      <span>{label}</span>
+      <div className="hbar-app-ui-auth-input-wrap">
+        <LumenInput
+          type={type}
+          value={value}
+          placeholder={placeholder}
+          onChange={(event) => onChange?.(event.currentTarget.value)}
+        />
+        {children}
+      </div>
+      {helper && <small>{helper}</small>}
+    </label>
+  );
+}
+
+export function AuthPasswordButton({
+  visible,
+  showLabel,
+  hideLabel,
+  onToggle,
+}: {
+  readonly visible: boolean;
+  readonly showLabel: string;
+  readonly hideLabel: string;
+  readonly onToggle: () => void;
+}) {
+  return (
+    <AuthIconButton type="button" label={visible ? hideLabel : showLabel} onClick={onToggle}>
+      {visible ? (
+        <AuthIcon>
+          <EyeOff />
+        </AuthIcon>
+      ) : (
+        <AuthIcon>
+          <Eye />
+        </AuthIcon>
+      )}
+    </AuthIconButton>
+  );
+}
+
+export function AuthProviderIcon({
+  kind,
+  label,
+}: {
+  readonly kind?: LumenAuthProviderChoice['icon'] | undefined;
+  readonly label: string;
+}) {
+  switch (kind) {
+    case 'google':
+      return (
+        <AuthIcon>
+          <span className="hbar-app-ui-auth-provider-letter">{label.slice(0, 1)}</span>
+        </AuthIcon>
+      );
+    case 'apple':
+      return (
+        <AuthIcon>
+          <Apple />
+        </AuthIcon>
+      );
+    case 'github':
+      return (
+        <AuthIcon>
+          <GitBranch />
+        </AuthIcon>
+      );
+    case 'mail':
+      return (
+        <AuthIcon>
+          <Mail />
+        </AuthIcon>
+      );
+    case 'key':
+      return (
+        <AuthIcon>
+          <KeyRound />
+        </AuthIcon>
+      );
+    case undefined:
+      return (
+        <AuthIcon>
+          <CircleHelp />
+        </AuthIcon>
+      );
+    default:
+      return (
+        <AuthIcon>
+          <CircleHelp />
+        </AuthIcon>
+      );
+  }
+}
+
+export function AuthProviderButtons({
+  providers,
+  onSelect,
+  listStrategy,
+  className = '',
+}: {
+  readonly providers: readonly LumenAuthProviderChoice[];
+  readonly onSelect: (provider: LumenAuthProviderChoice) => void;
+  readonly listStrategy?: LumenAuthListStrategy | undefined;
+  readonly className?: string | undefined;
+}) {
+  const uniqueProviders = uniqueLumenAuthItems(providers);
+  return (
+    <div
+      className={`hbar-app-ui-auth-provider-buttons ${className}`}
+      data-hbar-app-ui-list-strategy={listStrategy?.kind}
+    >
+      {uniqueProviders.map((provider) => (
+        <AuthButton key={provider.id} type="button" onClick={() => onSelect(provider)}>
+          <AuthProviderIcon kind={provider.icon} label={provider.label} />
+          {provider.label}
+        </AuthButton>
+      ))}
+    </div>
+  );
+}
+
+export function AuthAvatar({
+  initials,
+  label,
+  large = false,
+}: {
+  readonly initials: string;
+  readonly label?: string | undefined;
+  readonly large?: boolean | undefined;
+}) {
+  return (
+    <span className={`hbar-app-ui-auth-avatar ${large ? 'is-large' : ''}`} aria-label={label}>
+      {initials}
+    </span>
+  );
+}
+
+export function AuthStatus({
+  label,
+  tone = 'neutral',
+}: {
+  readonly label: string;
+  readonly tone?: 'neutral' | 'positive' | 'warning' | 'danger' | undefined;
+}) {
+  return (
+    <span className={`hbar-app-ui-auth-status hbar-app-ui-auth-status-${tone}`}>
+      <i aria-hidden="true" />
+      {label}
+    </span>
+  );
+}
+
+export function AuthMetaRows({
+  rows,
+}: {
+  readonly rows: readonly { readonly label: string; readonly value: string }[];
+}) {
+  return (
+    <dl className="hbar-app-ui-auth-meta-rows">
+      {rows.map((row) => (
+        <div key={`${row.label}-${row.value}`}>
+          <dt>{row.label}</dt>
+          <dd>{row.value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+export function AuthArrow({ back = false }: { readonly back?: boolean | undefined }) {
+  return <AuthIcon>{back ? <ArrowLeft /> : <ArrowRight />}</AuthIcon>;
+}
+
+export function AuthLeadingIcon({
+  kind,
+}: {
+  readonly kind: 'laptop' | 'phone' | 'key' | 'monitor' | 'wifi' | 'upload' | 'qr' | 'pointer';
+}) {
+  switch (kind) {
+    case 'phone':
+      return (
+        <AuthIcon>
+          <Smartphone />
+        </AuthIcon>
+      );
+    case 'key':
+      return (
+        <AuthIcon>
+          <KeyRound />
+        </AuthIcon>
+      );
+    case 'monitor':
+      return (
+        <AuthIcon>
+          <Monitor />
+        </AuthIcon>
+      );
+    case 'wifi':
+      return (
+        <AuthIcon>
+          <Wifi />
+        </AuthIcon>
+      );
+    case 'upload':
+      return (
+        <AuthIcon>
+          <Upload />
+        </AuthIcon>
+      );
+    case 'qr':
+      return (
+        <AuthIcon>
+          <QrCode />
+        </AuthIcon>
+      );
+    case 'pointer':
+      return (
+        <AuthIcon>
+          <MousePointer2 />
+        </AuthIcon>
+      );
+    default:
+      return (
+        <AuthIcon>
+          <Laptop />
+        </AuthIcon>
+      );
+  }
+}
+
+export function AuthCheck() {
+  return (
+    <AuthIcon>
+      <Check />
+    </AuthIcon>
+  );
+}
+
+export function AuthLinkIcon() {
+  return (
+    <AuthIcon>
+      <Link2 />
+    </AuthIcon>
+  );
+}
+
+export function AuthMore() {
+  return (
+    <AuthIcon>
+      <MoreHorizontal />
+    </AuthIcon>
+  );
+}
+
+export function AuthChevron() {
+  return (
+    <AuthIcon>
+      <ChevronRight />
+    </AuthIcon>
+  );
+}

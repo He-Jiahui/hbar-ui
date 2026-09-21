@@ -1,10 +1,18 @@
 # Lumen composition package
 
 Private workspace package for the Lumen design language. Import
-`LumenSurface`, `LumenIndicator`, `LumenField`, `LumenSlider`, and `createLumenTheme` from `@lumen/app-ui`;
+`LumenSurface`, `LumenIndicator`, `LumenField`, `LumenSlider`, the application
+primitives, and `createLumenTheme` from `@lumen/app-ui`;
 import `@lumen/app-ui/styles.css` once in the host application. Material UI
 provides the interaction primitives. The package does not depend on hbar's
 runtime or preview application.
+
+Application roots should use `LumenProvider` with a host-owned
+`LumenAppearance`. The provider projects the resolved mode, control size, text
+size, corner size, square or rounded shape, glow intensity, and motion setting
+without persisting any preference itself. It installs the MUI theme and an
+optional transparent `CssBaseline`, leaving the window or browser host in
+control of the actual app background.
 
 The hbar source used for the later component-family migration was frozen from
 the current worktree at commit `3e2e13219e4654b4f0b5781a7780b66fbd270145`.
@@ -14,8 +22,12 @@ is in the ignored `tmp/lumen-source-snapshot` directory. This source is MIT
 licensed; see [LICENSE](LICENSE).
 
 The package is private and is not published. Its source exports are the
-workspace contract; `pnpm -F @lumen/app-ui build` also verifies a standalone
-library bundle. Lumen's glass filter applies to the background layer, so
+workspace contract. `pnpm -F @lumen/app-ui build` creates a standalone ESM
+bundle, CSS, and declaration files, while `pnpm -F @lumen/app-ui pack` applies
+the host-facing `publishConfig` exports. Material UI, Emotion, React, and React
+DOM stay peer dependencies so a host uses one runtime instance; build tooling
+comes from this pnpm workspace rather than becoming part of a file consumer's
+dependency graph. Lumen's glass filter applies to the background layer, so
 foreground text stays sharp. Unsupported browsers render frosted glass.
 
 `LumenSlider` accepts a numeric controlled value and callback, normalizes its
@@ -36,6 +48,36 @@ frosted monochrome surface with line feedback; `Slider` uses progress-sensitive
 track and handle glow; and `Switch` uses the flat track with hollow/solid
 Lumen circles. The browser audit is kept in the docs e2e suite so a new MUI
 primitive cannot silently fall back to its default surface.
+
+Use `LumenButton` and `LumenIconButton` for application actions. Buttons expose
+the Lumen `solid`, `outlined`, and `text` variants, semantic tones, shared size
+tiers, square or rounded geometry, disabled and loading states, and scoped glow
+feedback. `LumenNavigationButton` adds the selected indicator and standard
+`aria-current="page"` semantics. `LumenText` and `LumenStatus` provide the same
+semantic text and status colors without owning any visible copy.
+
+`LumenWorkbenchNotice` centers a host-labelled title, description, and optional
+command inside a responsive glass surface. It accepts the shared square or
+rounded geometry while keeping localization and command values in the host.
+
+The workbench primitives compose a responsive `LumenAppShell` and
+`LumenAppSidebar` from host-owned slots. The project tree owns its scrolling,
+the tool pane becomes a bounded overlay below 80rem, and the narrowest layout
+gives an open navigation pane the full viewport. `LumenSidebarAction`,
+`LumenActionMenu`, and the semantic `LumenIcon` scale keep navigation controls
+consistent without owning application commands or labels.
+
+Native hosts can place `LumenWindowTitlebar` in the shell's `titlebar` slot.
+The host supplies localized labels, maximized state, window callbacks, and the
+current platform. The component exposes Tauri drag regions and adapts its
+controls for Windows/Linux or macOS without importing a desktop runtime.
+
+Application pages can compose `LumenFormField` and the native input, textarea,
+select, checkbox, controlled combobox, and multiselect controls. The form
+wrapper projects its host-owned description, hint, error, required state, and
+ARIA relationships into the supplied control. `LumenDialog`, `LumenPageHeader`,
+`LumenToolPane`, compact metrics, bar series, and settings lists provide the
+remaining bounded workbench structure without owning application state.
 
 Wrap controlled MUI text fields or inputs in `LumenField`. Use a `horizontal`
 boundary when the field sits above or below other controls, and a `vertical`

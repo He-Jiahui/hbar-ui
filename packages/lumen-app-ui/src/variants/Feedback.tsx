@@ -1,11 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
 import LumenField from '../LumenField';
 import LumenIndicator from '../LumenIndicator';
 import LumenSurface from '../LumenSurface';
+import { LumenFormField, LumenInput, LumenTextarea } from '../forms';
+import { LumenButton } from '../primitives';
 import type {
   FeedbackActionCopy,
   FeedbackBaseCopy,
@@ -79,10 +79,15 @@ function Action({
   disabled?: boolean | undefined;
 }) {
   return (
-    <Button className={styles.action} onClick={onClick} disabled={disabled}>
+    <LumenButton
+      className={styles.action}
+      variant="outlined"
+      indicatorState={disabled ? 'disabled' : 'idle'}
+      onClick={onClick}
+      disabled={disabled}
+    >
       {children}
-      <LumenIndicator edge="bottom" length="action" state={disabled ? 'disabled' : 'idle'} />
-    </Button>
+    </LumenButton>
   );
 }
 
@@ -104,19 +109,19 @@ function Choices({
   return (
     <div className={styles.choices} role="group" aria-label={label}>
       {uniqueItems(items).map((item) => (
-        <Button
+        <LumenButton
           key={item.id}
           className={styles.choice}
+          variant="outlined"
+          indicatorState={
+            selectedId === item.id || Boolean(selectedIds?.includes(item.id)) ? 'selected' : 'idle'
+          }
           aria-pressed={selectedId === item.id || Boolean(selectedIds?.includes(item.id))}
           disabled={disabled}
           onClick={() => onSelect(item.id)}
         >
           {item.label}
-          <LumenIndicator
-            edge="bottom"
-            state={selectedId === item.id || selectedIds?.includes(item.id) ? 'selected' : 'idle'}
-          />
-        </Button>
+        </LumenButton>
       ))}
     </div>
   );
@@ -173,6 +178,7 @@ function frameStatus(submission: FeedbackSubmission) {
 export function HbarAppUiFeedback01({ copy, content, state, actions }: HbarAppUiFeedback01Props) {
   const selected = content.types.find((item) => item.id === state.selectedId);
   const busy = state.submission.status === 'submitting';
+  const attachmentInputRef = React.useRef<HTMLInputElement>(null);
   return (
     <Frame id="hbar-app-ui-feedback-1" copy={copy} {...frameStatus(state.submission)}>
       {state.submission.status === 'sent' ? (
@@ -192,31 +198,38 @@ export function HbarAppUiFeedback01({ copy, content, state, actions }: HbarAppUi
           />
           {content.types.length === 0 && <p>{copy.empty}</p>}
           <LumenField boundary="horizontal">
-            <TextField
-              multiline
-              minRows={4}
-              label={copy.messageLabel}
-              value={state.text}
-              disabled={busy}
-              onChange={(event) => actions.onTextChange(content.id, event.target.value)}
-            />
+            <LumenFormField controlId={`${content.id}-message`} label={copy.messageLabel}>
+              <LumenTextarea
+                rows={4}
+                value={state.text}
+                placeholder={copy.messagePlaceholder}
+                disabled={busy}
+                onChange={(event) => actions.onTextChange(content.id, event.target.value)}
+              />
+            </LumenFormField>
           </LumenField>
           <div className={styles.row}>
-            <Button className={styles.attachment} component="label" disabled={busy}>
+            <LumenButton
+              className={styles.attachment}
+              variant="outlined"
+              indicatorState={busy ? 'disabled' : 'idle'}
+              disabled={busy}
+              onClick={() => attachmentInputRef.current?.click()}
+            >
               {copy.attachment}
-              <LumenIndicator edge="bottom" length="action" state={busy ? 'disabled' : 'idle'} />
-              <input
-                hidden
-                type="file"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (file) {
-                    actions.onAttach(content.id, file);
-                  }
-                  event.target.value = '';
-                }}
-              />
-            </Button>
+            </LumenButton>
+            <input
+              ref={attachmentInputRef}
+              hidden
+              type="file"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) {
+                  actions.onAttach(content.id, file);
+                }
+                event.target.value = '';
+              }}
+            />
             {content.attachmentName && <span>{content.attachmentName}</span>}
           </div>
           <Submission
@@ -260,7 +273,7 @@ export function HbarAppUiFeedback02({ copy, content, state, actions }: HbarAppUi
             <strong>{copy.scale}</strong>
             <div className={styles.scale} role="group" aria-label={copy.scale}>
               {[...new Set(content.scores)].map((score) => (
-                <Button
+                <LumenButton
                   key={score}
                   className={styles.scaleButton}
                   aria-label={copy.scoreLabel(score)}
@@ -273,7 +286,7 @@ export function HbarAppUiFeedback02({ copy, content, state, actions }: HbarAppUi
                     edge="bottom"
                     state={state.score === score ? 'selected' : 'idle'}
                   />
-                </Button>
+                </LumenButton>
               ))}
             </div>
             {content.scores.length === 0 && <p>{copy.empty}</p>}
@@ -291,14 +304,14 @@ export function HbarAppUiFeedback02({ copy, content, state, actions }: HbarAppUi
             disabled={busy || !scoreValid}
           />
           <LumenField boundary="horizontal">
-            <TextField
-              multiline
-              minRows={3}
-              label={copy.comment}
-              value={state.comment}
-              disabled={busy}
-              onChange={(event) => actions.onCommentChange(content.id, event.target.value)}
-            />
+            <LumenFormField controlId={`${content.id}-comment`} label={copy.comment}>
+              <LumenTextarea
+                rows={3}
+                value={state.comment}
+                disabled={busy}
+                onChange={(event) => actions.onCommentChange(content.id, event.target.value)}
+              />
+            </LumenFormField>
           </LumenField>
           <Submission
             copy={copy}
@@ -343,7 +356,7 @@ export function HbarAppUiFeedback03({ copy, content, state, actions }: HbarAppUi
             <strong>{copy.rating}</strong>
             <div className={styles.choices} role="group" aria-label={copy.rating}>
               {content.ratings.map(({ value, label }) => (
-                <Button
+                <LumenButton
                   key={value}
                   className={styles.choice}
                   aria-label={label}
@@ -356,7 +369,7 @@ export function HbarAppUiFeedback03({ copy, content, state, actions }: HbarAppUi
                     edge="bottom"
                     state={state.rating === value ? 'selected' : 'idle'}
                   />
-                </Button>
+                </LumenButton>
               ))}
             </div>
             {content.ratings.length === 0 && <p>{copy.empty}</p>}
@@ -369,14 +382,14 @@ export function HbarAppUiFeedback03({ copy, content, state, actions }: HbarAppUi
             onSelect={(id) => actions.onReasonChange(content.id, id)}
           />
           <LumenField boundary="horizontal">
-            <TextField
-              multiline
-              minRows={3}
-              label={copy.comment}
-              value={state.comment}
-              disabled={busy}
-              onChange={(event) => actions.onCommentChange(content.id, event.target.value)}
-            />
+            <LumenFormField controlId={`${content.id}-comment`} label={copy.comment}>
+              <LumenTextarea
+                rows={3}
+                value={state.comment}
+                disabled={busy}
+                onChange={(event) => actions.onCommentChange(content.id, event.target.value)}
+              />
+            </LumenFormField>
           </LumenField>
           <Submission
             copy={copy}
@@ -418,18 +431,20 @@ export function HbarAppUiFeedback04({ copy, content, state, actions }: HbarAppUi
         <Action onClick={() => actions.onNewRequest(content.boardId)}>{copy.newRequest}</Action>
       </div>
       <LumenField boundary="horizontal">
-        <TextField
-          size="small"
-          label={copy.search}
-          value={state.query}
-          onChange={(event) => actions.onQueryChange(content.boardId, event.target.value)}
-        />
+        <LumenFormField controlId={`${content.boardId}-search`} label={copy.search}>
+          <LumenInput
+            type="text"
+            inputMode="search"
+            value={state.query}
+            onChange={(event) => actions.onQueryChange(content.boardId, event.target.value)}
+          />
+        </LumenFormField>
       </LumenField>
       <div className={styles.scrollList} aria-label={copy.title}>
         {requests.length === 0 && <p>{copy.empty}</p>}
         {requests.map((request) => (
           <article className={styles.request} key={request.id}>
-            <Button
+            <LumenButton
               className={styles.vote}
               aria-pressed={request.voted}
               aria-label={request.voted ? copy.removeVote(request.title) : copy.vote(request.title)}
@@ -438,7 +453,7 @@ export function HbarAppUiFeedback04({ copy, content, state, actions }: HbarAppUi
             >
               {request.votes}
               <LumenIndicator edge="bottom" state={request.voted ? 'selected' : 'idle'} />
-            </Button>
+            </LumenButton>
             <div className={styles.requestBody}>
               <div className={styles.row}>
                 <h3>{request.title}</h3>
@@ -468,7 +483,7 @@ export function HbarAppUiFeedback05({ copy, content, state, actions }: HbarAppUi
         <nav className={styles.threadList} aria-label={copy.threads}>
           {threads.length === 0 && <p>{copy.empty}</p>}
           {threads.map((thread) => (
-            <Button
+            <LumenButton
               key={thread.id}
               className={styles.thread}
               aria-current={thread.id === selected?.id ? 'page' : undefined}
@@ -486,7 +501,7 @@ export function HbarAppUiFeedback05({ copy, content, state, actions }: HbarAppUi
                 state={thread.id === selected?.id ? 'selected' : 'idle'}
                 tone={thread.unread ? 'info' : 'neutral'}
               />
-            </Button>
+            </LumenButton>
           ))}
         </nav>
         {selected && (
@@ -507,13 +522,13 @@ export function HbarAppUiFeedback05({ copy, content, state, actions }: HbarAppUi
               <Action onClick={() => actions.onAddTag(selected.id)}>{copy.addTag}</Action>
             </div>
             <LumenField boundary="horizontal">
-              <TextField
-                multiline
-                minRows={3}
-                label={copy.note}
-                value={state.note}
-                onChange={(event) => actions.onNoteChange(selected.id, event.target.value)}
-              />
+              <LumenFormField controlId={`${selected.id}-note`} label={copy.note}>
+                <LumenTextarea
+                  rows={3}
+                  value={state.note}
+                  onChange={(event) => actions.onNoteChange(selected.id, event.target.value)}
+                />
+              </LumenFormField>
             </LumenField>
             {state.error && (
               <p role="alert" className={styles.error}>

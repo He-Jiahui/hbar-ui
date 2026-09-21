@@ -33,6 +33,7 @@ export interface HbarAppUiFeedback01Props {
     FeedbackActionCopy & {
       typeLabel: string;
       messageLabel: string;
+      messagePlaceholder?: string | undefined;
       attachment: string;
       close: string;
     };
