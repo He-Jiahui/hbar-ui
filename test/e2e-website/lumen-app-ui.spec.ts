@@ -996,7 +996,31 @@ test('extended Lumen designs cover all non-ported catalog layouts and interactio
   await page.getByRole('dialog').getByRole('button', { name: '确认' }).click();
   await expect(page.getByRole('dialog')).toBeHidden();
   await nav.getByRole('button', { name: '账单' }).click();
+  const billing = page.locator('[data-lumen-design="lumen-design-billing"]');
   await page.getByRole('button', { name: /规模/ }).click();
+  const planBottoms = await billing
+    .locator('button[aria-pressed] [data-edge="bottom"]')
+    .evaluateAll((beams) => beams.map((beam) => beam.getBoundingClientRect().bottom));
+  expect(Math.max(...planBottoms) - Math.min(...planBottoms)).toBeLessThanOrEqual(1);
+  const invoiceColumns = await billing
+    .getByRole('region', { name: '最近账单' })
+    .locator('button')
+    .evaluateAll((rows) =>
+      rows.map((row) => {
+        const children = [...row.children];
+        return {
+          descriptionWidth: children[0]?.getBoundingClientRect().width ?? 0,
+          amountRight: children[1]?.getBoundingClientRect().right ?? 0,
+          statusRight: children[2]?.getBoundingClientRect().right ?? 0,
+        };
+      }),
+    );
+  expect(invoiceColumns.every(({ descriptionWidth }) => descriptionWidth > 0)).toBe(true);
+  expect(new Set(invoiceColumns.map(({ amountRight }) => Math.round(amountRight))).size).toBe(1);
+  expect(new Set(invoiceColumns.map(({ statusRight }) => Math.round(statusRight))).size).toBe(1);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
+  await page.setViewportSize({ width: 1440, height: 900 });
   await nav.getByRole('button', { name: '仪表盘' }).click();
   await page.getByRole('button', { name: /打开 主题切换/ }).click();
   await nav.getByRole('button', { name: '数据表格' }).click();
