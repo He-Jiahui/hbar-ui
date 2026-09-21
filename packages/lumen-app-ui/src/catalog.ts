@@ -73,6 +73,13 @@ import {
   LumenSettingsForm06,
 } from './settings-form';
 import {
+  LumenEditor01,
+  LumenEditor02,
+  LumenEditor03,
+  LumenEditor04,
+  LumenEditor05,
+} from './editor';
+import {
   LumenFeedback01,
   LumenFeedback02,
   LumenFeedback03,
@@ -156,6 +163,11 @@ export const LUMEN_MIGRATED_VARIANT_IDS = [
   'hbar-app-ui-settings-form-4',
   'hbar-app-ui-settings-form-5',
   'hbar-app-ui-settings-form-6',
+  'hbar-app-ui-editor-1',
+  'hbar-app-ui-editor-2',
+  'hbar-app-ui-editor-3',
+  'hbar-app-ui-editor-4',
+  'hbar-app-ui-editor-5',
   'hbar-app-ui-feedback-1',
   'hbar-app-ui-feedback-2',
   'hbar-app-ui-feedback-3',
@@ -227,6 +239,11 @@ const migratedComponents: Readonly<Partial<Record<LumenMigratedVariantId, React.
   'hbar-app-ui-settings-form-4': LumenSettingsForm04,
   'hbar-app-ui-settings-form-5': LumenSettingsForm05,
   'hbar-app-ui-settings-form-6': LumenSettingsForm06,
+  'hbar-app-ui-editor-1': LumenEditor01,
+  'hbar-app-ui-editor-2': LumenEditor02,
+  'hbar-app-ui-editor-3': LumenEditor03,
+  'hbar-app-ui-editor-4': LumenEditor04,
+  'hbar-app-ui-editor-5': LumenEditor05,
   'hbar-app-ui-feedback-1': LumenFeedback01,
   'hbar-app-ui-feedback-2': LumenFeedback02,
   'hbar-app-ui-feedback-3': LumenFeedback03,
