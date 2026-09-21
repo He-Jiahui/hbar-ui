@@ -72,6 +72,7 @@ const localized = {
     controls: '来源交互',
     empty: '没有匹配的来源项',
     open: '打开 Lumen 案例',
+    designs: '查看扩展设计',
     note: '目录记录来源及迁移进度；未迁移项不作为可复用组件展示。',
   },
   en: {
@@ -94,6 +95,7 @@ const localized = {
     controls: 'Source controls',
     empty: 'No matching source entries',
     open: 'Open Lumen example',
+    designs: 'Open extended designs',
     note: 'The catalog records source structure and migration status; pending items are not reusable components.',
   },
 };
@@ -148,6 +150,9 @@ export default function LumenCatalog() {
           <div className={styles.actions}>
             <Button component="a" href="/experiments/lumen-app-ui/">
               {copy.back}
+            </Button>
+            <Button component="a" href="/experiments/lumen-app-ui/designs/">
+              {copy.designs}
             </Button>
             <Button onClick={() => setLocale((current) => (current === 'zh' ? 'en' : 'zh'))}>
               {copy.locale}

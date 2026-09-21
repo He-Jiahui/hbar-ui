@@ -155,6 +155,9 @@ export default function EmptyStateGallery() {
             <Button component="a" href="/experiments/lumen-app-ui/catalog/">
               {copy.catalog}
             </Button>
+            <Button component="a" href="/experiments/lumen-app-ui/designs/">
+              {copy.designs}
+            </Button>
           </div>
         </header>
         <div className={styles.layout}>

@@ -1,0 +1,135 @@
+.gallery {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  gap: 1.25rem;
+  padding: 2rem;
+  background: #090909;
+  color: var(--lumen-ink);
+  color-scheme: dark;
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  background-image: linear-gradient(
+    115deg,
+    transparent 18%,
+    rgb(255 255 255 / 9%) 20%,
+    transparent 23%
+  );
+}
+
+.gallery[data-lumen-mode='light'] {
+  background-color: #f5f5f5;
+  background-image: linear-gradient(115deg, transparent 18%, rgb(0 0 0 / 8%) 20%, transparent 23%);
+  color-scheme: light;
+}
+
+.toolbar,
+.actions,
+.designNav {
+  display: flex;
+  gap: 1rem;
+}
+
+.toolbar {
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.toolbar h1,
+.toolbar p,
+.note,
+.event {
+  margin: 0;
+}
+
+.toolbar h1 {
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+.toolbar p,
+.note,
+.event {
+  color: var(--lumen-muted);
+  font-size: 0.75rem;
+}
+
+.actions,
+.designNav {
+  flex-wrap: wrap;
+}
+
+.actions button,
+.designNav button {
+  color: var(--lumen-ink);
+  text-transform: none;
+}
+
+.designNav {
+  align-items: center;
+  padding-block: 0.25rem;
+  border-bottom: 0.0625rem solid var(--lumen-line);
+}
+
+.designNav button {
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  min-width: 5rem;
+}
+
+.navLine {
+  display: block;
+  width: 24%;
+  height: 0.125rem;
+  margin-top: 0.125rem;
+  background: var(--lumen-ink);
+  opacity: 0.25;
+  transition:
+    width 180ms ease,
+    opacity 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.designNav button:hover .navLine,
+.designNav button:focus-visible .navLine,
+.navLine[data-active='true'] {
+  width: 80%;
+  opacity: 1;
+  box-shadow: 0 0 0.625rem var(--lumen-ink);
+}
+
+.stage {
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.event {
+  align-self: flex-start;
+}
+
+@media (max-width: 48rem) {
+  .gallery {
+    padding: 1rem;
+  }
+
+  .toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .designNav {
+    overflow-x: auto;
+  }
+
+  .designNav button {
+    flex: 0 0 auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navLine {
+    transition: none;
+  }
+}

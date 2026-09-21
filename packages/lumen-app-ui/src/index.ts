@@ -8,3 +8,24 @@ export { default as LumenSlider } from './LumenSlider';
 export type { LumenSliderProps } from './LumenSlider';
 export { default as createLumenTheme } from './theme';
 export type { LumenMode } from './theme';
+export {
+  LumenAnalyticsDesign,
+  LumenBillingDesign,
+  LumenKanbanDesign,
+  LumenWizardDesign,
+} from './designs';
+export type {
+  AnalyticsDesignProps,
+  AnalyticsMetric,
+  AnalyticsPoint,
+  BillingDesignProps,
+  BillingInvoice,
+  BillingPlan,
+  KanbanCard,
+  KanbanColumn,
+  KanbanDesignProps,
+  LumenDesignCopy,
+  WizardDesignProps,
+  WizardField,
+  WizardStep,
+} from './designs';

@@ -810,6 +810,7 @@ test('appearance controls use a flat switch line and progress-sensitive light', 
   const sample = async (value: number) => {
     await glass.fill(String(value));
     await expect(glass).toHaveAttribute('aria-valuenow', String(value));
+    await page.waitForTimeout(220);
     return slider.evaluate((root) => ({
       progress: getComputedStyle(root).getPropertyValue('--lumen-range-progress').trim(),
       thumb: getComputedStyle(root.querySelector('.MuiSlider-thumb')!).boxShadow,
@@ -917,4 +918,60 @@ test('MUI menus and select fields use Lumen surfaces and boundary lamps', async 
   expect(await outline.evaluate((element) => getComputedStyle(element).borderColor)).toBe(
     'rgba(0, 0, 0, 0)',
   );
+});
+
+test('extended Lumen designs cover analytics billing kanban and wizard layouts', async ({
+  page,
+}, testInfo) => {
+  await page.goto('/experiments/lumen-app-ui/designs/');
+  const nav = page.getByRole('navigation', { name: 'Lumen design coverage' });
+  const designs = [
+    ['分析', 'lumen-design-analytics'],
+    ['账单', 'lumen-design-billing'],
+    ['看板', 'lumen-design-kanban'],
+    ['向导', 'lumen-design-wizard'],
+  ] as const;
+  /* eslint-disable no-await-in-loop -- Each design is verified sequentially on one page. */
+  for (const [label, id] of designs) {
+    await nav.getByRole('button', { name: label }).click();
+    await expect(page.locator(`[data-lumen-design="${id}"]`)).toBeVisible();
+    expect(await page.locator(`[data-lumen-design="${id}"] [data-edge]`).count()).toBeGreaterThan(
+      0,
+    );
+    await page.setViewportSize({ width: 390, height: 844 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+      391,
+    );
+    await page.screenshot({
+      path: testInfo.outputPath(`design-${id}-390.png`),
+      animations: 'disabled',
+    });
+    await page.setViewportSize({ width: 1440, height: 900 });
+  }
+  /* eslint-enable no-await-in-loop */
+
+  await nav.getByRole('button', { name: '分析' }).click();
+  await page.getByRole('combobox', { name: '时间范围' }).selectOption('month');
+  await nav.getByRole('button', { name: '账单' }).click();
+  await page.getByRole('button', { name: /规模/ }).click();
+  await nav.getByRole('button', { name: '看板' }).click();
+  await page.getByRole('button', { name: /整理主题文案/ }).click();
+  await page.locator('[aria-label="移动到"]').getByRole('button', { name: '制作' }).click();
+  await nav.getByRole('button', { name: '向导' }).click();
+  await page.getByRole('textbox', { name: '主题名称' }).fill('新主题');
+  const wizardFields = page.locator(
+    '[data-lumen-design="lumen-design-wizard"] [data-boundary="horizontal"]',
+  );
+  const labelGaps = await wizardFields.evaluateAll((fields) =>
+    fields.map((field) => {
+      const label = field.querySelector('label')?.getBoundingClientRect();
+      const beam = field.querySelector('[data-edge="top"] > span')?.getBoundingClientRect();
+      return label && beam ? beam.y - (label.y + label.height) : -1;
+    }),
+  );
+  expect(labelGaps.every((gap) => gap >= 0)).toBe(true);
+  await page.getByRole('button', { name: '下一步' }).click();
+  await expect(page.getByRole('heading', { name: '光效' })).toBeVisible();
+  await page.getByRole('button', { name: '切换黑白主题' }).click();
+  await expect(page.locator('main[data-lumen-mode]')).toHaveAttribute('data-lumen-mode', 'light');
 });

@@ -23,6 +23,15 @@ current `min`/`max` range, and lets the theme scale thumb and filled-track glow
 with progress. The theme also renders MUI switches as an unlit hollow circle or
 a lit solid circle over a flat line.
 
+The current MUI audit covers every primitive used by the package and design
+previews: `Button`/`ButtonBase` have no ripple or elevation and receive local
+line feedback; `TextField`, `OutlinedInput`, `InputBase`, and native selects
+use transparent outlines inside a `LumenField`; `Menu` and `MenuItem` use a
+frosted monochrome surface with line feedback; `Slider` uses progress-sensitive
+track and handle glow; and `Switch` uses the flat track with hollow/solid
+Lumen circles. The browser audit is kept in the docs e2e suite so a new MUI
+primitive cannot silently fall back to its default surface.
+
 Wrap controlled MUI text fields or inputs in `LumenField`. Use a `horizontal`
 boundary when the field sits above or below other controls, and a `vertical`
 boundary when it sits beside them. Both sides retain a visible short lamp and
@@ -70,3 +79,12 @@ The docs-only directory at `/experiments/lumen-app-ui/catalog/` makes all 38
 families and 300 source IDs searchable, identifies pending entries as source
 structure rather than completed components, and links validated ports back to
 the interactive gallery.
+
+The `@lumen/app-ui/designs` export adds composable design coverage for source
+families that do not have one-to-one ports yet: `LumenAnalyticsDesign`,
+`LumenBillingDesign`, `LumenKanbanDesign`, and `LumenWizardDesign`. These
+components keep the same host-owned copy, content, state, and action contract,
+but they are intentionally design directions rather than migrated source IDs.
+The docs-only preview at `/experiments/lumen-app-ui/designs/` shows their dark
+and light Lumen treatment with long content, selection, movement, and step
+navigation states.
