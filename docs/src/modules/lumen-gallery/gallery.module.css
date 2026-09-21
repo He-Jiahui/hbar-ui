@@ -108,6 +108,25 @@
   color: var(--lumen-muted);
 }
 
+.gallery[data-embedded='true'] {
+  gap: 0;
+  padding: 1rem;
+}
+
+.gallery[data-embedded='true'] .toolbar,
+.gallery[data-embedded='true'] .navigation,
+.gallery[data-embedded='true'] .stage > p {
+  display: none;
+}
+
+.gallery[data-embedded='true'] .layout {
+  display: block;
+}
+
+.gallery[data-embedded='true'] .stage > * {
+  width: 100%;
+}
+
 @media (max-width: 48rem) {
   .gallery {
     padding: 1rem;

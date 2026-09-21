@@ -788,6 +788,7 @@ const onboardingSteps: Record<GalleryLocale, readonly OnboardingStep[]> = {
 };
 
 export default function DesignCoverageGallery() {
+  const [embedded, setEmbedded] = React.useState(false);
   const [mode, setMode] = React.useState<'dark' | 'light'>('dark');
   const [locale, setLocale] = React.useState<GalleryLocale>('zh');
   const [design, setDesign] = React.useState<DesignId>('analytics');
@@ -813,6 +814,23 @@ export default function DesignCoverageGallery() {
   const [event, setEvent] = React.useState(copy[locale].event);
   const localized = copy[locale];
   const theme = React.useMemo(() => createLumenTheme(mode), [mode]);
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setEmbedded(params.get('embed') === '1');
+    const requestedMode = params.get('mode');
+    const requestedLocale = params.get('locale');
+    if (requestedMode === 'dark' || requestedMode === 'light') {
+      setMode(requestedMode);
+    }
+    if (requestedLocale === 'zh' || requestedLocale === 'en') {
+      setLocale(requestedLocale);
+    }
+    const requested = params.get('design');
+    if (requested && Object.prototype.hasOwnProperty.call(names, requested)) {
+      setDesign(requested as DesignId);
+    }
+  }, []);
 
   React.useEffect(() => {
     setFields(wizardFields[locale]);
@@ -1043,7 +1061,7 @@ export default function DesignCoverageGallery() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <main className={styles.gallery} data-lumen-mode={mode}>
+      <main className={styles.gallery} data-lumen-mode={mode} data-embedded={embedded}>
         <header className={styles.toolbar}>
           <div>
             <h1>{localized.title}</h1>

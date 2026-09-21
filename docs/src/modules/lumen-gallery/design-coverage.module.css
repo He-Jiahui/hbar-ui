@@ -105,6 +105,22 @@
   min-width: 0;
 }
 
+.gallery[data-embedded='true'] {
+  gap: 0;
+  padding: 1rem;
+}
+
+.gallery[data-embedded='true'] .toolbar,
+.gallery[data-embedded='true'] .note,
+.gallery[data-embedded='true'] .designNav,
+.gallery[data-embedded='true'] .event {
+  display: none;
+}
+
+.gallery[data-embedded='true'] .stage > * {
+  width: 100%;
+}
+
 .event {
   align-self: flex-start;
 }

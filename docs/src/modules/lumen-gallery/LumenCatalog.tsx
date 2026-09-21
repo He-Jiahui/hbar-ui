@@ -76,6 +76,10 @@ const localized = {
     surface: '布局表面',
     state: '初始状态',
     controls: '来源交互',
+    preview: '真实预览',
+    previewReady: '可操作变体预览',
+    previewDesign: '设计覆盖预览',
+    previewPending: '当前分类尚未提供预览',
     empty: '没有匹配的来源项',
     open: '打开 Lumen 案例',
     designs: '查看扩展设计',
@@ -100,6 +104,10 @@ const localized = {
     surface: 'Surface',
     state: 'Initial state',
     controls: 'Source controls',
+    preview: 'Live preview',
+    previewReady: 'Interactive variant preview',
+    previewDesign: 'Design coverage preview',
+    previewPending: 'No preview is available for this family yet',
     empty: 'No matching source entries',
     open: 'Open Lumen example',
     designs: 'Open extended designs',
@@ -155,6 +163,34 @@ export default function LumenCatalog() {
   const designed = selected && designCoverage.has(selected.category);
   const selectedStatus = selected ? statusFor(selected.category, selected.id) : copy.pending;
   const galleryIndex = selected ? galleryVariant(selected.category, selected.variant) : null;
+  let previewLabel = copy.previewPending;
+  let preview: React.ReactNode = (
+    <div className={styles.previewPending}>
+      <LumenIndicator edge="bottom" state="idle" />
+      <p>{copy.previewPending}</p>
+    </div>
+  );
+  if (ready && galleryIndex) {
+    previewLabel = copy.previewReady;
+    preview = (
+      <iframe
+        className={styles.previewFrame}
+        title={`${selected.id} ${copy.previewReady}`}
+        src={`/experiments/lumen-app-ui/?variant=${galleryIndex}&embed=1&mode=${mode}&locale=${locale}`}
+        loading="lazy"
+      />
+    );
+  } else if (designed && selected) {
+    previewLabel = copy.previewDesign;
+    preview = (
+      <iframe
+        className={styles.previewFrame}
+        title={`${selected.category} ${copy.previewDesign}`}
+        src={`/experiments/lumen-app-ui/designs/?design=${encodeURIComponent(selected.category)}&embed=1&mode=${mode}&locale=${locale}`}
+        loading="lazy"
+      />
+    );
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -285,10 +321,20 @@ export default function LumenCatalog() {
                     </Button>
                   )}
                   {!ready && designed && (
-                    <Button component="a" href="/experiments/lumen-app-ui/designs/">
+                    <Button
+                      component="a"
+                      href={`/experiments/lumen-app-ui/designs/?design=${encodeURIComponent(selected.category)}`}
+                    >
                       {copy.designs}
                     </Button>
                   )}
+                  <section className={styles.previewSection} aria-label={copy.preview}>
+                    <div className={styles.previewHeading}>
+                      <h3>{copy.preview}</h3>
+                      <small>{previewLabel}</small>
+                    </div>
+                    {preview}
+                  </section>
                 </section>
               </LumenSurface>
             ) : (

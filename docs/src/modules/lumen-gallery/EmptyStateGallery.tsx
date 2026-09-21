@@ -22,6 +22,7 @@ import { getScenarioFixtures } from './scenarioFixtures';
 import styles from './gallery.module.css';
 
 export default function EmptyStateGallery() {
+  const [embedded, setEmbedded] = React.useState(false);
   const [mode, setMode] = React.useState<'dark' | 'light'>('dark');
   const [locale, setLocale] = React.useState<GalleryLocale>('zh');
   const [variant, setVariant] = React.useState(1);
@@ -45,7 +46,17 @@ export default function EmptyStateGallery() {
     [],
   );
   React.useEffect(() => {
-    const requested = Number(new URLSearchParams(window.location.search).get('variant'));
+    const params = new URLSearchParams(window.location.search);
+    setEmbedded(params.get('embed') === '1');
+    const requestedMode = params.get('mode');
+    const requestedLocale = params.get('locale');
+    if (requestedMode === 'dark' || requestedMode === 'light') {
+      setMode(requestedMode);
+    }
+    if (requestedLocale === 'zh' || requestedLocale === 'en') {
+      setLocale(requestedLocale);
+    }
+    const requested = Number(params.get('variant'));
     if (Number.isInteger(requested) && requested >= 1 && requested <= 26) {
       setVariant(requested);
     }
@@ -141,7 +152,7 @@ export default function EmptyStateGallery() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <main className={styles.gallery} data-lumen-mode={mode}>
+      <main className={styles.gallery} data-lumen-mode={mode} data-embedded={embedded}>
         <header className={styles.toolbar}>
           <h1>{copy.brand}</h1>
           <div className={styles.toolbarActions}>
