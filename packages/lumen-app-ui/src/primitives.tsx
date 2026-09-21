@@ -12,7 +12,9 @@ export interface LumenButtonProps extends Omit<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
   'color' | 'type'
 > {
-  type?: 'button' | 'submit' | undefined;
+  'data-variant'?: string | undefined;
+  'data-tone'?: string | undefined;
+  type?: 'button' | 'submit' | 'reset' | undefined;
   variant?: LumenActionVariant | undefined;
   tone?: LumenActionTone | undefined;
   size?: LumenSize | undefined;
@@ -26,58 +28,65 @@ function indicatorTone(tone: LumenActionTone): LumenTone {
   return tone === 'primary' ? 'neutral' : tone;
 }
 
-export function LumenButton({
-  variant = 'solid',
-  tone = 'neutral',
-  size = 'm',
-  shape = 'rounded',
-  loading = false,
-  indicatorState,
-  indicatorEdge = 'bottom',
-  className,
-  children,
-  disabled,
-  type = 'button',
-  ...other
-}: LumenButtonProps) {
-  const compatibilityVariant = (other as Record<string, unknown>)['data-variant'];
-  let state = indicatorState;
-  if (disabled) {
-    state = 'disabled';
-  } else if (loading) {
-    state = 'running';
-  }
-  return (
-    <button
-      {...other}
-      type={type === 'submit' ? 'submit' : 'button'}
-      className={[styles.button, className].filter(Boolean).join(' ')}
-      data-lumen-variant={variant}
-      data-tone={tone}
-      data-size={size}
-      data-shape={shape}
-      data-variant={typeof compatibilityVariant === 'string' ? compatibilityVariant : variant}
-      aria-busy={loading || undefined}
-      disabled={disabled || loading}
-    >
-      {children}
-      {state ? (
-        <LumenIndicator
-          edge={indicatorEdge}
-          state={state}
-          tone={indicatorTone(tone)}
-          length="action"
-        />
-      ) : null}
-    </button>
-  );
-}
+export const LumenButton = React.forwardRef<HTMLButtonElement, LumenButtonProps>(
+  function LumenButton(
+    {
+      variant = 'solid',
+      tone = 'neutral',
+      size = 'm',
+      shape = 'rounded',
+      loading = false,
+      indicatorState,
+      indicatorEdge = 'bottom',
+      className,
+      children,
+      disabled,
+      type = 'button',
+      'data-variant': compatibilityVariant,
+      'data-tone': compatibilityTone,
+      ...other
+    }: LumenButtonProps,
+    ref,
+  ) {
+    let state = indicatorState;
+    if (disabled) {
+      state = 'disabled';
+    } else if (loading) {
+      state = 'running';
+    }
+    return (
+      <button
+        {...other}
+        ref={ref}
+        type={type}
+        className={[styles.button, className].filter(Boolean).join(' ')}
+        data-lumen-variant={variant}
+        data-tone={typeof compatibilityTone === 'string' ? compatibilityTone : tone}
+        data-size={size}
+        data-shape={shape}
+        data-variant={typeof compatibilityVariant === 'string' ? compatibilityVariant : variant}
+        aria-busy={loading || undefined}
+        disabled={disabled || loading}
+      >
+        {children}
+        {state ? (
+          <LumenIndicator
+            edge={indicatorEdge}
+            state={state}
+            tone={indicatorTone(tone)}
+            length="action"
+          />
+        ) : null}
+      </button>
+    );
+  },
+);
 
 export interface LumenIconButtonProps extends Omit<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
   'color' | 'size' | 'type'
 > {
-  type?: 'button' | 'submit' | undefined;
+  type?: 'button' | 'submit' | 'reset' | undefined;
   label: string;
   tone?: LumenActionTone | undefined;
   size?: LumenSize | undefined;
@@ -85,35 +94,41 @@ export interface LumenIconButtonProps extends Omit<
   loading?: boolean | undefined;
 }
 
-export function LumenIconButton({
-  label,
-  tone = 'neutral',
-  size = 'm',
-  shape = 'rounded',
-  loading = false,
-  className,
-  disabled,
-  children,
-  type = 'button',
-  ...other
-}: LumenIconButtonProps) {
-  return (
-    <button
-      {...other}
-      type={type === 'submit' ? 'submit' : 'button'}
-      className={[styles.iconButton, className].filter(Boolean).join(' ')}
-      data-tone={tone}
-      data-size={size}
-      data-shape={shape}
-      aria-label={other['aria-label'] ?? label}
-      aria-busy={loading || undefined}
-      title={other.title ?? label}
-      disabled={disabled || loading}
-    >
-      {children}
-    </button>
-  );
-}
+export const LumenIconButton = React.forwardRef<HTMLButtonElement, LumenIconButtonProps>(
+  function LumenIconButton(
+    {
+      label,
+      tone = 'neutral',
+      size = 'm',
+      shape = 'rounded',
+      loading = false,
+      className,
+      disabled,
+      children,
+      type = 'button',
+      ...other
+    }: LumenIconButtonProps,
+    ref,
+  ) {
+    return (
+      <button
+        {...other}
+        ref={ref}
+        type={type}
+        className={[styles.iconButton, className].filter(Boolean).join(' ')}
+        data-tone={tone}
+        data-size={size}
+        data-shape={shape}
+        aria-label={other['aria-label'] ?? label}
+        aria-busy={loading || undefined}
+        title={other.title ?? label}
+        disabled={disabled || loading}
+      >
+        {children}
+      </button>
+    );
+  },
+);
 
 export interface LumenNavigationButtonProps extends Omit<LumenButtonProps, 'indicatorState'> {
   selected?: boolean | undefined;

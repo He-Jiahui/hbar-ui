@@ -103,20 +103,36 @@ interface LumenControlProps {
 }
 
 export interface LumenInputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>, LumenControlProps {}
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>, LumenControlProps {
+  'data-size'?: string | undefined;
+  'data-variant'?: string | undefined;
+}
 
 export interface LumenTextareaProps
-  extends React.TextareaHTMLAttributes<HTMLTextAreaElement>, LumenControlProps {}
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement>, LumenControlProps {
+  'data-size'?: string | undefined;
+  'data-variant'?: string | undefined;
+}
 
 export interface LumenSelectProps
-  extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'size'>, LumenControlProps {}
+  extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'size'>, LumenControlProps {
+  'data-size'?: string | undefined;
+  'data-variant'?: string | undefined;
+}
 
 function controlClass(className: string | undefined): string {
-  return ['lumen-control', className].filter(Boolean).join(' ');
+  return [className, 'lumen-control'].filter(Boolean).join(' ');
 }
 
 export const LumenInput = React.forwardRef<HTMLInputElement, LumenInputProps>(function LumenInput(
-  { className, size, variant = 'outlined', ...other },
+  {
+    className,
+    size,
+    variant = 'outlined',
+    'data-size': compatibilitySize,
+    'data-variant': compatibilityVariant,
+    ...other
+  },
   ref,
 ) {
   return (
@@ -124,35 +140,59 @@ export const LumenInput = React.forwardRef<HTMLInputElement, LumenInputProps>(fu
       {...other}
       ref={ref}
       className={controlClass(className)}
-      data-size={size}
-      data-variant={variant}
+      data-size={size ?? (typeof compatibilitySize === 'string' ? compatibilitySize : undefined)}
+      data-lumen-variant={variant}
+      data-variant={typeof compatibilityVariant === 'string' ? compatibilityVariant : variant}
     />
   );
 });
 
 export const LumenTextarea = React.forwardRef<HTMLTextAreaElement, LumenTextareaProps>(
-  function LumenTextarea({ className, size, variant = 'outlined', ...other }, ref) {
+  function LumenTextarea(
+    {
+      className,
+      size,
+      variant = 'outlined',
+      'data-size': compatibilitySize,
+      'data-variant': compatibilityVariant,
+      ...other
+    },
+    ref,
+  ) {
     return (
       <textarea
         {...other}
         ref={ref}
         className={controlClass(className)}
-        data-size={size}
-        data-variant={variant}
+        data-size={size ?? (typeof compatibilitySize === 'string' ? compatibilitySize : undefined)}
+        data-lumen-variant={variant}
+        data-variant={typeof compatibilityVariant === 'string' ? compatibilityVariant : variant}
       />
     );
   },
 );
 
 export const LumenSelect = React.forwardRef<HTMLSelectElement, LumenSelectProps>(
-  function LumenSelect({ className, children, size, variant = 'outlined', ...other }, ref) {
+  function LumenSelect(
+    {
+      className,
+      children,
+      size,
+      variant = 'outlined',
+      'data-size': compatibilitySize,
+      'data-variant': compatibilityVariant,
+      ...other
+    },
+    ref,
+  ) {
     return (
       <select
         {...other}
         ref={ref}
         className={controlClass(className)}
-        data-size={size}
-        data-variant={variant}
+        data-size={size ?? (typeof compatibilitySize === 'string' ? compatibilitySize : undefined)}
+        data-lumen-variant={variant}
+        data-variant={typeof compatibilityVariant === 'string' ? compatibilityVariant : variant}
       >
         {children}
       </select>
@@ -169,13 +209,14 @@ export interface LumenCheckBoxControlProps extends Omit<
 
 export const LumenCheckBoxControl = React.forwardRef<HTMLInputElement, LumenCheckBoxControlProps>(
   function LumenCheckBoxControl({ size, className, ...other }, ref) {
+    const compatibilitySize = (other as Record<string, unknown>)['data-size'];
     return (
       <input
         {...other}
         ref={ref}
         type="checkbox"
         className={['lumen-checkbox-control', className].filter(Boolean).join(' ')}
-        data-size={size}
+        data-size={size ?? (typeof compatibilitySize === 'string' ? compatibilitySize : undefined)}
       />
     );
   },
