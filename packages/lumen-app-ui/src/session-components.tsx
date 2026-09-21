@@ -781,7 +781,7 @@ export function LumenQuestionnaire({
                     className="lumen-question-option hbar-app-ui-questionnaire-option"
                     key={option.value}
                   >
-                    <input
+                    <LumenInput
                       type="radio"
                       name={`${requestId}:${question.id}`}
                       value={option.value}
@@ -798,7 +798,7 @@ export function LumenQuestionnaire({
                 ))}
                 {hasOptions && question.acceptsCustomAnswer ? (
                   <label className="lumen-question-option hbar-app-ui-questionnaire-option">
-                    <input
+                    <LumenInput
                       type="radio"
                       name={`${requestId}:${question.id}`}
                       checked={answer?.kind === 'custom'}
