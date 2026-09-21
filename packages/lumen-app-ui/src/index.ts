@@ -416,6 +416,47 @@ export type {
   LumenBillingWorkflowStep,
 } from './billing/content';
 export {
+  LumenIntegrations,
+  LumenIntegrations01,
+  LumenIntegrations02,
+  LumenIntegrations03,
+  LumenIntegrations04,
+  LumenIntegrations05,
+  LumenIntegrations06,
+  LumenIntegrationProvider,
+  selectLumenIntegrationItem,
+  uniqueLumenIntegrationItems,
+  useLumenIntegrationContent,
+} from './integrations';
+export type {
+  LumenIntegrationsAction,
+  LumenIntegrationsProps,
+  LumenIntegrationsVariantProps,
+} from './integrations';
+export type {
+  LumenIntegrationActivity,
+  LumenIntegrationApiKey,
+  LumenIntegrationApiKeysContent,
+  LumenIntegrationCategory,
+  LumenIntegrationConnectionContent,
+  LumenIntegrationConsentContent,
+  LumenIntegrationConsentPermission,
+  LumenIntegrationContent,
+  LumenIntegrationDelivery,
+  LumenIntegrationEndpoint,
+  LumenIntegrationListStrategy,
+  LumenIntegrationMarketplaceContent,
+  LumenIntegrationMarketplaceItem,
+  LumenIntegrationProviderProps,
+  LumenIntegrationScope,
+  LumenIntegrationSyncContent,
+  LumenIntegrationSyncMetric,
+  LumenIntegrationSyncSource,
+  LumenIntegrationTone,
+  LumenIntegrationWebhookContent,
+  LumenIntegrationWorkspace,
+} from './integrations/content';
+export {
   LumenUsage,
   LumenUsage01,
   LumenUsage02,
