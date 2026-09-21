@@ -10,6 +10,8 @@ export { default as LumenSlider } from './LumenSlider';
 export type { LumenSliderProps } from './LumenSlider';
 export { LumenDialog } from './dialog';
 export type { LumenDialogProps } from './dialog';
+export { LumenDisclosure } from './disclosure';
+export type { LumenDisclosureProps } from './disclosure';
 export {
   LumenCheckBox,
   LumenCheckBoxControl,
