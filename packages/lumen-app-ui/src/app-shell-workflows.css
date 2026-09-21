@@ -1,0 +1,415 @@
+.lumen-app-shell-stage {
+  display: flex;
+  min-inline-size: 0;
+  min-block-size: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--lumen-reading);
+  color: var(--lumen-ink);
+}
+.lumen-app-shell-stage *,
+.lumen-app-shell-stage *::before,
+.lumen-app-shell-stage *::after {
+  box-sizing: border-box;
+}
+.lumen-app-shell-stage :where(h1, h2, p) {
+  margin: 0;
+}
+.lumen-app-shell-glyph {
+  inline-size: 1rem;
+  block-size: 1rem;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+}
+.lumen-app-shell-header {
+  display: flex;
+  min-inline-size: 0;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border-block-end: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-app-shell-header > div {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.lumen-app-shell-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+.lumen-app-shell-sidebar-layout {
+  display: grid;
+  min-block-size: 0;
+  flex: 1 1 auto;
+  grid-template-columns: minmax(12rem, 17rem) minmax(0, 1fr);
+}
+.lumen-app-shell-sidebar-layout > aside,
+.lumen-app-shell-three-pane > aside,
+.lumen-app-shell-context-columns > aside,
+.lumen-app-shell-triage > aside,
+.lumen-app-shell-document > aside,
+.lumen-app-shell-chat > aside {
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: auto;
+  border-inline-end: 0.0625rem solid var(--lumen-edge);
+  background: var(--lumen-glass);
+}
+.lumen-app-shell-sidebar-layout > aside > button {
+  margin-inline: 0.5rem;
+}
+.lumen-app-shell-sidebar-layout > main {
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: auto;
+}
+.lumen-app-shell-search {
+  margin: 1rem;
+}
+.lumen-app-shell-nav {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.5rem;
+}
+.lumen-app-shell-nav > button {
+  inline-size: 100%;
+  justify-content: flex-start;
+}
+.lumen-app-shell-nav > button[aria-current='page'] {
+  color: var(--lumen-accent);
+  background: color-mix(in srgb, var(--lumen-accent) 10%, transparent);
+}
+.lumen-app-shell-nav > button small {
+  margin-inline-start: auto;
+}
+.lumen-app-shell-nav.is-compact {
+  border-inline-end: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-app-shell-nav.is-compact > button span,
+.lumen-app-shell-nav.is-compact > button small {
+  display: none;
+}
+.lumen-app-shell-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 0.75rem;
+  padding: 0 1rem 1rem;
+}
+.lumen-app-shell-metrics article {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 1rem;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-control);
+}
+.lumen-app-shell-metrics strong {
+  font-size: 1.5rem;
+}
+.lumen-app-shell-records {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  padding: 0.5rem 1rem 1rem;
+}
+.lumen-app-shell-records > button {
+  display: grid;
+  inline-size: 100%;
+  grid-template-columns: minmax(0, 1fr) auto;
+  justify-content: stretch;
+  border-block-end: 0.0625rem solid var(--lumen-edge);
+  border-radius: 0;
+  text-align: start;
+}
+.lumen-app-shell-records > button > span {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+}
+.lumen-app-shell-records small {
+  color: var(--lumen-muted);
+}
+.lumen-app-shell-records > button[aria-pressed='true'] {
+  color: var(--lumen-accent);
+  background: color-mix(in srgb, var(--lumen-accent) 8%, transparent);
+}
+.lumen-app-shell-three-pane {
+  display: grid;
+  min-block-size: 0;
+  flex: 1 1 auto;
+  grid-template-columns: 3.75rem minmax(10rem, 15rem) minmax(0, 1fr);
+}
+.lumen-app-shell-three-pane > aside {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem;
+}
+.lumen-app-shell-three-pane > main {
+  min-inline-size: 0;
+  overflow: auto;
+}
+.lumen-app-shell-workbench-header {
+  display: flex;
+  inline-size: 100%;
+  min-inline-size: 0;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+}
+.lumen-app-shell-workbench-header > button:nth-last-of-type(1) {
+  margin-inline-start: auto;
+}
+.lumen-app-shell-workbench {
+  min-block-size: 100%;
+}
+.lumen-app-shell-context-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.75rem 1rem;
+}
+.lumen-app-shell-context-columns {
+  display: grid;
+  min-block-size: 0;
+  flex: 1 1 auto;
+  grid-template-columns: minmax(11rem, 15rem) minmax(0, 1fr) minmax(12rem, 18rem);
+}
+.lumen-app-shell-context-columns > main {
+  min-inline-size: 0;
+  overflow: auto;
+}
+.lumen-app-shell-context-columns > aside:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-inline: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-app-shell-context-columns > aside:last-child > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding-block-end: 0.75rem;
+  border-block-end: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-app-shell-context-columns small {
+  color: var(--lumen-muted);
+}
+.lumen-app-shell-triage {
+  display: grid;
+  min-block-size: 0;
+  flex: 1 1 auto;
+  grid-template-columns: 3.75rem minmax(15rem, 22rem) minmax(0, 1fr);
+}
+.lumen-app-shell-triage > main {
+  min-inline-size: 0;
+  overflow: auto;
+}
+.lumen-app-shell-triage > main > p {
+  padding: 1rem;
+}
+.lumen-app-shell-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+.lumen-app-shell-filter input {
+  min-inline-size: 0;
+}
+.lumen-app-shell-document {
+  display: grid;
+  min-block-size: 0;
+  flex: 1 1 auto;
+  grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr);
+}
+.lumen-app-shell-document > aside {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 1rem;
+}
+.lumen-app-shell-document > aside > button {
+  justify-content: flex-start;
+}
+.lumen-app-shell-document > main {
+  display: grid;
+  min-inline-size: 0;
+  min-block-size: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+.lumen-app-shell-format {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.6rem;
+  border-block-end: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-app-shell-format > button:last-child {
+  margin-inline-start: auto;
+}
+.lumen-app-shell-document textarea {
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 18rem;
+  resize: none;
+  border: 0;
+  border-radius: 0;
+}
+.lumen-app-shell-scoped {
+  min-block-size: 0;
+  overflow: auto;
+  padding: 1rem;
+}
+.lumen-app-shell-scope-pickers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.75rem;
+  margin-block-end: 1rem;
+}
+.lumen-app-shell-scope-pickers label {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.lumen-app-shell-view-tabs {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.5rem 1rem;
+  border-block-end: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-app-shell-view-tabs > button[aria-selected='true'] {
+  color: var(--lumen-accent);
+  box-shadow: inset 0 -0.125rem var(--lumen-accent);
+}
+.lumen-app-shell-adaptive {
+  display: grid;
+  min-block-size: 0;
+  flex: 1 1 auto;
+  grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr);
+}
+.lumen-app-shell-adaptive > main {
+  min-inline-size: 0;
+  overflow: auto;
+}
+.lumen-app-shell-adaptive[data-view='mobile'] {
+  inline-size: min(26rem, 100%);
+  grid-template-columns: 1fr;
+  align-self: center;
+  border-inline: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-app-shell-adaptive[data-view='mobile'] > nav {
+  order: 2;
+  flex-direction: row;
+  border-block-start: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-app-shell-adaptive[data-view='mobile'] > nav > button {
+  justify-content: center;
+}
+.lumen-app-shell-chat {
+  display: grid;
+  min-block-size: 0;
+  flex: 1 1 auto;
+  grid-template-columns: minmax(13rem, 20rem) minmax(0, 1fr);
+}
+.lumen-app-shell-chat > aside {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 1rem;
+}
+.lumen-app-shell-chat > aside > button {
+  justify-content: flex-start;
+}
+.lumen-app-shell-chat > main {
+  display: grid;
+  min-inline-size: 0;
+  min-block-size: 0;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  overflow: hidden;
+}
+.lumen-app-shell-chat > main > select {
+  justify-self: end;
+  margin: 0.75rem 1rem;
+}
+.lumen-app-shell-messages {
+  min-block-size: 0;
+  overflow: auto;
+  padding: 1rem;
+}
+.lumen-app-shell-messages article {
+  inline-size: min(36rem, 90%);
+  margin-block-end: 0.75rem;
+  padding: 0.75rem;
+  border-radius: var(--lumen-radius-control);
+  background: var(--lumen-glass);
+}
+.lumen-app-shell-composer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-block-start: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-app-shell-composer textarea {
+  min-block-size: 4rem;
+  resize: vertical;
+}
+.lumen-app-shell-empty {
+  margin: 1rem;
+  padding: 1.5rem;
+  border: 0.0625rem dashed var(--lumen-edge);
+  border-radius: var(--lumen-radius-control);
+  text-align: center;
+}
+.lumen-app-shell-stage [data-hbar-app-ui-list-strategy='pane-scroll'] {
+  max-block-size: 28rem;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+@media (max-width: 48rem) {
+  .lumen-app-shell-sidebar-layout,
+  .lumen-app-shell-three-pane,
+  .lumen-app-shell-context-columns,
+  .lumen-app-shell-triage,
+  .lumen-app-shell-document,
+  .lumen-app-shell-adaptive,
+  .lumen-app-shell-chat {
+    grid-template-columns: 1fr;
+  }
+  .lumen-app-shell-sidebar-layout > aside,
+  .lumen-app-shell-three-pane > nav,
+  .lumen-app-shell-context-columns > nav,
+  .lumen-app-shell-triage > nav,
+  .lumen-app-shell-document > aside,
+  .lumen-app-shell-adaptive > nav,
+  .lumen-app-shell-chat > aside {
+    max-block-size: 14rem;
+    border-inline-end: 0;
+    border-block-end: 0.0625rem solid var(--lumen-edge);
+  }
+  .lumen-app-shell-nav.is-compact {
+    flex-direction: row;
+    border-inline-end: 0;
+  }
+  .lumen-app-shell-nav.is-compact > button {
+    justify-content: center;
+  }
+}

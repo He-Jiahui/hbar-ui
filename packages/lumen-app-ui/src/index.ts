@@ -1056,6 +1056,34 @@ export type {
   LumenWizardVariantProps,
 } from './wizard';
 export {
+  LumenAppShellWorkflows,
+  LumenAppShell01,
+  LumenAppShell02,
+  LumenAppShell03,
+  LumenAppShell04,
+  LumenAppShell05,
+  LumenAppShell06,
+  LumenAppShell07,
+  LumenAppShell08,
+  LumenAppShell09,
+  LumenAppShellWorkflowsProvider,
+  selectLumenAppShellItem,
+  uniqueLumenAppShellItems,
+  useLumenAppShellWorkflowsContent,
+} from './app-shell-workflows';
+export type {
+  LumenAppShellChoice,
+  LumenAppShellContent,
+  LumenAppShellListStrategy,
+  LumenAppShellMetric,
+  LumenAppShellRecord,
+  LumenAppShellScope,
+  LumenAppShellWorkflowAction,
+  LumenAppShellWorkflowsProps,
+  LumenAppShellWorkflowsProviderProps,
+  LumenAppShellWorkflowVariantProps,
+} from './app-shell-workflows';
+export {
   LumenOnboarding,
   LumenOnboarding01,
   LumenOnboarding02,
