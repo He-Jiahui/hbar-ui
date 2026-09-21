@@ -59,6 +59,12 @@ import {
   HbarAppUiEmptyState05,
 } from './variants';
 import {
+  LumenFileManager01,
+  LumenFileManager02,
+  LumenFileManager03,
+  LumenFileManager04,
+} from './file-manager';
+import {
   LumenSettingsForm01,
   LumenSettingsForm02,
   LumenSettingsForm03,
@@ -135,6 +141,10 @@ export const LUMEN_MIGRATED_VARIANT_IDS = [
   'hbar-app-ui-command-menu-4',
   'hbar-app-ui-command-menu-5',
   'hbar-app-ui-command-menu-6',
+  'hbar-app-ui-file-manager-1',
+  'hbar-app-ui-file-manager-2',
+  'hbar-app-ui-file-manager-3',
+  'hbar-app-ui-file-manager-4',
   'hbar-app-ui-empty-state-1',
   'hbar-app-ui-empty-state-2',
   'hbar-app-ui-empty-state-3',
@@ -202,6 +212,10 @@ const migratedComponents: Readonly<Partial<Record<LumenMigratedVariantId, React.
   'hbar-app-ui-command-menu-4': LumenCommandMenu04,
   'hbar-app-ui-command-menu-5': LumenCommandMenu05,
   'hbar-app-ui-command-menu-6': LumenCommandMenu06,
+  'hbar-app-ui-file-manager-1': LumenFileManager01,
+  'hbar-app-ui-file-manager-2': LumenFileManager02,
+  'hbar-app-ui-file-manager-3': LumenFileManager03,
+  'hbar-app-ui-file-manager-4': LumenFileManager04,
   'hbar-app-ui-empty-state-1': HbarAppUiEmptyState01,
   'hbar-app-ui-empty-state-2': HbarAppUiEmptyState02,
   'hbar-app-ui-empty-state-3': HbarAppUiEmptyState03,
