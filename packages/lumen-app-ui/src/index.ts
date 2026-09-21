@@ -10,6 +10,48 @@ export { default as LumenSlider } from './LumenSlider';
 export type { LumenSliderProps } from './LumenSlider';
 export { LumenDialog } from './dialog';
 export type { LumenDialogProps } from './dialog';
+export {
+  LumenAgentActivity,
+  LumenAgentActivity01,
+  LumenAgentActivity02,
+  LumenAgentActivity03,
+  LumenAgentActivity04,
+  LumenAgentActivity05,
+  LumenAgentActivity06,
+  LumenAgentActivity07,
+  LumenAgentActivityProvider,
+  selectLumenAgentActivityItem,
+  uniqueLumenAgentActivityItems,
+  useLumenAgentActivityContent,
+} from './agent-activity';
+export type {
+  LumenAgentActivityAction,
+  LumenAgentActivityAttempt,
+  LumenAgentActivityContent,
+  LumenAgentActivityDeploymentContent,
+  LumenAgentActivityDeploymentStep,
+  LumenAgentActivityFailureContent,
+  LumenAgentActivityHistoryContent,
+  LumenAgentActivityHistoryRow,
+  LumenAgentActivityInput,
+  LumenAgentActivityListStrategy,
+  LumenAgentActivityLiveContent,
+  LumenAgentActivityLiveStep,
+  LumenAgentActivityLogContent,
+  LumenAgentActivityLogEntry,
+  LumenAgentActivityLogFilter,
+  LumenAgentActivityLogLevel,
+  LumenAgentActivityNestedChild,
+  LumenAgentActivityNestedContent,
+  LumenAgentActivityNestedGroup,
+  LumenAgentActivityOutput,
+  LumenAgentActivityProps,
+  LumenAgentActivityProviderProps,
+  LumenAgentActivityState,
+  LumenAgentActivityVariantProps,
+  LumenAgentActivityWorker,
+  LumenAgentActivityWorkersContent,
+} from './agent-activity';
 export { LumenDisclosure } from './disclosure';
 export type { LumenDisclosureProps } from './disclosure';
 export {
