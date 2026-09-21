@@ -252,9 +252,10 @@ export interface CategoryDesignProps {
     metrics?: readonly CategoryDesignItem[] | undefined;
   };
   layout: LumenCategoryLayout;
-  state: { query: string; selectedId: string | null };
+  state: { query: string; input: string; selectedId: string | null };
   actions: {
     onQueryChange: (query: string) => void;
+    onInputChange: (input: string) => void;
     onSelect: (id: string) => void;
     onAction: (id: string) => void;
   };

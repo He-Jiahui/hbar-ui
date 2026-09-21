@@ -804,6 +804,7 @@ export default function DesignCoverageGallery() {
   const [settingsSaved, setSettingsSaved] = React.useState(false);
   const [onboardingStep, setOnboardingStep] = React.useState(0);
   const [categoryQuery, setCategoryQuery] = React.useState('');
+  const [categoryInput, setCategoryInput] = React.useState('');
   const [categorySelectedId, setCategorySelectedId] = React.useState<string | null>(null);
   const [readNotificationIds, setReadNotificationIds] = React.useState<readonly string[]>([]);
   const [dismissedNotificationIds, setDismissedNotificationIds] = React.useState<readonly string[]>(
@@ -819,6 +820,7 @@ export default function DesignCoverageGallery() {
     setSettingsSaved(false);
     setOnboardingStep(0);
     setCategoryQuery('');
+    setCategoryInput('');
     setCategorySelectedId(null);
   }, [locale]);
 
@@ -1025,9 +1027,10 @@ export default function DesignCoverageGallery() {
           metrics: getCategoryMetrics(locale, additionalId),
           aside: getCategoryItems(locale, additionalId).slice(0, 2),
         }}
-        state={{ query: categoryQuery, selectedId: categorySelectedId }}
+        state={{ query: categoryQuery, input: categoryInput, selectedId: categorySelectedId }}
         actions={{
           onQueryChange: setCategoryQuery,
+          onInputChange: setCategoryInput,
           onSelect: (id) => {
             setCategorySelectedId(id);
             setEvent(id);

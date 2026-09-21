@@ -691,7 +691,8 @@ export function LumenCategoryDesign({
     }
     return `${item.label} ${item.detail}`.toLocaleLowerCase().includes(query);
   });
-  const selected = items.find((item) => item.id === state.selectedId) ?? items[0];
+  const activeId = state.selectedId ?? items[0]?.id ?? null;
+  const selected = items.find((item) => item.id === activeId) ?? items[0];
   const tone = selected?.tone ?? 'info';
 
   const toolbar = (
@@ -721,7 +722,7 @@ export function LumenCategoryDesign({
             <CategoryItemButton
               key={item.id}
               item={item}
-              selected={item.id === state.selectedId}
+              selected={item.id === activeId}
               edge="right"
               onSelect={() => actions.onSelect(item.id)}
             />
@@ -747,12 +748,12 @@ export function LumenCategoryDesign({
           <article className={styles.categoryTimelineItem} key={item.id}>
             <LumenIndicator
               edge="left"
-              state={item.id === state.selectedId ? 'running' : 'selected'}
+              state={item.id === activeId ? 'running' : 'idle'}
               tone={item.tone}
             />
             <CategoryItemButton
               item={item}
-              selected={item.id === state.selectedId}
+              selected={item.id === activeId}
               edge="bottom"
               onSelect={() => actions.onSelect(item.id)}
             />
@@ -773,7 +774,14 @@ export function LumenCategoryDesign({
           ))}
         </div>
         <LumenField boundary="vertical" className={styles.categoryComposer}>
-          <TextField multiline minRows={2} label={copy.input} placeholder={copy.secondary} />
+          <TextField
+            multiline
+            minRows={2}
+            label={copy.input}
+            placeholder={copy.secondary}
+            value={state.input}
+            onChange={(event) => actions.onInputChange(event.target.value)}
+          />
           <Button onClick={() => actions.onAction(selected?.id ?? '')}>
             {copy.action}
             <LumenIndicator edge="bottom" length="action" />
@@ -789,7 +797,7 @@ export function LumenCategoryDesign({
             <CategoryItemButton
               key={item.id}
               item={item}
-              selected={item.id === state.selectedId}
+              selected={item.id === activeId}
               edge="right"
               onSelect={() => actions.onSelect(item.id)}
             />
@@ -801,7 +809,8 @@ export function LumenCategoryDesign({
             multiline
             minRows={7}
             label={selected?.label ?? copy.secondary}
-            defaultValue={selected?.detail ?? ''}
+            value={state.input}
+            onChange={(event) => actions.onInputChange(event.target.value)}
           />
           <Button onClick={() => actions.onAction(selected?.id ?? '')}>
             {copy.action}
@@ -826,7 +835,7 @@ export function LumenCategoryDesign({
             <CategoryItemButton
               key={item.id}
               item={item}
-              selected={item.id === state.selectedId}
+              selected={item.id === activeId}
               edge="bottom"
               onSelect={() => actions.onSelect(item.id)}
             />
@@ -859,7 +868,7 @@ export function LumenCategoryDesign({
           <CategoryItemButton
             key={item.id}
             item={item}
-            selected={item.id === state.selectedId}
+            selected={item.id === activeId}
             onSelect={() => actions.onSelect(item.id)}
           />
         ))}
