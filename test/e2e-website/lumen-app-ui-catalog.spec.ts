@@ -29,8 +29,8 @@ test('catalog reaches 38 families and 300 source IDs without calling pending ent
   /* eslint-enable no-await-in-loop */
   expect(seen.size).toBe(300);
   await categories.getByRole('button', { name: /AI 对话/ }).click();
-  await expect(page.getByText('来源结构 · 尚未迁移').first()).toBeVisible();
-  await expect(page.getByRole('link', { name: '打开 Lumen 案例' })).toHaveCount(0);
+  await expect(page.getByText('设计覆盖 · 可预览').first()).toBeVisible();
+  await expect(page.getByRole('link', { name: '查看扩展设计' }).first()).toBeVisible();
   await page.screenshot({
     path: testInfo.outputPath('catalog-pending-dark-1440.png'),
     animations: 'disabled',

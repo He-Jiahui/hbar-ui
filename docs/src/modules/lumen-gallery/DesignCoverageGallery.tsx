@@ -5,6 +5,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import {
   createLumenTheme,
   LumenAnalyticsDesign,
+  LumenCategoryDesign,
   LumenBillingDesign,
   LumenDashboardDesign,
   LumenDataTableDesign,
@@ -19,6 +20,7 @@ import {
 import type {
   AnalyticsMetric,
   AnalyticsPoint,
+  CategoryDesignItem,
   BillingInvoice,
   BillingPlan,
   DashboardPanel,
@@ -30,12 +32,14 @@ import type {
   NotificationItem,
   OnboardingStep,
   SettingsField,
+  LumenCategoryLayout,
+  LumenDesignCopy,
   WizardField,
 } from '@lumen/app-ui/designs';
 import styles from './design-coverage.module.css';
 
 type GalleryLocale = 'zh' | 'en';
-type DesignId =
+type ExistingDesignId =
   | 'analytics'
   | 'app-dialog'
   | 'billing'
@@ -48,7 +52,36 @@ type DesignId =
   | 'settings-form'
   | 'wizard';
 
-const names: Record<DesignId, [string, string]> = {
+const additionalNames = {
+  'ai-chat': ['AI 对话', 'AI chat'],
+  'agent-activity': ['执行活动', 'Agent activity'],
+  'tool-calls': ['工具调用', 'Tool calls'],
+  'agent-approval': ['审批节点', 'Agent approval'],
+  'agent-plan': ['执行计划', 'Agent plan'],
+  'ai-usage': ['AI 用量', 'AI usage'],
+  'app-shell': ['应用外壳', 'App shell'],
+  'app-sidebar': ['应用侧栏', 'App sidebar'],
+  'command-menu': ['命令菜单', 'Command menu'],
+  navbar: ['顶部导航', 'Navbar'],
+  mobile: ['移动布局', 'Mobile layout'],
+  card: ['信息卡片', 'Cards'],
+  list: ['内容列表', 'Lists'],
+  filtering: ['筛选面板', 'Filtering'],
+  forms: ['组合表单', 'Forms'],
+  paywall: ['付费墙', 'Paywall'],
+  authentication: ['身份验证', 'Authentication'],
+  comments: ['评论串', 'Comments'],
+  scheduling: ['排期时间线', 'Scheduling'],
+  integrations: ['集成目录', 'Integrations'],
+  editor: ['编辑器', 'Editor'],
+  support: ['支持中心', 'Support'],
+  chat: ['客服对话', 'Support chat'],
+} as const;
+
+type AdditionalDesignId = keyof typeof additionalNames;
+type DesignId = ExistingDesignId | AdditionalDesignId;
+
+const names: Record<DesignId, readonly [string, string]> = {
   analytics: ['分析', 'Analytics'],
   'app-dialog': ['弹层', 'App dialog'],
   billing: ['账单', 'Billing'],
@@ -60,6 +93,7 @@ const names: Record<DesignId, [string, string]> = {
   onboarding: ['初始引导', 'Onboarding'],
   'settings-form': ['设置表单', 'Settings form'],
   wizard: ['向导', 'Wizard'],
+  ...additionalNames,
 };
 
 const copy = {
@@ -245,6 +279,141 @@ const copy = {
     event: 'Waiting for an action',
   },
 };
+
+const categoryLayouts: Record<AdditionalDesignId, LumenCategoryLayout> = {
+  'ai-chat': 'chat',
+  'agent-activity': 'timeline',
+  'tool-calls': 'timeline',
+  'agent-approval': 'navigation',
+  'agent-plan': 'timeline',
+  'ai-usage': 'commerce',
+  'app-shell': 'navigation',
+  'app-sidebar': 'navigation',
+  'command-menu': 'list',
+  navbar: 'navigation',
+  mobile: 'navigation',
+  card: 'commerce',
+  list: 'list',
+  filtering: 'list',
+  forms: 'list',
+  paywall: 'commerce',
+  authentication: 'navigation',
+  comments: 'comments',
+  scheduling: 'timeline',
+  integrations: 'navigation',
+  editor: 'editor',
+  support: 'comments',
+  chat: 'chat',
+};
+
+type CategoryFixtureCopy = LumenDesignCopy & {
+  primary: string;
+  secondary: string;
+  search: string;
+  input: string;
+  action: string;
+};
+
+const categoryCopy: Record<GalleryLocale, Record<AdditionalDesignId, CategoryFixtureCopy>> = {
+  zh: Object.fromEntries(
+    (Object.keys(additionalNames) as AdditionalDesignId[]).map((id) => {
+      const title = additionalNames[id][0];
+      return [
+        id,
+        {
+          title,
+          detail: `以 Lumen 的文本、线条和状态光组织${title}内容。`,
+          primary: '打开当前项',
+          secondary: '相关内容',
+          search: '搜索内容',
+          input: '输入内容',
+          action: '提交',
+        },
+      ];
+    }),
+  ) as Record<AdditionalDesignId, CategoryFixtureCopy>,
+  en: Object.fromEntries(
+    (Object.keys(additionalNames) as AdditionalDesignId[]).map((id) => {
+      const title = additionalNames[id][1];
+      return [
+        id,
+        {
+          title,
+          detail: `Organize ${title.toLowerCase()} with Lumen text, lines, and semantic light.`,
+          primary: 'Open current item',
+          secondary: 'Related content',
+          search: 'Search content',
+          input: 'Enter content',
+          action: 'Submit',
+        },
+      ];
+    }),
+  ) as Record<AdditionalDesignId, CategoryFixtureCopy>,
+};
+
+function getCategoryItems(
+  locale: GalleryLocale,
+  id: AdditionalDesignId,
+): readonly CategoryDesignItem[] {
+  const title = additionalNames[id][locale === 'zh' ? 0 : 1];
+  const details =
+    locale === 'zh'
+      ? ['当前状态保持清晰', '等待下一步处理', '最近一次更新已同步']
+      : ['Current state stays readable', 'Waiting for the next action', 'Latest update is synced'];
+  const labels =
+    locale === 'zh'
+      ? [`${title}入口`, `${title}状态`, `${title}记录`]
+      : [`${title} entry`, `${title} state`, `${title} history`];
+  return labels.map((label, index) => {
+    let tone: CategoryDesignItem['tone'] = 'neutral';
+    if (index === 0) {
+      tone = 'info';
+    } else if (index === 1) {
+      tone = 'success';
+    }
+    let value: string | undefined;
+    if (index === 0) {
+      value = locale === 'zh' ? '进行中' : 'Active';
+    }
+    return {
+      id: `${id}-${index}`,
+      label,
+      detail: details[index],
+      value,
+      tone,
+    };
+  });
+}
+
+function getCategoryMetrics(
+  locale: GalleryLocale,
+  id: AdditionalDesignId,
+): readonly CategoryDesignItem[] {
+  const title = additionalNames[id][locale === 'zh' ? 0 : 1];
+  return [
+    {
+      id: `${id}-metric-1`,
+      label: locale === 'zh' ? '当前用量' : 'Current usage',
+      detail: locale === 'zh' ? `${title}的活跃内容` : `Active ${title.toLowerCase()} content`,
+      value: locale === 'zh' ? '72%' : '72%',
+      tone: 'info',
+    },
+    {
+      id: `${id}-metric-2`,
+      label: locale === 'zh' ? '完成度' : 'Completion',
+      detail: locale === 'zh' ? '本周期已完成' : 'Completed this cycle',
+      value: locale === 'zh' ? '18 项' : '18 items',
+      tone: 'success',
+    },
+    {
+      id: `${id}-metric-3`,
+      label: locale === 'zh' ? '需关注' : 'Needs attention',
+      detail: locale === 'zh' ? '等待确认的内容' : 'Items waiting for review',
+      value: '03',
+      tone: 'warning',
+    },
+  ];
+}
 
 const metricData: Record<GalleryLocale, readonly AnalyticsMetric[]> = {
   zh: [
@@ -634,6 +803,8 @@ export default function DesignCoverageGallery() {
   const [settingsValues, setSettingsValues] = React.useState(settingsFields[locale]);
   const [settingsSaved, setSettingsSaved] = React.useState(false);
   const [onboardingStep, setOnboardingStep] = React.useState(0);
+  const [categoryQuery, setCategoryQuery] = React.useState('');
+  const [categorySelectedId, setCategorySelectedId] = React.useState<string | null>(null);
   const [readNotificationIds, setReadNotificationIds] = React.useState<readonly string[]>([]);
   const [dismissedNotificationIds, setDismissedNotificationIds] = React.useState<readonly string[]>(
     [],
@@ -647,6 +818,8 @@ export default function DesignCoverageGallery() {
     setSettingsValues(settingsFields[locale]);
     setSettingsSaved(false);
     setOnboardingStep(0);
+    setCategoryQuery('');
+    setCategorySelectedId(null);
   }, [locale]);
 
   const moveCard = (cardId: string, columnId: string) => {
@@ -673,7 +846,7 @@ export default function DesignCoverageGallery() {
     setEvent(`${localized.kanban.move}: ${columnId}`);
   };
 
-  const active = {
+  const existingActive = {
     analytics: (
       <LumenAnalyticsDesign
         copy={localized.analytics}
@@ -837,7 +1010,32 @@ export default function DesignCoverageGallery() {
         }}
       />
     ),
-  }[design];
+  }[design as ExistingDesignId];
+  const additionalId = design as AdditionalDesignId;
+  const additional = categoryCopy[locale][additionalId];
+  const active =
+    existingActive ??
+    (additional ? (
+      <LumenCategoryDesign
+        id={`lumen-design-${additionalId}`}
+        copy={additional}
+        layout={categoryLayouts[additionalId]}
+        content={{
+          items: getCategoryItems(locale, additionalId),
+          metrics: getCategoryMetrics(locale, additionalId),
+          aside: getCategoryItems(locale, additionalId).slice(0, 2),
+        }}
+        state={{ query: categoryQuery, selectedId: categorySelectedId }}
+        actions={{
+          onQueryChange: setCategoryQuery,
+          onSelect: (id) => {
+            setCategorySelectedId(id);
+            setEvent(id);
+          },
+          onAction: (id) => setEvent(`${additional.primary}: ${id}`),
+        }}
+      />
+    ) : null);
 
   return (
     <ThemeProvider theme={theme}>

@@ -920,12 +920,35 @@ test('MUI menus and select fields use Lumen surfaces and boundary lamps', async 
   );
 });
 
-test('extended Lumen designs cover application UI layouts and interactions', async ({
+test('extended Lumen designs cover all non-ported catalog layouts and interactions', async ({
   page,
 }, testInfo) => {
   await page.goto('/experiments/lumen-app-ui/designs/');
   const nav = page.getByRole('navigation', { name: 'Lumen design coverage' });
   const designs = [
+    ['AI 对话', 'lumen-design-ai-chat'],
+    ['执行活动', 'lumen-design-agent-activity'],
+    ['工具调用', 'lumen-design-tool-calls'],
+    ['审批节点', 'lumen-design-agent-approval'],
+    ['执行计划', 'lumen-design-agent-plan'],
+    ['AI 用量', 'lumen-design-ai-usage'],
+    ['应用外壳', 'lumen-design-app-shell'],
+    ['应用侧栏', 'lumen-design-app-sidebar'],
+    ['命令菜单', 'lumen-design-command-menu'],
+    ['顶部导航', 'lumen-design-navbar'],
+    ['移动布局', 'lumen-design-mobile'],
+    ['信息卡片', 'lumen-design-card'],
+    ['内容列表', 'lumen-design-list'],
+    ['筛选面板', 'lumen-design-filtering'],
+    ['组合表单', 'lumen-design-forms'],
+    ['付费墙', 'lumen-design-paywall'],
+    ['身份验证', 'lumen-design-authentication'],
+    ['评论串', 'lumen-design-comments'],
+    ['排期时间线', 'lumen-design-scheduling'],
+    ['集成目录', 'lumen-design-integrations'],
+    ['编辑器', 'lumen-design-editor'],
+    ['支持中心', 'lumen-design-support'],
+    ['客服对话', 'lumen-design-chat'],
     ['分析', 'lumen-design-analytics'],
     ['弹层', 'lumen-design-app-dialog'],
     ['账单', 'lumen-design-billing'],
@@ -989,6 +1012,14 @@ test('extended Lumen designs cover application UI layouts and interactions', asy
   await page.getByRole('button', { name: '下一步' }).click();
   await expect(page.getByRole('heading', { name: '调整光效' })).toBeVisible();
   await page.getByRole('button', { name: '跳过' }).click();
+  await nav.getByRole('button', { name: 'AI 对话' }).click();
+  await page.getByRole('textbox', { name: '输入内容' }).fill('检查当前执行状态');
+  await page.getByRole('button', { name: '提交' }).click();
+  await nav.getByRole('button', { name: '命令菜单' }).click();
+  await page.getByRole('textbox', { name: '搜索内容' }).fill('命令');
+  await page.getByRole('button', { name: '命令菜单入口' }).click();
+  await nav.getByRole('button', { name: '编辑器' }).click();
+  await page.getByRole('button', { name: '提交' }).click();
   await nav.getByRole('button', { name: '向导' }).click();
   await page.getByRole('textbox', { name: '主题名称' }).fill('新主题');
   const wizardFields = page.locator(

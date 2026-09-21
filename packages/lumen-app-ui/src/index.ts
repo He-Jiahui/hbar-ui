@@ -10,6 +10,7 @@ export { default as createLumenTheme } from './theme';
 export type { LumenMode } from './theme';
 export {
   LumenAnalyticsDesign,
+  LumenCategoryDesign,
   LumenDialogDesign,
   LumenBillingDesign,
   LumenDashboardDesign,
@@ -25,6 +26,8 @@ export type {
   AnalyticsDesignProps,
   AnalyticsMetric,
   AnalyticsPoint,
+  CategoryDesignItem,
+  CategoryDesignProps,
   BillingDesignProps,
   BillingInvoice,
   BillingPlan,
@@ -38,6 +41,7 @@ export type {
   KanbanColumn,
   KanbanDesignProps,
   LumenDesignCopy,
+  LumenCategoryLayout,
   MonitoringDesignProps,
   MonitoringService,
   NotificationItem,

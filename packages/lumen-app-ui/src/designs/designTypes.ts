@@ -224,3 +224,38 @@ export interface OnboardingDesignProps {
   state: { currentStep: number };
   actions: { onStepChange: (step: number) => void; onSkip: () => void };
 }
+
+export type LumenCategoryLayout =
+  'chat' | 'comments' | 'commerce' | 'editor' | 'list' | 'navigation' | 'timeline';
+
+export interface CategoryDesignItem {
+  id: string;
+  label: string;
+  detail: string;
+  value?: string | undefined;
+  tone?: LumenTone | undefined;
+  state?: string | undefined;
+}
+
+export interface CategoryDesignProps {
+  id: string;
+  copy: LumenDesignCopy & {
+    primary: string;
+    secondary: string;
+    search: string;
+    input: string;
+    action: string;
+  };
+  content: {
+    items: readonly CategoryDesignItem[];
+    aside?: readonly CategoryDesignItem[] | undefined;
+    metrics?: readonly CategoryDesignItem[] | undefined;
+  };
+  layout: LumenCategoryLayout;
+  state: { query: string; selectedId: string | null };
+  actions: {
+    onQueryChange: (query: string) => void;
+    onSelect: (id: string) => void;
+    onAction: (id: string) => void;
+  };
+}

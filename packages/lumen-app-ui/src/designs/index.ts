@@ -1,5 +1,6 @@
 export {
   LumenAnalyticsDesign,
+  LumenCategoryDesign,
   LumenBillingDesign,
   LumenDashboardDesign,
   LumenDataTableDesign,
@@ -15,6 +16,9 @@ export type {
   AnalyticsDesignProps,
   AnalyticsMetric,
   AnalyticsPoint,
+  CategoryDesignItem,
+  CategoryDesignProps,
+  LumenCategoryLayout,
   BillingDesignProps,
   BillingInvoice,
   BillingPlan,
