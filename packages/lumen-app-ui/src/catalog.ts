@@ -304,6 +304,13 @@ import {
   LumenFeedback06,
 } from './feedback-workflows';
 import {
+  LumenSupport01,
+  LumenSupport02,
+  LumenSupport03,
+  LumenSupport04,
+  LumenSupport05,
+} from './support';
+import {
   LumenBilling01,
   LumenBilling02,
   LumenBilling03,
@@ -586,6 +593,11 @@ export const LUMEN_MIGRATED_VARIANT_IDS = [
   'hbar-app-ui-feedback-4',
   'hbar-app-ui-feedback-5',
   'hbar-app-ui-feedback-6',
+  'hbar-app-ui-support-1',
+  'hbar-app-ui-support-2',
+  'hbar-app-ui-support-3',
+  'hbar-app-ui-support-4',
+  'hbar-app-ui-support-5',
   'hbar-app-ui-billing-1',
   'hbar-app-ui-billing-2',
   'hbar-app-ui-billing-3',
@@ -854,6 +866,11 @@ const migratedComponents: Readonly<Partial<Record<LumenMigratedVariantId, React.
   'hbar-app-ui-feedback-4': LumenFeedback04,
   'hbar-app-ui-feedback-5': LumenFeedback05,
   'hbar-app-ui-feedback-6': LumenFeedback06,
+  'hbar-app-ui-support-1': LumenSupport01,
+  'hbar-app-ui-support-2': LumenSupport02,
+  'hbar-app-ui-support-3': LumenSupport03,
+  'hbar-app-ui-support-4': LumenSupport04,
+  'hbar-app-ui-support-5': LumenSupport05,
   'hbar-app-ui-billing-1': LumenBilling01,
   'hbar-app-ui-billing-2': LumenBilling02,
   'hbar-app-ui-billing-3': LumenBilling03,
