@@ -1,6 +1,5 @@
 'use client';
 
-import * as React from 'react';
 import { AccountChooserAuthentication } from './authentication/AccountChooserAuthentication';
 import { CodeAuthentication } from './authentication/CodeAuthentication';
 import { EnterpriseAuthentication } from './authentication/EnterpriseAuthentication';
