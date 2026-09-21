@@ -34,6 +34,13 @@
   opacity: 1;
 }
 
+.surface[data-elevation='overlay'] {
+  box-shadow:
+    0 0 0 0.0625rem var(--lumen-overlay-edge),
+    0 0 1rem var(--lumen-overlay-glow-near),
+    0 0 2.75rem var(--lumen-overlay-glow-far);
+}
+
 .glass {
   position: absolute;
   inset: 0;
@@ -349,6 +356,10 @@
   }
   .surface::after {
     display: none;
+  }
+  .surface[data-elevation='overlay'] {
+    outline: 0.0625rem solid CanvasText;
+    box-shadow: none;
   }
   .beam {
     background: CanvasText;

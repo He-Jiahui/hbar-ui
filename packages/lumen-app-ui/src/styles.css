@@ -12,6 +12,9 @@
   --lumen-glass: rgb(20 20 20 / 30%);
   --lumen-reading: rgb(9 9 9 / 28%);
   --lumen-frost: rgb(24 24 24 / 88%);
+  --lumen-overlay-edge: rgb(255 255 255 / 26%);
+  --lumen-overlay-glow-near: rgb(255 255 255 / 20%);
+  --lumen-overlay-glow-far: rgb(255 255 255 / 10%);
   --lumen-glow-near: 0.875rem;
   --lumen-glow-far: 1.75rem;
 }
@@ -29,6 +32,9 @@
   --lumen-glass: rgb(255 255 255 / 35%);
   --lumen-reading: rgb(245 245 245 / 45%);
   --lumen-frost: rgb(250 250 250 / 92%);
+  --lumen-overlay-edge: rgb(0 0 0 / 24%);
+  --lumen-overlay-glow-near: rgb(0 0 0 / 17%);
+  --lumen-overlay-glow-far: rgb(0 0 0 / 8%);
   --lumen-glow-near: 0.45rem;
   --lumen-glow-far: 0.95rem;
 }

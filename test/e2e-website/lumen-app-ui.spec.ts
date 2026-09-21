@@ -915,6 +915,9 @@ test('MUI menus and select fields use Lumen surfaces and boundary lamps', async 
   expect(await menu.evaluate((element) => getComputedStyle(element).boxShadow)).not.toContain(
     'rgba(0, 0, 0, 0.2)',
   );
+  expect(await menu.evaluate((element) => getComputedStyle(element).boxShadow)).toContain(
+    'rgba(255, 255, 255, 0.26)',
+  );
   expect(await menuItem.locator('.MuiTouchRipple-root')).toHaveCount(0);
   const restingMenuLine = await menuItem.evaluate(
     (element) => getComputedStyle(element, '::after').width,
@@ -1013,7 +1016,13 @@ test('extended Lumen designs cover all non-ported catalog layouts and interactio
   await page.getByRole('combobox', { name: '时间范围' }).selectOption('month');
   await nav.getByRole('button', { name: '弹层' }).click();
   await page.getByRole('button', { name: '打开弹层' }).click();
-  await expect(page.getByRole('dialog')).toBeVisible();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+  const dialogSurface = dialog.locator('xpath=ancestor::*[@data-elevation="overlay"]');
+  await expect(dialogSurface).toHaveAttribute('data-elevation', 'overlay');
+  expect(await dialogSurface.evaluate((element) => getComputedStyle(element).boxShadow)).toContain(
+    'rgba(255, 255, 255, 0.26)',
+  );
   await page.getByRole('dialog').getByRole('button', { name: '确认' }).click();
   await expect(page.getByRole('dialog')).toBeHidden();
   await nav.getByRole('button', { name: '账单' }).click();

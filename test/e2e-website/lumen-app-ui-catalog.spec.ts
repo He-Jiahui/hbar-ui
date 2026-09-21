@@ -168,6 +168,40 @@ test('source page examples render all ten catalog surface structures at desktop 
   expect(errors).toEqual([]);
 });
 
+test('overlay examples use theme-contrast outer glow at desktop and narrow widths', async ({
+  page,
+}, testInfo) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  const cases = [
+    { mode: 'dark', width: 900, height: 700, glow: 'rgba(255, 255, 255, 0.26)' },
+    { mode: 'light', width: 900, height: 700, glow: 'rgba(0, 0, 0, 0.24)' },
+    { mode: 'dark', width: 390, height: 844, glow: 'rgba(255, 255, 255, 0.26)' },
+  ] as const;
+
+  /* eslint-disable no-await-in-loop -- Each theme and viewport is rendered in isolation. */
+  for (const { mode, width, height, glow } of cases) {
+    await page.setViewportSize({ width, height });
+    await page.goto(
+      `/experiments/lumen-app-ui/designs/?source=hbar-app-ui-ai-chat-4&embed=1&mode=${mode}`,
+    );
+    const overlay = page.locator('[data-lumen-layout="overlay"] [data-elevation="overlay"]');
+    await expect(overlay).toBeVisible();
+    expect(await overlay.evaluate((element) => getComputedStyle(element).boxShadow)).toContain(
+      glow,
+    );
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+      width + 1,
+    );
+    await page.screenshot({
+      path: testInfo.outputPath(`overlay-${mode}-${width}.png`),
+      animations: 'disabled',
+    });
+  }
+  /* eslint-enable no-await-in-loop */
+  expect(errors).toEqual([]);
+});
+
 test('scrolling Lumen panes use a bordered dark track and white lamp thumb', async ({
   page,
 }, testInfo) => {

@@ -533,7 +533,7 @@ export function LumenDialogDesign({ copy, content, state, actions }: DialogDesig
         </div>
         {state.open && (
           <div className={styles.dialogOverlay}>
-            <LumenSurface className={styles.dialogPanel} data-material="frost">
+            <LumenSurface className={styles.dialogPanel} material="frost" elevation="overlay">
               <section role="dialog" aria-modal="true" aria-labelledby="lumen-dialog-title">
                 <header className={styles.dialogHeader}>
                   <div>
@@ -854,7 +854,7 @@ export function LumenCategoryDesign({
             <span key={item.id}>{item.label}</span>
           ))}
         </div>
-        <LumenSurface className={styles.categoryOverlayPanel}>
+        <LumenSurface className={styles.categoryOverlayPanel} elevation="overlay">
           <section>
             <LumenIndicator edge="top" state="selected" tone={tone} />
             <small>{selected?.value ?? copy.secondary}</small>

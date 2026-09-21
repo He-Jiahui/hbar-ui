@@ -8,10 +8,10 @@ export default function createLumenTheme(mode: LumenMode) {
   const menuSurface = mode === 'dark' ? 'rgb(24 24 24 / 92%)' : 'rgb(250 250 250 / 94%)';
   const menuEdge = mode === 'dark' ? 'rgb(255 255 255 / 17%)' : 'rgb(0 0 0 / 14%)';
   const menuLine = mode === 'dark' ? 'rgb(255 255 255 / 10%)' : 'rgb(0 0 0 / 10%)';
-  const menuShadow =
+  const overlayShadow =
     mode === 'dark'
-      ? '0 0 0.75rem rgb(255 255 255 / 12%), 0 0 2rem rgb(255 255 255 / 6%)'
-      : '0 0 0.5rem rgb(0 0 0 / 18%), 0 0 1.25rem rgb(0 0 0 / 8%)';
+      ? '0 0 0 0.0625rem rgb(255 255 255 / 26%), 0 0 1rem rgb(255 255 255 / 20%), 0 0 2.75rem rgb(255 255 255 / 10%)'
+      : '0 0 0 0.0625rem rgb(0 0 0 / 24%), 0 0 1rem rgb(0 0 0 / 17%), 0 0 2.75rem rgb(0 0 0 / 8%)';
   const thumbGlow = `0 0 calc(var(--lumen-range-progress, 0) * ${mode === 'dark' ? '0.8rem' : '0.45rem'}) calc(var(--lumen-range-progress, 0) * 0.125rem) ${controlGlow}`;
   const trackGlow = `0 0 calc(var(--lumen-range-progress, 0) * ${mode === 'dark' ? '0.7rem' : '0.35rem'}) calc(var(--lumen-range-progress, 0) * 0.0625rem) ${controlGlow}`;
   return createTheme({
@@ -81,10 +81,24 @@ export default function createLumenTheme(mode: LumenMode) {
             backdropFilter: 'blur(0.75rem)',
             border: `0.0625rem solid ${menuEdge}`,
             borderRadius: '0.375rem',
-            boxShadow: menuShadow,
+            boxShadow: overlayShadow,
           },
           list: {
             padding: '0.375rem',
+          },
+        },
+      },
+      MuiPopover: {
+        styleOverrides: {
+          paper: {
+            boxShadow: overlayShadow,
+          },
+        },
+      },
+      MuiDialog: {
+        styleOverrides: {
+          paper: {
+            boxShadow: overlayShadow,
           },
         },
       },
