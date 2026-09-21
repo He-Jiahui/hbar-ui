@@ -118,7 +118,9 @@ export function useLumenKanbanContent() {
 export function uniqueLumenKanbanItems<T extends { readonly id: string }>(items: readonly T[]) {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -136,23 +138,18 @@ function Glyph({
 }: {
   name: 'plus' | 'drag' | 'comment' | 'file' | 'blocked' | 'more' | 'next';
 }) {
-  const d =
-    name === 'plus'
-      ? 'M8 3v10M3 8h10'
-      : name === 'drag'
-        ? 'M6 3h.1M10 3h.1M6 8h.1M10 8h.1M6 13h.1M10 13h.1'
-        : name === 'comment'
-          ? 'M3 3h10v8H7l-3 3v-3H3z'
-          : name === 'file'
-            ? 'M4 2h5l3 3v9H4zM9 2v3h3'
-            : name === 'blocked'
-              ? 'M8 2 14 13H2zM8 6v3M8 11h.1'
-              : name === 'more'
-                ? 'M3 8h.1M8 8h.1M13 8h.1'
-                : 'm6 3 5 5-5 5';
+  const paths = {
+    plus: 'M8 3v10M3 8h10',
+    drag: 'M6 3h.1M10 3h.1M6 8h.1M10 8h.1M6 13h.1M10 13h.1',
+    comment: 'M3 3h10v8H7l-3 3v-3H3z',
+    file: 'M4 2h5l3 3v9H4zM9 2v3h3',
+    blocked: 'M8 2 14 13H2zM8 6v3M8 11h.1',
+    more: 'M3 8h.1M8 8h.1M13 8h.1',
+    next: 'm6 3 5 5-5 5',
+  } as const;
   return (
     <svg className="lumen-kanban-glyph" viewBox="0 0 16 16" aria-hidden="true">
-      <path d={d} />
+      <path d={paths[name]} />
     </svg>
   );
 }
@@ -296,7 +293,9 @@ function Board(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanban
   const move = (cardId: string, fromId: string) => {
     const index = sourceColumns.findIndex((column) => column.id === fromId);
     const destination = sourceColumns[index + 1];
-    if (!destination) return;
+    if (!destination) {
+      return;
+    }
     setColumnCards((current) => ({
       ...current,
       [fromId]: (current[fromId] ?? []).filter((id) => id !== cardId),
@@ -392,8 +391,11 @@ function Swimlanes(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKa
                 onClick={() =>
                   setClosed((current) => {
                     const next = new Set(current);
-                    if (next.has(lane.id)) next.delete(lane.id);
-                    else next.add(lane.id);
+                    if (next.has(lane.id)) {
+                      next.delete(lane.id);
+                    } else {
+                      next.add(lane.id);
+                    }
                     return next;
                   })
                 }
@@ -674,14 +676,29 @@ function empty(props: LumenKanbanProps) {
   return <Root {...props}>{null}</Root>;
 }
 export function LumenKanban(props: LumenKanbanProps) {
-  const content = props.content ?? useLumenKanbanContent();
-  if (!content) return empty(props);
-  if (props.variant === 1) return <Board {...props} content={content} />;
-  if (props.variant === 2) return <Swimlanes {...props} content={content} />;
-  if (props.variant === 3) return <Regroup {...props} content={content} />;
-  if (props.variant === 4) return <Detail {...props} content={content} />;
-  if (props.variant === 5) return <Sprint {...props} content={content} />;
-  if (props.variant === 6) return <Compact {...props} content={content} />;
+  const providerContent = useLumenKanbanContent();
+  const content = props.content ?? providerContent;
+  if (!content) {
+    return empty(props);
+  }
+  if (props.variant === 1) {
+    return <Board {...props} content={content} />;
+  }
+  if (props.variant === 2) {
+    return <Swimlanes {...props} content={content} />;
+  }
+  if (props.variant === 3) {
+    return <Regroup {...props} content={content} />;
+  }
+  if (props.variant === 4) {
+    return <Detail {...props} content={content} />;
+  }
+  if (props.variant === 5) {
+    return <Sprint {...props} content={content} />;
+  }
+  if (props.variant === 6) {
+    return <Compact {...props} content={content} />;
+  }
   return empty(props);
 }
 function variant(value: number, props: LumenKanbanVariantProps) {

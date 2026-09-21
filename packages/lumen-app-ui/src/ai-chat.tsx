@@ -132,7 +132,9 @@ export function useLumenAiChatContent() {
 export function uniqueLumenAiChatItems<T extends { readonly id: string }>(items: readonly T[]) {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -150,27 +152,21 @@ function Glyph({
 }: {
   name: 'send' | 'file' | 'spark' | 'shield' | 'branch' | 'mic' | 'stop' | 'bot' | 'check';
 }) {
-  const d =
-    name === 'send'
-      ? 'm2 3 12 5-12 5 2-5z'
-      : name === 'file'
-        ? 'M4 2h5l3 3v9H4zM9 2v3h3'
-        : name === 'spark'
-          ? 'M8 1.5 9.5 6 14 8l-4.5 2L8 14.5 6.5 10 2 8l4.5-2z'
-          : name === 'shield'
-            ? 'M8 2 13 4v4c0 3-2 5-5 6-3-1-5-3-5-6V4z'
-            : name === 'branch'
-              ? 'M4 3v7a3 3 0 0 0 3 3h5M4 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM7 5h2a3 3 0 0 1 3 3v3'
-              : name === 'mic'
-                ? 'M6 3a2 2 0 0 1 4 0v5a2 2 0 0 1-4 0zM3 8a5 5 0 0 0 10 0M8 13v2'
-                : name === 'stop'
-                  ? 'M4 4h8v8H4z'
-                  : name === 'bot'
-                    ? 'M3 5h10v8H3zM6 2h4M8 2v3M6 9h.1M10 9h.1'
-                    : 'm3 8 3 3 7-7';
+  const paths = {
+    send: 'm2 3 12 5-12 5 2-5z',
+    file: 'M4 2h5l3 3v9H4zM9 2v3h3',
+    spark: 'M8 1.5 9.5 6 14 8l-4.5 2L8 14.5 6.5 10 2 8l4.5-2z',
+    shield: 'M8 2 13 4v4c0 3-2 5-5 6-3-1-5-3-5-6V4z',
+    branch:
+      'M4 3v7a3 3 0 0 0 3 3h5M4 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM7 5h2a3 3 0 0 1 3 3v3',
+    mic: 'M6 3a2 2 0 0 1 4 0v5a2 2 0 0 1-4 0zM3 8a5 5 0 0 0 10 0M8 13v2',
+    stop: 'M4 4h8v8H4z',
+    bot: 'M3 5h10v8H3zM6 2h4M8 2v3M6 9h.1M10 9h.1',
+    check: 'm3 8 3 3 7-7',
+  } as const;
   return (
     <svg className="lumen-ai-chat-glyph" viewBox="0 0 16 16" aria-hidden="true">
-      <path d={d} />
+      <path d={paths[name]} />
     </svg>
   );
 }
@@ -257,7 +253,7 @@ function Transcript({
   messages = content.messages,
 }: {
   content: LumenAiChatContent;
-  messages?: readonly LumenAiChatMessage[];
+  messages?: readonly LumenAiChatMessage[] | undefined;
 }) {
   const unique = uniqueLumenAiChatItems(messages);
   return (
@@ -280,7 +276,7 @@ function Composer({
 }: {
   content: LumenAiChatContent;
   onAction: LumenAiChatProps['onAction'];
-  placeholder?: string;
+  placeholder?: string | undefined;
 }) {
   const [value, setValue] = React.useState('');
   return (
@@ -288,7 +284,9 @@ function Composer({
       className="lumen-ai-chat-composer"
       onSubmit={(event) => {
         event.preventDefault();
-        if (!value.trim()) return;
+        if (!value.trim()) {
+          return;
+        }
         report(onAction, 'send', value.trim());
         setValue('');
       }}
@@ -422,7 +420,7 @@ function ContextAware(props: Omit<LumenAiChatProps, 'content'> & { content: Lume
         title={props.content.labels.contextTitle}
         detail={props.content.labels.contextDetail(model?.label ?? '', used)}
         actions={
-          <>
+          <React.Fragment>
             <LumenButton variant="outlined" onClick={() => setSettings((value) => !value)}>
               {props.content.labels.settings}
             </LumenButton>
@@ -440,7 +438,7 @@ function ContextAware(props: Omit<LumenAiChatProps, 'content'> & { content: Lume
                 </option>
               ))}
             </LumenSelect>
-          </>
+          </React.Fragment>
         }
       />
       {settings ? (
@@ -774,17 +772,38 @@ function empty(props: LumenAiChatProps) {
   return <Root {...props}>{null}</Root>;
 }
 export function LumenAiChat(props: LumenAiChatProps) {
-  const content = props.content ?? useLumenAiChatContent();
-  if (!content) return empty(props);
-  if (props.variant === 1) return <Thread {...props} content={content} />;
-  if (props.variant === 2) return <Artifact {...props} content={content} />;
-  if (props.variant === 3) return <Embedded {...props} content={content} />;
-  if (props.variant === 4) return <ContextAware {...props} content={content} />;
-  if (props.variant === 5) return <Approval {...props} content={content} />;
-  if (props.variant === 6) return <Agents {...props} content={content} />;
-  if (props.variant === 7) return <Citations {...props} content={content} />;
-  if (props.variant === 8) return <Voice {...props} content={content} />;
-  if (props.variant === 9) return <Models {...props} content={content} />;
+  const providerContent = useLumenAiChatContent();
+  const content = props.content ?? providerContent;
+  if (!content) {
+    return empty(props);
+  }
+  if (props.variant === 1) {
+    return <Thread {...props} content={content} />;
+  }
+  if (props.variant === 2) {
+    return <Artifact {...props} content={content} />;
+  }
+  if (props.variant === 3) {
+    return <Embedded {...props} content={content} />;
+  }
+  if (props.variant === 4) {
+    return <ContextAware {...props} content={content} />;
+  }
+  if (props.variant === 5) {
+    return <Approval {...props} content={content} />;
+  }
+  if (props.variant === 6) {
+    return <Agents {...props} content={content} />;
+  }
+  if (props.variant === 7) {
+    return <Citations {...props} content={content} />;
+  }
+  if (props.variant === 8) {
+    return <Voice {...props} content={content} />;
+  }
+  if (props.variant === 9) {
+    return <Models {...props} content={content} />;
+  }
   return empty(props);
 }
 function variant(value: number, props: LumenAiChatVariantProps) {

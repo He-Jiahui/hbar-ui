@@ -1,5 +1,5 @@
-import source from './source-catalog.json';
 import type * as React from 'react';
+import source from './source-catalog.json';
 import {
   LumenAiChat01,
   LumenAiChat02,

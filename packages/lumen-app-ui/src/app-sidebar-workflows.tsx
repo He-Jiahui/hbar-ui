@@ -98,7 +98,9 @@ export function useLumenAppSidebarWorkflowsContent() {
 export function uniqueLumenAppSidebarItems<T extends { readonly id: string }>(items: readonly T[]) {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -112,21 +114,17 @@ export function selectLumenAppSidebarItem<T extends { readonly id: string }>(
 const report = (fn: LumenAppSidebarWorkflowsProps['onAction'], actionId: string, value?: string) =>
   fn?.(value === undefined ? { actionId } : { actionId, value });
 function Glyph({ name }: { name: 'menu' | 'area' | 'search' | 'next' | 'folder' | 'spark' }) {
-  const d =
-    name === 'menu'
-      ? 'M2 4h12M2 8h12M2 12h12'
-      : name === 'search'
-        ? 'm11 11 3 3m-2-7a5 5 0 1 1-10 0 5 5 0 0 1 10 0Z'
-        : name === 'next'
-          ? 'm6 3 5 5-5 5'
-          : name === 'folder'
-            ? 'M2 4h5l1.5 2H14v7H2z'
-            : name === 'spark'
-              ? 'M8 1.5 9.5 6 14 8l-4.5 2L8 14.5 6.5 10 2 8l4.5-2z'
-              : 'M3 3h4v4H3zM9 3h4v4H9zM3 9h4v4H3zM9 9h4v4H9z';
+  const paths = {
+    menu: 'M2 4h12M2 8h12M2 12h12',
+    search: 'm11 11 3 3m-2-7a5 5 0 1 1-10 0 5 5 0 0 1 10 0Z',
+    next: 'm6 3 5 5-5 5',
+    folder: 'M2 4h5l1.5 2H14v7H2z',
+    spark: 'M8 1.5 9.5 6 14 8l-4.5 2L8 14.5 6.5 10 2 8l4.5-2z',
+    area: 'M3 3h4v4H3zM9 3h4v4H9zM3 9h4v4H3zM9 9h4v4H9z',
+  } as const;
   return (
     <svg className="lumen-app-sidebar-glyph" viewBox="0 0 16 16" aria-hidden="true">
-      <path d={d} />
+      <path d={paths[name]} />
     </svg>
   );
 }
@@ -181,7 +179,7 @@ function GroupedNavigation({
 }: {
   content: LumenAppSidebarContent;
   selectedId?: string | undefined;
-  compact?: boolean;
+  compact?: boolean | undefined;
   onSelect: (id: string) => void;
 }) {
   const groups = uniqueLumenAppSidebarItems(content.groups);
@@ -354,9 +352,10 @@ function Scoped(
             </option>
           ))}
         </LumenSelect>
-        <label>
+        <label htmlFor="lumen-app-sidebar-search">
           <Glyph name="search" />
           <LumenInput
+            id="lumen-app-sidebar-search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder={props.content.labels.search}
@@ -450,8 +449,11 @@ function TreeNode({
         variant="text"
         aria-expanded={children.length ? open : undefined}
         onClick={() => {
-          if (children.length) setOpen((value) => !value);
-          else onOpen(node.id);
+          if (children.length) {
+            setOpen((value) => !value);
+          } else {
+            onOpen(node.id);
+          }
         }}
       >
         <Glyph name={children.length ? 'folder' : 'area'} />
@@ -510,7 +512,7 @@ function Drawer(
           <strong>{selectLumenAppSidebarItem(items, selectedId)?.label}</strong>
         </header>
         {open ? (
-          <>
+          <React.Fragment>
             <LumenButton
               className="lumen-app-sidebar-drawer-scrim"
               aria-label={props.content.labels.close}
@@ -535,7 +537,7 @@ function Drawer(
                 </LumenButton>
               ))}
             </aside>
-          </>
+          </React.Fragment>
         ) : null}
       </div>
     </Root>
@@ -593,15 +595,32 @@ function empty(props: LumenAppSidebarWorkflowsProps) {
   return <Root {...props}>{null}</Root>;
 }
 export function LumenAppSidebarWorkflows(props: LumenAppSidebarWorkflowsProps) {
-  const content = props.content ?? useLumenAppSidebarWorkflowsContent();
-  if (!content) return empty(props);
-  if (props.variant === 1) return <Primary {...props} content={content} />;
-  if (props.variant === 2) return <Rail {...props} content={content} />;
-  if (props.variant === 3) return <Scoped {...props} content={content} />;
-  if (props.variant === 4) return <Dual {...props} content={content} />;
-  if (props.variant === 5) return <Tree {...props} content={content} />;
-  if (props.variant === 6) return <Drawer {...props} content={content} />;
-  if (props.variant === 7) return <Full {...props} content={content} />;
+  const providerContent = useLumenAppSidebarWorkflowsContent();
+  const content = props.content ?? providerContent;
+  if (!content) {
+    return empty(props);
+  }
+  if (props.variant === 1) {
+    return <Primary {...props} content={content} />;
+  }
+  if (props.variant === 2) {
+    return <Rail {...props} content={content} />;
+  }
+  if (props.variant === 3) {
+    return <Scoped {...props} content={content} />;
+  }
+  if (props.variant === 4) {
+    return <Dual {...props} content={content} />;
+  }
+  if (props.variant === 5) {
+    return <Tree {...props} content={content} />;
+  }
+  if (props.variant === 6) {
+    return <Drawer {...props} content={content} />;
+  }
+  if (props.variant === 7) {
+    return <Full {...props} content={content} />;
+  }
   return empty(props);
 }
 function variant(value: number, props: LumenAppSidebarWorkflowVariantProps) {

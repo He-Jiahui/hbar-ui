@@ -117,7 +117,9 @@ export function useLumenAppShellWorkflowsContent() {
 export function uniqueLumenAppShellItems<T extends { readonly id: string }>(items: readonly T[]) {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -132,21 +134,17 @@ const report = (fn: LumenAppShellWorkflowsProps['onAction'], actionId: string, v
   fn?.(value === undefined ? { actionId } : { actionId, value });
 
 function Glyph({ name }: { name: 'menu' | 'search' | 'area' | 'file' | 'send' | 'spark' }) {
-  const d =
-    name === 'menu'
-      ? 'M2 4h12M2 8h12M2 12h12'
-      : name === 'search'
-        ? 'm11 11 3 3m-2-7a5 5 0 1 1-10 0 5 5 0 0 1 10 0Z'
-        : name === 'file'
-          ? 'M4 2h5l3 3v9H4zM9 2v3h3'
-          : name === 'send'
-            ? 'm2 3 12 5-12 5 2-5z'
-            : name === 'spark'
-              ? 'M8 1.5 9.5 6 14 8l-4.5 2L8 14.5 6.5 10 2 8l4.5-2z'
-              : 'M3 3h4v4H3zM9 3h4v4H9zM3 9h4v4H3zM9 9h4v4H9z';
+  const paths = {
+    menu: 'M2 4h12M2 8h12M2 12h12',
+    search: 'm11 11 3 3m-2-7a5 5 0 1 1-10 0 5 5 0 0 1 10 0Z',
+    file: 'M4 2h5l3 3v9H4zM9 2v3h3',
+    send: 'm2 3 12 5-12 5 2-5z',
+    spark: 'M8 1.5 9.5 6 14 8l-4.5 2L8 14.5 6.5 10 2 8l4.5-2z',
+    area: 'M3 3h4v4H3zM9 3h4v4H9zM3 9h4v4H3zM9 9h4v4H9z',
+  } as const;
   return (
     <svg className="lumen-app-shell-glyph" viewBox="0 0 16 16" aria-hidden="true">
-      <path d={d} />
+      <path d={paths[name]} />
     </svg>
   );
 }
@@ -213,7 +211,7 @@ function Navigation({
 }: {
   content: LumenAppShellContent;
   selectedId?: string | undefined;
-  compact?: boolean;
+  compact?: boolean | undefined;
   onSelect: (id: string) => void;
 }) {
   const items = uniqueLumenAppShellItems(content.navigation);
@@ -244,7 +242,7 @@ function RecordList({
   onSelect,
 }: {
   content: LumenAppShellContent;
-  selectedId?: string;
+  selectedId?: string | undefined;
   onSelect: (id: string) => void;
 }) {
   const records = uniqueLumenAppShellItems(content.records);
@@ -509,9 +507,10 @@ function Triage(
           onSelect={(id) => report(props.onAction, 'navigate', id)}
         />
         <aside>
-          <label className="lumen-app-shell-filter">
+          <label className="lumen-app-shell-filter" htmlFor="lumen-app-shell-filter-input">
             <Glyph name="search" />
             <LumenInput
+              id="lumen-app-shell-filter-input"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder={props.content.labels.search}
@@ -776,7 +775,9 @@ function Chat(
             className="lumen-app-shell-composer"
             onSubmit={(event) => {
               event.preventDefault();
-              if (!message.trim()) return;
+              if (!message.trim()) {
+                return;
+              }
               report(props.onAction, 'send', message.trim());
               setMessage('');
             }}
@@ -804,17 +805,38 @@ function empty(props: LumenAppShellWorkflowsProps) {
   return <Root {...props}>{null}</Root>;
 }
 export function LumenAppShellWorkflows(props: LumenAppShellWorkflowsProps) {
-  const content = props.content ?? useLumenAppShellWorkflowsContent();
-  if (!content) return empty(props);
-  if (props.variant === 1) return <Sidebar {...props} content={content} />;
-  if (props.variant === 2) return <Rails {...props} content={content} />;
-  if (props.variant === 3) return <Workbench {...props} content={content} />;
-  if (props.variant === 4) return <Contextual {...props} content={content} />;
-  if (props.variant === 5) return <Triage {...props} content={content} />;
-  if (props.variant === 6) return <Document {...props} content={content} />;
-  if (props.variant === 7) return <Scoped {...props} content={content} />;
-  if (props.variant === 8) return <Adaptive {...props} content={content} />;
-  if (props.variant === 9) return <Chat {...props} content={content} />;
+  const providerContent = useLumenAppShellWorkflowsContent();
+  const content = props.content ?? providerContent;
+  if (!content) {
+    return empty(props);
+  }
+  if (props.variant === 1) {
+    return <Sidebar {...props} content={content} />;
+  }
+  if (props.variant === 2) {
+    return <Rails {...props} content={content} />;
+  }
+  if (props.variant === 3) {
+    return <Workbench {...props} content={content} />;
+  }
+  if (props.variant === 4) {
+    return <Contextual {...props} content={content} />;
+  }
+  if (props.variant === 5) {
+    return <Triage {...props} content={content} />;
+  }
+  if (props.variant === 6) {
+    return <Document {...props} content={content} />;
+  }
+  if (props.variant === 7) {
+    return <Scoped {...props} content={content} />;
+  }
+  if (props.variant === 8) {
+    return <Adaptive {...props} content={content} />;
+  }
+  if (props.variant === 9) {
+    return <Chat {...props} content={content} />;
+  }
   return empty(props);
 }
 function variant(value: number, props: LumenAppShellWorkflowVariantProps) {

@@ -186,7 +186,9 @@ export function useLumenWizardContent() {
 export function uniqueLumenWizardItems<T extends { readonly id: string }>(items: readonly T[]) {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -201,19 +203,16 @@ const report = (fn: LumenWizardProps['onAction'], actionId: string, value?: stri
   fn?.(value === undefined ? { actionId } : { actionId, value });
 
 function Glyph({ name }: { name: 'back' | 'next' | 'close' | 'check' | 'service' }) {
-  const d =
-    name === 'back'
-      ? 'm10 3-5 5 5 5M5 8h8'
-      : name === 'next'
-        ? 'm6 3 5 5-5 5M3 8h8'
-        : name === 'close'
-          ? 'M3 3l10 10M13 3 3 13'
-          : name === 'check'
-            ? 'm3 8 3 3 7-7'
-            : 'M3 5.5 8 3l5 2.5v5L8 13l-5-2.5z';
+  const paths = {
+    back: 'm10 3-5 5 5 5M5 8h8',
+    next: 'm6 3 5 5-5 5M3 8h8',
+    close: 'M3 3l10 10M13 3 3 13',
+    check: 'm3 8 3 3 7-7',
+    service: 'M3 5.5 8 3l5 2.5v5L8 13l-5-2.5z',
+  } as const;
   return (
     <svg className="lumen-wizard-glyph" viewBox="0 0 16 16" aria-hidden="true">
-      <path d={d} />
+      <path d={paths[name]} />
     </svg>
   );
 }
@@ -590,8 +589,11 @@ function Environment(
   const toggle = (id: string) => {
     setSelected((current) => {
       const next = new Set(current);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
       return next;
     });
     report(props.onAction, 'service', id);
@@ -854,29 +856,37 @@ function empty(props: LumenWizardProps) {
   return <Root {...props}>{null}</Root>;
 }
 export function LumenWizard(props: LumenWizardProps) {
-  const content = props.content ?? useLumenWizardContent();
-  if (props.variant === 1)
+  const providerContent = useLumenWizardContent();
+  const content = props.content ?? providerContent;
+  if (props.variant === 1) {
     return content?.information ? (
       <Information {...props} content={content.information} />
     ) : (
       empty(props)
     );
-  if (props.variant === 2)
+  }
+  if (props.variant === 2) {
     return content?.invoice ? <Invoice {...props} content={content.invoice} /> : empty(props);
-  if (props.variant === 3)
+  }
+  if (props.variant === 3) {
     return content?.upgrade ? <Upgrade {...props} content={content.upgrade} /> : empty(props);
-  if (props.variant === 4)
+  }
+  if (props.variant === 4) {
     return content?.environment ? (
       <Environment {...props} content={content.environment} />
     ) : (
       empty(props)
     );
-  if (props.variant === 5)
+  }
+  if (props.variant === 5) {
     return content?.review ? <Review {...props} content={content.review} /> : empty(props);
-  if (props.variant === 6)
+  }
+  if (props.variant === 6) {
     return content?.migration ? <Migration {...props} content={content.migration} /> : empty(props);
-  if (props.variant === 7)
+  }
+  if (props.variant === 7) {
     return content?.shipping ? <Shipping {...props} content={content.shipping} /> : empty(props);
+  }
   return empty(props);
 }
 function variant(value: number, props: LumenWizardVariantProps) {
