@@ -32,3 +32,78 @@
   --lumen-glow-near: 0.45rem;
   --lumen-glow-far: 0.95rem;
 }
+
+html:has([data-lumen-mode]),
+[data-lumen-mode] {
+  --lumen-scrollbar-track: #101010;
+  --lumen-scrollbar-core: #f4f4f4;
+  --lumen-scrollbar-halo: rgb(255 255 255 / 72%);
+  --lumen-scrollbar-edge: rgb(255 255 255 / 17%);
+}
+
+:where(html:has([data-lumen-mode]), [data-lumen-mode], [data-lumen-mode] *)::-webkit-scrollbar {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+:where(
+  html:has([data-lumen-mode]),
+  [data-lumen-mode],
+  [data-lumen-mode] *
+)::-webkit-scrollbar-track {
+  background: var(--lumen-scrollbar-track);
+  box-shadow: inset 0 0 0 0.0625rem var(--lumen-scrollbar-edge);
+}
+
+:where(
+  html:has([data-lumen-mode]),
+  [data-lumen-mode],
+  [data-lumen-mode] *
+)::-webkit-scrollbar-thumb {
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  border: 0.3125rem solid transparent;
+  border-radius: 999rem;
+  background: var(--lumen-scrollbar-core);
+  background-clip: content-box;
+  filter: drop-shadow(0 0 0.3125rem var(--lumen-scrollbar-halo));
+}
+
+:where(
+    html:has([data-lumen-mode]),
+    [data-lumen-mode],
+    [data-lumen-mode] *
+  )::-webkit-scrollbar-thumb:hover {
+  filter: drop-shadow(0 0 0.5rem var(--lumen-scrollbar-core));
+}
+
+:where(
+  html:has([data-lumen-mode]),
+  [data-lumen-mode],
+  [data-lumen-mode] *
+)::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+:where(
+  html:has([data-lumen-mode]),
+  [data-lumen-mode],
+  [data-lumen-mode] *
+)::-webkit-scrollbar-corner {
+  background: var(--lumen-scrollbar-track);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  :where(html:has([data-lumen-mode]), [data-lumen-mode], [data-lumen-mode] *) {
+    scrollbar-color: var(--lumen-scrollbar-core) var(--lumen-scrollbar-track);
+    scrollbar-width: thin;
+  }
+}
+
+@media (forced-colors: active) {
+  :where(html:has([data-lumen-mode]), [data-lumen-mode], [data-lumen-mode] *) {
+    scrollbar-color: ButtonText Canvas;
+  }
+}

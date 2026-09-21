@@ -23,6 +23,11 @@ current `min`/`max` range, and lets the theme scale thumb and filled-track glow
 with progress. The theme also renders MUI switches as an unlit hollow circle or
 a lit solid circle over a flat line.
 
+The explicit stylesheet also scopes Lumen scrollbars to Lumen hosts: Chromium
+and WebKit render a bordered dark track and a narrow white lamp thumb while
+hiding native arrow buttons. Firefox keeps the dark track and white thumb
+through its standard scrollbar properties.
+
 The current MUI audit covers every primitive used by the package and design
 previews: `Button`/`ButtonBase` have no ripple or elevation and receive local
 line feedback; `TextField`, `OutlinedInput`, `InputBase`, and native selects

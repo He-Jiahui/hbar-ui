@@ -167,3 +167,68 @@ test('source page examples render all ten catalog surface structures at desktop 
   /* eslint-enable no-await-in-loop */
   expect(errors).toEqual([]);
 });
+
+test('scrolling Lumen panes use a bordered dark track and white lamp thumb', async ({
+  page,
+}, testInfo) => {
+  await page.setViewportSize({ width: 900, height: 700 });
+  await page.goto(
+    '/experiments/lumen-app-ui/designs/?source=hbar-app-ui-ai-chat-3&embed=1&mode=dark',
+  );
+  const rail = page.locator('[data-lumen-layout="rail"] nav').first();
+  await expect(rail).toBeVisible();
+  const scrollbar = await rail.evaluate((element) => {
+    const scrollbarStyle = getComputedStyle(element, '::-webkit-scrollbar');
+    const trackStyle = getComputedStyle(element, '::-webkit-scrollbar-track');
+    const thumbStyle = getComputedStyle(element, '::-webkit-scrollbar-thumb');
+    const buttonStyle = getComputedStyle(element, '::-webkit-scrollbar-button');
+    return {
+      scrollable: element.scrollHeight > element.clientHeight,
+      width: scrollbarStyle.width,
+      track: trackStyle.backgroundColor,
+      trackEdge: trackStyle.boxShadow,
+      thumb: thumbStyle.backgroundColor,
+      thumbClip: thumbStyle.backgroundClip,
+      thumbBorder: thumbStyle.borderLeftWidth,
+      thumbGlow: thumbStyle.filter,
+      buttonDisplay: buttonStyle.display,
+      buttonWidth: buttonStyle.width,
+      buttonHeight: buttonStyle.height,
+    };
+  });
+  expect(scrollbar).toMatchObject({
+    scrollable: true,
+    width: '12px',
+    track: 'rgb(16, 16, 16)',
+    thumb: 'rgb(244, 244, 244)',
+    thumbClip: 'content-box',
+    thumbBorder: '5px',
+    buttonDisplay: 'none',
+    buttonWidth: '0px',
+    buttonHeight: '0px',
+  });
+  expect(scrollbar.trackEdge).not.toBe('none');
+  expect(scrollbar.thumbGlow).toContain('drop-shadow');
+  await rail.evaluate((element) => {
+    element.scrollTop = element.scrollHeight / 3;
+  });
+  await page.screenshot({
+    path: testInfo.outputPath('lamp-scrollbar-dark.png'),
+    animations: 'disabled',
+  });
+
+  await page.goto(
+    '/experiments/lumen-app-ui/designs/?source=hbar-app-ui-ai-chat-3&embed=1&mode=light',
+  );
+  const lightRail = page.locator('[data-lumen-layout="rail"] nav').first();
+  await expect(lightRail).toBeVisible();
+  expect(
+    await lightRail.evaluate(
+      (element) => getComputedStyle(element, '::-webkit-scrollbar-track').backgroundColor,
+    ),
+  ).toBe('rgb(16, 16, 16)');
+  await page.screenshot({
+    path: testInfo.outputPath('lamp-scrollbar-light.png'),
+    animations: 'disabled',
+  });
+});
