@@ -923,6 +923,14 @@ test('MUI menus and select fields use Lumen surfaces and boundary lamps', async 
 test('extended Lumen designs cover all non-ported catalog layouts and interactions', async ({
   page,
 }, testInfo) => {
+  const pageErrors: string[] = [];
+  const consoleErrors: string[] = [];
+  page.on('pageerror', (error) => pageErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') {
+      consoleErrors.push(message.text());
+    }
+  });
   await page.goto('/experiments/lumen-app-ui/designs/');
   const nav = page.getByRole('navigation', { name: 'Lumen design coverage' });
   const designs = [
@@ -1037,4 +1045,6 @@ test('extended Lumen designs cover all non-ported catalog layouts and interactio
   await expect(page.getByRole('heading', { name: '光效' })).toBeVisible();
   await page.getByRole('button', { name: '切换黑白主题' }).click();
   await expect(page.locator('main[data-lumen-mode]')).toHaveAttribute('data-lumen-mode', 'light');
+  expect(pageErrors).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });
