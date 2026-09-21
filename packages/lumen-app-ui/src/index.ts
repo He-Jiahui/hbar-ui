@@ -1084,6 +1084,31 @@ export type {
   LumenAppShellWorkflowVariantProps,
 } from './app-shell-workflows';
 export {
+  LumenAppSidebarWorkflows,
+  LumenAppSidebar01,
+  LumenAppSidebar02,
+  LumenAppSidebar03,
+  LumenAppSidebar04,
+  LumenAppSidebar05,
+  LumenAppSidebar06,
+  LumenAppSidebar07,
+  LumenAppSidebarWorkflowsProvider,
+  selectLumenAppSidebarItem,
+  uniqueLumenAppSidebarItems,
+  useLumenAppSidebarWorkflowsContent,
+} from './app-sidebar-workflows';
+export type {
+  LumenAppSidebarContent,
+  LumenAppSidebarGroup,
+  LumenAppSidebarItem,
+  LumenAppSidebarListStrategy,
+  LumenAppSidebarTreeNode,
+  LumenAppSidebarWorkflowAction,
+  LumenAppSidebarWorkflowsProps,
+  LumenAppSidebarWorkflowsProviderProps,
+  LumenAppSidebarWorkflowVariantProps,
+} from './app-sidebar-workflows';
+export {
   LumenOnboarding,
   LumenOnboarding01,
   LumenOnboarding02,
