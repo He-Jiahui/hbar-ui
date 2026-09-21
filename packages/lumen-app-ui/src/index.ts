@@ -607,6 +607,38 @@ export type {
   LumenChatVariantProps,
 } from './chat';
 export {
+  LumenPromptInput,
+  LumenPromptInput01,
+  LumenPromptInput02,
+  LumenPromptInput03,
+  LumenPromptInput04,
+  LumenPromptInput05,
+  LumenPromptInput06,
+  LumenPromptInput07,
+  LumenPromptInputProvider,
+  selectLumenPromptInputItem,
+  uniqueLumenPromptInputItems,
+  useLumenPromptInputContent,
+} from './prompt-input';
+export type {
+  LumenPromptInputAction,
+  LumenPromptInputChoice,
+  LumenPromptInputContent,
+  LumenPromptInputHeroContent,
+  LumenPromptInputListStrategy,
+  LumenPromptInputModeContent,
+  LumenPromptInputProps,
+  LumenPromptInputProviderProps,
+  LumenPromptInputScopeContent,
+  LumenPromptInputSource,
+  LumenPromptInputTemplateContent,
+  LumenPromptInputToolContent,
+  LumenPromptInputUpload,
+  LumenPromptInputUploadContent,
+  LumenPromptInputVariable,
+  LumenPromptInputVariantProps,
+} from './prompt-input';
+export {
   LumenUsage,
   LumenUsage01,
   LumenUsage02,
