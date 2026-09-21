@@ -163,6 +163,14 @@ import {
   LumenBilling07,
   LumenBilling08,
 } from './billing';
+import {
+  LumenChat01,
+  LumenChat02,
+  LumenChat03,
+  LumenChat04,
+  LumenChat05,
+  LumenChat06,
+} from './chat';
 
 export interface LumenSourceVariant {
   id: string;
@@ -312,6 +320,12 @@ export const LUMEN_MIGRATED_VARIANT_IDS = [
   'hbar-app-ui-billing-6',
   'hbar-app-ui-billing-7',
   'hbar-app-ui-billing-8',
+  'hbar-app-ui-chat-1',
+  'hbar-app-ui-chat-2',
+  'hbar-app-ui-chat-3',
+  'hbar-app-ui-chat-4',
+  'hbar-app-ui-chat-5',
+  'hbar-app-ui-chat-6',
 ] as const;
 
 export type LumenMigratedVariantId = (typeof LUMEN_MIGRATED_VARIANT_IDS)[number];
@@ -450,6 +464,12 @@ const migratedComponents: Readonly<Partial<Record<LumenMigratedVariantId, React.
   'hbar-app-ui-billing-6': LumenBilling06,
   'hbar-app-ui-billing-7': LumenBilling07,
   'hbar-app-ui-billing-8': LumenBilling08,
+  'hbar-app-ui-chat-1': LumenChat01,
+  'hbar-app-ui-chat-2': LumenChat02,
+  'hbar-app-ui-chat-3': LumenChat03,
+  'hbar-app-ui-chat-4': LumenChat04,
+  'hbar-app-ui-chat-5': LumenChat05,
+  'hbar-app-ui-chat-6': LumenChat06,
 };
 
 const migratedIds = new Set<string>(LUMEN_MIGRATED_VARIANT_IDS);
