@@ -275,12 +275,39 @@ export type {
   LumenSelectProps,
   LumenTextareaProps,
 } from './forms';
-export { LumenCommandList } from './command-list';
+export { LumenCommandDialog, LumenCommandList } from './command-list';
 export type {
+  LumenCommandDialogProps,
   LumenCommandItem,
   LumenCommandListLabels,
   LumenCommandListProps,
 } from './command-list';
+export {
+  LumenAssistantCommands,
+  LumenCommandMenu,
+  LumenCommandMenu01,
+  LumenCommandMenu02,
+  LumenCommandMenu03,
+  LumenCommandMenu04,
+  LumenCommandMenu05,
+  LumenCommandMenu06,
+  LumenCommandMenuProvider,
+  LumenInviteCommand,
+  LumenSearchCommands,
+  uniqueLumenCommandItems,
+  useLumenCommandMenuContent,
+} from './command-menu';
+export type {
+  LumenAssistantCommandsProps,
+  LumenCommandMenuContent,
+  LumenCommandMenuProps,
+  LumenCommandMenuProviderProps,
+  LumenCommandMenuVariantProps,
+  LumenCommandOverlay,
+  LumenCommandSurfaceContent,
+  LumenInviteCommandProps,
+  LumenSearchCommandsProps,
+} from './command-menu';
 export { LumenPlanEditor } from './plan-editor';
 export type {
   LumenPlanEditorEditing,

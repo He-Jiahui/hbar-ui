@@ -1,18 +1,21 @@
 'use client';
 
 import * as React from 'react';
-import { LumenText } from './primitives';
+import { LumenDialog } from './dialog';
+import { LumenInput } from './forms';
+import { LumenButton, LumenText } from './primitives';
+import { LumenIcon } from './workbench';
 import './command-list.css';
 
 export interface LumenCommandItem {
-  id: string;
-  label: string;
-  description?: string | undefined;
-  icon?: React.ReactNode | undefined;
-  group?: string | undefined;
-  shortcut?: string | undefined;
-  navigates?: boolean | undefined;
-  disabled?: boolean | undefined;
+  readonly id: string;
+  readonly label: string;
+  readonly description?: string | undefined;
+  readonly icon?: React.ElementType<React.SVGAttributes<SVGSVGElement>> | undefined;
+  readonly group?: string | undefined;
+  readonly shortcut?: string | undefined;
+  readonly navigates?: boolean | undefined;
+  readonly disabled?: boolean | undefined;
 }
 
 export interface LumenCommandListLabels {
@@ -47,14 +50,7 @@ export interface LumenCommandListProps {
 }
 
 function uniqueCommands(items: readonly LumenCommandItem[]): readonly LumenCommandItem[] {
-  const seen = new Set<string>();
-  return items.filter((item) => {
-    if (seen.has(item.id)) {
-      return false;
-    }
-    seen.add(item.id);
-    return true;
-  });
+  return [...new Map(items.map((item) => [item.id, item])).values()];
 }
 
 function CommandGlyph({ name }: { name: 'command' | 'navigate' | 'search' }) {
@@ -98,7 +94,7 @@ export function LumenCommandList({
     >
       <label className="lumen-command-query" htmlFor={inputId}>
         <CommandGlyph name="search" />
-        <input
+        <LumenInput
           ref={inputRef}
           id={inputId}
           type="search"
@@ -142,8 +138,8 @@ export function LumenCommandList({
           </LumenText>
         ) : (
           items.map((item, index) => (
-            <button
-              type="button"
+            <LumenButton
+              variant="text"
               role="option"
               id={`${listId}-${encodeURIComponent(item.id)}`}
               key={item.id}
@@ -153,8 +149,12 @@ export function LumenCommandList({
               onFocus={() => onSelect(item.id)}
               onClick={() => onExecute(item.id)}
             >
-              <span className="lumen-command-leading" aria-hidden={item.icon ? undefined : 'true'}>
-                {item.icon ?? <CommandGlyph name="command" />}
+              <span className="lumen-command-leading" aria-hidden="true">
+                {item.icon ? (
+                  <LumenIcon icon={item.icon} tier="md" />
+                ) : (
+                  <CommandGlyph name="command" />
+                )}
               </span>
               <span className="lumen-command-copy">
                 {item.group && items[index - 1]?.group !== item.group ? (
@@ -173,7 +173,7 @@ export function LumenCommandList({
               </span>
               {item.shortcut ? <kbd>{item.shortcut}</kbd> : null}
               {item.navigates ? <CommandGlyph name="navigate" /> : null}
-            </button>
+            </LumenButton>
           ))
         )}
       </div>
@@ -198,5 +198,28 @@ export function LumenCommandList({
         <small>{labels.count(items.length)}</small>
       </footer>
     </section>
+  );
+}
+
+export interface LumenCommandDialogProps extends LumenCommandListProps {
+  readonly open: boolean;
+  readonly title: string;
+  readonly onClose: () => void;
+}
+
+export function LumenCommandDialog({ open, title, onClose, ...content }: LumenCommandDialogProps) {
+  const input = React.useRef<HTMLInputElement>(null);
+  return (
+    <LumenDialog
+      open={open}
+      title={title}
+      closeLabel={content.labels.close}
+      onClose={onClose}
+      initialFocus={input}
+      className="lumen-command-dialog"
+      chromeless
+    >
+      <LumenCommandList {...content} inputRef={input} />
+    </LumenDialog>
   );
 }
