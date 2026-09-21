@@ -1022,6 +1022,27 @@ test('extended Lumen designs cover all non-ported catalog layouts and interactio
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
   await page.setViewportSize({ width: 1440, height: 900 });
   await nav.getByRole('button', { name: '仪表盘' }).click();
+  const quickActions = page.getByRole('region', { name: '快捷入口' }).getByRole('button');
+  const quickActionGeometry = await quickActions.evaluateAll((buttons) =>
+    buttons.map((button) => ({
+      buttonLeft: button.getBoundingClientRect().left,
+      beamLeft:
+        button.querySelector('[data-edge="bottom"] > span')?.getBoundingClientRect().left ?? -1,
+    })),
+  );
+  expect(
+    quickActionGeometry.every(({ buttonLeft, beamLeft }) => Math.abs(buttonLeft - beamLeft) <= 1),
+  ).toBe(true);
+  const activityContentWidths = await page
+    .getByRole('region', { name: '最近活动' })
+    .getByRole('button')
+    .evaluateAll((buttons) =>
+      buttons.map(
+        (button) =>
+          button.querySelector(':scope > span:first-child')?.getBoundingClientRect().width,
+      ),
+    );
+  expect(activityContentWidths.every((width) => width !== undefined && width > 80)).toBe(true);
   await page.getByRole('button', { name: /打开 主题切换/ }).click();
   await nav.getByRole('button', { name: '数据表格' }).click();
   await page.getByRole('textbox', { name: '筛选资源' }).fill('Glass');
