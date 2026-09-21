@@ -77,6 +77,13 @@ import {
   LumenNavbar14,
 } from './navbar';
 import {
+  LumenMobile01,
+  LumenMobile02,
+  LumenMobile03,
+  LumenMobile04,
+  LumenMobile05,
+} from './mobile';
+import {
   LumenCard01,
   LumenCard02,
   LumenCard03,
@@ -396,6 +403,11 @@ export const LUMEN_MIGRATED_VARIANT_IDS = [
   'hbar-app-ui-navbar-12',
   'hbar-app-ui-navbar-13',
   'hbar-app-ui-navbar-14',
+  'hbar-app-ui-mobile-1',
+  'hbar-app-ui-mobile-2',
+  'hbar-app-ui-mobile-3',
+  'hbar-app-ui-mobile-4',
+  'hbar-app-ui-mobile-5',
   'hbar-app-ui-card-1',
   'hbar-app-ui-card-2',
   'hbar-app-ui-card-3',
@@ -659,6 +671,11 @@ const migratedComponents: Readonly<Partial<Record<LumenMigratedVariantId, React.
   'hbar-app-ui-navbar-12': LumenNavbar12,
   'hbar-app-ui-navbar-13': LumenNavbar13,
   'hbar-app-ui-navbar-14': LumenNavbar14,
+  'hbar-app-ui-mobile-1': LumenMobile01,
+  'hbar-app-ui-mobile-2': LumenMobile02,
+  'hbar-app-ui-mobile-3': LumenMobile03,
+  'hbar-app-ui-mobile-4': LumenMobile04,
+  'hbar-app-ui-mobile-5': LumenMobile05,
   'hbar-app-ui-card-1': LumenCard01,
   'hbar-app-ui-card-2': LumenCard02,
   'hbar-app-ui-card-3': LumenCard03,
