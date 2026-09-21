@@ -1,4 +1,4 @@
-import type { LumenTone } from '../LumenIndicator';
+import type { LumenState, LumenTone } from '../LumenIndicator';
 
 export interface LumenDesignCopy {
   title: string;
@@ -226,7 +226,22 @@ export interface OnboardingDesignProps {
 }
 
 export type LumenCategoryLayout =
-  'chat' | 'comments' | 'commerce' | 'editor' | 'list' | 'navigation' | 'timeline';
+  | 'calendar'
+  | 'chat'
+  | 'comments'
+  | 'commerce'
+  | 'editor'
+  | 'form'
+  | 'grid'
+  | 'list'
+  | 'navigation'
+  | 'overlay'
+  | 'panel'
+  | 'rail'
+  | 'split'
+  | 'stream'
+  | 'table'
+  | 'timeline';
 
 export interface CategoryDesignItem {
   id: string;
@@ -234,7 +249,14 @@ export interface CategoryDesignItem {
   detail: string;
   value?: string | undefined;
   tone?: LumenTone | undefined;
-  state?: string | undefined;
+  state?: LumenState | undefined;
+}
+
+export interface CategoryDesignProfile {
+  id: string;
+  scenario: string;
+  surface: string;
+  initialState: string;
 }
 
 export interface CategoryDesignProps {
@@ -249,13 +271,21 @@ export interface CategoryDesignProps {
   content: {
     items: readonly CategoryDesignItem[];
     aside?: readonly CategoryDesignItem[] | undefined;
+    controls?: readonly CategoryDesignItem[] | undefined;
     metrics?: readonly CategoryDesignItem[] | undefined;
+    profile?: CategoryDesignProfile | undefined;
   };
   layout: LumenCategoryLayout;
-  state: { query: string; input: string; selectedId: string | null };
+  state: {
+    query: string;
+    input: string;
+    selectedId: string | null;
+    values?: Readonly<Record<string, string>> | undefined;
+  };
   actions: {
     onQueryChange: (query: string) => void;
     onInputChange: (input: string) => void;
+    onItemChange?: ((id: string, value: string) => void) | undefined;
     onSelect: (id: string) => void;
     onAction: (id: string) => void;
   };

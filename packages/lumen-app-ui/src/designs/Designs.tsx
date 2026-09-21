@@ -29,14 +29,23 @@ function Frame({
   copy,
   children,
   tone = 'info',
+  layout,
+  sourceId,
 }: {
   id: string;
   copy: { title: string; detail: string };
   children: React.ReactNode;
   tone?: LumenTone | undefined;
+  layout?: string | undefined;
+  sourceId?: string | undefined;
 }) {
   return (
-    <LumenSurface className={styles.surface} data-lumen-design={id}>
+    <LumenSurface
+      className={styles.surface}
+      data-lumen-design={id}
+      data-lumen-layout={layout}
+      data-lumen-source-id={sourceId}
+    >
       <section className={styles.frame} aria-labelledby={`${id}-title`}>
         <header className={styles.header}>
           <div>
@@ -675,6 +684,48 @@ function CategoryItemButton({
   );
 }
 
+function CategoryProfile({
+  profile,
+}: {
+  profile: NonNullable<CategoryDesignProps['content']['profile']>;
+}) {
+  return (
+    <section className={styles.categoryProfile} aria-label={profile.id}>
+      <div>
+        <code>{profile.id}</code>
+        <span>{profile.surface}</span>
+        <span>{profile.initialState}</span>
+      </div>
+      <p lang="en">{profile.scenario}</p>
+    </section>
+  );
+}
+
+function CategoryControls({
+  controls,
+  onAction,
+}: {
+  controls: readonly CategoryDesignItem[];
+  onAction: (id: string) => void;
+}) {
+  if (controls.length === 0) {
+    return null;
+  }
+  return (
+    <nav
+      className={styles.categoryControls}
+      aria-label={controls.map((item) => item.label).join(', ')}
+    >
+      {controls.map((item) => (
+        <Button key={item.id} onClick={() => onAction(item.id)}>
+          {item.label}
+          <LumenIndicator edge="bottom" length="action" tone={item.tone} />
+        </Button>
+      ))}
+    </nav>
+  );
+}
+
 export function LumenCategoryDesign({
   id,
   copy,
@@ -693,18 +744,23 @@ export function LumenCategoryDesign({
   const activeId = state.selectedId ?? items[0]?.id ?? null;
   const selected = items.find((item) => item.id === activeId) ?? items[0];
   const tone = selected?.tone ?? 'info';
+  const controls = content.controls ?? [];
+  const showSearch =
+    !content.profile || controls.some((item) => item.id === 'search' || item.id === 'filter');
 
   const toolbar = (
     <div className={styles.categoryToolbar}>
-      <LumenField boundary="horizontal" className={styles.categorySearch}>
-        <TextField
-          fullWidth
-          size="small"
-          label={copy.search}
-          value={state.query}
-          onChange={(event) => actions.onQueryChange(event.target.value)}
-        />
-      </LumenField>
+      {showSearch && (
+        <LumenField boundary="horizontal" className={styles.categorySearch}>
+          <TextField
+            fullWidth
+            size="small"
+            label={copy.search}
+            value={state.query}
+            onChange={(event) => actions.onQueryChange(event.target.value)}
+          />
+        </LumenField>
+      )}
       <Button onClick={() => actions.onAction(selected?.id ?? '')}>
         {copy.primary}
         <LumenIndicator edge="bottom" length="action" />
@@ -713,9 +769,62 @@ export function LumenCategoryDesign({
   );
 
   let body: React.ReactNode;
-  if (layout === 'navigation') {
+  if (layout === 'calendar') {
     body = (
-      <div className={styles.categoryNavigation}>
+      <div className={styles.categoryCalendar}>
+        {items.map((item, index) => (
+          <Button
+            key={item.id}
+            aria-pressed={item.id === activeId}
+            data-selected={item.id === activeId}
+            onClick={() => actions.onSelect(item.id)}
+          >
+            <small>{String(index + 1).padStart(2, '0')}</small>
+            <strong>{item.label}</strong>
+            <span>{item.detail}</span>
+            <LumenIndicator
+              edge="bottom"
+              state={item.id === activeId ? 'selected' : 'idle'}
+              tone={item.tone}
+            />
+          </Button>
+        ))}
+      </div>
+    );
+  } else if (layout === 'form') {
+    body = (
+      <div className={styles.categoryForm}>
+        {items.map((item) => (
+          <LumenField boundary="horizontal" className={styles.categoryFormField} key={item.id}>
+            <TextField
+              fullWidth
+              label={item.label}
+              helperText={item.detail}
+              value={state.values?.[item.id] ?? item.value ?? ''}
+              onChange={(event) => actions.onItemChange?.(item.id, event.target.value)}
+              slotProps={{ htmlInput: { readOnly: !actions.onItemChange } }}
+            />
+          </LumenField>
+        ))}
+      </div>
+    );
+  } else if (layout === 'grid') {
+    body = (
+      <div className={styles.categoryGrid}>
+        {items.map((item) => (
+          <CategoryItemButton
+            key={item.id}
+            item={item}
+            selected={item.id === activeId}
+            edge="bottom"
+            onSelect={() => actions.onSelect(item.id)}
+          />
+        ))}
+      </div>
+    );
+  } else if (layout === 'navigation' || layout === 'rail') {
+    body = (
+      <div className={layout === 'rail' ? styles.categoryRail : styles.categoryNavigation}>
         <nav aria-label={copy.secondary}>
           {items.map((item) => (
             <CategoryItemButton
@@ -738,6 +847,111 @@ export function LumenCategoryDesign({
             </div>
           ))}
         </article>
+      </div>
+    );
+  } else if (layout === 'overlay') {
+    body = (
+      <div className={styles.categoryOverlayStage}>
+        <div className={styles.categoryOverlayContext}>
+          {items.map((item) => (
+            <span key={item.id}>{item.label}</span>
+          ))}
+        </div>
+        <LumenSurface className={styles.categoryOverlayPanel}>
+          <section>
+            <LumenIndicator edge="top" state="selected" tone={tone} />
+            <small>{selected?.value ?? copy.secondary}</small>
+            <h3>{selected?.label ?? copy.title}</h3>
+            <p>{selected?.detail ?? copy.detail}</p>
+            <Button onClick={() => actions.onAction(selected?.id ?? '')}>
+              {copy.action}
+              <LumenIndicator edge="bottom" length="action" tone={tone} />
+            </Button>
+          </section>
+        </LumenSurface>
+      </div>
+    );
+  } else if (layout === 'panel') {
+    body = (
+      <div className={styles.categoryPanel}>
+        <article>
+          <LumenIndicator edge="left" state="selected" tone={tone} />
+          <small>{selected?.value ?? copy.secondary}</small>
+          <h3>{selected?.label ?? copy.title}</h3>
+          <p>{selected?.detail ?? copy.detail}</p>
+        </article>
+        <nav aria-label={copy.secondary}>
+          {items.map((item) => (
+            <CategoryItemButton
+              key={item.id}
+              item={item}
+              selected={item.id === activeId}
+              edge="bottom"
+              onSelect={() => actions.onSelect(item.id)}
+            />
+          ))}
+        </nav>
+      </div>
+    );
+  } else if (layout === 'split') {
+    body = (
+      <div className={styles.categorySplit}>
+        <nav aria-label={copy.secondary}>
+          {items.map((item) => (
+            <CategoryItemButton
+              key={item.id}
+              item={item}
+              selected={item.id === activeId}
+              edge="right"
+              onSelect={() => actions.onSelect(item.id)}
+            />
+          ))}
+        </nav>
+        <article>
+          <LumenIndicator edge="left" state="selected" tone={tone} />
+          <small>{selected?.value ?? copy.secondary}</small>
+          <h3>{selected?.label ?? copy.title}</h3>
+          <p>{selected?.detail ?? copy.detail}</p>
+          {(content.aside ?? []).map((item) => (
+            <div className={styles.categoryFact} key={item.id}>
+              <span>{item.label}</span>
+              <strong>{item.value ?? item.detail}</strong>
+            </div>
+          ))}
+        </article>
+      </div>
+    );
+  } else if (layout === 'stream') {
+    body = (
+      <div className={styles.categoryStream}>
+        {items.map((item) => (
+          <article key={item.id} data-selected={item.id === activeId}>
+            <LumenIndicator
+              edge="left"
+              state={item.id === activeId ? (item.state ?? 'running') : 'idle'}
+              tone={item.tone}
+            />
+            <button type="button" onClick={() => actions.onSelect(item.id)}>
+              <strong>{item.label}</strong>
+              <span>{item.detail}</span>
+              <small>{item.value}</small>
+            </button>
+          </article>
+        ))}
+      </div>
+    );
+  } else if (layout === 'table') {
+    body = (
+      <div className={styles.categoryTable} role="table" aria-label={copy.secondary}>
+        {items.map((item) => (
+          <div role="row" data-selected={item.id === activeId} key={item.id}>
+            <span role="cell">
+              <Button onClick={() => actions.onSelect(item.id)}>{item.label}</Button>
+            </span>
+            <span role="cell">{item.detail}</span>
+            <strong role="cell">{item.value ?? copy.secondary}</strong>
+          </div>
+        ))}
       </div>
     );
   } else if (layout === 'timeline') {
@@ -879,9 +1093,11 @@ export function LumenCategoryDesign({
   }
 
   return (
-    <Frame id={id} copy={copy} tone={tone}>
+    <Frame id={id} copy={copy} tone={tone} layout={layout} sourceId={content.profile?.id}>
+      {content.profile && <CategoryProfile profile={content.profile} />}
       {toolbar}
       {body}
+      <CategoryControls controls={controls.slice(1)} onAction={actions.onAction} />
     </Frame>
   );
 }

@@ -17,6 +17,7 @@ export type {
   AnalyticsMetric,
   AnalyticsPoint,
   CategoryDesignItem,
+  CategoryDesignProfile,
   CategoryDesignProps,
   LumenCategoryLayout,
   BillingDesignProps,
