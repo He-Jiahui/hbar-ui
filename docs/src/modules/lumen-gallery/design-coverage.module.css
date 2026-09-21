@@ -24,7 +24,8 @@
 
 .toolbar,
 .actions,
-.designNav {
+.designNav,
+.variantNav {
   display: flex;
   gap: 1rem;
 }
@@ -55,12 +56,14 @@
 }
 
 .actions,
-.designNav {
+.designNav,
+.variantNav {
   flex-wrap: wrap;
 }
 
 .actions button,
-.designNav button {
+.designNav button,
+.variantNav button {
   color: var(--lumen-ink);
   text-transform: none;
 }
@@ -78,6 +81,37 @@
   min-width: 5rem;
 }
 
+.variantNav {
+  align-items: center;
+  flex-wrap: nowrap;
+  min-width: 0;
+  overflow-x: auto;
+  padding-block: 0.25rem;
+}
+
+.variantNav > span {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  flex: 0 0 auto;
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  color: var(--lumen-muted);
+  background: #090909;
+  font-size: 0.75rem;
+}
+
+.gallery[data-lumen-mode='light'] .variantNav > span {
+  background: #f5f5f5;
+}
+
+.variantNav button {
+  position: relative;
+  flex: 0 0 auto;
+  flex-direction: column;
+  min-width: 5rem;
+  white-space: nowrap;
+}
+
 .navLine {
   display: block;
   width: 24%;
@@ -93,6 +127,8 @@
 
 .designNav button:hover .navLine,
 .designNav button:focus-visible .navLine,
+.variantNav button:hover .navLine,
+.variantNav button:focus-visible .navLine,
 .navLine[data-active='true'] {
   width: 80%;
   opacity: 1;
@@ -113,6 +149,7 @@
 .gallery[data-embedded='true'] .toolbar,
 .gallery[data-embedded='true'] .note,
 .gallery[data-embedded='true'] .designNav,
+.gallery[data-embedded='true'] .variantNav,
 .gallery[data-embedded='true'] .event {
   display: none;
 }

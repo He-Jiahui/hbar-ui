@@ -79,6 +79,7 @@ const localized = {
     preview: '真实预览',
     previewReady: '可操作变体预览',
     previewDesign: '设计覆盖预览',
+    previewSource: '来源页面变体预览',
     previewPending: '当前分类尚未提供预览',
     empty: '没有匹配的来源项',
     open: '打开 Lumen 案例',
@@ -107,6 +108,7 @@ const localized = {
     preview: 'Live preview',
     previewReady: 'Interactive variant preview',
     previewDesign: 'Design coverage preview',
+    previewSource: 'Source page variant preview',
     previewPending: 'No preview is available for this family yet',
     empty: 'No matching source entries',
     open: 'Open Lumen example',
@@ -181,12 +183,12 @@ export default function LumenCatalog() {
       />
     );
   } else if (designed && selected) {
-    previewLabel = copy.previewDesign;
+    previewLabel = copy.previewSource;
     preview = (
       <iframe
         className={styles.previewFrame}
-        title={`${selected.category} ${copy.previewDesign}`}
-        src={`/experiments/lumen-app-ui/designs/?design=${encodeURIComponent(selected.category)}&embed=1&mode=${mode}&locale=${locale}`}
+        title={`${selected.id} ${copy.previewSource}`}
+        src={`/experiments/lumen-app-ui/designs/?design=${encodeURIComponent(selected.category)}&source=${encodeURIComponent(selected.id)}&embed=1&mode=${mode}&locale=${locale}`}
         loading="lazy"
       />
     );
@@ -323,7 +325,7 @@ export default function LumenCatalog() {
                   {!ready && designed && (
                     <Button
                       component="a"
-                      href={`/experiments/lumen-app-ui/designs/?design=${encodeURIComponent(selected.category)}`}
+                      href={`/experiments/lumen-app-ui/designs/?design=${encodeURIComponent(selected.category)}&source=${encodeURIComponent(selected.id)}`}
                     >
                       {copy.designs}
                     </Button>

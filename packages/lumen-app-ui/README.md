@@ -96,7 +96,14 @@ The catalog exposes these 34 names through
 from a validated source port in both code and the docs catalog.
 
 The remaining catalog families use the typed `LumenCategoryDesign` composition
-with explicit layout primitives for chat, timeline, navigation, commerce,
-editor, comments, and list surfaces. The host still owns all copy, items,
-selection state, and actions; the component supplies only the Lumen material
-and interaction language.
+with explicit layout primitives for chat, comments, commerce, editor, list,
+navigation, and the ten source page surfaces. The host still owns all copy,
+items, selection state, and actions; the component supplies only the Lumen
+material and interaction language.
+
+The docs catalog also resolves every pending source ID to an individual page
+example. Its source `surface`, `initialState`, `controls`, and `itemCount`
+select and populate calendar, form, grid, overlay, panel, rail, split, stream,
+table, or timeline compositions. These 278 examples make the frozen source
+structures visually reviewable without marking them as migrated production
+components.

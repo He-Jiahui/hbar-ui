@@ -36,7 +36,9 @@ import type {
   LumenDesignCopy,
   WizardField,
 } from '@lumen/app-ui/designs';
+import { LUMEN_SOURCE_VARIANTS } from '@lumen/app-ui/catalog';
 import styles from './design-coverage.module.css';
+import { getSourceVariantFixture } from './sourceVariantFixtures';
 
 type GalleryLocale = 'zh' | 'en';
 type ExistingDesignId =
@@ -104,6 +106,8 @@ const copy = {
     locale: 'English',
     theme: '切换黑白主题',
     note: '这些示例是设计覆盖组件，不计入 300 个来源变体的迁移完成数。',
+    overview: '类别概览',
+    variants: '来源页面变体',
     analytics: {
       title: '行为分析',
       detail: '用线条、数值和单色柱形表达趋势。',
@@ -195,6 +199,8 @@ const copy = {
     locale: '中文',
     theme: 'Switch black and white theme',
     note: 'These examples are design coverage components and are not counted as migrated source variants.',
+    overview: 'Category overview',
+    variants: 'Source page variants',
     analytics: {
       title: 'Behavior analytics',
       detail: 'Express trends through lines, values, and monochrome bars.',
@@ -792,6 +798,7 @@ export default function DesignCoverageGallery() {
   const [mode, setMode] = React.useState<'dark' | 'light'>('dark');
   const [locale, setLocale] = React.useState<GalleryLocale>('zh');
   const [design, setDesign] = React.useState<DesignId>('analytics');
+  const [sourceId, setSourceId] = React.useState<string | null>(null);
   const [periodId, setPeriodId] = React.useState('week');
   const [planId, setPlanId] = React.useState('studio');
   const [tableQuery, setTableQuery] = React.useState('');
@@ -807,6 +814,7 @@ export default function DesignCoverageGallery() {
   const [categoryQuery, setCategoryQuery] = React.useState('');
   const [categoryInput, setCategoryInput] = React.useState('');
   const [categorySelectedId, setCategorySelectedId] = React.useState<string | null>(null);
+  const [variantValues, setVariantValues] = React.useState<Readonly<Record<string, string>>>({});
   const [readNotificationIds, setReadNotificationIds] = React.useState<readonly string[]>([]);
   const [dismissedNotificationIds, setDismissedNotificationIds] = React.useState<readonly string[]>(
     [],
@@ -830,6 +838,12 @@ export default function DesignCoverageGallery() {
     if (requested && Object.prototype.hasOwnProperty.call(names, requested)) {
       setDesign(requested as DesignId);
     }
+    const requestedSourceId = params.get('source');
+    const requestedSource = LUMEN_SOURCE_VARIANTS.find((item) => item.id === requestedSourceId);
+    if (requestedSource && Object.prototype.hasOwnProperty.call(names, requestedSource.category)) {
+      setDesign(requestedSource.category as DesignId);
+      setSourceId(requestedSource.id);
+    }
   }, []);
 
   React.useEffect(() => {
@@ -841,6 +855,29 @@ export default function DesignCoverageGallery() {
     setCategoryInput('');
     setCategorySelectedId(null);
   }, [locale]);
+
+  const sourceVariants = React.useMemo(
+    () => LUMEN_SOURCE_VARIANTS.filter((item) => item.category === design),
+    [design],
+  );
+  const sourceVariant = React.useMemo(
+    () => sourceVariants.find((item) => item.id === sourceId),
+    [sourceId, sourceVariants],
+  );
+  const sourceFixture = React.useMemo(
+    () =>
+      sourceVariant
+        ? getSourceVariantFixture(locale, sourceVariant, names[design][locale === 'zh' ? 0 : 1])
+        : null,
+    [design, locale, sourceVariant],
+  );
+
+  React.useEffect(() => {
+    setCategoryQuery('');
+    setCategoryInput('');
+    setCategorySelectedId(null);
+    setVariantValues(sourceFixture?.initialValues ?? {});
+  }, [sourceFixture]);
 
   const moveCard = (cardId: string, columnId: string) => {
     let moved: KanbanCard | undefined;
@@ -1034,6 +1071,30 @@ export default function DesignCoverageGallery() {
   const additionalId = design as AdditionalDesignId;
   const additional = categoryCopy[locale][additionalId];
   const active =
+    (sourceVariant && sourceFixture ? (
+      <LumenCategoryDesign
+        id={`lumen-design-${design}`}
+        copy={sourceFixture.copy}
+        layout={sourceFixture.layout}
+        content={sourceFixture.content}
+        state={{
+          query: categoryQuery,
+          input: categoryInput,
+          selectedId: categorySelectedId,
+          values: variantValues,
+        }}
+        actions={{
+          onQueryChange: setCategoryQuery,
+          onInputChange: setCategoryInput,
+          onItemChange: (id, value) => setVariantValues((current) => ({ ...current, [id]: value })),
+          onSelect: (id) => {
+            setCategorySelectedId(id);
+            setEvent(id);
+          },
+          onAction: (id) => setEvent(`${sourceFixture.copy.primary}: ${id}`),
+        }}
+      />
+    ) : null) ??
     existingActive ??
     (additional ? (
       <LumenCategoryDesign
@@ -1085,10 +1146,34 @@ export default function DesignCoverageGallery() {
             <Button
               key={id}
               aria-current={id === design ? 'page' : undefined}
-              onClick={() => setDesign(id)}
+              onClick={() => {
+                setDesign(id);
+                setSourceId(null);
+              }}
             >
               {names[id][locale === 'zh' ? 0 : 1]}
               <span className={styles.navLine} data-active={id === design} />
+            </Button>
+          ))}
+        </nav>
+        <nav className={styles.variantNav} aria-label="Lumen source page examples">
+          <span>{localized.variants}</span>
+          <Button
+            aria-current={sourceId === null ? 'page' : undefined}
+            onClick={() => setSourceId(null)}
+          >
+            {localized.overview}
+            <span className={styles.navLine} data-active={sourceId === null} />
+          </Button>
+          {sourceVariants.map((item) => (
+            <Button
+              key={item.id}
+              aria-current={item.id === sourceId ? 'page' : undefined}
+              title={item.id}
+              onClick={() => setSourceId(item.id)}
+            >
+              {String(item.variant).padStart(2, '0')} · {item.profile.surface}
+              <span className={styles.navLine} data-active={item.id === sourceId} />
             </Button>
           ))}
         </nav>

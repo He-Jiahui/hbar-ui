@@ -31,11 +31,19 @@ test('catalog reaches 38 families and 300 source IDs without calling pending ent
   await categories.getByRole('button', { name: /AI 对话/ }).click();
   await expect(page.getByText('设计覆盖 · 可预览').first()).toBeVisible();
   await expect(page.getByRole('link', { name: '查看扩展设计' }).first()).toBeVisible();
-  const designPreview = page.frameLocator('iframe[title*="设计覆盖预览"]');
-  await expect(designPreview.locator('[data-lumen-design="lumen-design-ai-chat"]')).toBeVisible();
+  const designPreview = page.frameLocator('iframe[title*="来源页面变体预览"]');
+  await expect(
+    designPreview.locator(
+      '[data-lumen-design="lumen-design-ai-chat"][data-lumen-source-id="hbar-app-ui-ai-chat-1"]',
+    ),
+  ).toHaveAttribute('data-lumen-layout', 'form');
   await expect(
     designPreview.getByRole('navigation', { name: 'Lumen design coverage' }),
   ).toHaveCount(0);
+  await entries.getByRole('button', { name: /hbar-app-ui-ai-chat-2/ }).click();
+  await expect(
+    designPreview.locator('[data-lumen-source-id="hbar-app-ui-ai-chat-2"]'),
+  ).toHaveAttribute('data-lumen-layout', 'split');
   await page.screenshot({
     path: testInfo.outputPath('catalog-pending-dark-1440.png'),
     animations: 'disabled',
@@ -45,7 +53,10 @@ test('catalog reaches 38 families and 300 source IDs without calling pending ent
   await expect(page.getByText('设计覆盖 · 可预览').first()).toBeVisible();
   await expect(
     page.getByRole('region', { name: '分析 · 1' }).getByRole('link', { name: '查看扩展设计' }),
-  ).toHaveAttribute('href', '/experiments/lumen-app-ui/designs/?design=analytics');
+  ).toHaveAttribute(
+    'href',
+    '/experiments/lumen-app-ui/designs/?design=analytics&source=hbar-app-ui-analytics-1',
+  );
 
   await categories.getByRole('button', { name: /提示词输入/ }).click();
   await entries.getByRole('button', { name: /hbar-app-ui-prompt-input-7/ }).click();
@@ -82,5 +93,48 @@ test('catalog reaches 38 families and 300 source IDs without calling pending ent
     animations: 'disabled',
   });
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
+  expect(errors).toEqual([]);
+});
+
+test('source page examples render all ten catalog surface structures at desktop and narrow widths', async ({
+  page,
+}, testInfo) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  const examples = [
+    ['calendar', 'hbar-app-ui-card-4'],
+    ['form', 'hbar-app-ui-ai-chat-1'],
+    ['grid', 'hbar-app-ui-card-1'],
+    ['overlay', 'hbar-app-ui-ai-chat-4'],
+    ['panel', 'hbar-app-ui-ai-chat-5'],
+    ['rail', 'hbar-app-ui-ai-chat-3'],
+    ['split', 'hbar-app-ui-ai-chat-2'],
+    ['stream', 'hbar-app-ui-mobile-3'],
+    ['table', 'hbar-app-ui-ai-chat-9'],
+    ['timeline', 'hbar-app-ui-agent-activity-1'],
+  ] as const;
+
+  /* eslint-disable no-await-in-loop -- Each source page is rendered and measured in isolation. */
+  for (const [surface, id] of examples) {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(`/experiments/lumen-app-ui/designs/?source=${id}&embed=1`);
+    const preview = page.locator(`[data-lumen-source-id="${id}"]`);
+    await expect(preview).toBeVisible();
+    await expect(preview).toHaveAttribute('data-lumen-layout', surface);
+    await page.screenshot({
+      path: testInfo.outputPath(`source-${surface}-1440.png`),
+      animations: 'disabled',
+    });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(preview).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+      391,
+    );
+    await page.screenshot({
+      path: testInfo.outputPath(`source-${surface}-390.png`),
+      animations: 'disabled',
+    });
+  }
+  /* eslint-enable no-await-in-loop */
   expect(errors).toEqual([]);
 });

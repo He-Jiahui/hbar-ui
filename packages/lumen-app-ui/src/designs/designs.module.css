@@ -1022,6 +1022,20 @@
   inset-inline: 0;
 }
 
+.categoryItem > [data-edge='left'],
+.categoryItem > [data-edge='right'] {
+  position: absolute;
+  inset-block: 0;
+}
+
+.categoryItem > [data-edge='left'] {
+  left: 0;
+}
+
+.categoryItem > [data-edge='right'] {
+  right: 0;
+}
+
 .categoryItem > [data-edge='top'] {
   top: 0;
 }
@@ -1534,6 +1548,15 @@
 
   .categoryCalendar button {
     min-height: 6rem;
+  }
+
+  .categoryTable [role='row'] {
+    grid-template-columns: minmax(7rem, 0.8fr) minmax(8rem, 1fr) 3.5rem;
+    min-width: 0;
+  }
+
+  .categoryTable [role='cell'] {
+    padding-inline: 0.5rem;
   }
 
   .categoryComposer {
