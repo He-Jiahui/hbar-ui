@@ -1,6 +1,17 @@
 import source from './source-catalog.json';
 import type * as React from 'react';
 import {
+  LumenAiChat01,
+  LumenAiChat02,
+  LumenAiChat03,
+  LumenAiChat04,
+  LumenAiChat05,
+  LumenAiChat06,
+  LumenAiChat07,
+  LumenAiChat08,
+  LumenAiChat09,
+} from './ai-chat';
+import {
   LumenPromptInput01,
   LumenPromptInput02,
   LumenPromptInput03,
@@ -379,6 +390,15 @@ export const LUMEN_SOURCE_VARIANTS: readonly LumenSourceVariant[] = source;
 
 /** Update only when a complete component family passes its behavior and visual checks. */
 export const LUMEN_MIGRATED_VARIANT_IDS = [
+  'hbar-app-ui-ai-chat-1',
+  'hbar-app-ui-ai-chat-2',
+  'hbar-app-ui-ai-chat-3',
+  'hbar-app-ui-ai-chat-4',
+  'hbar-app-ui-ai-chat-5',
+  'hbar-app-ui-ai-chat-6',
+  'hbar-app-ui-ai-chat-7',
+  'hbar-app-ui-ai-chat-8',
+  'hbar-app-ui-ai-chat-9',
   'hbar-app-ui-prompt-input-1',
   'hbar-app-ui-prompt-input-2',
   'hbar-app-ui-prompt-input-3',
@@ -675,6 +695,15 @@ export interface LumenVariantRegistryEntry extends LumenSourceVariant {
 }
 
 const migratedComponents: Readonly<Partial<Record<LumenMigratedVariantId, React.ElementType>>> = {
+  'hbar-app-ui-ai-chat-1': LumenAiChat01,
+  'hbar-app-ui-ai-chat-2': LumenAiChat02,
+  'hbar-app-ui-ai-chat-3': LumenAiChat03,
+  'hbar-app-ui-ai-chat-4': LumenAiChat04,
+  'hbar-app-ui-ai-chat-5': LumenAiChat05,
+  'hbar-app-ui-ai-chat-6': LumenAiChat06,
+  'hbar-app-ui-ai-chat-7': LumenAiChat07,
+  'hbar-app-ui-ai-chat-8': LumenAiChat08,
+  'hbar-app-ui-ai-chat-9': LumenAiChat09,
   'hbar-app-ui-prompt-input-1': LumenPromptInput01,
   'hbar-app-ui-prompt-input-2': LumenPromptInput02,
   'hbar-app-ui-prompt-input-3': LumenPromptInput03,
