@@ -5,7 +5,6 @@ import { LumenDialog } from './dialog';
 import { LumenInput } from './forms';
 import { LumenButton, LumenText } from './primitives';
 import { LumenIcon } from './workbench';
-import './command-list.css';
 
 export interface LumenCommandItem {
   readonly id: string;

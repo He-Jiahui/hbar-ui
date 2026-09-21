@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import './tool-calls.css';
 
 export type LumenToolCallsListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }

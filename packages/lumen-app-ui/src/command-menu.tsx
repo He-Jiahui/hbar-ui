@@ -5,7 +5,6 @@ import { LumenCommandList, type LumenCommandListProps } from './command-list';
 import { LumenDialog } from './dialog';
 import { LumenInput, LumenSelect } from './forms';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
-import './command-menu.css';
 
 export interface LumenCommandSurfaceContent extends LumenCommandListProps {
   readonly open: boolean;

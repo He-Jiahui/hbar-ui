@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
-import './notifications.css';
 
 export interface LumenNotificationsListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';

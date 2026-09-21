@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { LumenTextarea } from './forms';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
-import './chat.css';
 
 export interface LumenChatListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';

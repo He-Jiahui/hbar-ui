@@ -4,7 +4,6 @@ import * as React from 'react';
 import { LumenDisclosure } from './disclosure';
 import { LumenInput, LumenSelect } from './forms';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
-import './usage.css';
 
 export interface LumenUsageMetric {
   readonly id?: string | undefined;

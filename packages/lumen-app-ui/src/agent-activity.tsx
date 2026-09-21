@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { LumenDisclosure } from './disclosure';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import './agent-activity.css';
 
 export type LumenAgentActivityListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }

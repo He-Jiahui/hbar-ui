@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { LumenFormField, LumenInput, LumenSelect } from './forms';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
-import './onboarding.css';
 
 export interface LumenOnboardingListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';

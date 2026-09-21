@@ -17,7 +17,6 @@ import {
   IntegrationFrame,
   type LumenIntegrationsCompositionProps,
 } from './integrations/primitives';
-import './integrations.css';
 
 export interface LumenIntegrationsAction {
   readonly actionId: string;

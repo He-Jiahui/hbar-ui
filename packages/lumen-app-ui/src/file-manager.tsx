@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { LumenCheckBoxControl, LumenInput } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus } from './primitives';
-import './file-manager.css';
 
 export type LumenFileManagerListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }

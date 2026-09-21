@@ -1,8 +1,8 @@
 import * as React from 'react';
-import DesignCoverageGallery from 'docs/src/modules/lumen-gallery/DesignCoverageGallery';
+import LumenCatalog from 'docs/src/modules/lumen-gallery/LumenCatalog';
 
 function LumenDesignsPage() {
-  return <DesignCoverageGallery />;
+  return <LumenCatalog />;
 }
 
 export default LumenDesignsPage;

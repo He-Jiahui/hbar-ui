@@ -1,0 +1,32 @@
+.stage {
+  display: flex;
+  min-block-size: min(44rem, 74vh);
+  min-inline-size: 0;
+  align-items: stretch;
+  overflow: auto;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-surface);
+  background: var(--lumen-reading);
+}
+
+.stage > * {
+  flex: 1 1 auto;
+  min-inline-size: min(100%, 18rem);
+}
+
+.unavailable {
+  display: flex;
+  min-block-size: 24rem;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  color: var(--lumen-muted);
+  text-align: center;
+}
+
+@media (max-width: 48rem) {
+  .stage {
+    min-block-size: 32rem;
+  }
+}

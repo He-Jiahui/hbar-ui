@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { LumenActionMenu, LumenIcon, type LumenIconProps } from './workbench';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import './workspace-components.css';
 
 export interface LumenPageHeaderProps {
   title: string;

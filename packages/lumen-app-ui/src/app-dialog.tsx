@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { LumenFormField, LumenInput, LumenSelect, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import './app-dialog.css';
 
 export interface LumenAppDialogListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';

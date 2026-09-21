@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { LumenSelect } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import './dashboard.css';
 
 export interface LumenDashboardListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';

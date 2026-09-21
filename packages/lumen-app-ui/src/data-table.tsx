@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { LumenCheckBoxControl, LumenInput, LumenSelect } from './forms';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
-import './data-table.css';
 
 export interface LumenDataTableListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';

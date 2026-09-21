@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
-import './file-workspace.css';
 
 export interface LumenWorkspaceFile {
   id: string;

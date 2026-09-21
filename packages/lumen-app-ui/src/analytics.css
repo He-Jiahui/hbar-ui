@@ -152,6 +152,10 @@
   align-self: stretch;
   border-inline-start: 0.0625rem dashed var(--lumen-accent);
 }
+.lumen-analytics-area > .lumen-analytics-bars {
+  min-inline-size: 0;
+  flex: 1 1 0;
+}
 .lumen-analytics-area > span {
   align-self: flex-start;
   padding: 0.25rem 0.4rem;
@@ -734,10 +738,6 @@
   font-size: 0.75rem;
 }
 @media (max-width: 42rem) {
-  .lumen-analytics-donut-layout {
-  }
-  .lumen-analytics-ranked > article {
-  }
   .lumen-analytics-ranked > article > :nth-child(2n + 1) {
     flex: 0 0 auto;
     min-inline-size: 0;
@@ -745,11 +745,6 @@
   .lumen-analytics-ranked > article > :nth-child(2n + 2) {
     flex: 1 1 0;
     min-inline-size: 0;
-  }
-  .lumen-analytics-ranked .lumen-analytics-progress,
-  .lumen-analytics-ranked .lumen-analytics-bars {
-  }
-  .lumen-analytics-funnel > article {
   }
   .lumen-analytics-funnel > article > :nth-child(2n + 1) {
     flex: 1 1 0;
@@ -761,8 +756,6 @@
   }
   .lumen-analytics-funnel .lumen-analytics-progress {
     flex-basis: 100%;
-  }
-  .lumen-analytics-bullets > article {
   }
   .lumen-analytics-bullets > article > :nth-child(2n + 1) {
     flex: 1 1 0;

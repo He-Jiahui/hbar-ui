@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
-import './paywall.css';
 
 export type LumenPaywallListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }

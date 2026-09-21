@@ -4,7 +4,6 @@ import * as React from 'react';
 import { LumenInput, LumenSelect, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { LumenAppShell } from './workbench';
-import './app-shell-workflows.css';
 
 export interface LumenAppShellListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';

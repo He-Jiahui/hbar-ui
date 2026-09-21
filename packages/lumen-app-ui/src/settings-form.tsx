@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { LumenInput, LumenSelect, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus } from './primitives';
-import './settings-form.css';
 
 export type LumenPreferenceAction =
   | { readonly type: 'theme' | 'density' | 'language'; readonly id: string }

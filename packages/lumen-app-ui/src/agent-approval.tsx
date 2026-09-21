@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { LumenCheckBox, LumenInput } from './forms';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
-import './agent-approval.css';
 
 export type LumenAgentApprovalListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }

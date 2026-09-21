@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { LumenCheckBox, LumenFormField, LumenInput, LumenSelect } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import './filtering.css';
 
 export interface LumenFilteringListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';

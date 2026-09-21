@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { LumenFormField, LumenInput, LumenSelect, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import './form-workflows.css';
 
 export interface LumenFormsListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';

@@ -16,7 +16,6 @@ import {
 } from './billing/content';
 import type { LumenBillingContent } from './billing/content';
 import { BillingFrame, type LumenBillingCompositionProps } from './billing/primitives';
-import './billing.css';
 
 export interface LumenBillingAction {
   readonly actionId: string;

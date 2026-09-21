@@ -5,7 +5,6 @@ import { LumenDisclosure } from './disclosure';
 import { LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { LumenCompactMetrics } from './workspace-components';
-import './session-components.css';
 
 function uniqueById<Item extends { id: string }>(items: readonly Item[]): readonly Item[] {
   const seen = new Set<string>();

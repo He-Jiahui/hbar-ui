@@ -8,7 +8,6 @@ import {
   type LumenPromptComposerProps,
   type LumenPromptLabels,
 } from './session-components';
-import './prompt-input.css';
 
 export interface LumenPromptInputListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';

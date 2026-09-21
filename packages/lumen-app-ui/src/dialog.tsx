@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { LumenIconButton, LumenText } from './primitives';
-import './dialog.css';
 
 export interface LumenDialogProps {
   open: boolean;

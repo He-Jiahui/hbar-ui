@@ -11,11 +11,13 @@
   --hbar-app-ui-integration-text: var(--lumen-ink);
   --hbar-app-ui-integration-muted: var(--lumen-muted);
   --hbar-app-ui-integration-subtle: color-mix(in srgb, var(--lumen-muted) 78%, transparent);
-  --hbar-app-ui-integration-positive: var(--lumen-success, oklch(0.58 0.15 153));
-  --hbar-app-ui-integration-warning: var(--lumen-warning, oklch(0.66 0.14 82));
-  --hbar-app-ui-integration-danger: var(--lumen-danger, oklch(0.6 0.18 28));
-  --hbar-app-ui-icon-xs: 0.75rem;
-  --hbar-app-ui-icon-sm: 0.875rem;
+  --hbar-app-ui-integration-positive: var(--lumen-success, oklch(58% 0.15 153deg));
+  --hbar-app-ui-integration-warning: var(--lumen-warning, oklch(66% 0.14 82deg));
+  --hbar-app-ui-integration-danger: var(--lumen-danger, oklch(60% 0.18 28deg));
+  /* prettier-ignore */
+  --hbar-app-ui-icon-xs: .75rem;
+  /* prettier-ignore */
+  --hbar-app-ui-icon-sm: .875rem;
   --hbar-app-ui-icon-md: 1rem;
   --hbar-app-ui-icon-lg: 1.25rem;
   --hbar-app-ui-icon-xl: 1.5rem;

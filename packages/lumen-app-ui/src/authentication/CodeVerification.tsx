@@ -3,7 +3,6 @@ import * as React from 'react';
 import { LumenInput } from '../forms';
 import { LumenButton } from '../primitives';
 import { ShieldCheck } from './glyphs';
-import './code-verification.css';
 
 export interface LumenCodeVerificationProps {
   readonly labels: {

@@ -4,7 +4,6 @@ import * as React from 'react';
 import { LumenInput, LumenSelect } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { LumenAppSidebar, LumenSidebarAction } from './workbench';
-import './app-sidebar-workflows.css';
 
 export interface LumenAppSidebarListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';

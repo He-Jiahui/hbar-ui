@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { LumenCheckBoxControl, LumenSelect, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import './ai-chat.css';
 
 export interface LumenAiChatListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';

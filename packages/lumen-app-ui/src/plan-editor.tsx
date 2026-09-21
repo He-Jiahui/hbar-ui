@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { LumenInput, LumenSelect } from './forms';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
-import './plan-editor.css';
 
 export type LumenPlanState =
   'queued' | 'running' | 'done' | 'skipped' | 'failed' | 'blocked' | 'waiting';

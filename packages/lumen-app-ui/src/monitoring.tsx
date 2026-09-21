@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { LumenSelect, LumenTextarea } from './forms';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
-import './monitoring.css';
 
 export interface LumenMonitoringListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';

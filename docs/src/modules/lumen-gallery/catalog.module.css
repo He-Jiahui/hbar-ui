@@ -243,10 +243,11 @@
 }
 
 .previewPending {
-  position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 1rem;
   min-height: 8rem;
   padding: 1rem;
   background: var(--lumen-reading);
@@ -255,12 +256,11 @@
 }
 
 .previewPending > [data-edge='bottom'] {
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
+  align-self: stretch;
+  margin-block-start: auto;
 }
 
-@media (max-width: 64rem) {
+@media (max-width: 80rem) {
   .layout {
     flex-wrap: wrap;
   }

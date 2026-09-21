@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import './analytics.css';
 
 export interface LumenAnalyticsListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';

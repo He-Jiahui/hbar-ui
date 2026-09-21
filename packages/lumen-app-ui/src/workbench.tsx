@@ -9,7 +9,6 @@ import {
   LumenStatus,
   LumenText,
 } from './primitives';
-import './workbench.css';
 
 export type LumenIconTier = 'sm' | 'md' | 'lg';
 

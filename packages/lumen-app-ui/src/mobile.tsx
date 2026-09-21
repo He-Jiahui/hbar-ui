@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { LumenInput } from './forms';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
-import './mobile.css';
 
 export interface LumenMobileListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';

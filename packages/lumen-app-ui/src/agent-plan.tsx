@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { LumenPlanEditor, type LumenPlanEditorProps } from './plan-editor';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
-import './agent-plan.css';
 
 export type LumenAgentPlanListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }

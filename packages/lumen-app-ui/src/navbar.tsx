@@ -20,7 +20,6 @@ import {
 } from './navbar/content';
 import type { LumenNavbarContent } from './navbar/content';
 import { NavbarFrame, type LumenNavbarCompositionProps } from './navbar/primitives';
-import './navbar.css';
 
 export interface LumenNavbarAction {
   readonly actionId: string;
