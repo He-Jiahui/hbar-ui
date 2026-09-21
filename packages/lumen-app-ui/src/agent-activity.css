@@ -189,10 +189,9 @@
 .lumen-agent-activity-history-header,
 .lumen-agent-activity-history-table li {
   display: grid;
-  grid-template-columns: minmax(12rem, 1.75fr) minmax(8rem, 1fr) repeat(
-      3,
-      minmax(5rem, 0.65fr)
-    ) 2.25rem;
+  grid-template-columns:
+    minmax(12rem, 1.75fr) minmax(8rem, 1fr) repeat(3, minmax(5rem, 0.65fr))
+    2.25rem;
   align-items: center;
   gap: 0.75rem;
 }
@@ -251,7 +250,7 @@
 
 .lumen-agent-activity-worker-list > li,
 .lumen-agent-activity-error-card,
-.lumen-agent-activity-definition-list > div,
+.hbar-app-ui-agent-activity-definition-list > div,
 .lumen-agent-activity-attempt-list > li,
 .lumen-agent-activity-output-list > li {
   padding: 0.75rem;
@@ -287,7 +286,7 @@
 
 .hbar-app-ui-agent-activity-failure-body h3,
 .hbar-app-ui-agent-activity-failure-body p,
-.lumen-agent-activity-definition-list {
+.hbar-app-ui-agent-activity-definition-list {
   margin: 0;
 }
 
@@ -312,7 +311,7 @@
   gap: 0.5rem;
 }
 
-.lumen-agent-activity-definition-list > div,
+.hbar-app-ui-agent-activity-definition-list > div,
 .lumen-agent-activity-attempt-list > li {
   display: grid;
   gap: 0.25rem;

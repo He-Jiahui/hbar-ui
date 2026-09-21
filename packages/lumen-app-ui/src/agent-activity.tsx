@@ -864,7 +864,7 @@ function FailureActivity(
           <LumenText as="h3" variant="heading">
             {content.labels.inputs}
           </LumenText>
-          <dl className="lumen-agent-activity-definition-list hbar-app-ui-agent-activity-definition-list">
+          <dl className="hbar-app-ui-agent-activity-definition-list">
             {inputs.map((input) => (
               <div key={input.id}>
                 <LumenText as="dt" tone="muted">
