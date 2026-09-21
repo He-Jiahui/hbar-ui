@@ -120,9 +120,17 @@
 
 .toolbar,
 .breadcrumbs,
-.filter,
 .pills {
   flex-wrap: wrap;
+}
+
+.filter {
+  flex-wrap: nowrap;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-block: 0.125rem 0.375rem;
+  scrollbar-width: thin;
 }
 
 .filter > button {
