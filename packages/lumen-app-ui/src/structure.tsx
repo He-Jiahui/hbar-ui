@@ -12,7 +12,11 @@ export type LumenFrameElement =
   | 'footer'
   | 'nav'
   | 'form'
-  | 'fieldset';
+  | 'fieldset'
+  | 'label'
+  | 'dialog'
+  | 'i'
+  | 'hr';
 
 export type LumenFrameProps<Element extends LumenFrameElement = 'div'> = {
   as?: Element | undefined;
