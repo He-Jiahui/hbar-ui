@@ -1,6 +1,15 @@
 import source from './source-catalog.json';
 import type * as React from 'react';
 import {
+  LumenAgentActivity01,
+  LumenAgentActivity02,
+  LumenAgentActivity03,
+  LumenAgentActivity04,
+  LumenAgentActivity05,
+  LumenAgentActivity06,
+  LumenAgentActivity07,
+} from './agent-activity';
+import {
   HbarAppUiEmptyState01,
   HbarAppUiEmptyState02,
   HbarAppUiEmptyState03,
@@ -35,6 +44,13 @@ export const LUMEN_SOURCE_VARIANTS: readonly LumenSourceVariant[] = source;
 
 /** Update only when a complete component family passes its behavior and visual checks. */
 export const LUMEN_MIGRATED_VARIANT_IDS = [
+  'hbar-app-ui-agent-activity-1',
+  'hbar-app-ui-agent-activity-2',
+  'hbar-app-ui-agent-activity-3',
+  'hbar-app-ui-agent-activity-4',
+  'hbar-app-ui-agent-activity-5',
+  'hbar-app-ui-agent-activity-6',
+  'hbar-app-ui-agent-activity-7',
   'hbar-app-ui-empty-state-1',
   'hbar-app-ui-empty-state-2',
   'hbar-app-ui-empty-state-3',
@@ -57,6 +73,13 @@ export interface LumenVariantRegistryEntry extends LumenSourceVariant {
 }
 
 const migratedComponents: Readonly<Partial<Record<LumenMigratedVariantId, React.ElementType>>> = {
+  'hbar-app-ui-agent-activity-1': LumenAgentActivity01,
+  'hbar-app-ui-agent-activity-2': LumenAgentActivity02,
+  'hbar-app-ui-agent-activity-3': LumenAgentActivity03,
+  'hbar-app-ui-agent-activity-4': LumenAgentActivity04,
+  'hbar-app-ui-agent-activity-5': LumenAgentActivity05,
+  'hbar-app-ui-agent-activity-6': LumenAgentActivity06,
+  'hbar-app-ui-agent-activity-7': LumenAgentActivity07,
   'hbar-app-ui-empty-state-1': HbarAppUiEmptyState01,
   'hbar-app-ui-empty-state-2': HbarAppUiEmptyState02,
   'hbar-app-ui-empty-state-3': HbarAppUiEmptyState03,
