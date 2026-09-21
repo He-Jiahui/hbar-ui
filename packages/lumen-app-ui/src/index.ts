@@ -1136,6 +1136,32 @@ export type {
   LumenAiChatVariantProps,
 } from './ai-chat';
 export {
+  LumenKanban,
+  LumenKanban01,
+  LumenKanban02,
+  LumenKanban03,
+  LumenKanban04,
+  LumenKanban05,
+  LumenKanban06,
+  LumenKanbanProvider,
+  selectLumenKanbanItem,
+  uniqueLumenKanbanItems,
+  useLumenKanbanContent,
+} from './kanban';
+export type {
+  LumenKanbanAction,
+  LumenKanbanCard,
+  LumenKanbanChoice,
+  LumenKanbanColumn,
+  LumenKanbanContent,
+  LumenKanbanLane,
+  LumenKanbanListStrategy,
+  LumenKanbanMetric,
+  LumenKanbanProps,
+  LumenKanbanProviderProps,
+  LumenKanbanVariantProps,
+} from './kanban';
+export {
   LumenOnboarding,
   LumenOnboarding01,
   LumenOnboarding02,

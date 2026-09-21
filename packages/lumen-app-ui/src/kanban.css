@@ -1,0 +1,349 @@
+.lumen-kanban-stage {
+  display: grid;
+  min-inline-size: 0;
+  min-block-size: 0;
+  flex: 1 1 auto;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  background: var(--lumen-reading);
+  color: var(--lumen-ink);
+}
+.lumen-kanban-stage *,
+.lumen-kanban-stage *::before,
+.lumen-kanban-stage *::after {
+  box-sizing: border-box;
+}
+.lumen-kanban-stage :where(h1, h2, p) {
+  margin: 0;
+}
+.lumen-kanban-glyph {
+  inline-size: 1rem;
+  block-size: 1rem;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+}
+.lumen-kanban-header {
+  display: flex;
+  min-inline-size: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border-block-end: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-kanban-header > div:first-child {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.lumen-kanban-participants {
+  display: flex;
+}
+.lumen-kanban-participants i {
+  display: grid;
+  inline-size: 2rem;
+  block-size: 2rem;
+  place-items: center;
+  margin-inline-start: -0.35rem;
+  border: 0.125rem solid var(--lumen-reading);
+  border-radius: 999rem;
+  background: var(--lumen-edge);
+  font-size: 0.7rem;
+  font-style: normal;
+}
+.lumen-kanban-board {
+  display: grid;
+  min-inline-size: 0;
+  min-block-size: 0;
+  grid-auto-columns: minmax(16rem, 1fr);
+  grid-auto-flow: column;
+  gap: 0.75rem;
+  overflow: auto;
+  padding: 1rem;
+}
+.lumen-kanban-board > section {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.lumen-kanban-board > section > header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-inline: 0.25rem;
+}
+.lumen-kanban-board > section > header > span {
+  margin-inline-start: auto;
+  color: var(--lumen-muted);
+}
+.lumen-kanban-board > section > div {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.lumen-kanban-card {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.25rem;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-panel);
+  background: var(--lumen-glass);
+}
+.lumen-kanban-card > button:first-child {
+  display: flex;
+  inline-size: 100%;
+  min-inline-size: 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+  text-align: start;
+}
+.lumen-kanban-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: var(--lumen-muted);
+}
+.lumen-kanban-card small {
+  color: var(--lumen-muted);
+}
+.lumen-kanban-card footer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.lumen-kanban-card footer > span {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+.lumen-kanban-card footer > i {
+  display: grid;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  place-items: center;
+  margin-inline-start: auto;
+  border-radius: 999rem;
+  background: var(--lumen-edge);
+  font-size: 0.65rem;
+  font-style: normal;
+}
+.lumen-kanban-swimlanes {
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: auto;
+  padding: 1rem;
+}
+.lumen-kanban-swimlane-head,
+.lumen-kanban-swimlanes > section {
+  display: grid;
+  min-inline-size: 48rem;
+  grid-template-columns: minmax(10rem, 0.65fr) repeat(4, minmax(11rem, 1fr));
+  gap: 0.5rem;
+}
+.lumen-kanban-swimlane-head {
+  position: sticky;
+  z-index: 1;
+  inset-block-start: 0;
+  padding: 0.6rem;
+  background: var(--lumen-reading);
+  font-weight: 700;
+}
+.lumen-kanban-swimlanes > section {
+  padding-block: 0.5rem;
+  border-block-start: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-kanban-swimlanes > section > button {
+  align-self: start;
+  justify-content: flex-start;
+}
+.lumen-kanban-swimlanes > section > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.lumen-kanban-tabs {
+  display: flex;
+  gap: 0.25rem;
+}
+.lumen-kanban-tabs > button[aria-selected='true'] {
+  color: var(--lumen-accent);
+  box-shadow: inset 0 -0.125rem var(--lumen-accent);
+}
+.lumen-kanban-regroup {
+  display: grid;
+  min-block-size: 0;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  align-content: start;
+  gap: 0.75rem;
+  overflow: auto;
+  padding: 1rem;
+}
+.lumen-kanban-regroup > button {
+  display: grid;
+  min-inline-size: 0;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  justify-content: stretch;
+  text-align: start;
+}
+.lumen-kanban-regroup > button > span:nth-child(2) {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+}
+.lumen-kanban-detail {
+  display: grid;
+  min-block-size: 0;
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.55fr);
+}
+.lumen-kanban-detail > main {
+  min-inline-size: 0;
+  overflow: auto;
+}
+.lumen-kanban-detail > main > button {
+  display: flex;
+  inline-size: calc(100% - 2rem);
+  justify-content: space-between;
+  margin-inline: 1rem;
+  border-block-end: 0.0625rem solid var(--lumen-edge);
+  border-radius: 0;
+  text-align: start;
+}
+.lumen-kanban-detail > main > button > span {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.lumen-kanban-detail > main > button[aria-pressed='true'] {
+  color: var(--lumen-accent);
+  background: color-mix(in srgb, var(--lumen-accent) 8%, transparent);
+}
+.lumen-kanban-detail > aside {
+  min-inline-size: 0;
+  overflow: auto;
+  border-inline-start: 0.0625rem solid var(--lumen-edge);
+  background: var(--lumen-glass);
+}
+.lumen-kanban-detail > aside > label,
+.lumen-kanban-detail > aside > p,
+.lumen-kanban-detail > aside > button {
+  margin: 0.75rem 1rem;
+}
+.lumen-kanban-detail > aside > label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.hbar-app-ui-kanban-variant-5 {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+.lumen-kanban-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+}
+.lumen-kanban-metrics article {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.75rem;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-control);
+}
+.lumen-kanban-sprint {
+  display: grid;
+  min-inline-size: 0;
+  min-block-size: 0;
+  grid-template-columns: repeat(3, minmax(16rem, 1fr));
+  gap: 0.75rem;
+  overflow: auto;
+  padding: 1rem;
+}
+.lumen-kanban-sprint > section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.lumen-kanban-sprint > section > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.lumen-kanban-progress {
+  block-size: 0.4rem;
+  overflow: hidden;
+  border-radius: 999rem;
+  background: var(--lumen-edge);
+}
+.lumen-kanban-progress > i {
+  display: block;
+  block-size: 100%;
+  background: var(--lumen-accent);
+}
+.hbar-app-ui-kanban-variant-6 {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+.hbar-app-ui-kanban-variant-6 > .lumen-kanban-tabs {
+  justify-content: center;
+  padding: 0.5rem;
+  border-block-end: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-kanban-compact {
+  display: grid;
+  place-items: center;
+  overflow: auto;
+  padding: 1rem;
+}
+.lumen-kanban-compact > article {
+  display: flex;
+  inline-size: min(28rem, 100%);
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-panel);
+  background: var(--lumen-glass);
+}
+.lumen-kanban-compact > article > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-block-start: 0.5rem;
+}
+.lumen-kanban-empty {
+  padding: 1.25rem;
+  border: 0.0625rem dashed var(--lumen-edge);
+  border-radius: var(--lumen-radius-control);
+  text-align: center;
+}
+.lumen-kanban-stage [data-hbar-app-ui-list-strategy='pane-scroll'] {
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+@media (max-width: 48rem) {
+  .lumen-kanban-header {
+    flex-wrap: wrap;
+  }
+  .lumen-kanban-board {
+    grid-auto-columns: minmax(15rem, 85vw);
+  }
+  .lumen-kanban-detail {
+    grid-template-columns: 1fr;
+  }
+  .lumen-kanban-detail > aside {
+    border-inline-start: 0;
+    border-block-start: 0.0625rem solid var(--lumen-edge);
+  }
+}
