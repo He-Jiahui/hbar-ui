@@ -1,4 +1,18 @@
 import source from './source-catalog.json';
+import type * as React from 'react';
+import {
+  HbarAppUiEmptyState01,
+  HbarAppUiEmptyState02,
+  HbarAppUiEmptyState03,
+  HbarAppUiEmptyState04,
+  HbarAppUiEmptyState05,
+  HbarAppUiFeedback01,
+  HbarAppUiFeedback02,
+  HbarAppUiFeedback03,
+  HbarAppUiFeedback04,
+  HbarAppUiFeedback05,
+  HbarAppUiFeedback06,
+} from './variants';
 
 export interface LumenSourceVariant {
   id: string;
@@ -33,3 +47,49 @@ export const LUMEN_MIGRATED_VARIANT_IDS = [
   'hbar-app-ui-feedback-5',
   'hbar-app-ui-feedback-6',
 ] as const;
+
+export type LumenMigratedVariantId = (typeof LUMEN_MIGRATED_VARIANT_IDS)[number];
+export type LumenVariantStatus = 'migrated' | 'source';
+
+export interface LumenVariantRegistryEntry extends LumenSourceVariant {
+  status: LumenVariantStatus;
+  component?: React.ElementType | undefined;
+}
+
+const migratedComponents: Readonly<Partial<Record<LumenMigratedVariantId, React.ElementType>>> = {
+  'hbar-app-ui-empty-state-1': HbarAppUiEmptyState01,
+  'hbar-app-ui-empty-state-2': HbarAppUiEmptyState02,
+  'hbar-app-ui-empty-state-3': HbarAppUiEmptyState03,
+  'hbar-app-ui-empty-state-4': HbarAppUiEmptyState04,
+  'hbar-app-ui-empty-state-5': HbarAppUiEmptyState05,
+  'hbar-app-ui-feedback-1': HbarAppUiFeedback01,
+  'hbar-app-ui-feedback-2': HbarAppUiFeedback02,
+  'hbar-app-ui-feedback-3': HbarAppUiFeedback03,
+  'hbar-app-ui-feedback-4': HbarAppUiFeedback04,
+  'hbar-app-ui-feedback-5': HbarAppUiFeedback05,
+  'hbar-app-ui-feedback-6': HbarAppUiFeedback06,
+};
+
+const migratedIds = new Set<string>(LUMEN_MIGRATED_VARIANT_IDS);
+
+/** Canonical registry for every source ID; only fully verified families are migrated. */
+export const LUMEN_VARIANT_REGISTRY: readonly LumenVariantRegistryEntry[] =
+  LUMEN_SOURCE_VARIANTS.map((variant) => ({
+    ...variant,
+    status: migratedIds.has(variant.id) ? 'migrated' : 'source',
+    component: migratedComponents[variant.id as LumenMigratedVariantId],
+  }));
+
+const entriesById = new Map(LUMEN_VARIANT_REGISTRY.map((entry) => [entry.id, entry]));
+
+export function getLumenVariant(id: string): LumenVariantRegistryEntry | undefined {
+  return entriesById.get(id);
+}
+
+export function listLumenVariants(): readonly LumenVariantRegistryEntry[] {
+  return LUMEN_VARIANT_REGISTRY;
+}
+
+export function getLumenVariantComponent(id: string): React.ElementType | undefined {
+  return getLumenVariant(id)?.component;
+}
