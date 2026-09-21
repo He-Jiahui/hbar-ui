@@ -183,7 +183,7 @@ function Root({
     </section>
   );
 }
-function Header({ content, title }: { content: LumenAppShellContent; title?: string }) {
+function Header({ content, title }: { content: LumenAppShellContent; title?: string | undefined }) {
   return (
     <header className="lumen-app-shell-header">
       <div>
@@ -212,7 +212,7 @@ function Navigation({
   onSelect,
 }: {
   content: LumenAppShellContent;
-  selectedId?: string;
+  selectedId?: string | undefined;
   compact?: boolean;
   onSelect: (id: string) => void;
 }) {
