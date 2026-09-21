@@ -1128,6 +1128,24 @@ test('extended Lumen designs cover all non-ported catalog layouts and interactio
   );
   await page.getByRole('textbox', { name: '输入内容' }).fill('检查当前执行状态');
   await chatSubmit.click();
+  await nav.getByRole('button', { name: '评论串' }).click();
+  const commentGeometry = await page
+    .locator('[data-lumen-design="lumen-design-comments"] article')
+    .evaluateAll((items) =>
+      items.map((item) => {
+        const body = item.querySelector(':scope > div');
+        const action = item.querySelector(':scope > button');
+        const beam = action?.querySelector('[data-edge="bottom"] > span');
+        return {
+          bodyLeft: body?.getBoundingClientRect().left ?? -1,
+          actionRight: action?.getBoundingClientRect().right ?? -1,
+          beamRight: beam?.getBoundingClientRect().right ?? -1,
+        };
+      }),
+    );
+  for (const key of ['bodyLeft', 'actionRight', 'beamRight'] as const) {
+    expect(new Set(commentGeometry.map((item) => Math.round(item[key]))).size).toBe(1);
+  }
   await nav.getByRole('button', { name: '命令菜单' }).click();
   await page.getByRole('textbox', { name: '搜索内容' }).fill('命令');
   await page.getByRole('button', { name: '命令菜单入口' }).click();
