@@ -100,19 +100,19 @@
   --lumen-action-color: var(--lumen-danger);
 }
 
-.button[data-variant='solid'] {
+.button[data-lumen-variant='solid'] {
   border: 0.0625rem solid var(--lumen-action-color);
   background: var(--lumen-action-color);
   color: var(--lumen-contrast);
   box-shadow: 0 0 0.5rem color-mix(in srgb, var(--lumen-action-color) 24%, transparent);
 }
 
-.button[data-variant='outlined'] {
+.button[data-lumen-variant='outlined'] {
   border: 0.0625rem solid color-mix(in srgb, var(--lumen-action-color) 50%, transparent);
   background: transparent;
 }
 
-.button[data-variant='text'],
+.button[data-lumen-variant='text'],
 .iconButton {
   border: 0.0625rem solid transparent;
   background: transparent;
@@ -136,11 +136,11 @@
   outline-offset: 0.125rem;
 }
 
-.button[data-variant='solid']:hover {
+.button[data-lumen-variant='solid']:hover {
   background: color-mix(in srgb, var(--lumen-action-color) 88%, var(--lumen-contrast));
 }
 
-.button[data-variant='solid']:active {
+.button[data-lumen-variant='solid']:active {
   background: color-mix(in srgb, var(--lumen-action-color) 78%, var(--lumen-contrast));
 }
 
@@ -246,7 +246,7 @@
     box-shadow: none;
   }
 
-  .button[data-variant='solid'] {
+  .button[data-lumen-variant='solid'] {
     background: ButtonFace;
   }
 

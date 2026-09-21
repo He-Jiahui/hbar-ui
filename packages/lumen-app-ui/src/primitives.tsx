@@ -40,6 +40,7 @@ export function LumenButton({
   type = 'button',
   ...other
 }: LumenButtonProps) {
+  const compatibilityVariant = (other as Record<string, unknown>)['data-variant'];
   let state = indicatorState;
   if (disabled) {
     state = 'disabled';
@@ -51,10 +52,11 @@ export function LumenButton({
       {...other}
       type={type === 'submit' ? 'submit' : 'button'}
       className={[styles.button, className].filter(Boolean).join(' ')}
-      data-variant={variant}
+      data-lumen-variant={variant}
       data-tone={tone}
       data-size={size}
       data-shape={shape}
+      data-variant={typeof compatibilityVariant === 'string' ? compatibilityVariant : variant}
       aria-busy={loading || undefined}
       disabled={disabled || loading}
     >
