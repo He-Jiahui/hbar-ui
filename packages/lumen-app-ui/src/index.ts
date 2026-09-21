@@ -1549,6 +1549,21 @@ export type {
   LumenTextTone,
   LumenTextVariant,
 } from './primitives';
+export {
+  LumenCollection,
+  LumenCollectionItem,
+  LumenFrame,
+  LumenOption,
+} from './structure';
+export type {
+  LumenCollectionElement,
+  LumenCollectionItemElement,
+  LumenCollectionItemProps,
+  LumenCollectionProps,
+  LumenFrameElement,
+  LumenFrameProps,
+  LumenOptionProps,
+} from './structure';
 export { default as createLumenTheme } from './theme';
 export type { LumenThemeOptions } from './theme';
 export { default as LumenWorkbenchNotice } from './LumenWorkbenchNotice';
