@@ -1,0 +1,396 @@
+.lumen-data-table {
+  --lumen-data-table-icon: 1rem;
+  display: flex;
+  min-inline-size: 0;
+  min-block-size: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 1rem;
+  overflow: auto;
+  padding: clamp(0.75rem, 3vw, 2rem);
+  background: var(--lumen-reading);
+  color: var(--lumen-ink);
+}
+.lumen-data-table *,
+.lumen-data-table *::before,
+.lumen-data-table *::after {
+  box-sizing: border-box;
+}
+.lumen-data-table :where(h2, p, table) {
+  margin: 0;
+}
+.lumen-data-table-header {
+  display: flex;
+  min-inline-size: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+}
+.lumen-data-table-header > div:first-child {
+  display: flex;
+  min-inline-size: 0;
+  flex: 1 1 16rem;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.lumen-data-table-glyph {
+  inline-size: var(--lumen-data-table-icon);
+  block-size: var(--lumen-data-table-icon);
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+}
+.lumen-data-table-glyph.is-spinning {
+  animation: lumen-data-table-spin 900ms linear infinite;
+}
+@keyframes lumen-data-table-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+.lumen-data-table-toolbar,
+.lumen-data-table-bulk,
+.lumen-data-table-pagination,
+.lumen-data-table-tabs {
+  display: flex;
+  min-inline-size: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.lumen-data-table-search {
+  display: grid;
+  min-inline-size: min(100%, 16rem);
+  flex: 1 1 16rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
+}
+.lumen-data-table-search > input {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  padding-inline-start: 2rem;
+}
+.lumen-data-table-search > svg {
+  z-index: 1;
+  grid-column: 1;
+  grid-row: 1;
+  margin-inline-start: 0.625rem;
+  color: var(--lumen-muted);
+}
+.lumen-data-table-scroll,
+.lumen-data-table-grouped,
+.lumen-data-table-wide {
+  min-inline-size: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-surface);
+  background: var(--lumen-glass);
+}
+.lumen-data-table [data-hbar-app-ui-list-strategy='pane-scroll'] {
+  max-block-size: min(38rem, 66vh);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.lumen-data-table table {
+  inline-size: 100%;
+  min-inline-size: 42rem;
+  border-collapse: collapse;
+  text-align: start;
+}
+.lumen-data-table th,
+.lumen-data-table td {
+  padding: 0.75rem;
+  border-block-end: 0.0625rem solid var(--lumen-edge);
+  text-align: start;
+  vertical-align: middle;
+}
+.lumen-data-table thead th {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 2;
+  background: color-mix(in srgb, var(--lumen-muted) 6%, var(--lumen-reading));
+  color: var(--lumen-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.lumen-data-table tbody th {
+  font-weight: 500;
+}
+.lumen-data-table tbody th > button {
+  justify-content: flex-start;
+  padding: 0.125rem 0.25rem;
+}
+.lumen-data-table-select-page {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--lumen-muted);
+  font-size: 0.8125rem;
+}
+.lumen-data-table-bulk {
+  padding: 0.625rem;
+  border: 0.0625rem solid color-mix(in srgb, var(--lumen-accent) 30%, var(--lumen-edge));
+  border-radius: var(--lumen-radius-control);
+  background: color-mix(in srgb, var(--lumen-accent) 6%, var(--lumen-glass));
+}
+.lumen-data-table-selectable {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.lumen-data-table-selectable > label {
+  display: grid;
+  min-inline-size: 0;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-control);
+  background: var(--lumen-glass);
+}
+.lumen-data-table-selectable > label > span:nth-child(2) {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.1875rem;
+}
+.lumen-data-table-selectable small {
+  color: var(--lumen-muted);
+  overflow-wrap: anywhere;
+}
+.lumen-data-table-pagination {
+  justify-content: flex-end;
+}
+.lumen-data-table-pagination > span {
+  color: var(--lumen-muted);
+  font-size: 0.8125rem;
+}
+.lumen-data-table-edit-list,
+.lumen-data-table-expandable {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.lumen-data-table-edit-list > article {
+  display: grid;
+  min-inline-size: 0;
+  grid-template-columns: minmax(10rem, 1fr) minmax(8rem, 0.5fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-control);
+  background: var(--lumen-glass);
+}
+.lumen-data-table-edit-list > article > span:first-child {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+}
+.lumen-data-table-edit-list small {
+  color: var(--lumen-muted);
+}
+.lumen-data-table-expandable > article {
+  overflow: hidden;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-control);
+  background: var(--lumen-glass);
+}
+.lumen-data-table-expandable > article > button {
+  display: grid;
+  inline-size: 100%;
+  min-inline-size: 0;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  justify-content: stretch;
+  text-align: start;
+}
+.lumen-data-table-expandable > article > button[aria-expanded='true'] > svg {
+  rotate: 90deg;
+}
+.lumen-data-table-expandable > article > div {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  border-block-start: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-data-table-expandable code {
+  color: var(--lumen-muted);
+  overflow-wrap: anywhere;
+}
+.lumen-data-table-grouped[data-density='compact'] th,
+.lumen-data-table-grouped[data-density='compact'] td {
+  padding-block: 0.375rem;
+}
+.lumen-data-table-grouped[data-density='spacious'] th,
+.lumen-data-table-grouped[data-density='spacious'] td {
+  padding-block: 1.125rem;
+}
+.lumen-data-table-group > th {
+  background: color-mix(in srgb, var(--lumen-accent) 5%, var(--lumen-glass));
+  color: var(--lumen-accent);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.lumen-data-table-master-detail {
+  display: grid;
+  min-inline-size: 0;
+  min-block-size: 0;
+  flex: 1 1 auto;
+  grid-template-columns: minmax(13rem, 0.38fr) minmax(18rem, 1fr);
+  overflow: hidden;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-surface);
+  background: var(--lumen-glass);
+}
+.lumen-data-table-master-detail > aside,
+.lumen-data-table-master-detail > main {
+  display: flex;
+  min-inline-size: 0;
+  min-block-size: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 1rem;
+}
+.lumen-data-table-master-detail > aside {
+  border-inline-end: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-data-table-master-detail > aside > button {
+  display: flex;
+  inline-size: 100%;
+  min-inline-size: 0;
+  justify-content: space-between;
+  text-align: start;
+}
+.lumen-data-table-master-detail > aside > button span,
+.lumen-data-table-master-detail > aside > button small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lumen-data-table-master-detail > aside > button small {
+  color: var(--lumen-muted);
+}
+.lumen-data-table-master-detail > main > article {
+  display: flex;
+  inline-size: 100%;
+  min-inline-size: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-control);
+  background: var(--lumen-reading);
+}
+.lumen-data-table-tabs {
+  border-block-end: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-data-table-tabs > button[aria-selected='true'] {
+  color: var(--lumen-accent);
+  box-shadow: inset 0 -0.125rem var(--lumen-accent);
+}
+.lumen-data-table-state {
+  display: flex;
+  min-block-size: 16rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border: 0.0625rem dashed var(--lumen-edge);
+  border-radius: var(--lumen-radius-surface);
+  background: var(--lumen-glass);
+  text-align: center;
+}
+.lumen-data-table-state.is-error {
+  border-color: color-mix(in srgb, var(--lumen-danger, #c64242) 38%, var(--lumen-edge));
+}
+.lumen-data-table-skeleton {
+  position: relative;
+  display: flex;
+  min-inline-size: 0;
+  min-block-size: 16rem;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-surface);
+  background: var(--lumen-glass);
+}
+.lumen-data-table-skeleton > span {
+  display: grid;
+  min-inline-size: 0;
+  grid-template-columns: 1fr 0.5fr 0.3fr;
+  gap: 1rem;
+  padding: 0.75rem;
+}
+.lumen-data-table-skeleton > span > i {
+  block-size: 0.75rem;
+  border-radius: 999rem;
+  background: linear-gradient(
+    90deg,
+    var(--lumen-edge),
+    color-mix(in srgb, var(--lumen-muted) 15%, var(--lumen-edge)),
+    var(--lumen-edge)
+  );
+  background-size: 200% 100%;
+  animation: lumen-data-table-shimmer 1.4s ease infinite;
+}
+.lumen-data-table-skeleton > svg {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  translate: -50% -50%;
+  color: var(--lumen-accent);
+}
+@keyframes lumen-data-table-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+.lumen-data-table-wide table {
+  min-inline-size: 52rem;
+}
+.lumen-data-table-wide tbody th,
+.lumen-data-table-wide thead th:first-child {
+  position: sticky;
+  inset-inline-start: 0;
+  z-index: 1;
+  background: var(--lumen-glass);
+}
+.lumen-data-table-wide thead th:first-child {
+  z-index: 3;
+  background: color-mix(in srgb, var(--lumen-muted) 6%, var(--lumen-reading));
+}
+@media (max-width: 48rem) {
+  .lumen-data-table-master-detail {
+    grid-template-columns: minmax(0, 1fr);
+    overflow: visible;
+  }
+  .lumen-data-table-master-detail > aside {
+    max-block-size: 16rem;
+    overflow: auto;
+    border-inline-end: 0;
+    border-block-end: 0.0625rem solid var(--lumen-edge);
+  }
+  .lumen-data-table-edit-list > article {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .lumen-data-table-edit-list > article > input {
+    grid-column: 1;
+  }
+}
