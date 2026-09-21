@@ -781,9 +781,11 @@ export function LumenCategoryDesign({
             value={state.input}
             onChange={(event) => actions.onInputChange(event.target.value)}
           />
-          <Button onClick={() => actions.onAction(selected?.id ?? '')}>
+          <Button
+            className={styles.categoryComposerAction}
+            onClick={() => actions.onAction(selected?.id ?? '')}
+          >
             {copy.action}
-            <LumenIndicator edge="bottom" length="action" />
           </Button>
         </LumenField>
       </div>

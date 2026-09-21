@@ -1117,8 +1117,17 @@ test('extended Lumen designs cover all non-ported catalog layouts and interactio
   await expect(page.getByRole('heading', { name: '调整光效' })).toBeVisible();
   await page.getByRole('button', { name: '跳过' }).click();
   await nav.getByRole('button', { name: 'AI 对话' }).click();
+  const chatComposer = page.locator(
+    '[data-lumen-design="lumen-design-ai-chat"] [data-boundary="vertical"]',
+  );
+  const chatSubmit = chatComposer.getByRole('button', { name: '提交' });
+  await expect(chatComposer.locator(':scope > [data-edge]')).toHaveCount(2);
+  await expect(chatSubmit.locator('[data-edge]')).toHaveCount(0);
+  expect(await chatSubmit.evaluate((button) => getComputedStyle(button, '::after').display)).toBe(
+    'none',
+  );
   await page.getByRole('textbox', { name: '输入内容' }).fill('检查当前执行状态');
-  await page.getByRole('button', { name: '提交' }).click();
+  await chatSubmit.click();
   await nav.getByRole('button', { name: '命令菜单' }).click();
   await page.getByRole('textbox', { name: '搜索内容' }).fill('命令');
   await page.getByRole('button', { name: '命令菜单入口' }).click();
