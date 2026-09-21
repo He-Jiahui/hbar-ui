@@ -459,7 +459,7 @@ function Progress({
 }: {
   readonly value: number;
   readonly label: string;
-  readonly tone?: string;
+  readonly tone?: string | undefined;
 }) {
   const bounded = Math.max(0, Math.min(100, value));
   return (
