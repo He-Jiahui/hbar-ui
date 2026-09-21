@@ -79,26 +79,6 @@
   gap: 1.25rem;
 }
 
-.frame :global(.MuiInputBase-root) {
-  color: var(--lumen-ink);
-  background: var(--lumen-reading);
-  backdrop-filter: blur(0.75rem);
-}
-
-.frame :global(.MuiInputLabel-root),
-.frame :global(.MuiFormHelperText-root) {
-  color: var(--lumen-muted);
-}
-
-.frame :global(.MuiOutlinedInput-notchedOutline) {
-  border-color: transparent;
-}
-
-.frame :global(.MuiInputBase-root:hover .MuiOutlinedInput-notchedOutline),
-.frame :global(.Mui-focused .MuiOutlinedInput-notchedOutline) {
-  border-color: var(--lumen-edge);
-}
-
 .choices,
 .scale,
 .actions,
@@ -117,39 +97,13 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  color: var(--lumen-ink);
-  text-transform: none;
 }
 
 .choice,
 .action,
 .scaleButton,
 .vote {
-  border-radius: 0.375rem;
-}
-
-.choice:hover,
-.action:hover,
-.scaleButton:hover,
-.vote:hover,
-.thread:hover {
-  outline: 0.0625rem solid var(--lumen-edge);
-}
-
-.choice:focus-visible,
-.action:focus-visible,
-.scaleButton:focus-visible,
-.vote:focus-visible,
-.thread:focus-visible {
-  outline: 0.0625rem solid var(--lumen-ink);
-  outline-offset: 0.125rem;
-}
-
-.choice:disabled,
-.action:disabled,
-.scaleButton:disabled,
-.vote:disabled {
-  color: var(--lumen-muted);
+  flex: 0 1 auto;
 }
 
 .scale {
@@ -247,9 +201,7 @@
   justify-content: space-between;
   gap: 0.5rem;
   min-width: 0;
-  color: var(--lumen-ink);
   text-align: start;
-  text-transform: none;
 }
 
 .threadCopy,

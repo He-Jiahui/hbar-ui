@@ -5,11 +5,12 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
 import { LumenField, LumenIndicator, LumenSurface, createLumenTheme } from '@lumen/app-ui';
 import {
-  LUMEN_DESIGN_COVERAGE_CATEGORIES,
   LUMEN_MIGRATED_VARIANT_IDS,
   LUMEN_SOURCE_VARIANTS,
+  LUMEN_VARIANT_REGISTRY,
 } from '@lumen/app-ui/catalog';
 import styles from './catalog.module.css';
+import VariantPreviewHost from './VariantPreviewHost';
 
 const labels: Record<string, [string, string]> = {
   'ai-chat': ['AI 对话', 'AI Chat'],
@@ -54,7 +55,6 @@ const labels: Record<string, [string, string]> = {
 
 const categories = [...new Set(LUMEN_SOURCE_VARIANTS.map((entry) => entry.category))];
 const migrated = new Set<string>(LUMEN_MIGRATED_VARIANT_IDS);
-const designCoverage = new Set<string>(LUMEN_DESIGN_COVERAGE_CATEGORIES);
 
 const localized = {
   zh: {
@@ -66,8 +66,9 @@ const localized = {
     all: '全部类别',
     count: (families: number, entries: number, complete: number) =>
       `${families} 类 · ${entries} 项来源 · ${complete} 项已迁移`,
+    categoryCount: (built: number, total: number) => `${built}/${total}`,
+    variantTitle: (label: string, variant: number) => `${label} · ${variant}`,
     ready: '已迁移 · 可操作',
-    designCoverage: '设计覆盖 · 可预览',
     pending: '来源结构 · 尚未迁移',
     category: '组件类别',
     variants: '稳定变体 ID',
@@ -76,14 +77,12 @@ const localized = {
     surface: '布局表面',
     state: '初始状态',
     controls: '来源交互',
+    controlSummary: (controls: readonly string[]) => controls.join(' · ') || '—',
     preview: '真实预览',
     previewReady: '可操作变体预览',
-    previewDesign: '设计覆盖预览',
-    previewSource: '来源页面变体预览',
     previewPending: '当前分类尚未提供预览',
     empty: '没有匹配的来源项',
     open: '打开 Lumen 案例',
-    designs: '查看扩展设计',
     note: '目录记录来源及迁移进度；未迁移项不作为可复用组件展示。',
   },
   en: {
@@ -95,8 +94,9 @@ const localized = {
     all: 'All categories',
     count: (families: number, entries: number, complete: number) =>
       `${families} families · ${entries} source entries · ${complete} migrated`,
+    categoryCount: (built: number, total: number) => `${built}/${total}`,
+    variantTitle: (label: string, variant: number) => `${label} · ${variant}`,
     ready: 'Migrated · Interactive',
-    designCoverage: 'Design coverage · Preview',
     pending: 'Source structure · Pending migration',
     category: 'Component families',
     variants: 'Stable variant IDs',
@@ -105,14 +105,12 @@ const localized = {
     surface: 'Surface',
     state: 'Initial state',
     controls: 'Source controls',
+    controlSummary: (controls: readonly string[]) => controls.join(' · ') || '—',
     preview: 'Live preview',
     previewReady: 'Interactive variant preview',
-    previewDesign: 'Design coverage preview',
-    previewSource: 'Source page variant preview',
     previewPending: 'No preview is available for this family yet',
     empty: 'No matching source entries',
     open: 'Open Lumen example',
-    designs: 'Open extended designs',
     note: 'The catalog records source structure and migration status; pending items are not reusable components.',
   },
 };
@@ -120,15 +118,6 @@ const localized = {
 function galleryVariant(category: string, variant: number) {
   if (category === 'empty-state') {
     return variant;
-  }
-  if (category === 'feedback') {
-    return variant + 9;
-  }
-  if (category === 'prompt-input') {
-    return variant + 15;
-  }
-  if (category === 'file-manager') {
-    return variant + 22;
   }
   return null;
 }
@@ -141,16 +130,8 @@ export default function LumenCatalog() {
   const [query, setQuery] = React.useState('');
   const copy = localized[locale];
   const theme = React.useMemo(() => createLumenTheme(mode), [mode]);
-  const statusFor = (categoryName: string, id: string) => {
-    if (migrated.has(id)) {
-      return copy.ready;
-    }
-    if (designCoverage.has(categoryName)) {
-      return copy.designCoverage;
-    }
-    return copy.pending;
-  };
-  const matching = LUMEN_SOURCE_VARIANTS.filter((item) => {
+  const statusFor = (id: string) => (migrated.has(id) ? copy.ready : copy.pending);
+  const matching = LUMEN_VARIANT_REGISTRY.filter((item) => {
     const term = query.trim().toLocaleLowerCase();
     return (
       (!category || item.category === category) &&
@@ -162,8 +143,7 @@ export default function LumenCatalog() {
   });
   const selected = matching.find((item) => item.id === selectedId) ?? matching[0];
   const ready = selected && migrated.has(selected.id);
-  const designed = selected && designCoverage.has(selected.category);
-  const selectedStatus = selected ? statusFor(selected.category, selected.id) : copy.pending;
+  const selectedStatus = selected ? statusFor(selected.id) : copy.pending;
   const galleryIndex = selected ? galleryVariant(selected.category, selected.variant) : null;
   let previewLabel = copy.previewPending;
   let preview: React.ReactNode = (
@@ -182,15 +162,10 @@ export default function LumenCatalog() {
         loading="lazy"
       />
     );
-  } else if (designed && selected) {
-    previewLabel = copy.previewSource;
+  } else if (selected) {
+    previewLabel = copy.previewReady;
     preview = (
-      <iframe
-        className={styles.previewFrame}
-        title={`${selected.id} ${copy.previewSource}`}
-        src={`/experiments/lumen-app-ui/designs/?design=${encodeURIComponent(selected.category)}&source=${encodeURIComponent(selected.id)}&embed=1&mode=${mode}&locale=${locale}`}
-        loading="lazy"
-      />
+      <VariantPreviewHost entry={selected} locale={locale} unavailableLabel={copy.previewPending} />
     );
   }
 
@@ -206,9 +181,6 @@ export default function LumenCatalog() {
           <div className={styles.actions}>
             <Button component="a" href="/experiments/lumen-app-ui/">
               {copy.back}
-            </Button>
-            <Button component="a" href="/experiments/lumen-app-ui/designs/">
-              {copy.designs}
             </Button>
             <Button onClick={() => setLocale((current) => (current === 'zh' ? 'en' : 'zh'))}>
               {copy.locale}
@@ -252,10 +224,7 @@ export default function LumenCatalog() {
                 >
                   <span>
                     {labels[name]?.[locale === 'zh' ? 0 : 1] ?? name}
-                    <small>
-                      {built}/{count}
-                      {designCoverage.has(name) ? ` · ${copy.designCoverage}` : ''}
-                    </small>
+                    <small>{copy.categoryCount(built, count)}</small>
                   </span>
                   <LumenIndicator edge="right" state={category === name ? 'selected' : 'idle'} />
                 </Button>
@@ -273,7 +242,7 @@ export default function LumenCatalog() {
               >
                 <span>
                   {item.id}
-                  <small>{statusFor(item.category, item.id)}</small>
+                  <small>{statusFor(item.id)}</small>
                 </span>
                 <LumenIndicator
                   edge="right"
@@ -290,8 +259,10 @@ export default function LumenCatalog() {
                     <div>
                       <small>{selectedStatus}</small>
                       <h2 id="lumen-catalog-title">
-                        {labels[selected.category]?.[locale === 'zh' ? 0 : 1] ?? selected.category}{' '}
-                        · {selected.variant}
+                        {copy.variantTitle(
+                          labels[selected.category]?.[locale === 'zh' ? 0 : 1] ?? selected.category,
+                          selected.variant,
+                        )}
                       </h2>
                       <code>{selected.id}</code>
                     </div>
@@ -311,7 +282,7 @@ export default function LumenCatalog() {
                     </div>
                     <div>
                       <dt>{copy.controls}</dt>
-                      <dd>{selected.profile.controls.join(' · ') || '—'}</dd>
+                      <dd>{copy.controlSummary(selected.profile.controls)}</dd>
                     </div>
                   </dl>
                   {ready && galleryIndex && (
@@ -320,14 +291,6 @@ export default function LumenCatalog() {
                       href={`/experiments/lumen-app-ui/?variant=${galleryIndex}`}
                     >
                       {copy.open}
-                    </Button>
-                  )}
-                  {!ready && designed && (
-                    <Button
-                      component="a"
-                      href={`/experiments/lumen-app-ui/designs/?design=${encodeURIComponent(selected.category)}&source=${encodeURIComponent(selected.id)}`}
-                    >
-                      {copy.designs}
                     </Button>
                   )}
                   <section className={styles.previewSection} aria-label={copy.preview}>

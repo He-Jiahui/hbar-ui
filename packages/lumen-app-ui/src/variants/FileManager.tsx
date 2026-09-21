@@ -26,7 +26,9 @@ export type {
 function unique<Item extends { id: string }>(items: readonly Item[]): readonly Item[] {
   const seen = new Set<string>();
   return items.filter(({ id }) => {
-    if (seen.has(id)) {return false;}
+    if (seen.has(id)) {
+      return false;
+    }
     seen.add(id);
     return true;
   });
@@ -150,7 +152,9 @@ export function HbarAppUiFileManager01({
                 multiple
                 onChange={(event) => {
                   const files = Array.from(event.target.files ?? []);
-                  if (files.length) {actions.onUpload(content.id, files);}
+                  if (files.length) {
+                    actions.onUpload(content.id, files);
+                  }
                   event.target.value = '';
                 }}
               />
@@ -339,14 +343,18 @@ export function HbarAppUiFileManager04({ copy, content, actions }: HbarAppUiFile
         data-dragging={dragging}
         onDragEnter={() => setDragging(true)}
         onDragLeave={(event) => {
-          if (!event.currentTarget.contains(event.relatedTarget as Node)) {setDragging(false);}
+          if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+            setDragging(false);
+          }
         }}
         onDragOver={(event) => event.preventDefault()}
         onDrop={(event) => {
           event.preventDefault();
           setDragging(false);
           const files = Array.from(event.dataTransfer.files);
-          if (files.length) {actions.onUpload(content.id, files, 'drop');}
+          if (files.length) {
+            actions.onUpload(content.id, files, 'drop');
+          }
         }}
       >
         <LumenIndicator edge="top" length="area" />
@@ -360,7 +368,9 @@ export function HbarAppUiFileManager04({ copy, content, actions }: HbarAppUiFile
             multiple={content.multiple}
             onChange={(event) => {
               const files = Array.from(event.target.files ?? []);
-              if (files.length) {actions.onUpload(content.id, files, 'picker');}
+              if (files.length) {
+                actions.onUpload(content.id, files, 'picker');
+              }
               event.target.value = '';
             }}
           />

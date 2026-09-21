@@ -364,6 +364,7 @@ test('fields and standalone controls retain directional boundary lamps', async (
   await expect(dropzone.locator(':scope > [data-length="area"]')).toHaveCount(2);
   const choose = dropzone.getByText('选择文件');
   await expect(choose.locator('[data-length="action"]')).toBeVisible();
+  await expect(choose.locator('[data-length="action"]')).toHaveCSS('position', 'absolute');
   await dropzone.hover();
   await page.screenshot({
     path: testInfo.outputPath('dropzone-boundary-dark.png'),
@@ -944,7 +945,7 @@ test('MUI menus and select fields use Lumen surfaces and boundary lamps', async 
   );
 });
 
-test('design gallery button lists render one shared lamp per item', async ({ page }, testInfo) => {
+test('catalog button lists render one shared lamp per item', async ({ page }, testInfo) => {
   const cases = [
     { width: 1440, height: 900 },
     { width: 390, height: 844 },
@@ -953,15 +954,15 @@ test('design gallery button lists render one shared lamp per item', async ({ pag
   /* eslint-disable no-await-in-loop -- Each viewport is measured and captured independently. */
   for (const { width, height } of cases) {
     await page.setViewportSize({ width, height });
-    await page.goto('/experiments/lumen-app-ui/designs/');
+    await page.goto('/experiments/lumen-app-ui/catalog/');
     const lists = [
-      page.getByRole('navigation', { name: 'Lumen design coverage' }),
-      page.getByRole('navigation', { name: 'Lumen source page examples' }),
+      page.getByRole('navigation', { name: '组件类别' }),
+      page.getByRole('navigation', { name: '稳定变体 ID' }),
     ];
     for (const list of lists) {
       const lamps = await list.getByRole('button').evaluateAll((buttons) =>
         buttons.map((button) => ({
-          indicatorCount: button.querySelectorAll(':scope > [data-edge="bottom"]').length,
+          indicatorCount: button.querySelectorAll(':scope > [data-edge="right"]').length,
           generatedLamp: getComputedStyle(button, '::after').content,
         })),
       );
@@ -970,14 +971,14 @@ test('design gallery button lists render one shared lamp per item', async ({ pag
       expect(lamps.every(({ generatedLamp }) => generatedLamp === 'none')).toBe(true);
     }
     await page.screenshot({
-      path: testInfo.outputPath(`button-lists-single-lamp-${width}.png`),
+      path: testInfo.outputPath(`catalog-button-lists-single-lamp-${width}.png`),
       animations: 'disabled',
     });
   }
   /* eslint-enable no-await-in-loop */
 });
 
-test('extended Lumen designs cover all non-ported catalog layouts and interactions', async ({
+test('catalog renders structurally distinct registered variants without runtime errors', async ({
   page,
 }, testInfo) => {
   const pageErrors: string[] = [];
@@ -988,298 +989,75 @@ test('extended Lumen designs cover all non-ported catalog layouts and interactio
       consoleErrors.push(message.text());
     }
   });
-  await page.goto('/experiments/lumen-app-ui/designs/');
-  const nav = page.getByRole('navigation', { name: 'Lumen design coverage' });
-  const designs = [
-    ['AI 对话', 'lumen-design-ai-chat'],
-    ['执行活动', 'lumen-design-agent-activity'],
-    ['工具调用', 'lumen-design-tool-calls'],
-    ['审批节点', 'lumen-design-agent-approval'],
-    ['执行计划', 'lumen-design-agent-plan'],
-    ['AI 用量', 'lumen-design-ai-usage'],
-    ['应用外壳', 'lumen-design-app-shell'],
-    ['应用侧栏', 'lumen-design-app-sidebar'],
-    ['命令菜单', 'lumen-design-command-menu'],
-    ['顶部导航', 'lumen-design-navbar'],
-    ['移动布局', 'lumen-design-mobile'],
-    ['信息卡片', 'lumen-design-card'],
-    ['内容列表', 'lumen-design-list'],
-    ['筛选面板', 'lumen-design-filtering'],
-    ['组合表单', 'lumen-design-forms'],
-    ['付费墙', 'lumen-design-paywall'],
-    ['身份验证', 'lumen-design-authentication'],
-    ['评论串', 'lumen-design-comments'],
-    ['排期时间线', 'lumen-design-scheduling'],
-    ['集成目录', 'lumen-design-integrations'],
-    ['编辑器', 'lumen-design-editor'],
-    ['支持中心', 'lumen-design-support'],
-    ['客服对话', 'lumen-design-chat'],
-    ['分析', 'lumen-design-analytics'],
-    ['弹层', 'lumen-design-app-dialog'],
-    ['账单', 'lumen-design-billing'],
-    ['仪表盘', 'lumen-design-dashboard'],
-    ['数据表格', 'lumen-design-data-table'],
-    ['看板', 'lumen-design-kanban'],
-    ['监控', 'lumen-design-monitoring'],
-    ['通知', 'lumen-design-notifications'],
-    ['初始引导', 'lumen-design-onboarding'],
-    ['设置表单', 'lumen-design-settings-form'],
-    ['向导', 'lumen-design-wizard'],
-  ] as const;
-  /* eslint-disable no-await-in-loop -- Each design is verified sequentially on one page. */
-  for (const [label, id] of designs) {
-    await nav.getByRole('button', { name: label }).click();
-    await expect(page.locator(`[data-lumen-design="${id}"]`)).toBeVisible();
-    expect(await page.locator(`[data-lumen-design="${id}"] [data-edge]`).count()).toBeGreaterThan(
-      0,
-    );
-    await page.setViewportSize({ width: 390, height: 844 });
-    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
-      391,
-    );
-    await page.screenshot({
-      path: testInfo.outputPath(`design-${id}-390.png`),
-      animations: 'disabled',
-    });
-    await page.setViewportSize({ width: 1440, height: 900 });
-  }
-  /* eslint-enable no-await-in-loop */
 
-  await nav.getByRole('button', { name: '分析' }).click();
-  await page.getByRole('combobox', { name: '时间范围' }).selectOption('month');
-  await nav.getByRole('button', { name: '弹层' }).click();
-  await page.getByRole('button', { name: '打开弹层' }).click();
-  const dialog = page.getByRole('dialog');
-  await expect(dialog).toBeVisible();
-  const dialogSurface = dialog.locator('xpath=ancestor::*[@data-elevation="overlay"]');
-  await expect(dialogSurface).toHaveAttribute('data-elevation', 'overlay');
-  expect(await dialogSurface.evaluate((element) => getComputedStyle(element).boxShadow)).toContain(
-    'rgba(255, 255, 255, 0.26)',
-  );
-  await expect(dialog).toHaveAttribute('data-lumen-dialog-content', 'true');
-  const dialogSpacing = await dialog.evaluate((element) => {
-    const style = getComputedStyle(element);
-    return {
-      paddingInlineStart: parseFloat(style.paddingInlineStart),
-      paddingInlineEnd: parseFloat(style.paddingInlineEnd),
-      paddingTop: parseFloat(style.paddingTop),
-      fitsInline: element.scrollWidth <= element.clientWidth,
-      fitsBlock: element.scrollHeight <= element.clientHeight,
-    };
-  });
-  expect(dialogSpacing.paddingInlineStart).toBeGreaterThanOrEqual(24);
-  expect(dialogSpacing.paddingInlineEnd).toBeGreaterThanOrEqual(24);
-  expect(dialogSpacing.paddingTop).toBeGreaterThanOrEqual(24);
-  expect(dialogSpacing.fitsInline).toBe(true);
-  expect(dialogSpacing.fitsBlock).toBe(true);
-  expect(
-    await dialogSurface.evaluate((element) => element.scrollHeight <= element.clientHeight),
-  ).toBe(true);
-  await expect(dialog.getByRole('button', { name: '确认' })).toBeInViewport();
-  await page.screenshot({
-    path: testInfo.outputPath('dialog-open-1440.png'),
-    animations: 'disabled',
-  });
-  await page.setViewportSize({ width: 390, height: 844 });
-  await expect(dialog).toBeVisible();
-  await dialog.scrollIntoViewIfNeeded();
-  await expect(dialog.getByRole('button', { name: '确认' })).toBeInViewport();
-  expect(
-    await dialogSurface.evaluate((element) => element.scrollHeight <= element.clientHeight),
-  ).toBe(true);
-  const narrowBounds = await Promise.all([
-    dialogSurface.locator('..').boundingBox(),
-    dialogSurface.boundingBox(),
-  ]);
-  expect(narrowBounds.every(Boolean)).toBe(true);
-  const [overlayBounds, dialogBounds] = narrowBounds;
-  expect(dialogBounds!.x - overlayBounds!.x).toBeGreaterThanOrEqual(19);
-  expect(
-    overlayBounds!.x + overlayBounds!.width - dialogBounds!.x - dialogBounds!.width,
-  ).toBeGreaterThanOrEqual(19);
-  await page.screenshot({
-    path: testInfo.outputPath('dialog-open-390.png'),
-    animations: 'disabled',
-  });
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.getByRole('dialog').getByRole('button', { name: '确认' }).click();
-  await expect(page.getByRole('dialog')).toBeHidden();
-  await nav.getByRole('button', { name: '账单' }).click();
-  const billing = page.locator('[data-lumen-design="lumen-design-billing"]');
-  await page.getByRole('button', { name: /规模/ }).click();
-  const planBottoms = await billing
-    .locator('button[aria-pressed] [data-edge="bottom"]')
-    .evaluateAll((beams) => beams.map((beam) => beam.getBoundingClientRect().bottom));
-  expect(Math.max(...planBottoms) - Math.min(...planBottoms)).toBeLessThanOrEqual(1);
-  const invoiceColumns = await billing
-    .getByRole('region', { name: '最近账单' })
-    .locator('button')
-    .evaluateAll((rows) =>
-      rows.map((row) => {
-        const children = [...row.children];
-        return {
-          descriptionWidth: children[0]?.getBoundingClientRect().width ?? 0,
-          amountRight: children[1]?.getBoundingClientRect().right ?? 0,
-          statusRight: children[2]?.getBoundingClientRect().right ?? 0,
-        };
+  await page.goto('/experiments/lumen-app-ui/catalog/');
+  await expect(page.getByText('38 类 · 300 项来源 · 300 项已迁移')).toBeVisible();
+
+  const categories = page.getByRole('navigation', { name: '组件类别' });
+  const variants = page.getByRole('navigation', { name: '稳定变体 ID' });
+  const selectVariant = async (categoryLabel: string, variantId: string) => {
+    await categories.getByRole('button', { name: categoryLabel, exact: true }).click();
+    await variants.getByRole('button', { name: new RegExp(`^${variantId} `) }).click();
+    const preview = page.locator(`[data-hbar-app-ui-component="${variantId}"]`);
+    await expect(preview).toBeVisible();
+    return preview;
+  };
+
+  const analytics = await selectVariant('分析 16/16', 'hbar-app-ui-analytics-2');
+  await expect(analytics.locator('.lumen-analytics-area .lumen-analytics-bars > i')).toHaveCount(3);
+  expect(
+    await analytics
+      .locator('.lumen-analytics-area .lumen-analytics-bars > i')
+      .first()
+      .evaluate((element) => getComputedStyle(element).backgroundColor),
+  ).not.toBe('rgba(0, 0, 0, 0)');
+
+  const authentication = await selectVariant('身份验证 14/14', 'hbar-app-ui-authentication-3');
+  await expect(authentication.locator('.hbar-app-ui-auth-split > main')).toBeVisible();
+  await expect(authentication.locator('.hbar-app-ui-auth-split > aside')).toBeVisible();
+  const iconSizes = await authentication
+    .locator('.hbar-app-ui-auth-icon[class*="hbar-app-ui-icon-"]')
+    .evaluateAll((icons) =>
+      icons.map((icon) => {
+        const bounds = icon.getBoundingClientRect();
+        return Math.max(bounds.width, bounds.height);
       }),
     );
-  expect(invoiceColumns.every(({ descriptionWidth }) => descriptionWidth > 0)).toBe(true);
-  expect(new Set(invoiceColumns.map(({ amountRight }) => Math.round(amountRight))).size).toBe(1);
-  expect(new Set(invoiceColumns.map(({ statusRight }) => Math.round(statusRight))).size).toBe(1);
-  await expect(
-    billing.getByRole('region', { name: '最近账单' }).locator('[data-edge]'),
-  ).toHaveCount(0);
-  expect(
-    await billing
-      .getByRole('region', { name: '最近账单' })
-      .getByRole('button')
-      .evaluateAll((buttons) =>
-        buttons.every((button) => getComputedStyle(button, '::after').display === 'none'),
-      ),
-  ).toBe(true);
+  expect(iconSizes.length).toBeGreaterThan(0);
+  expect(Math.max(...iconSizes)).toBeLessThanOrEqual(24);
+
+  const documentShell = await selectVariant('应用框架 9/9', 'hbar-app-ui-app-shell-6');
+  await expect(documentShell.locator('.hbar-app-ui-document-shell')).toBeVisible();
+  await expect(documentShell.getByRole('textbox')).toBeVisible();
+
+  const mobile = await selectVariant('移动端导航 5/5', 'hbar-app-ui-mobile-3');
+  await expect(mobile.locator('.lumen-mobile-phone')).toBeVisible();
+  await expect(mobile.locator('.lumen-mobile-floating')).toBeVisible();
+
+  const billing = await selectVariant('账单 8/8', 'hbar-app-ui-billing-8');
+  await expect(billing.locator('.hbar-app-ui-billing-invoice-lines')).toBeVisible();
+  await expect(billing.locator('.hbar-app-ui-billing-invoice-side')).toBeVisible();
+
+  await page.screenshot({
+    path: testInfo.outputPath('catalog-real-variant-previews-1440.png'),
+    animations: 'disabled',
+  });
+
   await page.setViewportSize({ width: 390, height: 844 });
+  const narrowAuthentication = await selectVariant(
+    '身份验证 14/14',
+    'hbar-app-ui-authentication-3',
+  );
+  await expect(narrowAuthentication.locator('.hbar-app-ui-auth-split > aside')).toBeHidden();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await nav.getByRole('button', { name: '仪表盘' }).click();
-  const quickActions = page.getByRole('region', { name: '快捷入口' }).getByRole('button');
-  const quickActionGeometry = await quickActions.evaluateAll((buttons) =>
-    buttons.map((button) => ({
-      buttonLeft: button.getBoundingClientRect().left,
-      beamLeft:
-        button.querySelector('[data-edge="bottom"] > span')?.getBoundingClientRect().left ?? -1,
-    })),
-  );
-  expect(
-    quickActionGeometry.every(({ buttonLeft, beamLeft }) => Math.abs(buttonLeft - beamLeft) <= 1),
-  ).toBe(true);
-  const activityContentWidths = await page
-    .getByRole('region', { name: '最近活动' })
-    .getByRole('button')
-    .evaluateAll((buttons) =>
-      buttons.map(
-        (button) =>
-          button.querySelector(':scope > span:first-child')?.getBoundingClientRect().width,
-      ),
-    );
-  expect(activityContentWidths.every((width) => width !== undefined && width > 80)).toBe(true);
-  await expect(page.getByRole('region', { name: '最近活动' }).locator('[data-edge]')).toHaveCount(
-    0,
-  );
-  expect(
-    await page
-      .getByRole('region', { name: '最近活动' })
-      .getByRole('button')
-      .evaluateAll((buttons) =>
-        buttons.every((button) => getComputedStyle(button, '::after').display === 'none'),
-      ),
-  ).toBe(true);
-  await page.getByRole('button', { name: /打开 主题切换/ }).click();
-  await nav.getByRole('button', { name: '数据表格' }).click();
-  const dataTable = page.locator('[data-lumen-design="lumen-design-data-table"]');
-  await expect(dataTable.locator('thead [data-edge]')).toHaveCount(0);
-  await expect(dataTable.locator('tbody [data-edge]')).toHaveCount(0);
-  await page.getByRole('textbox', { name: '筛选资源' }).fill('Glass');
-  await page.getByRole('button', { name: /选择 GlassSurface/ }).click();
-  const selectedTableRow = dataTable.locator('tbody button[aria-pressed="true"]');
-  await expect(selectedTableRow).toBeVisible();
-  expect(
-    Number.parseInt(await selectedTableRow.evaluate((row) => getComputedStyle(row).fontWeight), 10),
-  ).toBeGreaterThanOrEqual(600);
-  await expect(dataTable.locator('tbody [data-edge]')).toHaveCount(0);
-  expect(
-    await dataTable
-      .locator('tbody button')
-      .evaluateAll((buttons) =>
-        buttons.every((button) => getComputedStyle(button, '::after').display === 'none'),
-      ),
-  ).toBe(true);
-  await nav.getByRole('button', { name: '看板' }).click();
-  await page.getByRole('button', { name: /整理主题文案/ }).click();
-  await page.locator('[aria-label="移动到"]').getByRole('button', { name: '制作' }).click();
-  await nav.getByRole('button', { name: '监控' }).click();
-  await expect(page.getByText('运行中')).toBeVisible();
-  await nav.getByRole('button', { name: '通知' }).click();
-  const notificationGeometry = await page
-    .locator('[data-lumen-design="lumen-design-notifications"] article')
-    .evaluateAll((items) =>
-      items.map((item) => ({
-        lampLeft:
-          item.querySelector(':scope > [data-edge="left"]')?.getBoundingClientRect().left ?? -1,
-        contentLeft:
-          item.querySelector(':scope > div:first-of-type')?.getBoundingClientRect().left ?? -1,
-        timeLeft: item.querySelector(':scope > small')?.getBoundingClientRect().left ?? -1,
-        actionsLeft:
-          item.querySelector(':scope > div:last-of-type')?.getBoundingClientRect().left ?? -1,
-      })),
-    );
-  for (const key of ['lampLeft', 'contentLeft', 'timeLeft', 'actionsLeft'] as const) {
-    expect(new Set(notificationGeometry.map((item) => Math.round(item[key]))).size).toBe(1);
-  }
-  await page.getByRole('button', { name: '标为已读' }).first().click();
-  await page.getByRole('button', { name: '消除' }).first().click();
-  await nav.getByRole('button', { name: '设置表单' }).click();
-  await page.getByRole('textbox', { name: '工作区名称' }).fill('新的墨光工作区');
-  await page.getByRole('button', { name: '保存设置' }).click();
-  await expect(page.getByRole('region', { name: '工作区设置' }).getByRole('status')).toHaveText(
-    '已保存',
-  );
-  await nav.getByRole('button', { name: '初始引导' }).click();
-  await page.getByRole('button', { name: '下一步' }).click();
-  await expect(page.getByRole('heading', { name: '调整光效' })).toBeVisible();
-  await page.getByRole('button', { name: '跳过' }).click();
-  await nav.getByRole('button', { name: 'AI 对话' }).click();
-  const chatComposer = page.locator(
-    '[data-lumen-design="lumen-design-ai-chat"] [data-boundary="vertical"]',
-  );
-  const chatSubmit = chatComposer.getByRole('button', { name: '提交' });
-  await expect(chatComposer.locator(':scope > [data-edge]')).toHaveCount(2);
-  await expect(chatSubmit.locator('[data-edge]')).toHaveCount(0);
-  expect(await chatSubmit.evaluate((button) => getComputedStyle(button, '::after').display)).toBe(
-    'none',
-  );
-  await page.getByRole('textbox', { name: '输入内容' }).fill('检查当前执行状态');
-  await chatSubmit.click();
-  await nav.getByRole('button', { name: '评论串' }).click();
-  const commentGeometry = await page
-    .locator('[data-lumen-design="lumen-design-comments"] article')
-    .evaluateAll((items) =>
-      items.map((item) => {
-        const body = item.querySelector(':scope > div');
-        const action = item.querySelector(':scope > button');
-        const beam = action?.querySelector('[data-edge="bottom"] > span');
-        return {
-          bodyLeft: body?.getBoundingClientRect().left ?? -1,
-          actionRight: action?.getBoundingClientRect().right ?? -1,
-          beamRight: beam?.getBoundingClientRect().right ?? -1,
-        };
-      }),
-    );
-  for (const key of ['bodyLeft', 'actionRight', 'beamRight'] as const) {
-    expect(new Set(commentGeometry.map((item) => Math.round(item[key]))).size).toBe(1);
-  }
-  await nav.getByRole('button', { name: '命令菜单' }).click();
-  await page.getByRole('textbox', { name: '搜索内容' }).fill('命令');
-  await page.getByRole('button', { name: '命令菜单入口' }).click();
-  await nav.getByRole('button', { name: '编辑器' }).click();
-  await page.getByRole('button', { name: '提交' }).click();
-  await nav.getByRole('button', { name: '向导' }).click();
-  await page.getByRole('textbox', { name: '主题名称' }).fill('新主题');
-  const wizardFields = page.locator(
-    '[data-lumen-design="lumen-design-wizard"] [data-boundary="horizontal"]',
-  );
-  const labelGaps = await wizardFields.evaluateAll((fields) =>
-    fields.map((field) => {
-      const label = field.querySelector('label')?.getBoundingClientRect();
-      const beam = field.querySelector('[data-edge="top"] > span')?.getBoundingClientRect();
-      return label && beam ? beam.y - (label.y + label.height) : -1;
-    }),
-  );
-  expect(labelGaps.every((gap) => gap >= 0)).toBe(true);
-  await page.getByRole('button', { name: '下一步' }).click();
-  await expect(page.getByRole('heading', { name: '光效' })).toBeVisible();
   await page.getByRole('button', { name: '切换黑白主题' }).click();
   await expect(page.locator('main[data-lumen-mode]')).toHaveAttribute('data-lumen-mode', 'light');
+  await page.screenshot({
+    path: testInfo.outputPath('catalog-real-variant-previews-390.png'),
+    animations: 'disabled',
+  });
+
   expect(pageErrors).toEqual([]);
   expect(consoleErrors).toEqual([]);
 });

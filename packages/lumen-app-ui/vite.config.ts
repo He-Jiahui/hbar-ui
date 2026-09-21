@@ -8,8 +8,10 @@ export default defineConfig({
         index: resolve(import.meta.dirname, 'src/index.ts'),
         catalog: resolve(import.meta.dirname, 'src/catalog.ts'),
         variants: resolve(import.meta.dirname, 'src/variants/index.ts'),
+        styles: resolve(import.meta.dirname, 'src/build-styles.ts'),
       },
       formats: ['es'],
+      cssFileName: 'app-ui',
     },
     rollupOptions: {
       external: [/^@mui\//, /^react($|\/)/, /^react-dom($|\/)/],

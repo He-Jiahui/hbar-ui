@@ -1,9 +1,21 @@
-import { createTheme } from '@mui/material/styles';
+import { alpha, createTheme, enhanceHighContrast } from '@mui/material/styles';
+import { DEFAULT_LUMEN_APPEARANCE, type LumenAppearance, type LumenMode } from './appearance';
 
-export type LumenMode = 'dark' | 'light';
+export interface LumenThemeOptions extends Pick<
+  LumenAppearance,
+  'controlSize' | 'textSize' | 'cornerSize' | 'shape'
+> {}
 
-export default function createLumenTheme(mode: LumenMode) {
+export default function createLumenTheme(
+  mode: LumenMode,
+  options: Partial<LumenThemeOptions> = {},
+) {
+  const controlSize = options.controlSize ?? DEFAULT_LUMEN_APPEARANCE.controlSize;
+  const textSize = options.textSize ?? DEFAULT_LUMEN_APPEARANCE.textSize;
+  const cornerSize = options.cornerSize ?? DEFAULT_LUMEN_APPEARANCE.cornerSize;
+  const shape = options.shape ?? DEFAULT_LUMEN_APPEARANCE.shape;
   const ink = mode === 'dark' ? '#eeeeee' : '#171717';
+  const contrast = mode === 'dark' ? '#090909' : '#f5f5f5';
   const controlGlow = mode === 'dark' ? 'rgb(255 255 255 / 75%)' : 'rgb(0 0 0 / 48%)';
   const menuSurface = mode === 'dark' ? 'rgb(24 24 24 / 92%)' : 'rgb(250 250 250 / 94%)';
   const menuEdge = mode === 'dark' ? 'rgb(255 255 255 / 17%)' : 'rgb(0 0 0 / 14%)';
@@ -14,11 +26,18 @@ export default function createLumenTheme(mode: LumenMode) {
       : '0 0 0 0.0625rem rgb(0 0 0 / 24%), 0 0 1rem rgb(0 0 0 / 17%), 0 0 2.75rem rgb(0 0 0 / 8%)';
   const thumbGlow = `0 0 calc(var(--lumen-range-progress, 0) * ${mode === 'dark' ? '0.8rem' : '0.45rem'}) calc(var(--lumen-range-progress, 0) * 0.125rem) ${controlGlow}`;
   const trackGlow = `0 0 calc(var(--lumen-range-progress, 0) * ${mode === 'dark' ? '0.7rem' : '0.35rem'}) calc(var(--lumen-range-progress, 0) * 0.0625rem) ${controlGlow}`;
-  return createTheme({
+  const fontSize = { s: 13, m: 14, l: 16 }[textSize];
+  const borderRadius = shape === 'square' ? 0 : { s: 4, m: 6, l: 8 }[cornerSize];
+  const theme = createTheme({
     cssVariables: { cssVarPrefix: 'lumen-mui' },
     palette: {
       mode,
-      primary: { main: ink },
+      primary: { main: ink, contrastText: contrast },
+      secondary: { main: contrast, contrastText: ink },
+      success: { main: mode === 'dark' ? '#77deb0' : '#1a7c56' },
+      warning: { main: mode === 'dark' ? '#efd17a' : '#996500' },
+      error: { main: mode === 'dark' ? '#ff969b' : '#b73548' },
+      info: { main: mode === 'dark' ? '#81b5ff' : '#285bc3' },
       background: {
         default: mode === 'dark' ? '#090909' : '#f5f5f5',
         paper: mode === 'dark' ? '#181818' : '#fafafa',
@@ -27,18 +46,29 @@ export default function createLumenTheme(mode: LumenMode) {
     },
     typography: {
       fontFamily: '"Segoe UI", "Microsoft YaHei", sans-serif',
-      fontSize: 14,
+      fontSize,
       button: { textTransform: 'none', fontWeight: 500 },
     },
-    shape: { borderRadius: 6 },
+    shape: { borderRadius },
     components: {
+      MuiCssBaseline: {
+        styleOverrides: {
+          body: {
+            backgroundColor: 'transparent',
+            color: ink,
+          },
+        },
+      },
       MuiButtonBase: { defaultProps: { disableRipple: true } },
       MuiButton: {
         defaultProps: { disableElevation: true, color: 'inherit' },
         styleOverrides: {
           root: {
             minWidth: 0,
-            '&:hover': { backgroundColor: 'transparent' },
+            minHeight: { s: '1.875rem', m: '2.25rem', l: '2.625rem' }[controlSize],
+            borderRadius: 'var(--lumen-radius-control, 0.375rem)',
+            '&:hover': { backgroundColor: alpha(ink, 0.08) },
+            '&:active': { backgroundColor: alpha(ink, 0.16) },
             '&:not(:has(> [data-edge]))::after': {
               content: '""',
               position: 'absolute',
@@ -69,7 +99,13 @@ export default function createLumenTheme(mode: LumenMode) {
         },
       },
       MuiIconButton: {
-        styleOverrides: { root: { '&:hover': { backgroundColor: 'transparent' } } },
+        styleOverrides: {
+          root: {
+            borderRadius: 'var(--lumen-radius-control, 0.375rem)',
+            '&:hover': { backgroundColor: alpha(ink, 0.08) },
+            '&:active': { backgroundColor: alpha(ink, 0.16) },
+          },
+        },
       },
       MuiPaper: { styleOverrides: { root: { backgroundImage: 'none' } } },
       MuiMenu: {
@@ -244,4 +280,7 @@ export default function createLumenTheme(mode: LumenMode) {
       },
     },
   });
+  return enhanceHighContrast(theme);
 }
+
+export type { LumenMode } from './appearance';

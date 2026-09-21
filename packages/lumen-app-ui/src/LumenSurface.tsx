@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import createLensMap from './lensMap';
+import type { LumenShape } from './appearance';
 import styles from './materials.module.css';
 
 export interface LumenSurfaceProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -9,6 +10,7 @@ export interface LumenSurfaceProps extends React.HTMLAttributes<HTMLDivElement> 
   elevation?: 'base' | 'overlay' | undefined;
   glassStrength?: number | undefined;
   interactive?: boolean | undefined;
+  shape?: LumenShape | undefined;
 }
 
 export default function LumenSurface({
@@ -16,6 +18,7 @@ export default function LumenSurface({
   elevation = 'base',
   glassStrength = 65,
   interactive = false,
+  shape = 'rounded',
   className = '',
   children,
   ...props
@@ -71,6 +74,7 @@ export default function LumenSurface({
       data-material={material}
       data-elevation={elevation}
       data-interactive={interactive}
+      data-shape={shape}
       data-lens={map && glassStrength > 0 ? 'refractive' : 'frost'}
     >
       {map && (

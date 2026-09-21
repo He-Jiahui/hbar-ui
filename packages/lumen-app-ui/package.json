@@ -1,8 +1,13 @@
 {
   "name": "@lumen/app-ui",
-  "version": "0.1.0",
+  "version": "0.12.0",
   "private": true,
   "type": "module",
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "sideEffects": [
     "**/*.css"
   ],
@@ -13,23 +18,32 @@
     "./variants": "./src/variants/index.ts",
     "./styles.css": "./src/styles.css"
   },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/types/index.d.ts",
+        "import": "./dist/index.js"
+      },
+      "./catalog": {
+        "types": "./dist/types/catalog.d.ts",
+        "import": "./dist/catalog.js"
+      },
+      "./variants": {
+        "types": "./dist/types/variants/index.d.ts",
+        "import": "./dist/variants.js"
+      },
+      "./styles.css": "./dist/app-ui.css"
+    }
+  },
   "scripts": {
     "typescript": "tsc -p tsconfig.json",
-    "build": "pnpm typescript && vite build"
-  },
-  "dependencies": {
-    "@mui/material": "workspace:^"
+    "build": "pnpm typescript && vite build && tsc -p tsconfig.build.json"
   },
   "peerDependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/material": "^9.4.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
-  },
-  "devDependencies": {
-    "@types/react": "19.3.0",
-    "@types/react-dom": "19.3.0",
-    "react": "19.3.0",
-    "react-dom": "19.3.0",
-    "typescript": "npm:@typescript/typescript6@6.0.2",
-    "vite": "^8.0.0"
   }
 }
