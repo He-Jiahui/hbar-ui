@@ -716,6 +716,38 @@ export type {
   LumenDataTableWideContent,
 } from './data-table';
 export {
+  LumenOnboarding,
+  LumenOnboarding01,
+  LumenOnboarding02,
+  LumenOnboarding03,
+  LumenOnboarding04,
+  LumenOnboarding05,
+  LumenOnboarding06,
+  LumenOnboarding07,
+  LumenOnboardingProvider,
+  selectLumenOnboardingItem,
+  uniqueLumenOnboardingItems,
+  useLumenOnboardingContent,
+} from './onboarding';
+export type {
+  LumenOnboardingAction,
+  LumenOnboardingChecklistContent,
+  LumenOnboardingChoice,
+  LumenOnboardingCompleteContent,
+  LumenOnboardingContent,
+  LumenOnboardingInviteContent,
+  LumenOnboardingInvitee,
+  LumenOnboardingListStrategy,
+  LumenOnboardingMetric,
+  LumenOnboardingProfileContent,
+  LumenOnboardingProps,
+  LumenOnboardingProviderProps,
+  LumenOnboardingSlugContent,
+  LumenOnboardingStepsContent,
+  LumenOnboardingUseCaseContent,
+  LumenOnboardingVariantProps,
+} from './onboarding';
+export {
   LumenUsage,
   LumenUsage01,
   LumenUsage02,
