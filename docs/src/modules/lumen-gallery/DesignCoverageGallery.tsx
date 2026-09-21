@@ -6,7 +6,11 @@ import {
   createLumenTheme,
   LumenAnalyticsDesign,
   LumenBillingDesign,
+  LumenDashboardDesign,
+  LumenDataTableDesign,
   LumenKanbanDesign,
+  LumenMonitoringDesign,
+  LumenNotificationsDesign,
   LumenWizardDesign,
 } from '@lumen/app-ui';
 import type {
@@ -14,19 +18,36 @@ import type {
   AnalyticsPoint,
   BillingInvoice,
   BillingPlan,
+  DashboardPanel,
+  DataTableColumn,
+  DataTableRow,
   KanbanCard,
   KanbanColumn,
+  MonitoringService,
+  NotificationItem,
   WizardField,
 } from '@lumen/app-ui/designs';
 import styles from './design-coverage.module.css';
 
 type GalleryLocale = 'zh' | 'en';
-type DesignId = 'analytics' | 'billing' | 'kanban' | 'wizard';
+type DesignId =
+  | 'analytics'
+  | 'billing'
+  | 'dashboard'
+  | 'data-table'
+  | 'kanban'
+  | 'monitoring'
+  | 'notifications'
+  | 'wizard';
 
 const names: Record<DesignId, [string, string]> = {
   analytics: ['分析', 'Analytics'],
   billing: ['账单', 'Billing'],
+  dashboard: ['仪表盘', 'Dashboard'],
+  'data-table': ['数据表格', 'Data table'],
   kanban: ['看板', 'Kanban'],
+  monitoring: ['监控', 'Monitoring'],
+  notifications: ['通知', 'Notifications'],
   wizard: ['向导', 'Wizard'],
 };
 
@@ -54,12 +75,40 @@ const copy = {
       current: '当前方案',
       open: (description: string) => `查看 ${description}`,
     },
+    dashboard: {
+      title: '工作台仪表盘',
+      detail: '用指标、活动和快捷入口组织高密度信息。',
+      activity: '最近活动',
+      actions: '快捷入口',
+      open: (title: string) => `打开 ${title}`,
+    },
+    'data-table': {
+      title: '资源数据表格',
+      detail: '以清晰列线、滚动容量和局部选中光承载数据。',
+      search: '筛选资源',
+      empty: '没有匹配的资源',
+      select: (label: string) => `选择 ${label}`,
+    },
     kanban: {
       title: '交错看板',
       detail: '以玻璃列、内容增长和局部灯条承载任务流。',
       board: '主题切换发布计划',
       move: '移动到',
       select: (title: string) => `选择 ${title}`,
+    },
+    monitoring: {
+      title: '系统监控',
+      detail: '用运行灯条、状态文本和信号柱观察服务健康度。',
+      services: '服务状态',
+      signal: '信号强度',
+      value: (value: number) => `${value}%`,
+    },
+    notifications: {
+      title: '通知收件箱',
+      detail: '用状态光和内容增长组织未读、已读与消除操作。',
+      inbox: '最近通知',
+      markRead: '标为已读',
+      dismiss: '消除',
     },
     wizard: {
       title: '设置向导',
@@ -96,12 +145,40 @@ const copy = {
       current: 'Current plan',
       open: (description: string) => `Open ${description}`,
     },
+    dashboard: {
+      title: 'Workspace dashboard',
+      detail: 'Organize dense information with metrics, activity, and quick actions.',
+      activity: 'Recent activity',
+      actions: 'Quick actions',
+      open: (title: string) => `Open ${title}`,
+    },
+    'data-table': {
+      title: 'Resource data table',
+      detail: 'Use clear column lines, scroll capacity, and local selection light for data.',
+      search: 'Filter resources',
+      empty: 'No matching resources',
+      select: (label: string) => `Select ${label}`,
+    },
     kanban: {
       title: 'Interleaved kanban',
       detail: 'Use glass columns, growing content, and local lamps for a task flow.',
       board: 'Theme switch release plan',
       move: 'Move to',
       select: (title: string) => `Select ${title}`,
+    },
+    monitoring: {
+      title: 'System monitoring',
+      detail: 'Use running lamps, readable status, and signal bars for service health.',
+      services: 'Service status',
+      signal: 'Signal strength',
+      value: (value: number) => `${value}%`,
+    },
+    notifications: {
+      title: 'Notification inbox',
+      detail: 'Organize unread, read, and dismissed items with semantic light.',
+      inbox: 'Recent notifications',
+      markRead: 'Mark read',
+      dismiss: 'Dismiss',
     },
     wizard: {
       title: 'Settings wizard',
@@ -126,6 +203,141 @@ const metricData: Record<GalleryLocale, readonly AnalyticsMetric[]> = {
     { id: 'runs', label: 'Runs', value: '12,480', change: '+18.4%', tone: 'success' },
     { id: 'latency', label: 'Median latency', value: '1.8s', change: '-12.1%', tone: 'info' },
     { id: 'failure', label: 'Failure rate', value: '2.4%', change: '+0.3%', tone: 'warning' },
+  ],
+};
+
+const dashboardPanels: Record<GalleryLocale, readonly DashboardPanel[]> = {
+  zh: [
+    { id: 'theme', title: '主题切换', value: '已发布', detail: '最近 18 分钟', tone: 'success' },
+    { id: 'glass', title: '玻璃折射', value: '稳定', detail: '最近 42 分钟', tone: 'info' },
+    { id: 'feedback', title: '反馈收件箱', value: '3 条', detail: '需要关注', tone: 'warning' },
+  ],
+  en: [
+    {
+      id: 'theme',
+      title: 'Theme switch',
+      value: 'Published',
+      detail: '18 minutes ago',
+      tone: 'success',
+    },
+    {
+      id: 'glass',
+      title: 'Glass refraction',
+      value: 'Stable',
+      detail: '42 minutes ago',
+      tone: 'info',
+    },
+    {
+      id: 'feedback',
+      title: 'Feedback inbox',
+      value: '3 items',
+      detail: 'Needs attention',
+      tone: 'warning',
+    },
+  ],
+};
+
+const tableColumns: readonly DataTableColumn[] = [
+  { id: 'name', label: '资源' },
+  { id: 'owner', label: '负责人' },
+  { id: 'status', label: '状态' },
+  { id: 'updated', label: '更新' },
+];
+
+const tableRows: readonly DataTableRow[] = [
+  { id: 'surface', values: ['GlassSurface.tsx', '设计系统', '稳定', '今天'], tone: 'success' },
+  { id: 'field', values: ['LumenField.tsx', '工作台组', '评审中', '昨天'], tone: 'warning' },
+  { id: 'catalog', values: ['source-catalog.json', '迁移组', '已同步', '周一'], tone: 'info' },
+  { id: 'tokens', values: ['lumen-tokens.css', '主题组', '草稿', '周一'], tone: 'neutral' },
+];
+
+const services: Record<GalleryLocale, readonly MonitoringService[]> = {
+  zh: [
+    {
+      id: 'host',
+      name: '本地 Host',
+      detail: '增量同步',
+      status: '运行中',
+      tone: 'success',
+      running: true,
+    },
+    { id: 'lens', name: '透镜渲染', detail: '背景折射', status: '稳定', tone: 'info' },
+    { id: 'queue', name: '上传队列', detail: '文件处理', status: '警告', tone: 'warning' },
+    { id: 'audit', name: '审计任务', detail: '最近一次检查', status: '失败', tone: 'danger' },
+  ],
+  en: [
+    {
+      id: 'host',
+      name: 'Local Host',
+      detail: 'Incremental sync',
+      status: 'Running',
+      tone: 'success',
+      running: true,
+    },
+    {
+      id: 'lens',
+      name: 'Lens render',
+      detail: 'Background refraction',
+      status: 'Stable',
+      tone: 'info',
+    },
+    {
+      id: 'queue',
+      name: 'Upload queue',
+      detail: 'File processing',
+      status: 'Warning',
+      tone: 'warning',
+    },
+    { id: 'audit', name: 'Audit job', detail: 'Last check', status: 'Failed', tone: 'danger' },
+  ],
+};
+
+const notificationItems: Record<GalleryLocale, readonly NotificationItem[]> = {
+  zh: [
+    {
+      id: 'deploy',
+      title: '主题切换已发布',
+      detail: '暗亮主题的视觉复核已完成。',
+      time: '刚刚',
+      tone: 'success',
+    },
+    {
+      id: 'review',
+      title: '需要设计评审',
+      detail: '玻璃折射的窄屏截图等待确认。',
+      time: '12 分钟前',
+      tone: 'warning',
+    },
+    {
+      id: 'sync',
+      title: '来源清单已同步',
+      detail: '300 个稳定来源 ID 已更新。',
+      time: '昨天',
+      tone: 'info',
+    },
+  ],
+  en: [
+    {
+      id: 'deploy',
+      title: 'Theme switch published',
+      detail: 'Dark and light visual review is complete.',
+      time: 'Now',
+      tone: 'success',
+    },
+    {
+      id: 'review',
+      title: 'Design review requested',
+      detail: 'The narrow glass refraction capture needs review.',
+      time: '12 min ago',
+      tone: 'warning',
+    },
+    {
+      id: 'sync',
+      title: 'Source list synced',
+      detail: 'The 300 stable source IDs were updated.',
+      time: 'Yesterday',
+      tone: 'info',
+    },
   ],
 };
 
@@ -299,10 +511,16 @@ export default function DesignCoverageGallery() {
   const [design, setDesign] = React.useState<DesignId>('analytics');
   const [periodId, setPeriodId] = React.useState('week');
   const [planId, setPlanId] = React.useState('studio');
+  const [tableQuery, setTableQuery] = React.useState('');
+  const [selectedRowId, setSelectedRowId] = React.useState<string | null>(null);
   const [selectedCardId, setSelectedCardId] = React.useState<string | null>(null);
   const [columns, setColumns] = React.useState(initialColumns);
   const [currentStep, setCurrentStep] = React.useState(0);
   const [fields, setFields] = React.useState(wizardFields[locale]);
+  const [readNotificationIds, setReadNotificationIds] = React.useState<readonly string[]>([]);
+  const [dismissedNotificationIds, setDismissedNotificationIds] = React.useState<readonly string[]>(
+    [],
+  );
   const [event, setEvent] = React.useState(copy[locale].event);
   const localized = copy[locale];
   const theme = React.useMemo(() => createLumenTheme(mode), [mode]);
@@ -378,12 +596,44 @@ export default function DesignCoverageGallery() {
         }}
       />
     ),
+    dashboard: (
+      <LumenDashboardDesign
+        copy={localized.dashboard}
+        content={{ metrics: metricData[locale], panels: dashboardPanels[locale] }}
+        actions={{ onOpen: (value) => setEvent(value) }}
+      />
+    ),
+    'data-table': (
+      <LumenDataTableDesign
+        copy={localized['data-table']}
+        content={{ columns: tableColumns, rows: tableRows }}
+        state={{ query: tableQuery, selectedId: selectedRowId }}
+        actions={{ onQueryChange: setTableQuery, onSelect: setSelectedRowId }}
+      />
+    ),
     kanban: (
       <LumenKanbanDesign
         copy={localized.kanban}
         content={{ columns }}
         state={{ selectedCardId }}
         actions={{ onSelect: setSelectedCardId, onMove: moveCard }}
+      />
+    ),
+    monitoring: (
+      <LumenMonitoringDesign
+        copy={localized.monitoring}
+        content={{ services: services[locale], points }}
+      />
+    ),
+    notifications: (
+      <LumenNotificationsDesign
+        copy={localized.notifications}
+        content={{ items: notificationItems[locale] }}
+        state={{ readIds: readNotificationIds, dismissedIds: dismissedNotificationIds }}
+        actions={{
+          onRead: (id) => setReadNotificationIds((current) => [...new Set([...current, id])]),
+          onDismiss: (id) => setDismissedNotificationIds((current) => [...current, id]),
+        }}
       />
     ),
     wizard: (

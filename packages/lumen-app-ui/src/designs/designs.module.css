@@ -387,6 +387,238 @@
   align-items: center;
 }
 
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(12rem, 0.6fr);
+  gap: 0.75rem;
+}
+
+.dashboardPanel,
+.monitorPanel,
+.signalPanel,
+.notificationPanel,
+.tableShell {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--lumen-reading);
+  border-radius: 0.375rem;
+  backdrop-filter: blur(0.75rem);
+}
+
+.dashboardList,
+.notificationList,
+.dashboardPanel,
+.notificationPanel {
+  overflow: auto;
+}
+
+.dashboardList,
+.notificationList {
+  max-block-size: min(42dvh, 20rem);
+}
+
+.dashboardRow,
+.quickAction,
+.tableRowButton,
+.notificationActions button {
+  display: flex;
+  min-width: 0;
+  color: var(--lumen-ink);
+  text-transform: none;
+}
+
+.dashboardRow {
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.625rem 0;
+  border-bottom: 0.0625rem solid var(--lumen-line);
+}
+
+.dashboardRow > span:first-child {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.dashboardRow small,
+.dashboardRow > span[data-tone='neutral'] {
+  color: var(--lumen-muted);
+  font-size: 0.75rem;
+}
+
+.dashboardRow > span[data-tone='success'] {
+  color: var(--lumen-success);
+}
+
+.dashboardRow > span[data-tone='warning'] {
+  color: var(--lumen-warning);
+}
+
+.dashboardRow > span[data-tone='danger'] {
+  color: var(--lumen-danger);
+}
+
+.quickAction {
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0.375rem 0;
+}
+
+.tableSearch {
+  width: 100%;
+}
+
+.tableShell {
+  overflow: auto;
+}
+
+.tableShell table {
+  width: 100%;
+  min-width: 36rem;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.tableShell th,
+.tableShell td {
+  padding: 0.625rem 0.5rem;
+  text-align: start;
+  border-bottom: 0.0625rem solid var(--lumen-line);
+  white-space: nowrap;
+}
+
+.tableShell th {
+  position: relative;
+  color: var(--lumen-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.tableShell th > [data-edge='bottom'] {
+  position: absolute;
+  inset-inline: 0;
+  bottom: -0.375rem;
+}
+
+.tableRowButton {
+  position: relative;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0;
+}
+
+.empty {
+  margin: 0;
+  color: var(--lumen-muted);
+}
+
+.serviceGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 0.5rem;
+}
+
+.service {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.75rem;
+  background: var(--lumen-frost);
+  border-radius: 0.375rem;
+}
+
+.service > div {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.service small,
+.service > span {
+  color: var(--lumen-muted);
+  font-size: 0.75rem;
+}
+
+.service > span[data-tone='success'] {
+  color: var(--lumen-success);
+}
+
+.service > span[data-tone='warning'] {
+  color: var(--lumen-warning);
+}
+
+.service > span[data-tone='danger'] {
+  color: var(--lumen-danger);
+}
+
+.signalLines {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.375rem;
+  min-height: 8rem;
+  padding-top: 0.75rem;
+  border-bottom: 0.0625rem solid var(--lumen-line);
+}
+
+.signalLines > span {
+  flex: 1;
+  min-width: 0.125rem;
+  background: var(--lumen-success);
+  box-shadow: 0 0 0.75rem var(--lumen-success);
+}
+
+.notification {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 0.75rem;
+  align-items: center;
+  min-width: 0;
+  padding: 0.75rem 0;
+  border-bottom: 0.0625rem solid var(--lumen-line);
+}
+
+.notification > div:first-of-type {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.notification p {
+  margin: 0.25rem 0 0;
+  color: var(--lumen-muted);
+  font-size: 0.75rem;
+}
+
+.notification > small {
+  color: var(--lumen-muted);
+  white-space: nowrap;
+}
+
+.notification[data-read='true'] {
+  opacity: 0.62;
+}
+
+.notificationActions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.notificationActions button {
+  flex-direction: column;
+  align-items: center;
+  padding: 0.25rem;
+  font-size: 0.75rem;
+}
+
 .visuallyHidden {
   position: absolute;
   width: 0.0625rem;
@@ -430,6 +662,23 @@
 
   .stepButton > [data-edge='bottom'] {
     display: flex;
+  }
+
+  .dashboardGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .notification {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .notification > small {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .notificationActions {
+    grid-column: 1 / -1;
   }
 }
 

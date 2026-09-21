@@ -124,3 +124,64 @@ export interface WizardDesignProps {
     onFieldChange: (fieldId: string, value: string) => void;
   };
 }
+
+export interface DashboardPanel {
+  id: string;
+  title: string;
+  value: string;
+  detail: string;
+  tone?: LumenTone | undefined;
+}
+
+export interface DashboardDesignProps {
+  copy: LumenDesignCopy & { activity: string; actions: string; open: (title: string) => string };
+  content: { metrics: readonly AnalyticsMetric[]; panels: readonly DashboardPanel[] };
+  actions: { onOpen: (panelId: string) => void };
+}
+
+export interface DataTableColumn {
+  id: string;
+  label: string;
+}
+
+export interface DataTableRow {
+  id: string;
+  values: readonly string[];
+  tone?: LumenTone | undefined;
+}
+
+export interface DataTableDesignProps {
+  copy: LumenDesignCopy & { search: string; empty: string; select: (label: string) => string };
+  content: { columns: readonly DataTableColumn[]; rows: readonly DataTableRow[] };
+  state: { query: string; selectedId: string | null };
+  actions: { onQueryChange: (query: string) => void; onSelect: (rowId: string) => void };
+}
+
+export interface MonitoringService {
+  id: string;
+  name: string;
+  detail: string;
+  status: string;
+  tone: LumenTone;
+  running?: boolean | undefined;
+}
+
+export interface MonitoringDesignProps {
+  copy: LumenDesignCopy & { services: string; signal: string; value: (value: number) => string };
+  content: { services: readonly MonitoringService[]; points: readonly AnalyticsPoint[] };
+}
+
+export interface NotificationItem {
+  id: string;
+  title: string;
+  detail: string;
+  time: string;
+  tone?: LumenTone | undefined;
+}
+
+export interface NotificationsDesignProps {
+  copy: LumenDesignCopy & { inbox: string; markRead: string; dismiss: string };
+  content: { items: readonly NotificationItem[] };
+  state: { readIds: readonly string[]; dismissedIds: readonly string[] };
+  actions: { onRead: (id: string) => void; onDismiss: (id: string) => void };
+}

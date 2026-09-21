@@ -928,7 +928,11 @@ test('extended Lumen designs cover analytics billing kanban and wizard layouts',
   const designs = [
     ['分析', 'lumen-design-analytics'],
     ['账单', 'lumen-design-billing'],
+    ['仪表盘', 'lumen-design-dashboard'],
+    ['数据表格', 'lumen-design-data-table'],
     ['看板', 'lumen-design-kanban'],
+    ['监控', 'lumen-design-monitoring'],
+    ['通知', 'lumen-design-notifications'],
     ['向导', 'lumen-design-wizard'],
   ] as const;
   /* eslint-disable no-await-in-loop -- Each design is verified sequentially on one page. */
@@ -954,9 +958,19 @@ test('extended Lumen designs cover analytics billing kanban and wizard layouts',
   await page.getByRole('combobox', { name: '时间范围' }).selectOption('month');
   await nav.getByRole('button', { name: '账单' }).click();
   await page.getByRole('button', { name: /规模/ }).click();
+  await nav.getByRole('button', { name: '仪表盘' }).click();
+  await page.getByRole('button', { name: /打开 主题切换/ }).click();
+  await nav.getByRole('button', { name: '数据表格' }).click();
+  await page.getByRole('textbox', { name: '筛选资源' }).fill('Glass');
+  await page.getByRole('button', { name: /选择 GlassSurface/ }).click();
   await nav.getByRole('button', { name: '看板' }).click();
   await page.getByRole('button', { name: /整理主题文案/ }).click();
   await page.locator('[aria-label="移动到"]').getByRole('button', { name: '制作' }).click();
+  await nav.getByRole('button', { name: '监控' }).click();
+  await expect(page.getByText('运行中')).toBeVisible();
+  await nav.getByRole('button', { name: '通知' }).click();
+  await page.getByRole('button', { name: '标为已读' }).first().click();
+  await page.getByRole('button', { name: '消除' }).first().click();
   await nav.getByRole('button', { name: '向导' }).click();
   await page.getByRole('textbox', { name: '主题名称' }).fill('新主题');
   const wizardFields = page.locator(

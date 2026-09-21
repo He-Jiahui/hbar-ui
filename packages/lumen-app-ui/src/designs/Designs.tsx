@@ -9,8 +9,12 @@ import LumenSurface from '../LumenSurface';
 import type {
   AnalyticsDesignProps,
   BillingDesignProps,
+  DashboardDesignProps,
+  DataTableDesignProps,
   KanbanCard,
   KanbanDesignProps,
+  MonitoringDesignProps,
+  NotificationsDesignProps,
   WizardDesignProps,
 } from './designTypes';
 import styles from './designs.module.css';
@@ -299,6 +303,210 @@ export function LumenWizardDesign({ copy, content, state, actions }: WizardDesig
           </footer>
         </section>
       </div>
+    </Frame>
+  );
+}
+
+export function LumenDashboardDesign({ copy, content, actions }: DashboardDesignProps) {
+  return (
+    <Frame id="lumen-design-dashboard" copy={copy} tone="info">
+      <div className={styles.metricGrid}>
+        {content.metrics.map((metric) => (
+          <article className={styles.metric} key={metric.id}>
+            <small>{metric.label}</small>
+            <strong>{metric.value}</strong>
+            <span data-tone={metric.tone ?? 'neutral'}>{metric.change}</span>
+          </article>
+        ))}
+      </div>
+      <div className={styles.dashboardGrid}>
+        <section className={styles.dashboardPanel} aria-label={copy.activity}>
+          <div className={styles.sectionHeading}>
+            <h3>{copy.activity}</h3>
+            <span>{content.panels.length}</span>
+          </div>
+          <div className={styles.dashboardList}>
+            {content.panels.map((panel) => (
+              <Button
+                className={styles.dashboardRow}
+                key={panel.id}
+                onClick={() => actions.onOpen(panel.id)}
+                aria-label={copy.open(panel.title)}
+              >
+                <span>
+                  <strong>{panel.title}</strong>
+                  <small>{panel.detail}</small>
+                </span>
+                <span data-tone={panel.tone ?? 'neutral'}>{panel.value}</span>
+                <LumenIndicator edge="bottom" length="action" tone={panel.tone} />
+              </Button>
+            ))}
+          </div>
+        </section>
+        <section className={styles.dashboardPanel} aria-label={copy.actions}>
+          <h3>{copy.actions}</h3>
+          {content.panels.slice(0, 3).map((panel) => (
+            <Button
+              className={styles.quickAction}
+              key={panel.id}
+              onClick={() => actions.onOpen(panel.id)}
+            >
+              {panel.title}
+              <LumenIndicator edge="bottom" length="action" />
+            </Button>
+          ))}
+        </section>
+      </div>
+    </Frame>
+  );
+}
+
+export function LumenDataTableDesign({ copy, content, state, actions }: DataTableDesignProps) {
+  const query = state.query.trim().toLocaleLowerCase();
+  const rows = content.rows.filter((row) =>
+    row.values.join(' ').toLocaleLowerCase().includes(query),
+  );
+  return (
+    <Frame id="lumen-design-data-table" copy={copy} tone="info">
+      <LumenField boundary="vertical" className={styles.tableSearch}>
+        <TextField
+          fullWidth
+          size="small"
+          value={state.query}
+          label={copy.search}
+          onChange={(event) => actions.onQueryChange(event.target.value)}
+          slotProps={{ htmlInput: { 'aria-label': copy.search } }}
+        />
+      </LumenField>
+      <div className={styles.tableShell} role="region" aria-label={copy.title}>
+        <table>
+          <thead>
+            <tr>
+              {content.columns.map((column) => (
+                <th key={column.id} scope="col">
+                  <span>{column.label}</span>
+                  <LumenIndicator edge="bottom" />
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => {
+              const selected = row.id === state.selectedId;
+              return (
+                <tr key={row.id} data-selected={selected}>
+                  {row.values.map((value, index) => (
+                    <td key={`${row.id}-${content.columns[index]?.id ?? index}`}>
+                      {index === 0 ? (
+                        <Button
+                          className={styles.tableRowButton}
+                          aria-pressed={selected}
+                          aria-label={copy.select(value)}
+                          onClick={() => actions.onSelect(row.id)}
+                        >
+                          {value}
+                          <LumenIndicator
+                            edge="bottom"
+                            state={selected ? 'selected' : 'idle'}
+                            tone={row.tone}
+                          />
+                        </Button>
+                      ) : (
+                        value
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        {rows.length === 0 && <p className={styles.empty}>{copy.empty}</p>}
+      </div>
+    </Frame>
+  );
+}
+
+export function LumenMonitoringDesign({ copy, content }: MonitoringDesignProps) {
+  const max = Math.max(1, ...content.points.map((point) => point.value));
+  return (
+    <Frame id="lumen-design-monitoring" copy={copy} tone="success">
+      <section className={styles.monitorPanel} aria-label={copy.services}>
+        <div className={styles.sectionHeading}>
+          <h3>{copy.services}</h3>
+          <span>{content.services.length}</span>
+        </div>
+        <div className={styles.serviceGrid}>
+          {content.services.map((service) => (
+            <article className={styles.service} key={service.id}>
+              <LumenIndicator
+                edge="left"
+                state={
+                  service.running ? 'running' : service.tone === 'danger' ? 'failed' : 'selected'
+                }
+                tone={service.tone}
+              />
+              <div>
+                <strong>{service.name}</strong>
+                <small>{service.detail}</small>
+              </div>
+              <span data-tone={service.tone}>{service.status}</span>
+            </article>
+          ))}
+        </div>
+      </section>
+      <section className={styles.signalPanel} aria-label={copy.signal}>
+        <div className={styles.sectionHeading}>
+          <h3>{copy.signal}</h3>
+          <span>{copy.value(content.points.at(-1)?.value ?? 0)}</span>
+        </div>
+        <div className={styles.signalLines}>
+          {content.points.map((point) => (
+            <span key={point.id} style={{ height: `${Math.max(6, (point.value / max) * 100)}%` }} />
+          ))}
+        </div>
+      </section>
+    </Frame>
+  );
+}
+
+export function LumenNotificationsDesign({
+  copy,
+  content,
+  state,
+  actions,
+}: NotificationsDesignProps) {
+  const items = content.items.filter((item) => !state.dismissedIds.includes(item.id));
+  return (
+    <Frame id="lumen-design-notifications" copy={copy} tone="warning">
+      <section className={styles.notificationPanel} aria-label={copy.inbox}>
+        <div className={styles.sectionHeading}>
+          <h3>{copy.inbox}</h3>
+          <span>{items.filter((item) => !state.readIds.includes(item.id)).length}</span>
+        </div>
+        <div className={styles.notificationList}>
+          {items.map((item) => {
+            const read = state.readIds.includes(item.id);
+            return (
+              <article className={styles.notification} data-read={read} key={item.id}>
+                <LumenIndicator edge="left" state={read ? 'idle' : 'selected'} tone={item.tone} />
+                <div>
+                  <strong>{item.title}</strong>
+                  <p>{item.detail}</p>
+                </div>
+                <small>{item.time}</small>
+                <div className={styles.notificationActions}>
+                  {!read && (
+                    <Button onClick={() => actions.onRead(item.id)}>{copy.markRead}</Button>
+                  )}
+                  <Button onClick={() => actions.onDismiss(item.id)}>{copy.dismiss}</Button>
+                </div>
+              </article>
+            );
+          })}
+          {items.length === 0 && <p className={styles.empty}>{copy.dismiss}</p>}
+        </div>
+      </section>
     </Frame>
   );
 }

@@ -49,6 +49,10 @@ export const LUMEN_MIGRATED_VARIANT_IDS = [
 export const LUMEN_DESIGN_COVERAGE_CATEGORIES = [
   'analytics',
   'billing',
+  'dashboard',
+  'data-table',
   'kanban',
+  'monitoring',
+  'notifications',
   'wizard',
 ] as const;
