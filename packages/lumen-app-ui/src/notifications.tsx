@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
+import { LumenButton, LumenIconButton, LumenText } from './primitives';
 import './notifications.css';
 
 export interface LumenNotificationsListStrategy {
@@ -1019,7 +1019,10 @@ function Bell(
           <span className="lumen-notifications-avatar">{props.content.avatar}</span>
         </div>
       </header>
-      <main className="lumen-notifications-hint">
+      <main
+        className="lumen-notifications-hint"
+        data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
+      >
         <LumenText as="p" tone="muted">
           {props.content.labels.hint}
         </LumenText>
