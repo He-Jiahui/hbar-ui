@@ -390,7 +390,6 @@ export function LumenDataTableDesign({ copy, content, state, actions }: DataTabl
               {content.columns.map((column) => (
                 <th key={column.id} scope="col">
                   <span>{column.label}</span>
-                  <LumenIndicator edge="bottom" />
                 </th>
               ))}
             </tr>

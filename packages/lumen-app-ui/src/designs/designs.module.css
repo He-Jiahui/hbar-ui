@@ -534,16 +534,9 @@
 }
 
 .tableShell th {
-  position: relative;
   color: var(--lumen-muted);
   font-size: 0.75rem;
   font-weight: 500;
-}
-
-.tableShell th > [data-edge='bottom'] {
-  position: absolute;
-  inset-inline: 0;
-  bottom: -0.375rem;
 }
 
 .tableRowButton {
@@ -551,6 +544,21 @@
   flex-direction: column;
   align-items: flex-start;
   padding: 0;
+}
+
+.tableRowButton > [data-edge='bottom'] {
+  position: absolute;
+  inset-inline: 0;
+  bottom: -0.375rem;
+}
+
+.tableRowButton[aria-pressed='false'] > [data-edge='bottom'] {
+  opacity: 0;
+}
+
+.tableRowButton:focus-visible {
+  outline: 0.0625rem solid var(--lumen-ink);
+  outline-offset: 0.1875rem;
 }
 
 .empty {

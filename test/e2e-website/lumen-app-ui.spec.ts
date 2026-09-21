@@ -1045,8 +1045,22 @@ test('extended Lumen designs cover all non-ported catalog layouts and interactio
   expect(activityContentWidths.every((width) => width !== undefined && width > 80)).toBe(true);
   await page.getByRole('button', { name: /打开 主题切换/ }).click();
   await nav.getByRole('button', { name: '数据表格' }).click();
+  const dataTable = page.locator('[data-lumen-design="lumen-design-data-table"]');
+  await expect(dataTable.locator('thead [data-edge]')).toHaveCount(0);
+  const idleRowIndicators = dataTable.locator(
+    'tbody button[aria-pressed="false"] > [data-edge="bottom"]',
+  );
+  await expect(idleRowIndicators).toHaveCount(4);
+  expect(
+    await idleRowIndicators.evaluateAll((indicators) =>
+      indicators.every((indicator) => getComputedStyle(indicator).opacity === '0'),
+    ),
+  ).toBe(true);
   await page.getByRole('textbox', { name: '筛选资源' }).fill('Glass');
   await page.getByRole('button', { name: /选择 GlassSurface/ }).click();
+  await expect(
+    dataTable.locator('tbody button[aria-pressed="true"] > [data-state="selected"]'),
+  ).toBeVisible();
   await nav.getByRole('button', { name: '看板' }).click();
   await page.getByRole('button', { name: /整理主题文案/ }).click();
   await page.locator('[aria-label="移动到"]').getByRole('button', { name: '制作' }).click();
