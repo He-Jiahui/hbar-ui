@@ -1065,6 +1065,73 @@ describe('Lumen formal variant fixtures', () => {
     expect(view).toContain('添加内部备注');
   });
 
+  it('uses distinct host-owned chat scenarios for all six conversation patterns', () => {
+    const chatEntries = LUMEN_VARIANT_REGISTRY.filter((candidate) => candidate.category === 'chat');
+    expect(chatEntries).toHaveLength(6);
+    const expected = [
+      '# launch-plan',
+      'Direct messages',
+      'Design system discussion',
+      'Lumen support',
+      'Brand launch working group',
+      'Lumen launch live',
+    ];
+
+    chatEntries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('chat.');
+      expect(view).not.toContain('item-1');
+      expect(view).toContain(expected[index]);
+    });
+
+    const group = chatEntries.find((entry) => entry.variant === 5)!;
+    const view = ReactDOMServer.renderToStaticMarkup(
+      <VariantPreviewHost entry={group} locale="zh" unavailableLabel="无法预览" />,
+    );
+    expect(view).toContain('品牌发布工作组');
+    expect(view).toContain('邀请成员');
+  });
+
+  it('switches chat channels, contacts, ratings, and live viewer panels', async () => {
+    const entry = (variant: number) =>
+      LUMEN_VARIANT_REGISTRY.find(
+        (candidate) => candidate.category === 'chat' && candidate.variant === variant,
+      )!;
+
+    let view = render(
+      <VariantPreviewHost entry={entry(1)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: '# product' }));
+    expect(screen.getByText(/customer interviews this week/)).not.toBeNull();
+    expect(screen.queryByText(/release candidate is in preview/)).toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(2)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: /Jonah Reed/ }));
+    expect(screen.getByText(/SUP-1842 is resolved/)).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(4)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: '5 stars' }));
+    expect(screen.getByRole('button', { name: '5 stars' }).getAttribute('aria-pressed')).toBe(
+      'true',
+    );
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(6)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('tab', { name: 'Viewers' }));
+    expect(screen.getByText('1,284 viewers')).not.toBeNull();
+    expect(screen.getByText('Maya Chen')).not.toBeNull();
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',

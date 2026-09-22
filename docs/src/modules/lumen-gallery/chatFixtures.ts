@@ -1,0 +1,407 @@
+import type { LumenChatContent } from '@lumen/app-ui';
+
+export type ChatFixtureLocale = 'zh' | 'en';
+
+export function createChatFixtures(locale: ChatFixtureLocale): LumenChatContent {
+  const t = (zh: string, en: string) => (locale === 'zh' ? zh : en);
+  const contentGrown = { kind: 'content-grown', expectedMaximum: 32 } as const;
+  const paneScroll = { kind: 'pane-scroll', expectedMaximum: 120 } as const;
+
+  return {
+    team: {
+      labels: {
+        channels: t('频道', 'Channels'),
+        direct: t('私信', 'Direct messages'),
+        channelPrefix: '# ',
+        detail: t('Northwind 产品与工程团队', 'Northwind product and engineering'),
+        reaction: (author) => t(`回应 ${author}`, `React to ${author}`),
+        reply: t('回复到讨论串', 'Reply in thread'),
+        send: t('发送消息', 'Send message'),
+        placeholder: (channel) => t(`发送到 #${channel}`, `Message #${channel}`),
+        empty: t('此频道还没有消息', 'No messages in this channel yet'),
+      },
+      channels: [
+        { id: 'launch', label: t('发布计划', 'launch-plan') },
+        { id: 'product', label: t('产品讨论', 'product') },
+        { id: 'incidents', label: t('线上事件', 'incidents') },
+        { id: 'random', label: t('随便聊聊', 'random') },
+      ],
+      initialChannelId: 'launch',
+      directChoice: { id: 'maya', label: 'Maya Chen' },
+      messages: [
+        {
+          id: 'launch-1',
+          channelId: 'launch',
+          author: 'Priya Nandakumar',
+          initials: 'PN',
+          body: t(
+            '候选版本已部署到预览环境。请重点检查新的用量预警和成员权限。',
+            'The release candidate is in preview. Please focus on the new usage alerts and member permissions.',
+          ),
+          meta: t('上午 9:18', '9:18 AM'),
+          reactionCount: 7,
+          replyCount: 4,
+        },
+        {
+          id: 'launch-2',
+          channelId: 'launch',
+          author: 'Marcus Bell',
+          initials: 'MB',
+          body: t(
+            '我完成了升级路径检查，Growth 到 Scale 的结算预览与预期一致。',
+            'I finished the upgrade-path check. The Growth-to-Scale billing preview matches expectations.',
+          ),
+          meta: t('上午 9:31', '9:31 AM'),
+          reactionCount: 3,
+          status: t('已编辑', 'Edited'),
+        },
+        {
+          id: 'launch-3',
+          channelId: 'launch',
+          author: 'Maya Chen',
+          initials: 'MC',
+          body: t(
+            '还有两个可访问性问题：预算滑块标签和移动端抽屉焦点返回。',
+            'Two accessibility issues remain: the budget slider label and focus return from the mobile drawer.',
+          ),
+          meta: t('上午 9:44', '9:44 AM'),
+          reactionCount: 5,
+          replyCount: 2,
+        },
+        {
+          id: 'product-1',
+          channelId: 'product',
+          author: 'Owen Wright',
+          initials: 'OW',
+          body: t(
+            '本周客户访谈最常提到的是保存筛选视图和 Slack 用量预警。',
+            'Saved filter views and Slack usage alerts were the top requests in customer interviews this week.',
+          ),
+          meta: t('昨天', 'Yesterday'),
+          reactionCount: 9,
+          replyCount: 6,
+        },
+        {
+          id: 'incident-1',
+          channelId: 'incidents',
+          author: 'Jonah Reed',
+          initials: 'JR',
+          body: t(
+            '事件管道已恢复，积压正在下降。',
+            'The event pipeline has recovered and backlog is draining.',
+          ),
+          meta: t('周一', 'Monday'),
+          status: t('已解决', 'Resolved'),
+        },
+      ],
+      listStrategy: paneScroll,
+    },
+    direct: {
+      labels: {
+        title: t('私信', 'Direct messages'),
+        detail: t('最近对话', 'Recent conversations'),
+        conversationDetail: t('端到端工作协作对话', 'A private work conversation'),
+        send: t('发送', 'Send'),
+        placeholder: (contact) => t(`给 ${contact} 发消息`, `Message ${contact}`),
+        emptyContacts: t('没有私信联系人', 'No direct-message contacts'),
+        emptyMessages: t('开始一段新对话', 'Start a new conversation'),
+      },
+      contacts: [
+        {
+          id: 'maya',
+          name: 'Maya Chen',
+          initials: 'MC',
+          meta: t('2 分钟前', '2 min ago'),
+          status: t('在线', 'Online'),
+        },
+        {
+          id: 'jonah',
+          name: 'Jonah Reed',
+          initials: 'JR',
+          meta: t('38 分钟前', '38 min ago'),
+          status: t('专注', 'Focus'),
+        },
+        { id: 'priya', name: 'Priya Nandakumar', initials: 'PN', meta: t('昨天', 'Yesterday') },
+      ],
+      initialContactId: 'maya',
+      messages: [
+        {
+          id: 'maya-1',
+          contactId: 'maya',
+          author: 'Maya Chen',
+          initials: 'MC',
+          body: t('你能复核一下新的套餐用量卡吗？', 'Can you review the new plan usage card?'),
+          meta: t('上午 10:12', '10:12 AM'),
+        },
+        {
+          id: 'maya-2',
+          contactId: 'maya',
+          author: t('你', 'You'),
+          initials: 'YO',
+          body: t(
+            '可以，我会同时检查 320px 下的折行。',
+            'Yes. I will also check wrapping at 320px.',
+          ),
+          meta: t('上午 10:14 · 已读', '10:14 AM · Read'),
+          outgoing: true,
+        },
+        {
+          id: 'maya-3',
+          contactId: 'maya',
+          author: 'Maya Chen',
+          initials: 'MC',
+          body: t(
+            '谢谢，设计稿的数值和说明也刚更新。',
+            'Thanks—the values and supporting copy were just updated too.',
+          ),
+          meta: t('上午 10:16', '10:16 AM'),
+        },
+        {
+          id: 'jonah-1',
+          contactId: 'jonah',
+          author: 'Jonah Reed',
+          initials: 'JR',
+          body: t(
+            'SUP-1842 已解决，导出任务现在会保留筛选器。',
+            'SUP-1842 is resolved; export jobs now preserve filters.',
+          ),
+          meta: t('上午 9:42', '9:42 AM'),
+        },
+        {
+          id: 'priya-1',
+          contactId: 'priya',
+          author: 'Priya Nandakumar',
+          initials: 'PN',
+          body: t('周五发布窗口仍是下午 2 点。', 'The Friday release window is still 2 PM.'),
+          meta: t('昨天', 'Yesterday'),
+        },
+      ],
+      listStrategy: paneScroll,
+    },
+    social: {
+      labels: {
+        title: t('设计系统讨论', 'Design system discussion'),
+        detail: t('公开团队讨论串', 'Public team thread'),
+        reaction: (author) => t(`回应 ${author}`, `React to ${author}`),
+        replies: t('6 条回复', '6 replies'),
+        send: t('发布回复', 'Post reply'),
+        placeholder: t('加入讨论…', 'Join the conversation…'),
+        empty: t('还没有回复', 'No replies yet'),
+      },
+      post: {
+        id: 'post-1',
+        author: 'Amara Okafor',
+        initials: 'AO',
+        body: t(
+          '我们应该把"紧凑"视为内容密度，而不是把字体和点击目标整体缩小。组件仍需保持相同的可访问交互尺寸。',
+          'We should treat "compact" as information density, not shrink typography and hit targets together. Components still need the same accessible interaction size.',
+        ),
+        meta: t('今天上午 8:42', 'Today at 8:42 AM'),
+        reactionCount: 24,
+      },
+      replies: [
+        {
+          id: 'reply-1',
+          author: 'Maya Chen',
+          initials: 'MC',
+          body: t(
+            '同意。可以减少块间距，但控制项至少保持 32px。',
+            'Agreed. We can reduce block spacing while keeping controls at least 32px.',
+          ),
+          meta: t('上午 8:51', '8:51 AM'),
+          reactionCount: 8,
+        },
+        {
+          id: 'reply-2',
+          author: 'Theo Martin',
+          initials: 'TM',
+          body: t(
+            '表格可能还需要独立的"高密度行"令牌。',
+            'Tables may still need a separate dense-row token.',
+          ),
+          meta: t('上午 9:03', '9:03 AM'),
+          reactionCount: 5,
+        },
+        {
+          id: 'reply-3',
+          author: 'Priya Nandakumar',
+          initials: 'PN',
+          body: t(
+            '我会把这条约束加到组件验收清单。',
+            'I will add that constraint to the component acceptance checklist.',
+          ),
+          meta: t('上午 9:17', '9:17 AM'),
+          reactionCount: 11,
+        },
+      ],
+      listStrategy: contentGrown,
+    },
+    support: {
+      labels: {
+        title: t('Lumen 支持', 'Lumen support'),
+        detail: t('通常在 5 分钟内回复', 'Usually replies within 5 minutes'),
+        quickReplies: t('快捷回复', 'Quick replies'),
+        attach: t('附加文件', 'Attach file'),
+        rating: t('评价本次对话', 'Rate this conversation'),
+        ratingValue: (value) => t(`${value} 星`, `${value} star${value === 1 ? '' : 's'}`),
+        send: t('发送', 'Send'),
+        placeholder: t('输入消息…', 'Type a message…'),
+      },
+      assistant: {
+        id: 'support-1',
+        author: 'Jonah · Lumen Support',
+        initials: 'JR',
+        body: t(
+          '我找到了失败的导出任务。它在刷新后丢失了环境筛选器；修复已部署，我也重新生成了文件。',
+          'I found the failed export job. It lost the environment filter after refresh; the fix is deployed and I regenerated the file.',
+        ),
+        meta: t('刚刚', 'Just now'),
+        attachment: 'northwind-export.csv · 2.4 MB',
+      },
+      quickReplies: [
+        { id: 'downloaded', label: t('文件可以下载了', 'The file downloads now') },
+        { id: 'still-failing', label: t('仍然失败', 'It is still failing') },
+        { id: 'question', label: t('我还有一个问题', 'I have another question') },
+      ],
+      attachment: { id: 'console-log', label: 'export-console.log · 84 KB' },
+      maximumRating: 5,
+      initialRating: 0,
+    },
+    group: {
+      labels: {
+        title: t('品牌发布工作组', 'Brand launch working group'),
+        detail: t('8 名成员 · 今天有 23 条新消息', '8 members · 23 new messages today'),
+        participants: t('参与者', 'Participants'),
+        overflowParticipants: (count) => `+${count}`,
+        invite: t('邀请成员', 'Invite people'),
+        reaction: (author) => t(`回应 ${author}`, `React to ${author}`),
+        replies: (count) => t(`${count} 条讨论回复`, `${count} thread replies`),
+        send: t('发送', 'Send'),
+        placeholder: t('发送到品牌发布工作组…', 'Message the brand launch group…'),
+        empty: t('群聊中还没有消息', 'No group messages yet'),
+      },
+      participants: [
+        { id: 'maya', name: 'Maya Chen', initials: 'MC' },
+        { id: 'priya', name: 'Priya Nandakumar', initials: 'PN' },
+        { id: 'marcus', name: 'Marcus Bell', initials: 'MB' },
+        { id: 'owen', name: 'Owen Wright', initials: 'OW' },
+        { id: 'amara', name: 'Amara Okafor', initials: 'AO' },
+        { id: 'theo', name: 'Theo Martin', initials: 'TM' },
+        { id: 'jonah', name: 'Jonah Reed', initials: 'JR' },
+        { id: 'ines', name: 'Ines Alvarez', initials: 'IA' },
+      ],
+      maximumVisibleParticipants: 5,
+      messages: [
+        {
+          id: 'group-1',
+          author: 'Owen Wright',
+          initials: 'OW',
+          body: t(
+            '最终品牌指南已经上传，重点看第 18–24 页的产品截图规范。',
+            'The final brand guide is uploaded. Please review pages 18–24 for product screenshot guidance.',
+          ),
+          meta: t('上午 10:02', '10:02 AM'),
+          attachment: 'northwind-brand-v6.pdf · 8.1 MB',
+          reactionCount: 12,
+          replyCount: 4,
+        },
+        {
+          id: 'group-2',
+          author: 'Maya Chen',
+          initials: 'MC',
+          body: t(
+            '这是更新后的仪表盘首屏，已经改成 Lumen 图表与真实数据。',
+            'Here is the updated dashboard hero with Lumen charts and real data.',
+          ),
+          meta: t('上午 10:18', '10:18 AM'),
+          attachment: 'dashboard-final.webp · 1.9 MB',
+          reactionCount: 18,
+          replyCount: 7,
+        },
+        {
+          id: 'group-3',
+          author: 'Marcus Bell',
+          initials: 'MB',
+          body: t(
+            '定价页文案已经锁定，可以进入本地化。',
+            'Pricing-page copy is locked and ready for localization.',
+          ),
+          meta: t('上午 10:41', '10:41 AM'),
+          reactionCount: 6,
+          replyCount: 1,
+        },
+      ],
+      listStrategy: paneScroll,
+    },
+    live: {
+      labels: {
+        title: t('Lumen 发布直播', 'Lumen launch live'),
+        detail: t(
+          '设计系统迁移实战 · 1,284 人正在观看',
+          'Design-system migration in practice · 1,284 watching',
+        ),
+        tabs: t('直播面板', 'Live panels'),
+        pinned: t('置顶', 'Pinned'),
+        viewers: (count) =>
+          t(`${count.toLocaleString('zh-CN')} 位观众`, `${count.toLocaleString('en-US')} viewers`),
+        send: t('发送', 'Send'),
+        placeholder: t('加入直播聊天…', 'Join the live chat…'),
+        emptyChat: t('直播聊天还没有消息', 'No live chat messages yet'),
+        emptyViewers: t('没有可见观众', 'No visible viewers'),
+      },
+      tabs: [
+        { id: 'chat', label: t('聊天', 'Chat') },
+        { id: 'viewers', label: t('观众', 'Viewers') },
+      ],
+      chatTabId: 'chat',
+      viewersTabId: 'viewers',
+      initialTabId: 'chat',
+      pinnedNotice: t(
+        '问题请以 Q: 开头；演示代码会在直播结束后发布。',
+        'Prefix questions with Q:. Demo code will be shared after the stream.',
+      ),
+      messages: [
+        {
+          id: 'live-1',
+          author: 'Amara Okafor',
+          initials: 'AO',
+          body: t(
+            '欢迎大家！今天我们会迁移一个真实的监控界面。',
+            'Welcome! Today we are migrating a real monitoring interface.',
+          ),
+          meta: '19:02',
+          role: t('主持人', 'Host'),
+        },
+        {
+          id: 'live-2',
+          author: 'Theo Martin',
+          initials: 'TM',
+          body: t(
+            'Q: 如何判断一个图表应该成为公共组件？',
+            'Q: How do you decide when a chart should become a shared component?',
+          ),
+          meta: '19:04',
+        },
+        {
+          id: 'live-3',
+          author: 'Priya Nandakumar',
+          initials: 'PN',
+          body: t(
+            '我们会在 20 分钟处回答组件边界问题。',
+            'We will cover component-boundary questions at the 20-minute mark.',
+          ),
+          meta: '19:05',
+          role: t('管理员', 'Moderator'),
+        },
+      ],
+      viewers: [
+        { id: 'maya', name: 'Maya Chen', initials: 'MC' },
+        { id: 'jonah', name: 'Jonah Reed', initials: 'JR' },
+        { id: 'ines', name: 'Ines Alvarez', initials: 'IA' },
+        { id: 'owen', name: 'Owen Wright', initials: 'OW' },
+      ],
+      viewerCount: 1284,
+      listStrategy: paneScroll,
+    },
+  };
+}
