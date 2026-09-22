@@ -1,4 +1,4 @@
-import { alpha, createTheme, enhanceHighContrast } from '@mui/material/styles';
+import { alpha, createTheme, enhanceHighContrast, type Theme } from '@mui/material/styles';
 import { DEFAULT_LUMEN_APPEARANCE, type LumenAppearance, type LumenMode } from './appearance';
 
 export interface LumenThemeOptions extends Pick<
@@ -9,7 +9,7 @@ export interface LumenThemeOptions extends Pick<
 export default function createLumenTheme(
   mode: LumenMode,
   options: Partial<LumenThemeOptions> = {},
-) {
+): Theme {
   const controlSize = options.controlSize ?? DEFAULT_LUMEN_APPEARANCE.controlSize;
   const textSize = options.textSize ?? DEFAULT_LUMEN_APPEARANCE.textSize;
   const cornerSize = options.cornerSize ?? DEFAULT_LUMEN_APPEARANCE.cornerSize;

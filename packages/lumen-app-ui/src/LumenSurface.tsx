@@ -18,7 +18,7 @@ export default function LumenSurface({
   elevation = 'base',
   glassStrength = 65,
   interactive = false,
-  shape = 'rounded',
+  shape,
   className = '',
   children,
   ...props

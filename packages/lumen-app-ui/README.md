@@ -7,6 +7,12 @@ import `@lumen/app-ui/styles.css` once in the host application. Material UI
 provides the interaction primitives. The package does not depend on hbar's
 runtime or preview application.
 
+Application UI code should import its visible controls and shared compositions
+from `@lumen/app-ui/ui`. That public entry contains the Lumen action, form,
+selection, overlay, navigation, data-display, chart, calendar, code, and diff
+components. Material UI and native control details remain inside this boundary;
+feature families compose Lumen components and semantic content containers.
+
 Application roots should use `LumenProvider` with a host-owned
 `LumenAppearance`. The provider projects the resolved mode, control size, text
 size, corner size, square or rounded shape, glow intensity, and motion setting

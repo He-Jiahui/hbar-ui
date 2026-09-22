@@ -15,6 +15,7 @@
     ".": "./src/index.ts",
     "./catalog": "./src/catalog.ts",
     "./designs": "./src/designs/index.ts",
+    "./ui": "./src/ui/index.ts",
     "./variants": "./src/variants/index.ts",
     "./styles.css": "./src/styles.css"
   },
@@ -27,6 +28,10 @@
       "./catalog": {
         "types": "./dist/types/catalog.d.ts",
         "import": "./dist/catalog.js"
+      },
+      "./ui": {
+        "types": "./dist/types/ui/index.d.ts",
+        "import": "./dist/ui.mjs"
       },
       "./variants": {
         "types": "./dist/types/variants/index.d.ts",

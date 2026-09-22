@@ -35,8 +35,8 @@ export const LumenButton = React.forwardRef<HTMLButtonElement, LumenButtonProps>
     {
       variant = 'solid',
       tone = 'neutral',
-      size = 'm',
-      shape = 'rounded',
+      size,
+      shape,
       loading = false,
       indicatorState,
       indicatorEdge = 'bottom',
@@ -101,8 +101,8 @@ export const LumenIconButton = React.forwardRef<HTMLButtonElement, LumenIconButt
     {
       label,
       tone = 'neutral',
-      size = 'm',
-      shape = 'rounded',
+      size,
+      shape,
       loading = false,
       className,
       disabled,

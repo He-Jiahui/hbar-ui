@@ -1549,6 +1549,8 @@ export type {
   LumenTextTone,
   LumenTextVariant,
 } from './primitives';
+export * from './ui-controls';
+export * from './ui-compositions';
 export { default as createLumenTheme } from './theme';
 export type { LumenThemeOptions } from './theme';
 export {

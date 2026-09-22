@@ -14,7 +14,7 @@ export default function LumenField({
   boundary,
   children,
   className,
-  shape = 'rounded',
+  shape,
   ...other
 }: LumenFieldProps) {
   const edges =
