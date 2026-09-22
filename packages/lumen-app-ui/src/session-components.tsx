@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { LumenDisclosure } from './disclosure';
 import { LumenInput, LumenTextarea } from './forms';
+import LumenDivider from './LumenDivider';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { LumenCompactMetrics } from './workspace-components';
@@ -78,7 +79,16 @@ export function LumenMessage({
   children,
 }: LumenMessageProps) {
   return (
-    <article className="lumen-message" data-role={role} data-message-id={id}>
+    <LumenSurface
+      as="article"
+      boundary="horizontal"
+      className="lumen-message-surface"
+      contentClassName="lumen-message"
+      data-role={role}
+      data-message-id={id}
+      material="frost"
+      state={streaming ? 'running' : 'idle'}
+    >
       {role !== 'tool' ? (
         <header>
           <span className="lumen-message-avatar" aria-hidden="true">
@@ -99,7 +109,7 @@ export function LumenMessage({
           </LumenIconButton>
         </footer>
       ) : null}
-    </article>
+    </LumenSurface>
   );
 }
 
@@ -493,8 +503,11 @@ export function LumenRunActivity({
     );
   };
   return (
-    <section
-      className={`lumen-run-activity hbar-app-ui-run-activity is-${listStrategy}`}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-run-activity-surface"
+      contentClassName={`lumen-run-activity hbar-app-ui-run-activity is-${listStrategy}`}
       data-list-strategy={listStrategy}
       aria-label={labels.title}
     >
@@ -596,7 +609,7 @@ export function LumenRunActivity({
         ? renderPlan(plan)
         : null}
       {plan?.runId === null ? renderPlan(plan) : null}
-    </section>
+    </LumenSurface>
   );
 }
 
@@ -645,10 +658,16 @@ export function LumenApprovalRequest({
     statusLabel = labels.savingLabel;
   }
   return (
-    <section
-      className="lumen-decision hbar-app-ui-approval-request"
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-decision-surface"
+      contentClassName="lumen-decision hbar-app-ui-approval-request"
       aria-label={labels.title}
       aria-busy={state.status === 'pending' || undefined}
+      material="frost"
+      state={state.error ? 'failed' : state.status === 'pending' ? 'running' : 'idle'}
+      tone={state.error ? 'danger' : 'warning'}
     >
       <header className="hbar-app-ui-approval-request-heading">
         <SessionGlyph name="shield" />
@@ -681,6 +700,7 @@ export function LumenApprovalRequest({
           {state.error}
         </LumenText>
       ) : null}
+      <LumenDivider tone={state.error ? 'danger' : 'warning'} />
       <footer className="hbar-app-ui-approval-request-actions">
         <LumenButton variant="outlined" disabled={disabled} onClick={() => onDecision(id, 'deny')}>
           <SessionGlyph name="remove" />
@@ -701,7 +721,7 @@ export function LumenApprovalRequest({
           </LumenButton>
         ) : null}
       </footer>
-    </section>
+    </LumenSurface>
   );
 }
 
@@ -764,10 +784,16 @@ export function LumenQuestionnaire({
     submitLabel = labels.submittingLabel;
   }
   return (
-    <section
-      className="lumen-questionnaire hbar-app-ui-questionnaire"
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-questionnaire-surface"
+      contentClassName="lumen-questionnaire hbar-app-ui-questionnaire"
       aria-label={labels.title}
       aria-busy={state.status === 'pending' || undefined}
+      material="frost"
+      state={state.error ? 'failed' : state.status === 'pending' ? 'running' : 'idle'}
+      tone={state.error ? 'danger' : 'neutral'}
     >
       <header className="hbar-app-ui-questionnaire-heading">
         <LumenText as="strong" variant="heading">
@@ -795,6 +821,7 @@ export function LumenQuestionnaire({
                 <strong>{question.header}</strong>
                 <span>{question.prompt}</span>
               </legend>
+              <LumenDivider tone={state.error ? 'danger' : 'neutral'} />
               <div className="hbar-app-ui-questionnaire-options">
                 {options.map((option) => (
                   <label
@@ -873,6 +900,7 @@ export function LumenQuestionnaire({
           {state.error}
         </LumenText>
       ) : null}
+      <LumenDivider tone={state.error ? 'danger' : 'neutral'} />
       <footer className="hbar-app-ui-questionnaire-actions">
         <LumenButton
           tone="primary"
@@ -883,7 +911,7 @@ export function LumenQuestionnaire({
           {submitLabel}
         </LumenButton>
       </footer>
-    </section>
+    </LumenSurface>
   );
 }
 
@@ -934,11 +962,22 @@ export function LumenCompactUsage({
   }
   if (density === 'inline') {
     return (
-      <section
-        className="lumen-inline-usage"
+      <LumenSurface
+        as="section"
+        boundary="horizontal"
+        className="lumen-inline-usage-surface"
+        contentClassName="lumen-inline-usage"
         aria-label={title}
         title={description}
         data-tone={mappedTone}
+        material="frost"
+        tone={
+          mappedTone === 'primary'
+            ? 'info'
+            : mappedTone === 'success' || mappedTone === 'warning' || mappedTone === 'danger'
+              ? mappedTone
+              : 'neutral'
+        }
       >
         <div>
           <strong>{value}</strong>
@@ -946,7 +985,7 @@ export function LumenCompactUsage({
         </div>
         <LumenCompactMetrics label={title} metrics={metrics} />
         <progress value={normalized} max={1} aria-label={progressLabel} />
-      </section>
+      </LumenSurface>
     );
   }
   const points = uniqueById(sparkline);
