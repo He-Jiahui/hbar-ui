@@ -944,6 +944,96 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getByText(/"cached_tokens": 8192/)).not.toBeNull();
   });
 
+  it('uses distinct host-owned filtering scenarios for all nine discovery patterns', () => {
+    const filteringEntries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'filtering',
+    );
+    expect(filteringEntries).toHaveLength(9);
+    const expected = [
+      'Ceramics collection',
+      'Issue filters',
+      'Customer query builder',
+      'Log explorer',
+      'Property search',
+      'Candidate search',
+      'Asset library',
+      'Flight filters',
+      'Restaurant filters',
+    ];
+
+    filteringEntries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('filtering.');
+      expect(view).not.toContain('item-1');
+      expect(view).toContain(expected[index]);
+    });
+
+    const flights = filteringEntries.find((entry) => entry.variant === 8)!;
+    const view = ReactDOMServer.renderToStaticMarkup(
+      <VariantPreviewHost entry={flights} locale="zh" unavailableLabel="无法预览" />,
+    );
+    expect(view).toContain('航班筛选');
+    expect(view).toContain('最长行程');
+  });
+
+  it('derives live filtering results from facets, rules, logs, candidates, and flight controls', async () => {
+    const entry = (variant: number) =>
+      LUMEN_VARIANT_REGISTRY.find(
+        (candidate) => candidate.category === 'filtering' && candidate.variant === variant,
+      )!;
+
+    let view = render(
+      <VariantPreviewHost entry={entry(1)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Clear filters' }));
+    expect(screen.getByRole('button', { name: 'Ash white' }).getAttribute('aria-pressed')).toBe(
+      'false',
+    );
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(2)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.type(screen.getByRole('textbox', { name: 'Keyword' }), 'login');
+    expect(screen.getByText('27 matching issues')).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(3)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Add rule' }));
+    expect(screen.getByText('Acme Robotics')).not.toBeNull();
+    expect(screen.queryByText('Northstar Labs')).toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(4)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Error' }));
+    await view.user.selectOptions(screen.getByRole('combobox', { name: 'Service' }), 'events');
+    expect(screen.getByText(/consumer deadline exceeded/)).not.toBeNull();
+    expect(screen.queryByText(/request completed/)).toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(6)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.selectOptions(screen.getByRole('combobox', { name: 'Seniority' }), 'staff');
+    expect(screen.getByText('No candidates match every condition')).not.toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Remove skill React' }));
+    expect(screen.getByText('Amara Okafor')).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(8)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('tab', { name: 'Evening' }));
+    expect(screen.getByText(/PL 812/)).not.toBeNull();
+    expect(screen.queryByText(/AA 442/)).toBeNull();
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',

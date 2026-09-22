@@ -64,6 +64,7 @@
 .lumen-filtering-amenities,
 .lumen-filtering-rating,
 .lumen-filtering-prices,
+.lumen-filtering-diets,
 .lumen-filtering-tabs {
   display: flex;
   min-inline-size: 0;
@@ -71,7 +72,12 @@
   align-items: center;
   gap: 0.5rem;
 }
-.lumen-filtering-swatches > span {
+.lumen-filtering-swatches > button {
+  padding: 0.25rem;
+  border-radius: 999rem;
+}
+.lumen-filtering-swatches > button > span {
+  display: block;
   inline-size: 1.75rem;
   block-size: 1.75rem;
   border: 0.125rem solid var(--lumen-glass);
@@ -166,12 +172,17 @@
   color: var(--lumen-muted);
   overflow-wrap: anywhere;
 }
-.lumen-filtering-results > article > .lumen-filtering-avatar {
-}
 .lumen-filtering-results > article > .lumen-filtering-avatar + div {
   display: flex;
   min-inline-size: 0;
+  flex: 1 1 0;
   flex-direction: column;
+}
+.lumen-filtering-results > article > .lumen-filtering-avatar {
+  flex: 0 0 auto;
+}
+.lumen-filtering-results > article > .lumen-filtering-avatar + div + * {
+  flex: 0 0 auto;
 }
 .lumen-filtering-avatar {
   display: inline-flex;
@@ -302,6 +313,17 @@
   color: var(--lumen-accent);
   box-shadow: inset 0 -0.125rem var(--lumen-accent);
 }
+.lumen-filtering-flight-controls {
+  display: flex;
+  min-inline-size: 0;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.75rem;
+}
+.lumen-filtering-flight-controls > * {
+  flex: 1 1 14rem;
+  min-inline-size: min(100%, 14rem);
+}
 .lumen-filtering-flights {
   display: flex;
   min-inline-size: 0;
@@ -318,45 +340,39 @@
   border-radius: var(--lumen-radius-control);
   background: var(--lumen-glass);
 }
-.lumen-filtering-flights > article > :nth-child(3n + 1) {
+.lumen-filtering-flights > article > strong {
   flex: 1 1 0;
   min-inline-size: 0;
 }
-.lumen-filtering-flights > article > :nth-child(3n + 2) {
-  flex: 0 0 auto;
-  min-inline-size: 0;
-}
-.lumen-filtering-flights > article > :nth-child(3n + 3) {
+.lumen-filtering-flights > article > b,
+.lumen-filtering-flights > article > button {
   flex: 0 0 auto;
   min-inline-size: 0;
 }
 .lumen-filtering-flights > article > small {
+  flex: 1 1 16rem;
+  min-inline-size: 12rem;
   color: var(--lumen-muted);
-}
-.lumen-filtering-flights > article > button {
 }
 .lumen-filtering-rating > button {
   color: var(--lumen-warning, #b57900);
 }
 @media (max-width: 48rem) {
-  .lumen-filtering-drawer {
+  .lumen-filtering-drawer > * {
+    flex: 1 1 100%;
   }
   .lumen-filtering-drawer > button {
+    inline-size: 100%;
   }
 }
 @media (max-width: 34rem) {
   .lumen-filtering-counters {
+    flex-direction: column;
   }
   .lumen-filtering-flights > article {
-  }
-  .lumen-filtering-flights > article > :nth-child(2n + 1) {
-    flex: 1 1 0;
-    min-inline-size: 0;
-  }
-  .lumen-filtering-flights > article > :nth-child(2n + 2) {
-    flex: 0 0 auto;
-    min-inline-size: 0;
+    flex-wrap: wrap;
   }
   .lumen-filtering-flights > article > button {
+    margin-inline-start: auto;
   }
 }

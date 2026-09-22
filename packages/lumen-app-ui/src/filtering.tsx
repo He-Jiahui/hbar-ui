@@ -36,6 +36,7 @@ export interface LumenFilteringProductContent {
   readonly maximumPrice: number;
   readonly initialPrice: number;
   readonly swatches: readonly LumenFilteringSwatch[];
+  readonly initialSwatchIds: readonly string[];
 }
 export interface LumenFilteringDrawerContent {
   readonly labels: {
@@ -70,6 +71,7 @@ export interface LumenFilteringResult {
   readonly detail: string;
   readonly status: string;
   readonly tone: 'neutral' | 'success' | 'warning' | 'danger';
+  readonly ruleIds: readonly string[];
 }
 export interface LumenFilteringQueryContent {
   readonly labels: {
@@ -103,6 +105,8 @@ export interface LumenFilteringLogContent {
   readonly volume: readonly { readonly id: string; readonly value: number }[];
   readonly lines: readonly {
     readonly id: string;
+    readonly levelId: string;
+    readonly serviceId: string;
     readonly time: string;
     readonly message: string;
   }[];
@@ -127,6 +131,7 @@ export interface LumenFilteringPropertyContent {
   readonly maximumPrice: number;
   readonly initialPrice: number;
   readonly amenities: readonly LumenFilteringChoice[];
+  readonly initialAmenityIds: readonly string[];
 }
 export interface LumenFilteringCandidate {
   readonly id: string;
@@ -134,6 +139,8 @@ export interface LumenFilteringCandidate {
   readonly name: string;
   readonly detail: string;
   readonly status: string;
+  readonly skillIds: readonly string[];
+  readonly seniorityId: string;
 }
 export interface LumenFilteringCandidateContent {
   readonly labels: {
@@ -176,17 +183,26 @@ export interface LumenFilteringFlight {
   readonly detail: string;
   readonly price: string;
   readonly timeId: string;
+  readonly airlineId: string;
+  readonly duration: number;
 }
 export interface LumenFilteringFlightsContent {
   readonly labels: {
     readonly title: string;
     readonly detail: string;
     readonly departure: string;
+    readonly airline: string;
+    readonly duration: string;
+    readonly durationValue: (value: number) => string;
     readonly select: string;
     readonly empty: string;
   };
   readonly times: readonly LumenFilteringChoice[];
   readonly initialTimeId: string;
+  readonly airlines: readonly LumenFilteringChoice[];
+  readonly initialAirlineId: string;
+  readonly maximumDuration: number;
+  readonly initialDuration: number;
   readonly flights: readonly LumenFilteringFlight[];
   readonly listStrategy: LumenFilteringListStrategy;
 }
@@ -198,6 +214,7 @@ export interface LumenFilteringCuisineContent {
     readonly rating: string;
     readonly ratingValue: (value: number) => string;
     readonly price: string;
+    readonly diet: string;
   };
   readonly cuisines: readonly LumenFilteringChoice[];
   readonly initialCuisineId: string;
@@ -205,6 +222,8 @@ export interface LumenFilteringCuisineContent {
   readonly initialRating: number;
   readonly prices: readonly LumenFilteringChoice[];
   readonly initialPriceId: string;
+  readonly diets: readonly LumenFilteringChoice[];
+  readonly initialDietIds: readonly string[];
 }
 export interface LumenFilteringContent {
   readonly product?: LumenFilteringProductContent | undefined;
@@ -352,6 +371,9 @@ function Product(
       Math.min(props.content.maximumPrice, props.content.initialPrice),
     ),
   );
+  const [swatchIds, setSwatchIds] = React.useState<readonly string[]>(
+    props.content.initialSwatchIds,
+  );
   return (
     <Root {...props}>
       <Header
@@ -362,6 +384,7 @@ function Product(
             variant="outlined"
             onClick={() => {
               setSelectedIds([]);
+              setSwatchIds([]);
               setPrice(props.content.initialPrice);
               report(props.onAction, 'clear');
             }}
@@ -408,12 +431,23 @@ function Product(
         </LumenText>
         <div className="lumen-filtering-swatches">
           {uniqueLumenFilteringItems(props.content.swatches).map((swatch) => (
-            <span
+            <LumenButton
               key={swatch.id}
               title={swatch.label}
               aria-label={swatch.label}
-              style={{ background: swatch.color }}
-            />
+              size="s"
+              variant={swatchIds.includes(swatch.id) ? 'solid' : 'outlined'}
+              aria-pressed={swatchIds.includes(swatch.id)}
+              onClick={() =>
+                setSwatchIds((current) =>
+                  current.includes(swatch.id)
+                    ? current.filter((id) => id !== swatch.id)
+                    : [...current, swatch.id],
+                )
+              }
+            >
+              <span style={{ background: swatch.color }} />
+            </LumenButton>
           ))}
         </div>
       </aside>
@@ -429,6 +463,13 @@ function Drawer(
   const [query, setQuery] = React.useState('');
   const [statusId, setStatusId] = React.useState(props.content.initialStatusId);
   const [ownerId, setOwnerId] = React.useState(props.content.initialOwnerId);
+  const liveResultCount = Math.max(
+    0,
+    props.content.resultCount -
+      (query.trim() ? 11 : 0) -
+      (statusId === props.content.initialStatusId ? 0 : 8) -
+      (ownerId === props.content.initialOwnerId ? 0 : 15),
+  );
   return (
     <Root {...props}>
       <Header
@@ -491,7 +532,7 @@ function Drawer(
         </div>
       ) : null}
       <footer className="lumen-filtering-result-count">
-        <strong>{props.content.labels.resultCount(props.content.resultCount)}</strong>
+        <strong>{props.content.labels.resultCount(liveResultCount)}</strong>
         <LumenButton
           variant="text"
           onClick={() => {
@@ -518,6 +559,9 @@ function Query(
   const results = uniqueLumenFilteringItems(props.content.results);
   const [rules, setRules] = React.useState<readonly LumenFilteringRule[]>(initial);
   const next = available.find((item) => !rules.some((rule) => rule.id === item.id));
+  const visibleResults = results.filter((result) =>
+    rules.every((rule) => result.ruleIds.includes(rule.id)),
+  );
   return (
     <Root {...props}>
       <Header
@@ -562,8 +606,8 @@ function Query(
         className="lumen-filtering-results"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
       >
-        {results.length ? (
-          results.map((result) => (
+        {visibleResults.length ? (
+          visibleResults.map((result) => (
             <article key={result.id}>
               <strong>{result.title}</strong>
               <LumenStatus value={result.status} tone={result.tone} />
@@ -585,6 +629,11 @@ function Log(props: Omit<LumenFilteringProps, 'content'> & { content: LumenFilte
   const [levelId, setLevelId] = React.useState(props.content.initialLevelId);
   const [serviceId, setServiceId] = React.useState(props.content.initialServiceId);
   const level = selectLumenFilteringItem(levels, levelId);
+  const visibleLines = props.content.lines.filter(
+    (line) =>
+      (levelId === 'all' || line.levelId === levelId) &&
+      (serviceId === 'all' || line.serviceId === serviceId),
+  );
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
@@ -624,10 +673,12 @@ function Log(props: Omit<LumenFilteringProps, 'content'> & { content: LumenFilte
         aria-label={props.content.labels.lines}
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
       >
-        {props.content.lines.length ? (
-          props.content.lines.map((line) => (
+        {visibleLines.length ? (
+          visibleLines.map((line) => (
             <code key={line.id}>
-              {line.time} {level?.label ?? ''} {line.message}
+              {[line.time, levels.find((item) => item.id === line.levelId)?.label, line.message]
+                .filter(Boolean)
+                .join(' ')}
             </code>
           ))
         ) : (
@@ -687,6 +738,9 @@ function Property(
     Math.max(0, Math.min(props.content.maximumRooms, props.content.initialBathrooms)),
   );
   const [price, setPrice] = React.useState(props.content.initialPrice);
+  const [amenityIds, setAmenityIds] = React.useState<readonly string[]>(
+    props.content.initialAmenityIds,
+  );
   return (
     <Root {...props}>
       <Header
@@ -729,7 +783,18 @@ function Property(
       </LumenFormField>
       <div className="lumen-filtering-amenities" aria-label={props.content.labels.amenities}>
         {uniqueLumenFilteringItems(props.content.amenities).map((item) => (
-          <span key={item.id}>{item.label}</span>
+          <LumenCheckBox
+            key={item.id}
+            label={item.label}
+            checked={amenityIds.includes(item.id)}
+            onChange={() =>
+              setAmenityIds((current) =>
+                current.includes(item.id)
+                  ? current.filter((id) => id !== item.id)
+                  : [...current, item.id],
+              )
+            }
+          />
         ))}
       </div>
     </Root>
@@ -746,6 +811,11 @@ function Candidate(
   const seniorities = uniqueLumenFilteringItems(props.content.seniorities);
   const [skills, setSkills] = React.useState<readonly LumenFilteringChoice[]>(initialSkills);
   const [seniorityId, setSeniorityId] = React.useState(props.content.initialSeniorityId);
+  const visibleCandidates = candidates.filter(
+    (candidate) =>
+      candidate.seniorityId === seniorityId &&
+      skills.every((skill) => candidate.skillIds.includes(skill.id)),
+  );
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
@@ -798,8 +868,8 @@ function Candidate(
         className="lumen-filtering-results"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
       >
-        {candidates.length ? (
-          candidates.map((candidate) => (
+        {visibleCandidates.length ? (
+          visibleCandidates.map((candidate) => (
             <article key={candidate.id}>
               <span className="lumen-filtering-avatar">{candidate.initials}</span>
               <div>
@@ -866,9 +936,17 @@ function Flights(
 ) {
   const times = uniqueLumenFilteringItems(props.content.times);
   const flights = uniqueLumenFilteringItems(props.content.flights);
+  const airlines = uniqueLumenFilteringItems(props.content.airlines);
   const [timeId, setTimeId] = React.useState(props.content.initialTimeId);
+  const [airlineId, setAirlineId] = React.useState(props.content.initialAirlineId);
+  const [duration, setDuration] = React.useState(props.content.initialDuration);
   const time = selectLumenFilteringItem(times, timeId);
-  const visible = flights.filter((flight) => time?.id === 'any' || flight.timeId === time?.id);
+  const visible = flights.filter(
+    (flight) =>
+      (time?.id === 'any' || flight.timeId === time?.id) &&
+      (airlineId === 'all' || flight.airlineId === airlineId) &&
+      flight.duration <= duration,
+  );
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
@@ -891,6 +969,38 @@ function Flights(
             {item.label}
           </LumenButton>
         ))}
+      </div>
+      <div className="lumen-filtering-flight-controls">
+        <LumenFormField
+          controlId={`${props.variantId}-airline`}
+          label={props.content.labels.airline}
+        >
+          <LumenSelect
+            value={airlineId}
+            onChange={(event) => setAirlineId(event.currentTarget.value)}
+          >
+            {airlines.map((airline) => (
+              <option key={airline.id} value={airline.id}>
+                {airline.label}
+              </option>
+            ))}
+          </LumenSelect>
+        </LumenFormField>
+        <LumenFormField
+          controlId={`${props.variantId}-duration`}
+          label={props.content.labels.duration}
+        >
+          <LumenInput
+            type="range"
+            min={1}
+            max={props.content.maximumDuration}
+            value={duration}
+            onChange={(event) => setDuration(Number(event.currentTarget.value))}
+          />
+          <LumenText as="span" tone="muted">
+            {props.content.labels.durationValue(duration)}
+          </LumenText>
+        </LumenFormField>
       </div>
       <div
         className="lumen-filtering-flights"
@@ -930,6 +1040,7 @@ function Cuisine(
     Math.max(0, Math.min(maximum, props.content.initialRating)),
   );
   const [priceId, setPriceId] = React.useState(props.content.initialPriceId);
+  const [dietIds, setDietIds] = React.useState<readonly string[]>(props.content.initialDietIds);
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
@@ -973,6 +1084,22 @@ function Cuisine(
           >
             {item.label}
           </LumenButton>
+        ))}
+      </div>
+      <div className="lumen-filtering-diets" aria-label={props.content.labels.diet}>
+        {uniqueLumenFilteringItems(props.content.diets).map((diet) => (
+          <LumenCheckBox
+            key={diet.id}
+            label={diet.label}
+            checked={dietIds.includes(diet.id)}
+            onChange={() =>
+              setDietIds((current) =>
+                current.includes(diet.id)
+                  ? current.filter((id) => id !== diet.id)
+                  : [...current, diet.id],
+              )
+            }
+          />
         ))}
       </div>
     </Root>
