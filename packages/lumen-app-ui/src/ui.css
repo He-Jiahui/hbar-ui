@@ -646,6 +646,7 @@
   display: flex;
   min-inline-size: 0;
   min-block-size: 10rem;
+  block-size: clamp(10rem, 26vw, 16rem);
   flex-direction: column;
   gap: 0.35rem;
   color: var(--lumen-info);
@@ -653,6 +654,7 @@
 
 .lumen-chart[data-compact='true'] {
   min-block-size: 2.5rem;
+  block-size: 2.5rem;
 }
 
 .lumen-chart > svg {

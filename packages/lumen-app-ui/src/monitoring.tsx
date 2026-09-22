@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { LumenSelect, LumenTextarea } from './forms';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
+import { LumenChart, type LumenChartPoint } from './ui-compositions';
 
 export interface LumenMonitoringListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -22,6 +23,7 @@ export interface LumenMonitoringMetric {
 }
 export interface LumenMonitoringSeriesPoint {
   readonly id: string;
+  readonly label: string;
   readonly value: number;
 }
 export interface LumenMonitoringEvent {
@@ -68,12 +70,14 @@ export interface LumenMonitoringIncidentContent {
     readonly title: string;
     readonly detail: string;
     readonly status: string;
+    readonly responders: string;
     readonly updatePlaceholder: string;
     readonly emptyTimeline: string;
   };
   readonly statuses: readonly LumenMonitoringChoice[];
   readonly initialStatusId: string;
   readonly summary: { readonly title: string; readonly body: string };
+  readonly responders: readonly string[];
   readonly timeline: readonly LumenMonitoringTimelineItem[];
   readonly listStrategy: LumenMonitoringListStrategy;
 }
@@ -99,6 +103,7 @@ export interface LumenMonitoringAlertsContent {
 }
 export interface LumenMonitoringLogLine {
   readonly id: string;
+  readonly levelId: string;
   readonly time: string;
   readonly message: string;
   readonly context: string;
@@ -112,6 +117,7 @@ export interface LumenMonitoringLogsContent {
     readonly follow: string;
     readonly log: string;
     readonly expand: (id: string) => string;
+    readonly collapse: (id: string) => string;
     readonly empty: string;
   };
   readonly levels: readonly LumenMonitoringChoice[];
@@ -225,11 +231,13 @@ export interface LumenMonitoringSloContent {
     readonly title: string;
     readonly detail: string;
     readonly windows: string;
+    readonly chart: string;
     readonly progress: (objective: string) => string;
     readonly empty: string;
   };
   readonly windows: readonly LumenMonitoringChoice[];
   readonly initialWindowId: string;
+  readonly series: readonly LumenMonitoringSeriesPoint[];
   readonly objectives: readonly LumenMonitoringObjective[];
   readonly listStrategy: LumenMonitoringListStrategy;
 }
@@ -393,16 +401,32 @@ function Bars({
   label: string;
   threshold?: number | undefined;
 }) {
+  const values = uniqueLumenMonitoringItems(points);
   return (
-    <div className="lumen-monitoring-bars" aria-label={label}>
-      {threshold !== undefined ? (
-        <span style={{ insetBlockEnd: `${Math.max(0, Math.min(100, threshold))}%` }} />
-      ) : null}
-      {uniqueLumenMonitoringItems(points).map((point) => (
+    <div
+      className="lumen-monitoring-bars"
+      aria-label={label}
+      data-threshold={threshold !== undefined}
+      style={
+        threshold === undefined
+          ? undefined
+          : ({
+              '--lumen-monitoring-threshold-position': `${100 - Math.max(0, Math.min(100, threshold))}%`,
+            } as React.CSSProperties)
+      }
+    >
+      {values.map((point) => (
         <i key={point.id} style={{ blockSize: `${Math.max(2, Math.min(100, point.value))}%` }} />
       ))}
     </div>
   );
+}
+function chartPoints(points: readonly LumenMonitoringSeriesPoint[]): readonly LumenChartPoint[] {
+  return uniqueLumenMonitoringItems(points).map((point) => ({
+    id: point.id,
+    label: point.label,
+    value: point.value,
+  }));
 }
 function Health(
   props: Omit<LumenMonitoringProps, 'content'> & { content: LumenMonitoringHealthContent },
@@ -421,7 +445,19 @@ function Health(
         }
       />
       <Metrics metrics={props.content.metrics} />
-      <Bars points={props.content.series} label={props.content.labels.chart} />
+      <LumenChart
+        kind="area"
+        label={props.content.labels.chart}
+        series={[
+          {
+            id: 'throughput',
+            label: props.content.labels.chart,
+            points: chartPoints(props.content.series),
+            tone: 'info',
+          },
+        ]}
+        empty={props.content.labels.empty}
+      />
       <div
         className="lumen-monitoring-events"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
@@ -530,6 +566,12 @@ function Incident(
           tone={status?.id === 'resolved' ? 'success' : 'warning'}
         />
       </article>
+      <div className="lumen-monitoring-responders" aria-label={props.content.labels.responders}>
+        <strong>{props.content.labels.responders}</strong>
+        {props.content.responders.map((responder) => (
+          <span key={responder}>{responder}</span>
+        ))}
+      </div>
       <ol
         className="lumen-monitoring-timeline"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
@@ -623,7 +665,9 @@ function Logs(
   const lines = uniqueLumenMonitoringItems(props.content.lines);
   const [levelId, setLevelId] = React.useState(props.content.initialLevelId);
   const [paused, setPaused] = React.useState(false);
+  const [expandedIds, setExpandedIds] = React.useState<ReadonlySet<string>>(() => new Set());
   const level = selectLumenMonitoringItem(levels, levelId);
+  const visible = level?.id === 'all' ? lines : lines.filter((line) => line.levelId === level?.id);
   return (
     <Root {...props}>
       <Header
@@ -660,20 +704,43 @@ function Logs(
         aria-label={props.content.labels.log}
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
       >
-        {lines.length ? (
-          lines.map((line) => (
-            <LumenButton
-              key={line.id}
-              variant="text"
-              aria-label={props.content.labels.expand(line.id)}
-              onClick={() => report(props.onAction, 'expand-log', line.id)}
-            >
-              <code>{line.time}</code>
-              <b>{level?.label}</b>
-              <span>{line.message}</span>
-              <Glyph name="chevron" />
-            </LumenButton>
-          ))
+        {visible.length ? (
+          visible.map((line) => {
+            const expanded = expandedIds.has(line.id);
+            return (
+              <article className="lumen-monitoring-log-entry" key={line.id}>
+                <LumenButton
+                  variant="text"
+                  aria-expanded={expanded}
+                  aria-label={
+                    expanded
+                      ? props.content.labels.collapse(line.id)
+                      : props.content.labels.expand(line.id)
+                  }
+                  onClick={() => {
+                    setExpandedIds((current) => {
+                      const next = new Set(current);
+                      if (next.has(line.id)) {
+                        next.delete(line.id);
+                      } else {
+                        next.add(line.id);
+                      }
+                      return next;
+                    });
+                    report(props.onAction, expanded ? 'collapse-log' : 'expand-log', line.id);
+                  }}
+                >
+                  <code>{line.time}</code>
+                  <b>{levels.find((item) => item.id === line.levelId)?.label ?? line.levelId}</b>
+                  <span>{line.message}</span>
+                  <Glyph name="chevron" />
+                </LumenButton>
+                {expanded ? (
+                  <code className="lumen-monitoring-log-context">{line.context}</code>
+                ) : null}
+              </article>
+            );
+          })
         ) : (
           <LumenText as="p" tone="muted">
             {props.content.labels.empty}
@@ -831,6 +898,16 @@ function Response(
   const endpoints = uniqueLumenMonitoringItems(props.content.endpoints);
   const [sortId, setSortId] = React.useState(props.content.initialSortId);
   const sort = selectLumenMonitoringItem(sorts, sortId);
+  const orderedEndpoints = React.useMemo(() => {
+    const next = [...endpoints];
+    if (sortId === 'path') {
+      return next.sort((left, right) => left.path.localeCompare(right.path));
+    }
+    const direction = sortId === 'fastest' ? 1 : -1;
+    return next.sort(
+      (left, right) => (Number.parseFloat(left.value) - Number.parseFloat(right.value)) * direction,
+    );
+  }, [endpoints, sortId]);
   return (
     <Root {...props}>
       <Header
@@ -856,10 +933,22 @@ function Response(
         }
       />
       <Metrics metrics={props.content.metrics} />
-      <Bars points={props.content.series} label={props.content.labels.histogram} />
+      <LumenChart
+        kind="bar"
+        label={props.content.labels.histogram}
+        series={[
+          {
+            id: 'latency',
+            label: props.content.labels.histogram,
+            points: chartPoints(props.content.series),
+            tone: 'info',
+          },
+        ]}
+        empty={props.content.labels.empty}
+      />
       <div className="lumen-monitoring-endpoints" aria-label={props.content.labels.endpoints}>
         {endpoints.length ? (
-          endpoints.map((item) => (
+          orderedEndpoints.map((item) => (
             <React.Fragment key={item.id}>
               <code>{item.path}</code>
               <span>{item.value}</span>
@@ -977,6 +1066,19 @@ function Slo(
           </LumenButton>
         ))}
       </div>
+      <LumenChart
+        kind="line"
+        label={props.content.labels.chart}
+        series={[
+          {
+            id: 'budget',
+            label: props.content.labels.chart,
+            points: chartPoints(props.content.series),
+            tone: 'danger',
+          },
+        ]}
+        empty={props.content.labels.empty}
+      />
       <div
         className="lumen-monitoring-slo"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}

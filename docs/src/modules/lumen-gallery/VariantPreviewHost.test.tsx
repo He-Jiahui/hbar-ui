@@ -751,6 +751,104 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getByText('Workspace deletion request confirmed.')).not.toBeNull();
   });
 
+  it('uses distinct host-owned monitoring scenarios for all ten operational views', () => {
+    const monitoringEntries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'monitoring',
+    );
+    expect(monitoringEntries).toHaveLength(10);
+    const expected = [
+      'Platform health overview',
+      'Live ingress traffic',
+      'INC-2481 · EU event lag',
+      'Alert inbox',
+      'Production log tail',
+      'Service uptime',
+      'Compute fleet',
+      'Response time',
+      'Live run queue',
+      'Service level objectives',
+    ];
+
+    monitoringEntries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('Monitoring ·');
+      expect(view).toContain(expected[index]);
+    });
+
+    const slo = monitoringEntries.find((entry) => entry.variant === 10)!;
+    const view = ReactDOMServer.renderToStaticMarkup(
+      <VariantPreviewHost entry={slo} locale="zh" unavailableLabel="无法预览" />,
+    );
+    expect(view).toContain('服务级别目标');
+    expect(view).toContain('错误预算燃尽');
+  });
+
+  it('filters monitoring logs, alerts, fleet nodes, queue attention, and SLO windows', async () => {
+    const entry = (variant: number) =>
+      LUMEN_VARIANT_REGISTRY.find(
+        (candidate) => candidate.category === 'monitoring' && candidate.variant === variant,
+      )!;
+
+    let view = render(
+      <VariantPreviewHost entry={entry(4)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('tab', { name: 'Pending' }));
+    expect(screen.getByText('Log node disk space')).not.toBeNull();
+    expect(screen.queryByText('Event consumer lag high')).toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(5)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Error' }));
+    expect(screen.getByText(/consumer deadline exceeded/)).not.toBeNull();
+    expect(screen.queryByText(/health probe status/)).toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Expand log 03' }));
+    expect(screen.getByText(/events-eu/)).not.toBeNull();
+    expect(
+      screen.getByRole('button', { name: 'Collapse log 03' }).getAttribute('aria-expanded'),
+    ).toBe('true');
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(8)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Sort: Slowest first' }));
+    const endpointRows = document.querySelector('.lumen-monitoring-endpoints');
+    expect(endpointRows?.textContent?.indexOf('/v1/projects')).toBeLessThan(
+      endpointRows?.textContent?.indexOf('/v1/exports/:id') ?? 0,
+    );
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(7)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.selectOptions(
+      screen.getByRole('combobox', { name: 'Region filter' }),
+      'eu-central',
+    );
+    expect(screen.getByText('compute-eu-01')).not.toBeNull();
+    expect(screen.queryByText('compute-west-01')).toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(9)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Needs attention' }));
+    expect(screen.getByText('Session migration')).not.toBeNull();
+    expect(screen.queryByText('Edge gateway deploy')).toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(10)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('tab', { name: '7 days' }));
+    expect(screen.getAllByText('7 days')).toHaveLength(5);
+    expect(screen.getByRole('img', { name: 'Error budget burn-down' })).not.toBeNull();
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',
