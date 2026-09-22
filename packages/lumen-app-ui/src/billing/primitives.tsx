@@ -116,9 +116,11 @@ export function BillingButton({
 export function BillingIconButton({
   children,
   label,
+  tier = 'sm',
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
   readonly label: string;
+  readonly tier?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | undefined;
 }) {
   return (
     <BillingButton
@@ -127,7 +129,7 @@ export function BillingIconButton({
       aria-label={props['aria-label'] ?? label}
       title={props.title ?? label}
     >
-      {children}
+      <BillingIcon tier={tier}>{children}</BillingIcon>
     </BillingButton>
   );
 }

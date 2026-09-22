@@ -360,4 +360,47 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getByRole('menu', { name: 'Document actions' })).not.toBeNull();
     expect(screen.getByRole('menuitem', { name: 'Export Markdown' })).not.toBeNull();
   });
+
+  it('uses distinct host-owned billing scenarios for every billing workflow', () => {
+    const billingEntries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'billing',
+    );
+    expect(billingEntries).toHaveLength(8);
+    const expected = [
+      'Billing overview',
+      'Plans and entitlements',
+      'Create invoice',
+      'Revenue recovery',
+      'Proration preview',
+      'Payment methods',
+      'Usage and overages',
+      'INV-2048',
+    ];
+
+    billingEntries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('Billing ·');
+      expect(view).toContain(expected[index]);
+    });
+
+    const recovery = billingEntries.find((entry) => entry.variant === 4)!;
+    {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={recovery} locale="zh" unavailableLabel="无法预览" />,
+      );
+      expect(view).toContain('回款恢复');
+      expect(view).toContain('Cedar Labs');
+    }
+
+    const invoice = billingEntries.find((entry) => entry.variant === 8)!;
+    const view = render(
+      <VariantPreviewHost entry={invoice} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    expect(
+      screen.getByRole('button', { name: 'Print' }).querySelector('.hbar-app-ui-icon-sm'),
+    ).not.toBeNull();
+    view.unmount();
+  });
 });
