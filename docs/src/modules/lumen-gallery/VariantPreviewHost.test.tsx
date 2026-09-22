@@ -156,4 +156,35 @@ describe('Lumen formal variant fixtures', () => {
       view.unmount();
     }
   });
+
+  it('uses scenario-specific localized content for every analytics variant', () => {
+    const analyticsEntries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'analytics',
+    );
+    expect(analyticsEntries).toHaveLength(16);
+
+    const english = new Map(
+      analyticsEntries.map((entry) => [
+        entry.id,
+        ReactDOMServer.renderToStaticMarkup(
+          <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+        ),
+      ]),
+    );
+    for (const markup of english.values()) {
+      expect(markup).not.toContain('Analytics ·');
+    }
+    expect(english.get('hbar-app-ui-analytics-1')).toContain('Request rate');
+    expect(english.get('hbar-app-ui-analytics-5')).toContain('Organic search');
+    expect(english.get('hbar-app-ui-analytics-8')).toContain('Started trial');
+    expect(english.get('hbar-app-ui-analytics-13')).toContain('Revenue index');
+    expect(english.get('hbar-app-ui-analytics-15')).toContain('Priya Nandakumar');
+    expect(english.get('hbar-app-ui-analytics-16')).toContain('Monthly revenue');
+
+    const funnel = analyticsEntries.find((entry) => entry.variant === 8)!;
+    const view = ReactDOMServer.renderToStaticMarkup(
+      <VariantPreviewHost entry={funnel} locale="zh" unavailableLabel="无法预览" />,
+    );
+    expect(view).toContain('开始试用');
+  });
 });
