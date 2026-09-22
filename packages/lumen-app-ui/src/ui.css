@@ -73,6 +73,7 @@
 }
 
 .lumen-switch > input {
+  color: var(--lumen-muted);
   appearance: none;
   display: flex;
   inline-size: 2.25rem;
@@ -83,10 +84,11 @@
   border: 0.0625rem solid var(--lumen-edge);
   border-radius: 999rem;
   background-color: var(--lumen-reading);
-  background-image: radial-gradient(circle, var(--lumen-muted) 0 0.4rem, transparent 0.425rem);
+  background-image: radial-gradient(circle, currentColor 0 0.4rem, transparent 0.425rem);
   background-repeat: no-repeat;
   background-position: 0.125rem center;
   transition:
+    color var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease),
     background-position 180ms ease,
     border-color 180ms ease,
     box-shadow 180ms ease;
@@ -94,7 +96,7 @@
 }
 
 .lumen-switch > input:checked {
-  background-image: radial-gradient(circle, var(--lumen-ink) 0 0.4rem, transparent 0.425rem);
+  color: var(--lumen-ink);
   background-position: calc(100% - 0.125rem) center;
   box-shadow: 0 0 0.75rem color-mix(in srgb, var(--lumen-ink) 50%, transparent);
 }
@@ -363,6 +365,66 @@
   color: var(--lumen-danger);
 }
 
+/* Optional primitives; existing badge/list/control appearances remain unchanged. */
+.lumen-chip {
+  display: inline-flex;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: var(--lumen-radius-control);
+  color: var(--lumen-ink);
+}
+.lumen-chip-label {
+  padding: 0.375rem 0.625rem;
+  overflow-wrap: anywhere;
+}
+.lumen-chip[data-disabled='true'] {
+  opacity: 0.48;
+}
+.lumen-chip[data-tone='info'] {
+  color: var(--lumen-info);
+}
+.lumen-chip[data-tone='success'] {
+  color: var(--lumen-success);
+}
+.lumen-chip[data-tone='warning'] {
+  color: var(--lumen-warning);
+}
+.lumen-chip[data-tone='danger'] {
+  color: var(--lumen-danger);
+}
+.lumen-chip > button {
+  color: inherit;
+}
+.lumen-badge-anchor {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.125rem;
+}
+.lumen-badge[data-variant='dot'] {
+  inline-size: 0.4375rem;
+  min-block-size: 0;
+  block-size: 0.4375rem;
+  padding: 0;
+  background: currentColor;
+}
+.lumen-visually-hidden {
+  display: inline-block;
+  inline-size: 0;
+  block-size: 0;
+  overflow: hidden;
+}
+.lumen-ui-close-glyph {
+  inline-size: var(--hbar-app-ui-icon-sm);
+  block-size: var(--hbar-app-ui-icon-sm);
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
 .lumen-progress {
   display: flex;
   inline-size: 100%;
@@ -377,6 +439,10 @@
   border-radius: inherit;
   background: var(--lumen-ink);
   box-shadow: 0 0 0.65rem currentColor;
+  transition:
+    inline-size var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease),
+    background-color var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease),
+    box-shadow var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease);
 }
 
 .lumen-progress[data-tone='info'] > span {
@@ -936,6 +1002,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .lumen-skeleton,
+  .lumen-progress > span,
   .lumen-switch > input,
   .hbar-app-ui-dialog-menu.lumen-tooltip > [role='tooltip'] {
     animation: none;
@@ -944,6 +1011,7 @@
 }
 
 [data-lumen-motion='off'] .lumen-skeleton,
+[data-lumen-motion='off'] .lumen-progress > span,
 [data-lumen-motion='off'] .lumen-switch > input,
 [data-lumen-motion='off'] .hbar-app-ui-dialog-menu.lumen-tooltip > [role='tooltip'] {
   animation: none;

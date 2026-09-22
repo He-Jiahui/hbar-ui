@@ -20,6 +20,45 @@ without persisting any preference itself. It installs the MUI theme and an
 optional transparent `CssBaseline`, leaving the window or browser host in
 control of the actual app background.
 
+The project skill at `.agents/skills/lumen-design-language/SKILL.md` describes
+the Lumen language: a sharp light strip on dark canvas and a solid ink strip on
+white canvas. Basic surfaces are transparent and rely on the host background;
+solid color is used for text, strip cores and emphasis. The established
+`LumenSurface` default remains translucent `glass`; `frost` is an explicit option.
+The existing default button, field, list, badge, and surface skins are preserved.
+Both themes diffuse around the strip: white light on black, black ink on white.
+Setting glow to zero or disabling motion preserves the strip and keyboard focus.
+
+Black and white are defaults, not fixed palettes. Set `appearance.colors` to
+override `foreground` (text, strip and diffusion), `background` (host canvas),
+and `contrast` (text on solid emphasis). `muted`, `subtle`, `info`, `success`,
+`warning`, and `danger` are optional overrides. Use concrete hex/rgb/hsl colors.
+The provider shares resolved colors with its CSS properties and MUI theme;
+`applyLumenAppearance` projects them to a portal host too. A surface stays
+transparent; the host paints `background: var(--lumen-canvas)` when needed.
+Custom palettes need their own contrast checks.
+
+The interactive foundation gallery at `/experiments/lumen-app-ui/foundations/`
+covers actions, controlled comboboxes, fields, lists, chips, badges, and tabs in
+Chinese and English. `LumenChip` separates optional selection and removal into
+independent actions. `LumenBadge` accepts host-formatted values, an optional dot
+variant, and adjacent anchor content. `LumenList` trailing content is inside
+the row button: use noninteractive metadata, not nested actions. Combobox arrows move the active suggestion without
+committing; Enter selects, Escape closes, and disabled options are skipped.
+The host supplies filtered/paged options (a page of up to 100 is recommended)
+and can expose `onLoadMore`; the popup owns its bounded scroll region.
+
+State transitions retain their light-strip nodes and interpolate length,
+opacity and diffusion. Running pulses live on a separate layer so stopping
+does not cut off the halo. Progress values and slider updates animate between
+their existing endpoints. Motion-off and reduced-motion preferences disable
+these transitions. This is a base-control motion audit, not a claim that every
+App UI overlay or collection lifecycle has been animation-tested.
+
+This is a Lumen API mapped to MUI concepts, not a promise of MUI prop parity.
+The foundation changes do not constitute a fresh accessibility audit of all
+300 App UI compositions or of every component in the upstream MUI catalog.
+
 The hbar source used for the later component-family migration was frozen from
 the current worktree at commit `3e2e13219e4654b4f0b5781a7780b66fbd270145`.
 The [source manifest](source-manifest.json) records 367 file hashes and the

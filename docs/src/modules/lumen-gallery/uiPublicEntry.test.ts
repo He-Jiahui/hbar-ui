@@ -13,6 +13,8 @@ describe('Lumen UI public entry', () => {
       'LumenNavigationButton',
       'LumenText',
       'LumenStatus',
+      'LumenChip',
+      'LumenBadge',
       'LumenInput',
       'LumenTextarea',
       'LumenSelect',

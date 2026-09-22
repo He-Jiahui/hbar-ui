@@ -152,6 +152,9 @@ export function LumenTabs({
   orientation = 'horizontal',
   className,
 }: LumenTabsProps) {
+  const values = uniqueItems(items);
+  const available = values.filter((item) => !item.disabled);
+  const current = available.find((item) => item.id === selectedId) ?? available[0];
   return (
     <div
       className={['lumen-tabs', className].filter(Boolean).join(' ')}
@@ -160,7 +163,7 @@ export function LumenTabs({
       aria-orientation={orientation}
       data-orientation={orientation}
     >
-      {uniqueItems(items).map((item) => (
+      {values.map((item) => (
         <LumenButton
           key={item.id}
           id={`${item.id}-tab`}
@@ -169,8 +172,34 @@ export function LumenTabs({
           disabled={item.disabled}
           aria-selected={selectedId === item.id}
           aria-controls={item.panelId}
+          tabIndex={current?.id === item.id ? 0 : -1}
+          indicatorEdge={orientation === 'vertical' ? 'left' : 'bottom'}
           indicatorState={selectedId === item.id ? 'selected' : undefined}
           onClick={() => onChange(item.id)}
+          onKeyDown={(event) => {
+            const nextKey = orientation === 'vertical' ? 'ArrowDown' : 'ArrowRight';
+            const previousKey = orientation === 'vertical' ? 'ArrowUp' : 'ArrowLeft';
+            if (![nextKey, previousKey, 'Home', 'End'].includes(event.key)) {
+              return;
+            }
+            event.preventDefault();
+            const index = available.findIndex((tab) => tab.id === item.id);
+            let target: LumenTabItem | undefined = available[0];
+            if (event.key === 'End') {
+              target = available.at(-1);
+            } else if (event.key !== 'Home') {
+              const direction = event.key === nextKey ? 1 : -1;
+              target = available[(index + direction + available.length) % available.length];
+            }
+            if (target) {
+              const buttons =
+                event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>(
+                  '[role="tab"]',
+                );
+              buttons?.[values.indexOf(target)]?.focus();
+              onChange(target.id);
+            }
+          }}
         >
           {item.label}
         </LumenButton>
@@ -327,7 +356,7 @@ export interface LumenDrawerProps {
 
 function CloseGlyph() {
   return (
-    <svg className="hbar-app-ui-icon-sm" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+    <svg className="lumen-ui-close-glyph" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="m4 4 8 8m0-8-8 8" />
     </svg>
   );
@@ -401,16 +430,87 @@ export function LumenAvatar({
 export interface LumenBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   value: React.ReactNode;
   tone?: LumenActionTone | 'info' | undefined;
+  variant?: 'standard' | 'dot' | undefined;
 }
 
-export function LumenBadge({ value, tone = 'neutral', className, ...other }: LumenBadgeProps) {
-  return (
+export function LumenBadge({
+  value,
+  tone = 'neutral',
+  variant = 'standard',
+  children,
+  className,
+  ...other
+}: LumenBadgeProps) {
+  const marker = (
     <span
       {...other}
       className={['lumen-badge', className].filter(Boolean).join(' ')}
       data-tone={tone}
+      data-variant={variant}
+      role={other.role ?? (other['aria-label'] ? 'img' : undefined)}
     >
-      {value}
+      {variant === 'dot' ? <span className="lumen-visually-hidden">{value}</span> : value}
+    </span>
+  );
+  return children ? (
+    <span className="lumen-badge-anchor">
+      {children}
+      {marker}
+    </span>
+  ) : (
+    marker
+  );
+}
+
+export interface LumenChipProps {
+  label: string;
+  selected?: boolean | undefined;
+  disabled?: boolean | undefined;
+  tone?: LumenActionTone | 'info' | undefined;
+  onSelect?: (() => void) | undefined;
+  removeAction?: { label: string; onRemove: () => void } | undefined;
+  className?: string | undefined;
+}
+
+export function LumenChip({
+  label,
+  selected,
+  disabled,
+  tone = 'neutral',
+  onSelect,
+  removeAction,
+  className,
+}: LumenChipProps) {
+  return (
+    <span
+      className={['lumen-chip', className].filter(Boolean).join(' ')}
+      data-tone={tone}
+      data-selected={selected || undefined}
+      data-disabled={disabled || undefined}
+    >
+      {onSelect ? (
+        <LumenButton
+          variant="text"
+          disabled={disabled}
+          aria-pressed={selected}
+          indicatorState={selected ? 'selected' : undefined}
+          onClick={onSelect}
+        >
+          {label}
+        </LumenButton>
+      ) : (
+        <span className="lumen-chip-label">{label}</span>
+      )}
+      {removeAction ? (
+        <LumenIconButton
+          label={removeAction.label}
+          disabled={disabled}
+          size="s"
+          onClick={removeAction.onRemove}
+        >
+          <CloseGlyph />
+        </LumenIconButton>
+      ) : null}
     </span>
   );
 }

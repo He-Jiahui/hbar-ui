@@ -306,7 +306,7 @@ export interface LumenComboBoxLabels {
   loading: string;
 }
 
-export interface LumenComboBoxProps {
+export interface LumenComboBoxProps extends React.AriaAttributes {
   id: string;
   value: string | null;
   query: string;
@@ -320,6 +320,7 @@ export interface LumenComboBoxProps {
   loading?: boolean | undefined;
   invalid?: boolean | undefined;
   describedBy?: string | undefined;
+  required?: boolean | undefined;
   loadMoreLabel?: string | undefined;
   onLoadMore?: (() => void) | undefined;
   onQueryChange: (query: string) => void;
@@ -362,14 +363,25 @@ export function LumenComboBox({
   loading = false,
   invalid = false,
   describedBy,
+  required,
   loadMoreLabel,
   onLoadMore,
   onQueryChange,
   onOpenChange,
   onValueChange,
+  ...ariaProps
 }: LumenComboBoxProps) {
   const items = uniqueOptions(options);
   const available = items.filter((option) => !option.disabled);
+  const [activeId, setActiveId] = React.useState<string | null>(null);
+  const active = available.find((option) => option.id === activeId);
+  const activeRef = React.useRef<HTMLButtonElement>(null);
+  React.useEffect(() => {
+    if (open) {
+      activeRef.current?.scrollIntoView?.({ block: 'nearest' });
+    }
+  }, [active?.id, open]);
+  const optionId = (itemId: string) => `${id}-option-${encodeURIComponent(itemId)}`;
   const select = (option: LumenControlOption) => {
     if (option.disabled) {
       return;
@@ -377,17 +389,21 @@ export function LumenComboBox({
     onQueryChange(option.label);
     onValueChange(option.id);
     onOpenChange(false);
+    setActiveId(null);
   };
   const move = (direction: 1 | -1) => {
     if (available.length === 0) {
       return;
     }
-    const current = available.findIndex((option) => option.id === value);
+    const current = available.findIndex((option) => option.id === (active?.id ?? value));
     let next = (current + direction + available.length) % available.length;
     if (current < 0) {
       next = direction > 0 ? 0 : available.length - 1;
     }
-    select(available[next]!);
+    const nextItem = available[next];
+    if (nextItem) {
+      setActiveId(nextItem.id);
+    }
   };
   let optionContent: React.ReactNode;
   if (loading) {
@@ -406,13 +422,18 @@ export function LumenComboBox({
     optionContent = items.map((option) => (
       <LumenButton
         key={option.id}
+        id={optionId(option.id)}
+        ref={option.id === active?.id ? activeRef : undefined}
         role="option"
+        tabIndex={-1}
+        data-active={option.id === active?.id || undefined}
         aria-selected={value === option.id}
         disabled={option.disabled}
         className="lumen-combobox-option"
         variant="text"
         size={size}
         onMouseDown={(event) => event.preventDefault()}
+        onMouseEnter={() => !option.disabled && setActiveId(option.id)}
         onClick={() => select(option)}
       >
         <span>
@@ -446,30 +467,47 @@ export function LumenComboBox({
         data-invalid={invalid || undefined}
       >
         <LumenInput
+          {...ariaProps}
           id={id}
           type="text"
           role="combobox"
           value={query}
           placeholder={placeholder}
           disabled={disabled}
+          required={required}
           size={size}
           variant="plain"
           aria-expanded={open}
-          aria-controls={`${id}-listbox`}
-          aria-describedby={describedBy}
-          aria-invalid={invalid || undefined}
+          aria-controls={open && !disabled ? `${id}-listbox` : undefined}
+          aria-autocomplete="list"
+          aria-activedescendant={open && !loading && active ? optionId(active.id) : undefined}
+          aria-describedby={ariaProps['aria-describedby'] ?? describedBy}
+          aria-invalid={ariaProps['aria-invalid'] ?? (invalid || undefined)}
           onFocus={() => onOpenChange(true)}
           onChange={(event) => {
+            setActiveId(null);
             onQueryChange(event.currentTarget.value);
             onOpenChange(true);
           }}
           onKeyDown={(event) => {
+            if (event.nativeEvent.isComposing) {
+              return;
+            }
             if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
               event.preventDefault();
               onOpenChange(true);
-              move(event.key === 'ArrowDown' ? 1 : -1);
+              if (!loading) {
+                move(event.key === 'ArrowDown' ? 1 : -1);
+              }
+            } else if (open && (event.key === 'Home' || event.key === 'End')) {
+              event.preventDefault();
+              setActiveId((event.key === 'Home' ? available[0] : available.at(-1))?.id ?? null);
+            } else if (open && !loading && event.key === 'Enter' && active) {
+              event.preventDefault();
+              select(active);
             } else if (event.key === 'Escape') {
               event.preventDefault();
+              setActiveId(null);
               onOpenChange(false);
             }
           }}
@@ -488,7 +526,7 @@ export function LumenComboBox({
       </div>
       {open && !disabled ? (
         <div className="lumen-combobox-popup hbar-app-ui-dialog-menu">
-          <div id={`${id}-listbox`} role="listbox">
+          <div id={`${id}-listbox`} role="listbox" aria-label={labels.open} aria-busy={loading}>
             {optionContent}
           </div>
           {loadMoreLabel && onLoadMore ? (

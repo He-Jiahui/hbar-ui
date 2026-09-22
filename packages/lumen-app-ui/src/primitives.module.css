@@ -18,6 +18,7 @@
     background-color 180ms ease,
     border-color 180ms ease,
     box-shadow 180ms ease,
+    opacity 260ms ease,
     color 180ms ease;
 }
 
@@ -229,6 +230,11 @@
 
 .status[data-tone='danger'] {
   --lumen-status-color: var(--lumen-danger);
+}
+
+:global([data-lumen-motion='off']) .button,
+:global([data-lumen-motion='off']) .iconButton {
+  transition: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

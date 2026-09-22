@@ -56,6 +56,9 @@ export const LumenButton = React.forwardRef<HTMLButtonElement, LumenButtonProps>
     } else if (loading) {
       state = 'running';
     }
+    const hasIndicatorChild = React.Children.toArray(children).some(
+      (child) => React.isValidElement(child) && child.type === LumenIndicator,
+    );
     return (
       <button
         {...other}
@@ -71,10 +74,11 @@ export const LumenButton = React.forwardRef<HTMLButtonElement, LumenButtonProps>
         disabled={disabled || loading}
       >
         {children}
-        {state ? (
+        {!hasIndicatorChild ? (
           <LumenIndicator
             edge={indicatorEdge}
-            state={state}
+            state={state ?? 'idle'}
+            visible={Boolean(state)}
             tone={indicatorTone(tone)}
             length="action"
           />

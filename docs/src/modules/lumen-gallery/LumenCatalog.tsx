@@ -66,6 +66,7 @@ const localized = {
   zh: {
     title: '墨光 · Application UI 目录',
     back: '返回可操作案例',
+    foundations: '基础组件与设计语言',
     theme: '切换黑白主题',
     locale: 'English',
     search: '搜索类别、ID 或组件说明',
@@ -94,6 +95,7 @@ const localized = {
   en: {
     title: 'Lumen · Application UI catalog',
     back: 'Back to interactive gallery',
+    foundations: 'Foundation components',
     theme: 'Switch black and white theme',
     locale: '中文',
     search: 'Search category, ID, or component description',
@@ -171,6 +173,9 @@ export default function LumenCatalog() {
             <p>{copy.count(categories.length, LUMEN_SOURCE_VARIANTS.length, migrated.size)}</p>
           </div>
           <div className={styles.actions}>
+            <LumenLink className={styles.backLink} href="/experiments/lumen-app-ui/foundations/">
+              {copy.foundations}
+            </LumenLink>
             <LumenLink className={styles.backLink} href="/experiments/lumen-app-ui/">
               {copy.back}
             </LumenLink>

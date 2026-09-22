@@ -4,6 +4,7 @@ import { createRenderer, screen } from '@mui/internal-test-utils';
 import {
   LumenButton,
   LumenIconButton,
+  LumenIndicator,
   LumenNavigationButton,
   LumenProvider,
   LumenStatus,
@@ -72,5 +73,26 @@ describe('Lumen application primitives', () => {
     );
     expect(screen.getByText('Supporting text')).to.have.attribute('data-tone', 'muted');
     expect(screen.getByText('Connected')).to.have.attribute('data-tone', 'success');
+  });
+
+  it('retains an indicator through selection, running, disabled and idle states', () => {
+    const view = render(<LumenButton indicatorState="selected">Run</LumenButton>);
+    const strip = view.container.querySelector('[data-edge]');
+    const beam = strip?.firstElementChild;
+    view.rerender(<LumenButton loading>Run</LumenButton>);
+    expect(strip).to.have.attribute('data-state', 'running');
+    view.rerender(<LumenButton disabled>Run</LumenButton>);
+    expect(strip).to.have.attribute('data-state', 'disabled');
+    view.rerender(<LumenButton>Run</LumenButton>);
+    expect(strip).to.have.attribute('data-visible', 'false');
+    expect(view.container.querySelector('[data-edge]')).to.equal(strip);
+    expect(strip?.firstElementChild).to.equal(beam);
+    view.rerender(
+      <LumenButton>
+        <LumenIndicator state="selected" />
+        Run
+      </LumenButton>,
+    );
+    expect(view.container.querySelectorAll('[data-edge]')).to.have.length(1);
   });
 });

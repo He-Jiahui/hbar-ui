@@ -6,6 +6,7 @@
   border-radius: var(--lumen-radius-surface, 1rem);
   isolation: isolate;
   border: 0.0625rem solid transparent;
+  transition: box-shadow var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease);
 }
 
 .surface[data-interactive='true']::after {
@@ -48,6 +49,7 @@
   border-radius: inherit;
   background: var(--lumen-glass);
   backdrop-filter: blur(1.25rem);
+  transition: background-color var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease);
 }
 
 .surface[data-material='frost'] {
@@ -82,6 +84,11 @@
   justify-content: center;
   flex-shrink: 0;
   pointer-events: none;
+  opacity: 1;
+  transition: opacity var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease);
+}
+.indicator[data-visible='false'] {
+  opacity: 0;
 }
 .indicator[data-tone='info'] {
   --lumen-light: var(--lumen-info, var(--lumen-ink));
@@ -113,9 +120,23 @@
   border-radius: 1rem;
   opacity: 0.2;
   transition:
-    width 180ms ease,
-    height 180ms ease,
-    opacity 180ms ease;
+    width var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease),
+    height var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease),
+    opacity var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease),
+    background-color var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease);
+}
+.beam::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--lumen-light) 0 0.3rem,
+    transparent 0.3rem 0.5rem
+  );
+  opacity: 0;
+  transition: opacity var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease);
 }
 .indicator[data-edge='top'] .beam,
 .indicator[data-edge='bottom'] .beam {
@@ -148,11 +169,43 @@
   inset: 0;
   border-radius: inherit;
   opacity: 0;
+  transition: opacity var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease);
+}
+.halo > .steadyGlow,
+.halo > .runningGlow,
+.halo .pulseGlow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+.steadyGlow,
+.pulseGlow {
   box-shadow:
     0 0 0.25rem var(--lumen-light),
     0 0 var(--lumen-glow-near, 0.875rem) var(--lumen-light),
     0 0 var(--lumen-glow-far, 1.75rem) var(--lumen-light);
-  transition: opacity 180ms ease;
+  transition: box-shadow var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease);
+}
+.steadyGlow,
+.runningGlow {
+  transition:
+    opacity var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease),
+    box-shadow var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease);
+}
+.runningGlow {
+  opacity: 0;
+}
+.pulseGlow {
+  animation: breathe 2.6s ease-in-out infinite paused;
+}
+.indicator[data-state='running'] .steadyGlow {
+  opacity: 0;
+}
+.indicator[data-state='running'] .runningGlow {
+  opacity: 1;
+}
+.indicator[data-state='running'] .pulseGlow {
+  animation-play-state: running;
 }
 .indicator:not([data-tone='neutral']) .beam {
   opacity: 0.5;
@@ -200,17 +253,13 @@
 .indicator[data-state='running'] .halo {
   opacity: var(--lumen-glow, 0.65);
 }
-.indicator[data-state='running'] .halo {
-  animation: breathe 2.6s ease-in-out infinite;
-}
 .indicator[data-state='failed'] .beam {
-  background: repeating-linear-gradient(
-    to bottom,
-    var(--lumen-light) 0 0.3rem,
-    transparent 0.3rem 0.5rem
-  );
+  background-color: transparent;
   opacity: 0.65;
   height: 65%;
+}
+.indicator[data-state='failed'] .beam::before {
+  opacity: 1;
 }
 .indicator[data-state='failed'] .halo {
   opacity: calc(var(--lumen-glow, 0.65) * 0.65);
@@ -324,26 +373,40 @@
 @keyframes breathe {
   0%,
   100% {
-    opacity: calc(var(--lumen-glow, 0.65) * 0.3);
+    opacity: 0.3;
   }
   50% {
-    opacity: var(--lumen-glow, 0.65);
+    opacity: 1;
   }
 }
-:global([data-lumen-motion='off']) .halo {
+:global([data-lumen-motion='off']) .pulseGlow {
   animation: none;
 }
 :global([data-lumen-motion='off']) .surface::after,
+:global([data-lumen-motion='off']) .surface,
+:global([data-lumen-motion='off']) .glass,
+:global([data-lumen-motion='off']) .beam::before,
+:global([data-lumen-motion='off']) .indicator,
+:global([data-lumen-motion='off']) .steadyGlow,
+:global([data-lumen-motion='off']) .runningGlow,
+:global([data-lumen-motion='off']) .pulseGlow,
 :global([data-lumen-motion='off']) .halo,
 :global([data-lumen-motion='off']) .beam {
   transition: none;
 }
 @media (prefers-reduced-motion: reduce) {
-  .halo {
+  .pulseGlow {
     animation: none !important;
     transition: none;
   }
   .beam,
+  .beam::before,
+  .surface,
+  .glass,
+  .halo,
+  .indicator,
+  .steadyGlow,
+  .runningGlow,
   .surface::after {
     transition: none;
   }

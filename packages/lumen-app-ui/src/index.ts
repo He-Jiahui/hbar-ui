@@ -1652,10 +1652,12 @@ export {
   DEFAULT_LUMEN_APPEARANCE,
   LUMEN_SIZES,
   normalizeLumenGlow,
+  resolveLumenColors,
 } from './appearance';
 export type {
   LumenAppearance,
   LumenAppearanceRoot,
+  LumenColors,
   LumenMode,
   LumenShape,
   LumenSize,

@@ -93,6 +93,8 @@
 
 html:has([data-lumen-mode]),
 [data-lumen-mode] {
+  --lumen-motion-duration: 260ms;
+  --lumen-motion-easing: cubic-bezier(0.2, 0.8, 0.2, 1);
   /* prettier-ignore */
   --hbar-app-ui-icon-xs: .75rem;
   /* prettier-ignore */

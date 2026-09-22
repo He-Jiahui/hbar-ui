@@ -90,4 +90,32 @@ describe('LumenProvider', () => {
     expect(style.colorScheme).to.equal('dark');
     expect(properties.get('--lumen-glow')).to.equal('1');
   });
+
+  it('scopes custom colors and resets derived values when overrides are removed', () => {
+    const custom: LumenAppearance = {
+      ...appearance,
+      colors: { foreground: '#b8ead3', background: '#101b20', contrast: '#050505' },
+    };
+    const view = render(
+      <LumenProvider appearance={custom} withCssBaseline={false}>
+        <LumenSurface />
+      </LumenProvider>,
+    );
+    const provider = view.container.querySelector<HTMLElement>('[data-lumen-mode]');
+    expect(provider?.style.getPropertyValue('--lumen-ink')).to.equal('#b8ead3');
+    expect(provider?.style.getPropertyValue('--lumen-canvas')).to.equal('#101b20');
+    expect(provider?.style.getPropertyValue('--lumen-contrast')).to.equal('#050505');
+    const root = document.createElement('div');
+    applyLumenAppearance(root, custom);
+    expect(root.style.getPropertyValue('--lumen-ink')).to.equal('#b8ead3');
+    view.rerender(
+      <LumenProvider appearance={{ ...appearance, mode: 'light' }} withCssBaseline={false}>
+        <LumenSurface />
+      </LumenProvider>,
+    );
+    expect(provider?.style.getPropertyValue('--lumen-ink')).to.equal('');
+    expect(provider?.style.getPropertyValue('--lumen-canvas')).to.equal('#f5f5f5');
+    applyLumenAppearance(root, { ...appearance, mode: 'light' });
+    expect(root.style.getPropertyValue('--lumen-contrast')).to.equal('');
+  });
 });

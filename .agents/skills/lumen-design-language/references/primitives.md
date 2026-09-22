@@ -6,7 +6,7 @@
 
 两种模式共享位置、长度、状态与文字语义。深色以近黑背景、近白正文和白色线芯构成；浅色以白色背景、近黑正文和黑色线芯构成。两者均有柔和外发光：深色散射白光，浅色扩散黑墨。成功、警告、错误、信息色只表达语义，并始终搭配文本、图标或控件状态。
 
-使用共享变量：`--lumen-canvas`、`--lumen-ink`、`--lumen-muted`、`--lumen-subtle`、`--lumen-line`、`--lumen-edge`、`--lumen-selection`、`--lumen-beam-shadow`。宿主的 `--lumen-glow` 同时控制两种模式的扩散强度，`data-lumen-motion` 通过 appearance 控制动态效果。没有光晕时仍须可识别选中和焦点。
+使用共享变量：`--lumen-canvas`、`--lumen-ink`、`--lumen-muted`、`--lumen-subtle`、`--lumen-line`、`--lumen-edge`、`--lumen-glow-near`、`--lumen-glow-far`。宿主的 `--lumen-glow` 控制共享灯条在两种模式的扩散强度，`data-lumen-motion` 通过 appearance 控制动态效果。没有光晕时仍须可识别选中和焦点。MUI 适配层保留已确认的默认光晕，自定义配色路径才使用派生配色。
 
 `LumenIndicator` 的结构是线芯加可选光晕。水平条适合动作、页签、输入边界；垂直条适合列表/导航选择。idle 微弱，hover 增强，selected 明确，running 可缓慢呼吸，failed 使用语义色与错误文字，disabled 停止动态。灯带本身 `aria-hidden`，真实状态由按钮、输入或宿主状态文本提供。
 

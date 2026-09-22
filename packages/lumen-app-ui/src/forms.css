@@ -31,6 +31,22 @@
   background: var(--lumen-reading);
   color: var(--lumen-ink);
   font: inherit;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease,
+    opacity 180ms ease;
+}
+
+[data-lumen-motion='off'] .lumen-control {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lumen-control {
+    transition: none;
+  }
 }
 
 .lumen-control[data-size='s'] {
@@ -186,6 +202,12 @@ textarea.lumen-control {
   inline-size: 100%;
   justify-content: space-between;
   text-align: start;
+}
+
+.lumen-combobox-option[data-active='true'] {
+  background: color-mix(in srgb, var(--lumen-ink) 10%, transparent);
+  outline: 0.0625rem solid var(--lumen-ink);
+  outline-offset: -0.125rem;
 }
 
 .lumen-combobox-option > span:first-child {

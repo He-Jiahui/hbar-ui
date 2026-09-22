@@ -3,7 +3,7 @@
 import * as React from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
-import { normalizeLumenGlow, type LumenAppearance } from './appearance';
+import { getLumenColorProperties, normalizeLumenGlow, type LumenAppearance } from './appearance';
 import createLumenTheme from './theme';
 import styles from './provider.module.css';
 
@@ -21,18 +21,19 @@ export default function LumenProvider({
   style,
   ...other
 }: LumenProviderProps) {
-  const { mode, controlSize, textSize, cornerSize, shape, glow, motion } = appearance;
+  const { mode, controlSize, textSize, cornerSize, shape, glow, motion, colors } = appearance;
   const theme = React.useMemo(
-    () => createLumenTheme(mode, { controlSize, textSize, cornerSize, shape }),
-    [controlSize, cornerSize, mode, shape, textSize],
+    () => createLumenTheme(mode, { controlSize, textSize, cornerSize, shape, colors }),
+    [controlSize, cornerSize, mode, shape, textSize, colors],
   );
   const providerStyle: React.CSSProperties & { '--lumen-glow': number } = {
     ...style,
+    ...getLumenColorProperties(mode, colors),
     '--lumen-glow': normalizeLumenGlow(glow) / 100,
   };
 
   return (
-    <ThemeProvider theme={theme} disableTransitionOnChange>
+    <ThemeProvider theme={theme}>
       {withCssBaseline ? <CssBaseline /> : null}
       <div
         {...other}
