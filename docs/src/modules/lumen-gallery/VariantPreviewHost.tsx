@@ -27,13 +27,31 @@ export default function VariantPreviewHost({
 }: VariantPreviewHostProps) {
   const fixtures = React.useMemo(() => createLumenVariantFixtures(locale), [locale]);
   const [promptValue, setPromptValue] = React.useState('');
+  const [openCommandId, setOpenCommandId] = React.useState<string | null>(null);
   const Component = entry.component;
 
   if (!Component || !hasFixture(entry.category, fixtures)) {
     return <div className={styles.unavailable}>{unavailableLabel}</div>;
   }
 
-  const content = fixtures[entry.category];
+  let content = fixtures[entry.category];
+  if (entry.category === 'command-menu') {
+    const commandKey = ['grouped', 'quick', 'search', 'invite', 'assistant', 'rooms'][
+      entry.variant - 1
+    ] as keyof (typeof fixtures)['command-menu'] | undefined;
+    const command = commandKey ? fixtures['command-menu'][commandKey] : undefined;
+    if (commandKey && command) {
+      content = {
+        ...fixtures['command-menu'],
+        [commandKey]: {
+          ...command,
+          open: openCommandId === entry.id,
+          onOpen: () => setOpenCommandId(entry.id),
+          onClose: () => setOpenCommandId(null),
+        },
+      } as (typeof fixtures)['command-menu'];
+    }
+  }
   const componentProps =
     entry.id === 'hbar-app-ui-prompt-input-1'
       ? {

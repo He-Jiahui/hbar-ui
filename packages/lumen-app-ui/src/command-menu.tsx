@@ -5,6 +5,7 @@ import { LumenCommandList, type LumenCommandListProps } from './command-list';
 import { LumenDialog } from './dialog';
 import { LumenInput, LumenSelect } from './forms';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
+import { LumenDrawer, LumenPopover } from './ui-controls';
 
 export interface LumenCommandSurfaceContent extends LumenCommandListProps {
   readonly open: boolean;
@@ -393,7 +394,7 @@ export function LumenAssistantCommands(content: LumenAssistantCommandsProps) {
   );
 }
 
-function ListCommandSurface({
+function GroupedCommandSurface({
   props,
   content,
 }: {
@@ -412,11 +413,76 @@ function ListCommandSurface({
             title={content.title}
             closeLabel={content.labels.close}
             onClose={content.onClose}
-            className={`hbar-app-ui-command-dialog ${props.variant === 6 ? 'hbar-app-ui-command-dialog-room' : 'hbar-app-ui-command-dialog-list'}`}
+            className="hbar-app-ui-command-dialog hbar-app-ui-command-dialog-list"
             chromeless
           >
             <LumenCommandList {...content} />
           </LumenDialog>
+        </React.Fragment>
+      ) : null}
+    </CommandMenuRoot>
+  );
+}
+
+function QuickCommandSurface({
+  props,
+  content,
+}: {
+  readonly props: LumenCommandMenuProps;
+  readonly content: LumenCommandSurfaceContent | undefined;
+}) {
+  return (
+    <CommandMenuRoot {...props}>
+      {content ? (
+        <div className="hbar-app-ui-quick-command-anchor">
+          <LumenButton className="hbar-app-ui-command-trigger" onClick={content.onOpen}>
+            {content.trigger}
+          </LumenButton>
+          <LumenPopover
+            open={content.open}
+            label={content.title}
+            className="hbar-app-ui-quick-command-popover"
+          >
+            <header>
+              <LumenText as="h2" variant="heading">
+                {content.title}
+              </LumenText>
+              <LumenButton variant="text" size="s" onClick={content.onClose}>
+                {content.labels.close}
+              </LumenButton>
+            </header>
+            <LumenCommandList {...content} />
+          </LumenPopover>
+        </div>
+      ) : null}
+    </CommandMenuRoot>
+  );
+}
+
+function RoomCommandSurface({
+  props,
+  content,
+}: {
+  readonly props: LumenCommandMenuProps;
+  readonly content: LumenCommandSurfaceContent | undefined;
+}) {
+  return (
+    <CommandMenuRoot {...props}>
+      {content ? (
+        <React.Fragment>
+          <LumenButton className="hbar-app-ui-command-trigger" onClick={content.onOpen}>
+            {content.trigger}
+          </LumenButton>
+          <LumenDrawer
+            open={content.open}
+            title={content.title}
+            closeLabel={content.labels.close}
+            onClose={content.onClose}
+            side="start"
+            className="hbar-app-ui-room-command-drawer"
+          >
+            <LumenCommandList {...content} />
+          </LumenDrawer>
         </React.Fragment>
       ) : null}
     </CommandMenuRoot>
@@ -466,13 +532,13 @@ export function LumenCommandMenu(props: LumenCommandMenuProps) {
   const context = useLumenCommandMenuContent();
   const content = props.content ?? context;
   if (props.variant === 1) {
-    return <ListCommandSurface props={props} content={content.grouped} />;
+    return <GroupedCommandSurface props={props} content={content.grouped} />;
   }
   if (props.variant === 2) {
-    return <ListCommandSurface props={props} content={content.quick} />;
+    return <QuickCommandSurface props={props} content={content.quick} />;
   }
   if (props.variant === 6) {
-    return <ListCommandSurface props={props} content={content.rooms} />;
+    return <RoomCommandSurface props={props} content={content.rooms} />;
   }
   if (props.variant === 3) {
     return (
