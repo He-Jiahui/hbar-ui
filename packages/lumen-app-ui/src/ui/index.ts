@@ -55,4 +55,5 @@ export { LumenIcon } from '../workbench';
 export type { LumenIconProps, LumenIconTier } from '../workbench';
 export * from '../ui-controls';
 export * from '../ui-compositions';
+export { DEFAULT_LUMEN_APPEARANCE, LUMEN_SIZES } from '../appearance';
 export type { LumenAppearance, LumenMode, LumenShape, LumenSize } from '../appearance';

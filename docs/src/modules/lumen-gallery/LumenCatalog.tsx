@@ -1,9 +1,15 @@
 import * as React from 'react';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import CssBaseline from '@mui/material/CssBaseline';
-import { ThemeProvider } from '@mui/material/styles';
-import { LumenField, LumenIndicator, LumenSurface, createLumenTheme } from '@lumen/app-ui';
+import {
+  DEFAULT_LUMEN_APPEARANCE,
+  LumenButton,
+  LumenField,
+  LumenIndicator,
+  LumenInput,
+  LumenLink,
+  LumenNavigationButton,
+  LumenProvider,
+  LumenSurface,
+} from '@lumen/app-ui/ui';
 import {
   LUMEN_MIGRATED_VARIANT_IDS,
   LUMEN_SOURCE_VARIANTS,
@@ -83,7 +89,7 @@ const localized = {
     previewPending: '当前分类尚未提供预览',
     empty: '没有匹配的来源项',
     open: '打开 Lumen 案例',
-    note: '目录记录来源及迁移进度；未迁移项不作为可复用组件展示。',
+    note: '目录按稳定 ID 展示正式 Lumen 组件；选择任一条目可检查它的真实结构和交互。',
   },
   en: {
     title: 'Lumen · Application UI catalog',
@@ -111,7 +117,7 @@ const localized = {
     previewPending: 'No preview is available for this family yet',
     empty: 'No matching source entries',
     open: 'Open Lumen example',
-    note: 'The catalog records source structure and migration status; pending items are not reusable components.',
+    note: 'The catalog presents formal Lumen components by stable ID; select any entry to inspect its real structure and interaction.',
   },
 };
 
@@ -129,7 +135,7 @@ export default function LumenCatalog() {
   const [selectedId, setSelectedId] = React.useState('hbar-app-ui-prompt-input-1');
   const [query, setQuery] = React.useState('');
   const copy = localized[locale];
-  const theme = React.useMemo(() => createLumenTheme(mode), [mode]);
+  const appearance = React.useMemo(() => ({ ...DEFAULT_LUMEN_APPEARANCE, mode }), [mode]);
   const statusFor = (id: string) => (migrated.has(id) ? copy.ready : copy.pending);
   const matching = LUMEN_VARIANT_REGISTRY.filter((item) => {
     const term = query.trim().toLocaleLowerCase();
@@ -170,8 +176,7 @@ export default function LumenCatalog() {
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <LumenProvider appearance={appearance}>
       <main className={styles.catalog} data-lumen-mode={mode}>
         <header className={styles.header}>
           <div>
@@ -179,55 +184,60 @@ export default function LumenCatalog() {
             <p>{copy.count(categories.length, LUMEN_SOURCE_VARIANTS.length, migrated.size)}</p>
           </div>
           <div className={styles.actions}>
-            <Button component="a" href="/experiments/lumen-app-ui/">
+            <LumenLink className={styles.backLink} href="/experiments/lumen-app-ui/">
               {copy.back}
-            </Button>
-            <Button onClick={() => setLocale((current) => (current === 'zh' ? 'en' : 'zh'))}>
+            </LumenLink>
+            <LumenButton
+              variant="text"
+              onClick={() => setLocale((current) => (current === 'zh' ? 'en' : 'zh'))}
+            >
               {copy.locale}
-            </Button>
-            <Button onClick={() => setMode((current) => (current === 'dark' ? 'light' : 'dark'))}>
+            </LumenButton>
+            <LumenButton
+              variant="text"
+              onClick={() => setMode((current) => (current === 'dark' ? 'light' : 'dark'))}
+            >
               {copy.theme}
-            </Button>
+            </LumenButton>
           </div>
         </header>
         <LumenField boundary="horizontal" className={styles.search}>
-          <TextField
-            fullWidth
-            size="small"
+          <LumenInput
+            type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder={copy.search}
-            slotProps={{ htmlInput: { 'aria-label': copy.search } }}
+            aria-label={copy.search}
           />
         </LumenField>
         <p className={styles.note}>{copy.note}</p>
         <div className={styles.layout}>
           <nav className={styles.categories} aria-label={copy.category}>
             <h2>{copy.category}</h2>
-            <Button
-              aria-current={category === null ? 'page' : undefined}
+            <LumenNavigationButton
+              selected={category === null}
+              indicatorEdge="right"
               onClick={() => setCategory(null)}
             >
               {copy.all}
-              <LumenIndicator edge="right" state={category === null ? 'selected' : 'idle'} />
-            </Button>
+            </LumenNavigationButton>
             {categories.map((name) => {
               const count = LUMEN_SOURCE_VARIANTS.filter((item) => item.category === name).length;
               const built = LUMEN_SOURCE_VARIANTS.filter(
                 (item) => item.category === name && migrated.has(item.id),
               ).length;
               return (
-                <Button
+                <LumenNavigationButton
                   key={name}
-                  aria-current={category === name ? 'page' : undefined}
+                  selected={category === name}
+                  indicatorEdge="right"
                   onClick={() => setCategory(name)}
                 >
                   <span>
                     {labels[name]?.[locale === 'zh' ? 0 : 1] ?? name}
                     <small>{copy.categoryCount(built, count)}</small>
                   </span>
-                  <LumenIndicator edge="right" state={category === name ? 'selected' : 'idle'} />
-                </Button>
+                </LumenNavigationButton>
               );
             })}
           </nav>
@@ -235,20 +245,17 @@ export default function LumenCatalog() {
             <h2>{copy.variants}</h2>
             {matching.length === 0 && <p>{copy.empty}</p>}
             {matching.map((item) => (
-              <Button
+              <LumenNavigationButton
                 key={item.id}
-                aria-current={selected?.id === item.id ? 'page' : undefined}
+                selected={selected?.id === item.id}
+                indicatorEdge="right"
                 onClick={() => setSelectedId(item.id)}
               >
                 <span>
                   {item.id}
                   <small>{statusFor(item.id)}</small>
                 </span>
-                <LumenIndicator
-                  edge="right"
-                  state={selected?.id === item.id ? 'selected' : 'idle'}
-                />
-              </Button>
+              </LumenNavigationButton>
             ))}
           </nav>
           <div className={styles.detail}>
@@ -286,12 +293,12 @@ export default function LumenCatalog() {
                     </div>
                   </dl>
                   {ready && galleryIndex && (
-                    <Button
-                      component="a"
+                    <LumenLink
+                      className={styles.openLink}
                       href={`/experiments/lumen-app-ui/?variant=${galleryIndex}`}
                     >
                       {copy.open}
-                    </Button>
+                    </LumenLink>
                   )}
                   <section className={styles.previewSection} aria-label={copy.preview}>
                     <div className={styles.previewHeading}>
@@ -308,6 +315,6 @@ export default function LumenCatalog() {
           </div>
         </div>
       </main>
-    </ThemeProvider>
+    </LumenProvider>
   );
 }

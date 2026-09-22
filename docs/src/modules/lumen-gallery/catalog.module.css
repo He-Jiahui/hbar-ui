@@ -5,7 +5,7 @@
   gap: 1.25rem;
   padding: 2rem;
   color: var(--lumen-ink);
-  background: #090909;
+  background: var(--lumen-contrast);
   color-scheme: dark;
   font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
   background-image: linear-gradient(
@@ -65,6 +65,7 @@
 
 .actions {
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .catalog button,
@@ -77,8 +78,20 @@
   max-width: 36rem;
 }
 
-.search :global(.MuiInputBase-root) {
-  color: var(--lumen-ink);
+.backLink,
+.openLink {
+  min-block-size: var(--lumen-control-size);
+  display: inline-flex;
+  align-items: center;
+  padding-inline: var(--lumen-control-padding-inline);
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-control);
+  text-decoration: none;
+}
+
+.backLink:hover,
+.openLink:hover {
+  background: color-mix(in srgb, var(--lumen-ink) 10%, transparent);
 }
 
 .note {
