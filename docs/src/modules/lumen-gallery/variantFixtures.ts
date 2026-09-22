@@ -13,7 +13,6 @@ import type {
   LumenKanbanContent,
   LumenMobileContent,
   LumenOnboardingContent,
-  LumenPaywallContent,
   LumenPromptInputContent,
   LumenSchedulingContent,
   LumenWizardContent,
@@ -33,6 +32,7 @@ import { createListFixtures } from './listFixtures';
 import { createMonitoringFixtures } from './monitoringFixtures';
 import { createNavbarFixtures } from './navbarFixtures';
 import { createNotificationFixtures } from './notificationFixtures';
+import { createPaywallFixtures } from './paywallFixtures';
 import { createSettingsFormFixtures } from './settingsFormFixtures';
 import { createSupportFixtures } from './supportFixtures';
 import { createToolCallsFixtures } from './toolCallsFixtures';
@@ -3228,199 +3228,7 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
         baseUrl: 'https://lumen.dev/workspace',
       },
     } satisfies LumenOnboardingContent,
-    paywall: {
-      article: {
-        labels: {
-          eyebrow: previewText(locale, 'paywall.article.labels.eyebrow'),
-          title: previewText(locale, 'paywall.article.labels.title'),
-          byline: previewText(locale, 'paywall.article.labels.byline'),
-          memberTitle: previewText(locale, 'paywall.article.labels.memberTitle'),
-          memberDescription: previewText(locale, 'paywall.article.labels.memberDescription'),
-          memberAction: previewText(locale, 'paywall.article.labels.memberAction'),
-          alreadyAction: previewText(locale, 'paywall.article.labels.alreadyAction'),
-          lockLabel: previewText(locale, 'paywall.article.labels.lockLabel'),
-        },
-        paragraphs: [
-          previewText(locale, 'paywall.article.paragraphs.item'),
-          previewText(locale, 'paywall.article.paragraphs.item'),
-        ],
-        benefits: [
-          previewText(locale, 'paywall.article.benefits.item'),
-          previewText(locale, 'paywall.article.benefits.item'),
-        ],
-      },
-      featureGate: {
-        labels: {
-          title: previewText(locale, 'paywall.featureGate.labels.title'),
-          description: previewText(locale, 'paywall.featureGate.labels.description'),
-          dismiss: previewText(locale, 'paywall.featureGate.labels.dismiss'),
-          seeIncluded: previewText(locale, 'paywall.featureGate.labels.seeIncluded'),
-          price: previewText(locale, 'paywall.featureGate.labels.price'),
-          defer: previewText(locale, 'paywall.featureGate.labels.defer'),
-          upgrade: previewText(locale, 'paywall.featureGate.labels.upgrade'),
-        },
-        features: [
-          {
-            id: 'item-1',
-            title: previewText(locale, 'paywall.featureGate.features.item.title'),
-            description: previewText(locale, 'paywall.featureGate.features.item.description'),
-          },
-          {
-            id: 'item-2',
-            title: previewText(locale, 'paywall.featureGate.features.item.title'),
-            description: previewText(locale, 'paywall.featureGate.features.item.description'),
-          },
-        ],
-        listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
-      },
-      plans: {
-        labels: {
-          title: previewText(locale, 'paywall.plans.labels.title'),
-          description: previewText(locale, 'paywall.plans.labels.description'),
-          yearlyNote: previewText(locale, 'paywall.plans.labels.yearlyNote'),
-          billingPeriod: previewText(locale, 'paywall.plans.labels.billingPeriod'),
-          monthly: previewText(locale, 'paywall.plans.labels.monthly'),
-          yearly: previewText(locale, 'paywall.plans.labels.yearly'),
-          recommended: previewText(locale, 'paywall.plans.labels.recommended'),
-          current: previewText(locale, 'paywall.plans.labels.current'),
-          choose: previewText(locale, 'paywall.plans.labels.choose'),
-          compare: previewText(locale, 'paywall.plans.labels.compare'),
-          priceNote: previewText(locale, 'paywall.plans.labels.priceNote'),
-        },
-        plans: [
-          {
-            id: 'item-1',
-            name: previewText(locale, 'paywall.plans.plans.item.name'),
-            monthlyPrice: previewText(locale, 'paywall.plans.plans.item.monthlyPrice'),
-            yearlyPrice: previewText(locale, 'paywall.plans.plans.item.yearlyPrice'),
-            priceSuffix: previewText(locale, 'paywall.plans.plans.item.priceSuffix'),
-            description: previewText(locale, 'paywall.plans.plans.item.description'),
-            features: [
-              previewText(locale, 'paywall.plans.plans.item.features.item'),
-              previewText(locale, 'paywall.plans.plans.item.features.item'),
-            ],
-            current: false,
-            featured: false,
-          },
-          {
-            id: 'item-2',
-            name: previewText(locale, 'paywall.plans.plans.item.name'),
-            monthlyPrice: previewText(locale, 'paywall.plans.plans.item.monthlyPrice'),
-            yearlyPrice: previewText(locale, 'paywall.plans.plans.item.yearlyPrice'),
-            priceSuffix: previewText(locale, 'paywall.plans.plans.item.priceSuffix'),
-            description: previewText(locale, 'paywall.plans.plans.item.description'),
-            features: [
-              previewText(locale, 'paywall.plans.plans.item.features.item'),
-              previewText(locale, 'paywall.plans.plans.item.features.item'),
-            ],
-            current: false,
-            featured: false,
-          },
-        ],
-        initialPeriod: 'monthly',
-        listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
-      },
-      usage: {
-        labels: {
-          title: previewText(locale, 'paywall.usage.labels.title'),
-          description: previewText(locale, 'paywall.usage.labels.description'),
-          proTitle: previewText(locale, 'paywall.usage.labels.proTitle'),
-          proDescription: previewText(locale, 'paywall.usage.labels.proDescription'),
-          topUp: previewText(locale, 'paywall.usage.labels.topUp'),
-          upgrade: previewText(locale, 'paywall.usage.labels.upgrade'),
-        },
-        meters: [
-          {
-            id: 'item-1',
-            label: previewText(locale, 'paywall.usage.meters.item.label'),
-            value: previewText(locale, 'paywall.usage.meters.item.value'),
-            progress: 42,
-          },
-          {
-            id: 'item-2',
-            label: previewText(locale, 'paywall.usage.meters.item.label'),
-            value: previewText(locale, 'paywall.usage.meters.item.value'),
-            progress: 59,
-          },
-        ],
-        listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
-      },
-      trial: {
-        labels: {
-          eyebrow: previewText(locale, 'paywall.trial.labels.eyebrow'),
-          title: previewText(locale, 'paywall.trial.labels.title'),
-          description: previewText(locale, 'paywall.trial.labels.description'),
-          paymentTitle: previewText(locale, 'paywall.trial.labels.paymentTitle'),
-          paymentDescription: previewText(locale, 'paywall.trial.labels.paymentDescription'),
-          change: previewText(locale, 'paywall.trial.labels.change'),
-          reactivate: previewText(locale, 'paywall.trial.labels.reactivate'),
-          renewalNote: previewText(locale, 'paywall.trial.labels.renewalNote'),
-        },
-        rows: [
-          {
-            id: 'item-1',
-            label: previewText(locale, 'paywall.trial.rows.item.label'),
-            value: previewText(locale, 'paywall.trial.rows.item.value'),
-          },
-          {
-            id: 'item-2',
-            label: previewText(locale, 'paywall.trial.rows.item.label'),
-            value: previewText(locale, 'paywall.trial.rows.item.value'),
-          },
-          {
-            id: 'item-3',
-            label: previewText(locale, 'paywall.trial.rows.item.label'),
-            value: previewText(locale, 'paywall.trial.rows.item.value'),
-          },
-        ],
-        listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
-      },
-      reads: {
-        labels: {
-          eyebrow: previewText(locale, 'paywall.reads.labels.eyebrow'),
-          title: previewText(locale, 'paywall.reads.labels.title'),
-          description: previewText(locale, 'paywall.reads.labels.description'),
-          emailLabel: 'team1@lumen.dev',
-          emailPlaceholder: 'team1@lumen.dev',
-          keepReading: previewText(locale, 'paywall.reads.labels.keepReading'),
-          alreadySubscribed: previewText(locale, 'paywall.reads.labels.alreadySubscribed'),
-          signIn: previewText(locale, 'paywall.reads.labels.signIn'),
-        },
-        assurances: [
-          previewText(locale, 'paywall.reads.assurances.item'),
-          previewText(locale, 'paywall.reads.assurances.item'),
-        ],
-        readProgress: 42,
-        listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
-      },
-      seat: {
-        labels: {
-          title: previewText(locale, 'paywall.seat.labels.title'),
-          description: previewText(locale, 'paywall.seat.labels.description'),
-          cardTitle: previewText(locale, 'paywall.seat.labels.cardTitle'),
-          cardDescription: previewText(locale, 'paywall.seat.labels.cardDescription'),
-          reasonLabel: previewText(locale, 'paywall.seat.labels.reasonLabel'),
-          reasonPlaceholder: previewText(locale, 'paywall.seat.labels.reasonPlaceholder'),
-          compare: previewText(locale, 'paywall.seat.labels.compare'),
-          send: previewText(locale, 'paywall.seat.labels.send'),
-        },
-        admins: [
-          {
-            id: 'item-1',
-            initials: 'LJ',
-            name: previewText(locale, 'paywall.seat.admins.item.name'),
-            role: previewText(locale, 'paywall.seat.admins.item.role'),
-          },
-          {
-            id: 'item-2',
-            initials: 'AK',
-            name: previewText(locale, 'paywall.seat.admins.item.name'),
-            role: previewText(locale, 'paywall.seat.admins.item.role'),
-          },
-        ],
-        listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
-      },
-    } satisfies LumenPaywallContent,
+    paywall: createPaywallFixtures(locale),
     authentication: createAuthenticationFixtures(locale),
     kanban: {
       labels: {

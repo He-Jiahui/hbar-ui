@@ -37,8 +37,8 @@
 }
 
 .lumen-paywall-glyph {
-  inline-size: 1rem;
-  block-size: 1rem;
+  inline-size: var(--hbar-app-ui-icon-sm, 0.875rem);
+  block-size: var(--hbar-app-ui-icon-sm, 0.875rem);
   flex: 0 0 auto;
   fill: none;
   stroke: currentColor;
@@ -48,18 +48,18 @@
 }
 
 .lumen-paywall-glyph[data-tier='xs'] {
-  inline-size: 0.875rem;
-  block-size: 0.875rem;
+  inline-size: var(--hbar-app-ui-icon-xs, 0.75rem);
+  block-size: var(--hbar-app-ui-icon-xs, 0.75rem);
 }
 
 .lumen-paywall-glyph[data-tier='md'] {
-  inline-size: 1.5rem;
-  block-size: 1.5rem;
+  inline-size: var(--hbar-app-ui-icon-md, 1rem);
+  block-size: var(--hbar-app-ui-icon-md, 1rem);
 }
 
 .lumen-paywall-glyph[data-tier='lg'] {
-  inline-size: 2rem;
-  block-size: 2rem;
+  inline-size: var(--hbar-app-ui-icon-lg, 1.25rem);
+  block-size: var(--hbar-app-ui-icon-lg, 1.25rem);
 }
 
 .hbar-app-ui-paywall-icon {
@@ -285,6 +285,8 @@
 
 .hbar-app-ui-paywall-plans-surface {
   align-items: stretch;
+  justify-content: flex-start;
+  flex-direction: column;
 }
 
 .hbar-app-ui-paywall-plans-head,
@@ -472,8 +474,9 @@
 
 .hbar-app-ui-paywall-limit-card {
   display: flex;
-  gap: 0.25rem 1rem;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
   padding: 1rem;
   border: 0.0625rem solid var(--lumen-edge);
   border-radius: var(--lumen-radius-control);
@@ -481,17 +484,9 @@
   min-inline-size: 0;
 }
 
-.hbar-app-ui-paywall-limit-card > :nth-child(2n + 1) {
-  flex: 1 1 0;
-  min-inline-size: 0;
-}
-
-.hbar-app-ui-paywall-limit-card > :nth-child(2n + 2) {
-  flex: 0 0 auto;
-  min-inline-size: 0;
-}
-
 .hbar-app-ui-paywall-limit-actions {
+  inline-size: 100%;
+  justify-content: flex-end;
 }
 
 .hbar-app-ui-paywall-trial-card,
@@ -637,9 +632,11 @@
 
 @media (max-width: 48rem) {
   .hbar-app-ui-paywall-article {
+    flex-direction: column;
   }
 
   .hbar-app-ui-paywall-member {
+    inline-size: 100%;
   }
 
   .hbar-app-ui-paywall-plans-head,
@@ -650,9 +647,6 @@
 
   .hbar-app-ui-paywall-plans-note {
     text-align: start;
-  }
-
-  .hbar-app-ui-paywall-limit-card {
   }
 
   .hbar-app-ui-paywall-limit-actions {

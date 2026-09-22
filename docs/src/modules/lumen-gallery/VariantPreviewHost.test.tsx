@@ -1647,6 +1647,70 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getByRole('button', { name: '0 unread notifications' })).not.toBeNull();
   });
 
+  it('uses distinct host-owned paywall scenarios for all seven access boundaries', () => {
+    const entries = LUMEN_VARIANT_REGISTRY.filter((candidate) => candidate.category === 'paywall');
+    expect(entries).toHaveLength(7);
+    const expected = [
+      'Why quiet interfaces work better for complex work',
+      'Automations require the Pro plan',
+      'Choose the right plan for your team',
+      'Monthly agent usage limit reached',
+      'Reactivate Northwind Cloud',
+      'Keep reading Lumen Journal',
+      'A Business seat is required',
+    ];
+    entries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('paywall.');
+      expect(view).not.toContain('item-1');
+      expect(view).toContain(expected[index]);
+    });
+  });
+
+  it('dismisses, reprices, unlocks, and requests access from paywall surfaces', async () => {
+    const entry = (variant: number) =>
+      LUMEN_VARIANT_REGISTRY.find(
+        (candidate) => candidate.category === 'paywall' && candidate.variant === variant,
+      )!;
+
+    let view = render(
+      <VariantPreviewHost entry={entry(2)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Close upgrade prompt' }));
+    expect(screen.queryByRole('dialog', { name: 'Automations require the Pro plan' })).toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(3)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    expect(screen.getByText('$24')).not.toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Monthly' }));
+    expect(screen.getByText('$30')).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(6)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    const keepReading = screen.getByRole('button', { name: 'Keep reading' });
+    expect((keepReading as HTMLButtonElement).disabled).toBe(true);
+    await view.user.type(screen.getByRole('textbox', { name: 'Work email' }), 'maya@example.com');
+    expect((keepReading as HTMLButtonElement).disabled).toBe(false);
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(7)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    const send = screen.getByRole('button', { name: 'Send request' });
+    expect((send as HTMLButtonElement).disabled).toBe(true);
+    await view.user.type(
+      screen.getByRole('textbox', { name: 'Reason for request' }),
+      'Quarterly audit',
+    );
+    expect((send as HTMLButtonElement).disabled).toBe(false);
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',
