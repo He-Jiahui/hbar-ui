@@ -161,7 +161,7 @@ describe('Lumen application components', () => {
   });
 
   it('renders bounded page, tool, monitoring, and dialog regions', () => {
-    render(
+    const { container } = render(
       <LumenProvider appearance={appearance} withCssBaseline={false}>
         <LumenPageHeader
           title="Status"
@@ -189,6 +189,9 @@ describe('Lumen application components', () => {
     expect(screen.getByRole('region', { name: 'Files' })).not.toBeNull();
     expect(screen.getByRole('img', { name: 'Activity' })).not.toBeNull();
     expect(screen.getByText('Dialog body')).not.toBeNull();
+    const dialogSurface = container.querySelector('dialog > [data-boundary="horizontal"]');
+    expect(dialogSurface).not.to.equal(null);
+    expect(dialogSurface?.querySelectorAll('[role="separator"]')).to.have.length(1);
   });
 
   it('keeps command query, selection, and execution in the host', async () => {

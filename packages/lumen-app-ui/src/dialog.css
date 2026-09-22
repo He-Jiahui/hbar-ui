@@ -9,12 +9,9 @@
   padding: 0;
   translate: -50% -50%;
   overflow: hidden;
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: var(--lumen-radius-surface, 1rem);
-  background: var(--lumen-reading);
+  border: 0;
+  background: transparent;
   color: var(--lumen-ink);
-  box-shadow: 0 1.5rem 5rem color-mix(in srgb, #000 45%, transparent);
-  backdrop-filter: blur(1.75rem);
 }
 
 .hbar-app-ui-dialog-backdrop.lumen-dialog[open] {
@@ -22,13 +19,24 @@
   flex-direction: column;
 }
 
+.lumen-dialog-surface {
+  inline-size: 100%;
+  max-block-size: 100%;
+  box-shadow: 0 1.5rem 5rem color-mix(in srgb, #000 45%, transparent);
+}
+
+.lumen-dialog-content {
+  max-block-size: 100%;
+  overflow: hidden;
+}
+
 .lumen-dialog::backdrop {
   background: color-mix(in srgb, #000 52%, transparent);
   backdrop-filter: blur(0.25rem);
 }
 
-.lumen-dialog > header,
-.lumen-dialog > footer {
+.lumen-dialog-content > header,
+.lumen-dialog-content > footer {
   display: flex;
   min-inline-size: 0;
   flex: 0 0 auto;
@@ -37,11 +45,7 @@
   padding: 0.75rem 1rem;
 }
 
-.lumen-dialog > header {
-  border-block-end: 0.0625rem solid var(--lumen-edge);
-}
-
-.lumen-dialog > header h2 {
+.lumen-dialog-content > header h2 {
   min-inline-size: 0;
   flex: 1 1 auto;
   margin: 0;
@@ -50,9 +54,8 @@
   white-space: nowrap;
 }
 
-.lumen-dialog > footer {
+.lumen-dialog-content > footer {
   justify-content: flex-end;
-  border-block-start: 0.0625rem solid var(--lumen-edge);
 }
 
 .lumen-dialog-body {
@@ -90,8 +93,6 @@
 
 @media (forced-colors: active) {
   .lumen-dialog {
-    border-color: CanvasText;
-    background: Canvas;
-    backdrop-filter: none;
+    background: transparent;
   }
 }

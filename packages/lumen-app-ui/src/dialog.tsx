@@ -1,6 +1,8 @@
 'use client';
 
 import * as React from 'react';
+import LumenDivider from './LumenDivider';
+import LumenSurface from './LumenSurface';
 import { LumenIconButton, LumenText } from './primitives';
 import './dialog.css';
 
@@ -117,18 +119,33 @@ export function LumenDialog({
         }
       }}
     >
-      {!chromeless ? (
-        <header>
-          <LumenText as="h2" variant="heading">
-            {title}
-          </LumenText>
-          <LumenIconButton label={closeLabel} onClick={onClose}>
-            <CloseGlyph />
-          </LumenIconButton>
-        </header>
-      ) : null}
-      <div className="lumen-dialog-body hbar-app-ui-native-dialog-body">{children}</div>
-      {footer ? <footer>{footer}</footer> : null}
+      <LumenSurface
+        boundary="horizontal"
+        className="lumen-dialog-surface"
+        contentClassName="lumen-dialog-content"
+        material="glass"
+      >
+        {!chromeless ? (
+          <React.Fragment>
+            <header>
+              <LumenText as="h2" variant="heading">
+                {title}
+              </LumenText>
+              <LumenIconButton label={closeLabel} onClick={onClose}>
+                <CloseGlyph />
+              </LumenIconButton>
+            </header>
+            <LumenDivider />
+          </React.Fragment>
+        ) : null}
+        <div className="lumen-dialog-body hbar-app-ui-native-dialog-body">{children}</div>
+        {footer ? (
+          <React.Fragment>
+            <LumenDivider />
+            <footer>{footer}</footer>
+          </React.Fragment>
+        ) : null}
+      </LumenSurface>
     </dialog>
   );
 }
