@@ -6,7 +6,6 @@ import type {
   LumenCommandMenuContent,
   LumenCommentsContent,
   LumenEditorContent,
-  LumenPromptInputContent,
 } from '@lumen/app-ui';
 import { createAgentPlanFixtures } from './agentPlanFixtures';
 import { createAiChatFixtures } from './aiChatFixtures';
@@ -31,6 +30,7 @@ import { createNavbarFixtures } from './navbarFixtures';
 import { createNotificationFixtures } from './notificationFixtures';
 import { createOnboardingFixtures } from './onboardingFixtures';
 import { createPaywallFixtures } from './paywallFixtures';
+import { createPromptInputFixtures } from './promptInputLumenFixtures';
 import { createSettingsFormFixtures } from './settingsFormFixtures';
 import { createSchedulingFixtures } from './schedulingFixtures';
 import { createSupportFixtures } from './supportFixtures';
@@ -363,7 +363,8 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
       initialEffortId: 'item-1',
       listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
     } satisfies LumenAiChatContent, */
-    'prompt-input': {
+    'prompt-input': createPromptInputFixtures(locale),
+    /* legacyPromptInput: {
       composerLabels: {
         input: previewText(locale, 'prompt-input.composerLabels.input'),
         placeholder: previewText(locale, 'prompt-input.composerLabels.placeholder'),
@@ -595,7 +596,7 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
           },
         ],
       },
-    } satisfies LumenPromptInputContent,
+    } satisfies LumenPromptInputContent, */
     'agent-activity': {
       live: {
         labels: {

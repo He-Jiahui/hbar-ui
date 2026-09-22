@@ -2204,6 +2204,64 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getAllByText('OpenRouter').length).toBeGreaterThan(0);
   });
 
+  it('uses real prompt research workflows across all seven input variants', async () => {
+    const entries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'prompt-input',
+    );
+    expect(entries).toHaveLength(7);
+    const markers = [
+      'Message composer',
+      'Research tools',
+      'Start with a research question',
+      'Research prompt template',
+      'Add research files',
+      'Scope research context',
+      'Choose a research mode',
+    ];
+    entries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('prompt-input.tools.models.item.label');
+      expect(view).not.toContain('item-1');
+      expect(view).toContain(markers[index]);
+    });
+
+    let view = render(
+      <VariantPreviewHost entry={entries[0]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    const composer = screen.getByRole('textbox', { name: 'Message composer' });
+    await view.user.type(composer, 'Summarize the interview themes');
+    expect((composer as HTMLTextAreaElement).value).toBe('Summarize the interview themes');
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[1]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.selectOptions(screen.getByLabelText('Model'), 'luna');
+    expect((screen.getByLabelText('Model') as HTMLSelectElement).value).toBe('luna');
+    await view.user.click(screen.getByRole('button', { name: /Browse roadmap pages/ }));
+    expect(
+      screen.getByRole('button', { name: /Browse roadmap pages/ }).getAttribute('aria-pressed'),
+    ).toBe('true');
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[2]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: /Plan the Q4 roadmap/ }));
+    expect(screen.getByRole('button', { name: /Plan the Q4 roadmap/ })).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[5]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: /Mention source/ }));
+    expect(screen.getByLabelText('Available sources')).not.toBeNull();
+    await view.user.click(screen.getByRole('button', { name: /Q4 roadmap/ }));
+    expect(screen.getAllByText('Q4 roadmap').length).toBeGreaterThan(0);
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',

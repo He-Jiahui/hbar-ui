@@ -380,11 +380,14 @@
 
 @media (max-width: 48rem) {
   .lumen-prompt-input-template {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
 @media (max-width: 34rem) {
   .lumen-prompt-input-suggestions {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .lumen-prompt-input-tools-bar,
