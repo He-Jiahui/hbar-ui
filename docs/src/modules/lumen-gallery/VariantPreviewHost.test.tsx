@@ -187,4 +187,41 @@ describe('Lumen formal variant fixtures', () => {
     );
     expect(view).toContain('开始试用');
   });
+
+  it('uses distinct host-owned navigation scenarios for all navbar variants', () => {
+    const navbarEntries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'navbar',
+    );
+    expect(navbarEntries).toHaveLength(14);
+    const expected = [
+      'Web refresh',
+      'September sprint',
+      'Latest deployment',
+      'Build calmer software experiences',
+      'Plan, ship, and learn',
+      'requested review in Web refresh',
+      'Paid conversions',
+      'All tasks',
+      'Lumen Market',
+      'Lumen Docs',
+      'Q4 launch brief',
+      'Focus on the work',
+      'NORTH / STUDIO',
+      'Why quiet interfaces work better',
+    ];
+
+    navbarEntries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('Navbar ·');
+      expect(view).toContain(expected[index]);
+    });
+
+    const article = navbarEntries.find((entry) => entry.variant === 14)!;
+    const view = ReactDOMServer.renderToStaticMarkup(
+      <VariantPreviewHost entry={article} locale="zh" unavailableLabel="无法预览" />,
+    );
+    expect(view).toContain('为什么安静的界面更适合复杂工作');
+  });
 });
