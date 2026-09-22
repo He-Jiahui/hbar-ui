@@ -1034,6 +1034,37 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.queryByText(/AA 442/)).toBeNull();
   });
 
+  it('uses native Lumen feedback workflows for all six response surfaces', () => {
+    const feedbackEntries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'feedback',
+    );
+    expect(feedbackEntries).toHaveLength(6);
+    const expected = [
+      'Send product feedback',
+      'How likely are you to recommend Lumen',
+      'How did this support resolution go?',
+      'Feature requests',
+      'Feedback inbox',
+      'Feedback insights',
+    ];
+
+    feedbackEntries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('feedback.');
+      expect(view).not.toContain('hbar-app-ui-feedback-modal');
+      expect(view).toContain(expected[index]);
+    });
+
+    const inbox = feedbackEntries.find((entry) => entry.variant === 5)!;
+    const view = ReactDOMServer.renderToStaticMarkup(
+      <VariantPreviewHost entry={inbox} locale="zh" unavailableLabel="无法预览" />,
+    );
+    expect(view).toContain('反馈收件箱');
+    expect(view).toContain('添加内部备注');
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',
