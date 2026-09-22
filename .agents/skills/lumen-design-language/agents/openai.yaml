@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lumen · 墨光设计语言"
+  short_description: "以深色灯带与浅色墨条构建扁平、无界且信息清晰的 Lumen 基础组件"
+  default_prompt: "使用 $lumen-design-language 改造 Lumen UI 原语，并验证黑白主题、键盘交互与信息层级。"
