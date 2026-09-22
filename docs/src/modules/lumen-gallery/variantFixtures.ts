@@ -1,4 +1,4 @@
-import type { LumenCommandMenuContent, LumenEditorContent } from '@lumen/app-ui';
+import type { LumenCommandMenuContent } from '@lumen/app-ui';
 import { createAgentPlanFixtures } from './agentPlanFixtures';
 import { createAgentActivityFixtures } from './agentActivityLumenFixtures';
 import { createAgentApprovalFixtures } from './agentApprovalLumenFixtures';
@@ -6,6 +6,7 @@ import { createAppShellFixtures } from './appShellLumenFixtures';
 import { createAppSidebarFixtures } from './appSidebarLumenFixtures';
 import { createCommandMenuFixtures } from './commandMenuLumenFixtures';
 import { createCommentsFixtures } from './commentsLumenFixtures';
+import { createEditorFixtures } from './editorLumenFixtures';
 import { createAiChatFixtures } from './aiChatFixtures';
 import { createAppDialogFixtures } from './appDialogFixtures';
 import { createAnalyticsFixtures } from './analyticsFixtures';
@@ -3746,7 +3747,8 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
     } satisfies LumenCommentsContent, */
     scheduling: createSchedulingFixtures(locale),
     integrations: createIntegrationFixtures(locale),
-    editor: {
+    editor: createEditorFixtures(locale),
+    /* legacyEditor: {
       richText: {
         labels: {
           blockMenuLabel: previewText(locale, 'editor.richText.labels.blockMenuLabel'),
@@ -3959,7 +3961,7 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
         initialOutlineOpen: false,
         listStrategy: { kind: 'pane-scroll', expectedMaximum: 24 },
       },
-    } satisfies LumenEditorContent,
+    } satisfies LumenEditorContent, */
     feedback: createFeedbackFixtures(locale),
     support: createSupportFixtures(locale),
     billing: createBillingFixtures(locale),

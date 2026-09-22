@@ -372,6 +372,7 @@
     flex-direction: column;
   }
   .hbar-app-ui-editor-suggestions {
+    min-block-size: 0;
   }
   .hbar-app-ui-editor-suggestion-panel {
     max-block-size: 24rem;

@@ -2511,6 +2511,46 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getByText('Enterprise exports')).not.toBeNull();
   });
 
+  it('uses real Northstar documents across all editor variants', async () => {
+    const entries = LUMEN_VARIANT_REGISTRY.filter((candidate) => candidate.category === 'editor');
+    expect(entries).toHaveLength(5);
+    const markers = [
+      'Northstar Q4 research brief',
+      'northstar-brief.md',
+      'build-brief.ts',
+      'Editing suggestions',
+      'Research brief outline',
+    ];
+    entries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('editor.richText.document.title');
+      expect(view).not.toContain('item-1');
+      expect(view).toContain(markers[index]);
+    });
+
+    let view = render(
+      <VariantPreviewHost entry={entries[0]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    const title = screen.getByLabelText('Document title');
+    expect((title as HTMLInputElement).value).toBe('Northstar Q4 research brief');
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[1]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('tab', { name: 'Preview' }));
+    expect(screen.getByText(/Northstar Q4/)).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[2]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('tab', { name: 'score-themes.ts' }));
+    expect(screen.getByText(/scoreTheme/)).not.toBeNull();
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',
