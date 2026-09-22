@@ -38,7 +38,7 @@ describe('Lumen application components', () => {
   };
 
   it('projects host-owned field accessibility onto native controls', () => {
-    render(
+    const { container } = render(
       <LumenProvider appearance={appearance} withCssBaseline={false}>
         <LumenFormField
           controlId="workspace-name"
@@ -59,6 +59,13 @@ describe('Lumen application components', () => {
     expect(input).to.have.attribute('aria-invalid', 'true');
     expect(input.getAttribute('aria-describedby')).to.contain('workspace-name-description');
     expect(screen.getByRole('checkbox', { name: /Enable sync/ })).not.toBeNull();
+    expect(container.querySelector('[data-boundary="horizontal"]')).to.have.attribute(
+      'data-invalid',
+      'true',
+    );
+    expect(
+      container.querySelectorAll('[data-boundary="horizontal"] > [data-tone="danger"]'),
+    ).to.have.length(2);
   });
 
   it('keeps combobox selection and open state in the host', async () => {
@@ -84,6 +91,40 @@ describe('Lumen application components', () => {
     await user.click(screen.getByRole('option', { name: 'Local provider' }));
     expect(onQueryChange).toHaveBeenCalledWith('Local provider');
     expect(onValueChange).toHaveBeenCalledWith('local');
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it('moves the active combobox option before committing it with Enter', async () => {
+    const onOpenChange = vi.fn();
+    const onValueChange = vi.fn();
+    const onQueryChange = vi.fn();
+    const { user } = render(
+      <LumenProvider appearance={appearance} withCssBaseline={false}>
+        <LumenComboBox
+          id="runtime"
+          value={null}
+          query=""
+          open
+          labels={{ open: 'Open runtimes', empty: 'No runtimes', loading: 'Loading runtimes' }}
+          options={[
+            { id: 'local', label: 'Local runtime' },
+            { id: 'remote', label: 'Remote runtime' },
+          ]}
+          onOpenChange={onOpenChange}
+          onValueChange={onValueChange}
+          onQueryChange={onQueryChange}
+        />
+      </LumenProvider>,
+    );
+
+    const input = screen.getByRole('combobox');
+    await user.click(input);
+    await user.keyboard('{ArrowDown}');
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(input.getAttribute('aria-activedescendant')).to.contain('-1');
+    await user.keyboard('{Enter}');
+    expect(onQueryChange).toHaveBeenCalledWith('Remote runtime');
+    expect(onValueChange).toHaveBeenCalledWith('remote');
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 

@@ -25,10 +25,10 @@
   min-inline-size: 0;
   min-block-size: var(--lumen-control-size, 2.25rem);
   padding: 0.25rem var(--lumen-control-padding-inline, 0.75rem);
-  border: 0.0625rem solid var(--lumen-edge);
+  border: 0;
   border-radius: var(--lumen-radius-control, 0.375rem);
   outline: none;
-  background: var(--lumen-reading);
+  background: transparent;
   color: var(--lumen-ink);
   font: inherit;
 }
@@ -44,11 +44,6 @@
   padding-inline: 0.875rem;
 }
 
-.lumen-control[data-variant='plain'] {
-  border-color: transparent;
-  background: transparent;
-}
-
 textarea.lumen-control {
   min-block-size: 6.5rem;
   resize: vertical;
@@ -59,26 +54,14 @@ textarea.lumen-control {
   opacity: 0.72;
 }
 
-.lumen-control:hover:not(:disabled) {
-  border-color: color-mix(in srgb, var(--lumen-ink) 38%, var(--lumen-edge));
-}
-
-.lumen-control:focus-visible,
-.lumen-combobox:focus-within .lumen-combobox-control {
-  border-color: var(--lumen-ink);
-  box-shadow: 0 0 0.75rem color-mix(in srgb, var(--lumen-ink) 22%, transparent);
+.lumen-control:focus-visible {
+  outline: 0;
 }
 
 .lumen-control:disabled,
 .lumen-checkbox-control:disabled {
   cursor: not-allowed;
   opacity: 0.48;
-}
-
-.lumen-control[aria-invalid='true'],
-.lumen-form-field[data-invalid='true'] .lumen-control,
-.lumen-combobox-control[data-invalid='true'] {
-  border-color: var(--lumen-danger);
 }
 
 .lumen-checkbox {
@@ -132,20 +115,11 @@ textarea.lumen-control {
   display: flex;
   min-inline-size: 0;
   align-items: stretch;
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: var(--lumen-radius-control, 0.375rem);
-  background: var(--lumen-reading);
-}
-
-.lumen-combobox-control[data-variant='plain'] {
-  border-color: transparent;
-  background: transparent;
 }
 
 .lumen-combobox-control .lumen-control {
   min-inline-size: 0;
   flex: 1 1 auto;
-  border: 0;
   background: transparent;
   box-shadow: none;
 }
@@ -155,29 +129,30 @@ textarea.lumen-control {
   border: 0;
 }
 
-.hbar-app-ui-dialog-menu.lumen-combobox-popup {
+.lumen-combobox-popup {
   position: absolute;
   z-index: 30;
   inset-block-start: calc(100% + 0.25rem);
   inset-inline: 0;
   overflow: hidden;
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: var(--lumen-radius-control, 0.375rem);
-  background: var(--lumen-reading);
   box-shadow: 0 0.75rem 2rem color-mix(in srgb, #000 35%, transparent);
-  backdrop-filter: blur(1.5rem);
 }
 
-.lumen-combobox-popup > [role='listbox'] {
+.lumen-combobox-popup-content,
+.lumen-combobox-popup-content > [role='listbox'] {
   display: flex;
-  max-block-size: 16rem;
+  min-inline-size: 0;
   flex-direction: column;
+}
+
+.lumen-combobox-popup-content > [role='listbox'] {
+  max-block-size: 16rem;
   gap: 0.25rem;
   overflow: auto;
   padding: 0.25rem;
 }
 
-.lumen-combobox-popup p {
+.lumen-combobox-popup-content p {
   margin: 0;
   padding: 0.75rem;
 }
@@ -186,6 +161,10 @@ textarea.lumen-control {
   inline-size: 100%;
   justify-content: space-between;
   text-align: start;
+}
+
+.lumen-combobox-option.is-active {
+  background: color-mix(in srgb, var(--lumen-ink) 10%, transparent);
 }
 
 .lumen-combobox-option > span:first-child {
@@ -217,16 +196,21 @@ textarea.lumen-control {
   gap: 0.375rem;
 }
 
-.lumen-multi-select-values > span {
+.lumen-multi-select-value {
   display: inline-flex;
   min-inline-size: 0;
   min-block-size: var(--lumen-control-size, 2.25rem);
   align-items: center;
   gap: 0.25rem;
   padding-inline-start: var(--lumen-control-padding-inline, 0.75rem);
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: var(--lumen-radius-control, 0.375rem);
-  background: var(--lumen-reading);
+}
+
+.lumen-multi-select-value-content {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .lumen-multi-select[data-disabled='true'] {
@@ -234,21 +218,6 @@ textarea.lumen-control {
 }
 
 [data-lumen-shape='square']
-  :is(
-    .lumen-control,
-    .lumen-combobox-control,
-    .lumen-combobox-popup,
-    .lumen-multi-select-values > span
-  ) {
+  :is(.lumen-control, .lumen-combobox-control, .lumen-combobox-popup, .lumen-multi-select-value) {
   border-radius: 0;
-}
-
-@media (forced-colors: active) {
-  .lumen-control,
-  .lumen-combobox-control,
-  .lumen-combobox-popup,
-  .lumen-multi-select-values > span {
-    border-color: CanvasText;
-    background: Canvas;
-  }
 }

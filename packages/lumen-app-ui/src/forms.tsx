@@ -2,9 +2,11 @@
 
 import * as React from 'react';
 import type { LumenSize } from './appearance';
+import LumenField from './LumenField';
+import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
 
-export type LumenFieldVariant = 'outlined' | 'plain';
+export type LumenFieldVariant = 'boundary' | 'outlined' | 'plain';
 
 export interface LumenControlOption {
   id: string;
@@ -98,6 +100,7 @@ export function LumenFormField({
 }
 
 interface LumenControlProps {
+  boundary?: 'horizontal' | 'vertical' | undefined;
   size?: LumenSize | undefined;
   variant?: LumenFieldVariant | undefined;
 }
@@ -124,26 +127,64 @@ function controlClass(className: string | undefined): string {
   return [className, 'lumen-control'].filter(Boolean).join(' ');
 }
 
+function normalizedVariant(variant: LumenFieldVariant): 'boundary' | 'plain' {
+  return variant === 'plain' ? 'plain' : 'boundary';
+}
+
+function isInvalid(value: React.AriaAttributes['aria-invalid']): boolean {
+  return value === true || value === 'true';
+}
+
+function withBoundary(
+  control: React.ReactElement,
+  {
+    boundary,
+    disabled,
+    invalid,
+    variant,
+  }: {
+    boundary: 'horizontal' | 'vertical';
+    disabled: boolean;
+    invalid: boolean;
+    variant: 'boundary' | 'plain';
+  },
+): React.ReactElement {
+  if (variant === 'plain') return control;
+  return (
+    <LumenField boundary={boundary} invalid={invalid} state={disabled ? 'disabled' : 'idle'}>
+      {control}
+    </LumenField>
+  );
+}
+
 export const LumenInput = React.forwardRef<HTMLInputElement, LumenInputProps>(function LumenInput(
   {
     className,
+    boundary = 'horizontal',
     size,
-    variant = 'outlined',
+    variant = 'boundary',
     'data-size': compatibilitySize,
     'data-variant': compatibilityVariant,
     ...other
   },
   ref,
 ) {
-  return (
+  const lumenVariant = normalizedVariant(variant);
+  return withBoundary(
     <input
       {...other}
       ref={ref}
       className={controlClass(className)}
       data-size={size ?? (typeof compatibilitySize === 'string' ? compatibilitySize : undefined)}
-      data-lumen-variant={variant}
+      data-lumen-variant={lumenVariant}
       data-variant={typeof compatibilityVariant === 'string' ? compatibilityVariant : variant}
-    />
+    />,
+    {
+      boundary,
+      disabled: Boolean(other.disabled),
+      invalid: isInvalid(other['aria-invalid']),
+      variant: lumenVariant,
+    },
   );
 });
 
@@ -151,23 +192,31 @@ export const LumenTextarea = React.forwardRef<HTMLTextAreaElement, LumenTextarea
   function LumenTextarea(
     {
       className,
+      boundary = 'horizontal',
       size,
-      variant = 'outlined',
+      variant = 'boundary',
       'data-size': compatibilitySize,
       'data-variant': compatibilityVariant,
       ...other
     },
     ref,
   ) {
-    return (
+    const lumenVariant = normalizedVariant(variant);
+    return withBoundary(
       <textarea
         {...other}
         ref={ref}
         className={controlClass(className)}
         data-size={size ?? (typeof compatibilitySize === 'string' ? compatibilitySize : undefined)}
-        data-lumen-variant={variant}
+        data-lumen-variant={lumenVariant}
         data-variant={typeof compatibilityVariant === 'string' ? compatibilityVariant : variant}
-      />
+      />,
+      {
+        boundary,
+        disabled: Boolean(other.disabled),
+        invalid: isInvalid(other['aria-invalid']),
+        variant: lumenVariant,
+      },
     );
   },
 );
@@ -177,25 +226,33 @@ export const LumenSelect = React.forwardRef<HTMLSelectElement, LumenSelectProps>
     {
       className,
       children,
+      boundary = 'horizontal',
       size,
-      variant = 'outlined',
+      variant = 'boundary',
       'data-size': compatibilitySize,
       'data-variant': compatibilityVariant,
       ...other
     },
     ref,
   ) {
-    return (
+    const lumenVariant = normalizedVariant(variant);
+    return withBoundary(
       <select
         {...other}
         ref={ref}
         className={controlClass(className)}
         data-size={size ?? (typeof compatibilitySize === 'string' ? compatibilitySize : undefined)}
-        data-lumen-variant={variant}
+        data-lumen-variant={lumenVariant}
         data-variant={typeof compatibilityVariant === 'string' ? compatibilityVariant : variant}
       >
         {children}
-      </select>
+      </select>,
+      {
+        boundary,
+        disabled: Boolean(other.disabled),
+        invalid: isInvalid(other['aria-invalid']),
+        variant: lumenVariant,
+      },
     );
   },
 );
@@ -265,6 +322,7 @@ export interface LumenComboBoxProps {
   options: readonly LumenControlOption[];
   labels: LumenComboBoxLabels;
   placeholder?: string | undefined;
+  boundary?: 'horizontal' | 'vertical' | undefined;
   size?: LumenSize | undefined;
   variant?: LumenFieldVariant | undefined;
   disabled?: boolean | undefined;
@@ -307,8 +365,9 @@ export function LumenComboBox({
   options,
   labels,
   placeholder,
+  boundary = 'horizontal',
   size,
-  variant = 'outlined',
+  variant = 'boundary',
   disabled = false,
   loading = false,
   invalid = false,
@@ -319,8 +378,35 @@ export function LumenComboBox({
   onOpenChange,
   onValueChange,
 }: LumenComboBoxProps) {
-  const items = uniqueOptions(options);
-  const available = items.filter((option) => !option.disabled);
+  const root = React.useRef<HTMLDivElement>(null);
+  const generatedId = React.useId().replaceAll(':', '');
+  const listboxId = `${id}-${generatedId}-listbox`;
+  const lumenVariant = normalizedVariant(variant);
+  const items = React.useMemo(() => uniqueOptions(options), [options]);
+  const available = React.useMemo(() => items.filter((option) => !option.disabled), [items]);
+  const [activeId, setActiveId] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!open) {
+      setActiveId(null);
+      return;
+    }
+    if (!available.some((option) => option.id === activeId)) {
+      setActiveId(available.find((option) => option.id === value)?.id ?? available[0]?.id ?? null);
+    }
+  }, [activeId, available, open, value]);
+
+  React.useEffect(() => {
+    if (!open) return undefined;
+    const closeOutside = (event: PointerEvent) => {
+      if (event.target instanceof Node && !root.current?.contains(event.target)) {
+        onOpenChange(false);
+      }
+    };
+    document.addEventListener('pointerdown', closeOutside);
+    return () => document.removeEventListener('pointerdown', closeOutside);
+  }, [onOpenChange, open]);
+
   const select = (option: LumenControlOption) => {
     if (option.disabled) {
       return;
@@ -333,12 +419,12 @@ export function LumenComboBox({
     if (available.length === 0) {
       return;
     }
-    const current = available.findIndex((option) => option.id === value);
+    const current = available.findIndex((option) => option.id === activeId);
     let next = (current + direction + available.length) % available.length;
     if (current < 0) {
       next = direction > 0 ? 0 : available.length - 1;
     }
-    select(available[next]!);
+    setActiveId(available[next]!.id);
   };
   let optionContent: React.ReactNode;
   if (loading) {
@@ -354,15 +440,21 @@ export function LumenComboBox({
       </LumenText>
     );
   } else {
-    optionContent = items.map((option) => (
+    optionContent = items.map((option, index) => (
       <LumenButton
-        key={option.id}
+        key={`${option.id}:${index}`}
+        id={`${listboxId}-${index}`}
         role="option"
         aria-selected={value === option.id}
         disabled={option.disabled}
-        className="lumen-combobox-option"
+        className={['lumen-combobox-option', activeId === option.id ? 'is-active' : '']
+          .filter(Boolean)
+          .join(' ')}
         variant="text"
         size={size}
+        onPointerMove={() => {
+          if (!option.disabled) setActiveId(option.id);
+        }}
         onMouseDown={(event) => event.preventDefault()}
         onClick={() => select(option)}
       >
@@ -381,8 +473,69 @@ export function LumenComboBox({
     ));
   }
 
+  const control = (
+    <div
+      className="lumen-combobox-control"
+      data-size={size}
+      data-variant={variant}
+      data-invalid={invalid || undefined}
+    >
+      <LumenInput
+        id={id}
+        type="text"
+        role="combobox"
+        value={query}
+        placeholder={placeholder}
+        disabled={disabled}
+        size={size}
+        variant="plain"
+        aria-autocomplete="list"
+        aria-expanded={open}
+        aria-controls={listboxId}
+        aria-activedescendant={
+          open && activeId
+            ? `${listboxId}-${items.findIndex((option) => option.id === activeId)}`
+            : undefined
+        }
+        aria-describedby={describedBy}
+        aria-invalid={invalid || undefined}
+        onFocus={() => onOpenChange(true)}
+        onChange={(event) => {
+          onQueryChange(event.currentTarget.value);
+          if (!open) onOpenChange(true);
+        }}
+        onKeyDown={(event) => {
+          if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            if (!open) onOpenChange(true);
+            move(event.key === 'ArrowDown' ? 1 : -1);
+          } else if (event.key === 'Enter' && open) {
+            event.preventDefault();
+            const option = available.find((candidate) => candidate.id === activeId);
+            if (option) select(option);
+          } else if (event.key === 'Escape' && open) {
+            event.preventDefault();
+            onOpenChange(false);
+          }
+        }}
+      />
+      <LumenIconButton
+        className="lumen-combobox-toggle"
+        label={labels.open}
+        size={size}
+        disabled={disabled}
+        aria-expanded={open}
+        onMouseDown={(event) => event.preventDefault()}
+        onClick={() => onOpenChange(!open)}
+      >
+        <FormGlyph name="chevron" />
+      </LumenIconButton>
+    </div>
+  );
+
   return (
     <div
+      ref={root}
       className="lumen-combobox"
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) {
@@ -390,69 +543,31 @@ export function LumenComboBox({
         }
       }}
     >
-      <div
-        className="lumen-combobox-control"
-        data-size={size}
-        data-variant={variant}
-        data-invalid={invalid || undefined}
-      >
-        <LumenInput
-          id={id}
-          type="text"
-          role="combobox"
-          value={query}
-          placeholder={placeholder}
-          disabled={disabled}
-          size={size}
-          variant="plain"
-          aria-expanded={open}
-          aria-controls={`${id}-listbox`}
-          aria-describedby={describedBy}
-          aria-invalid={invalid || undefined}
-          onFocus={() => onOpenChange(true)}
-          onChange={(event) => {
-            onQueryChange(event.currentTarget.value);
-            onOpenChange(true);
-          }}
-          onKeyDown={(event) => {
-            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-              event.preventDefault();
-              onOpenChange(true);
-              move(event.key === 'ArrowDown' ? 1 : -1);
-            } else if (event.key === 'Escape') {
-              event.preventDefault();
-              onOpenChange(false);
-            }
-          }}
-        />
-        <LumenIconButton
-          className="lumen-combobox-toggle"
-          label={labels.open}
-          size={size}
-          disabled={disabled}
-          aria-expanded={open}
-          onMouseDown={(event) => event.preventDefault()}
-          onClick={() => onOpenChange(!open)}
-        >
-          <FormGlyph name="chevron" />
-        </LumenIconButton>
-      </div>
+      {lumenVariant === 'plain' ? (
+        control
+      ) : (
+        <LumenField boundary={boundary} invalid={invalid} state={disabled ? 'disabled' : 'idle'}>
+          {control}
+        </LumenField>
+      )}
       {open && !disabled ? (
-        <div className="lumen-combobox-popup hbar-app-ui-dialog-menu">
-          <div id={`${id}-listbox`} role="listbox">
-            {optionContent}
+        <LumenSurface boundary="horizontal" className="lumen-combobox-popup" material="frost">
+          <div className="lumen-combobox-popup-content">
+            <div id={listboxId} role="listbox">
+              {optionContent}
+            </div>
+            {loadMoreLabel && onLoadMore ? (
+              <LumenButton
+                className="lumen-combobox-load-more"
+                variant="text"
+                size={size}
+                onClick={onLoadMore}
+              >
+                {loadMoreLabel}
+              </LumenButton>
+            ) : null}
           </div>
-          {loadMoreLabel && onLoadMore ? (
-            <LumenButton
-              className="lumen-combobox-load-more"
-              variant="text"
-              size={size}
-              onClick={onLoadMore}
-            >
-              {loadMoreLabel}
-            </LumenButton>
-          ) : null}
-        </div>
+        </LumenSurface>
       ) : null}
     </div>
   );
@@ -494,17 +609,26 @@ export function LumenMultiSelect({
       {selected.length > 0 ? (
         <div className="lumen-multi-select-values">
           {selected.map((option) => (
-            <span key={option.id}>
-              <LumenText as="span">{option.label}</LumenText>
-              <LumenIconButton
-                label={labels.remove(option.label)}
-                size={size}
-                disabled={disabled}
-                onClick={() => onValuesChange(uniqueValues.filter((value) => value !== option.id))}
-              >
-                <FormGlyph name="close" />
-              </LumenIconButton>
-            </span>
+            <LumenSurface
+              boundary="horizontal"
+              className="lumen-multi-select-value"
+              key={option.id}
+              material="frost"
+            >
+              <div className="lumen-multi-select-value-content">
+                <LumenText as="span">{option.label}</LumenText>
+                <LumenIconButton
+                  label={labels.remove(option.label)}
+                  size={size}
+                  disabled={disabled}
+                  onClick={() =>
+                    onValuesChange(uniqueValues.filter((value) => value !== option.id))
+                  }
+                >
+                  <FormGlyph name="close" />
+                </LumenIconButton>
+              </div>
+            </LumenSurface>
           ))}
         </div>
       ) : null}
