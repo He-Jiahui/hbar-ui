@@ -662,10 +662,7 @@
   inline-size: 0;
   min-block-size: 2.75rem;
   padding: 0.5rem 0.25rem;
-  border: 0.0625rem solid var(--hbar-app-ui-auth-border);
-  border-radius: 0.5rem;
   outline: 0;
-  background: var(--hbar-app-ui-auth-bg);
   color: var(--hbar-app-ui-auth-text);
   text-align: center;
 }
@@ -777,10 +774,14 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.625rem 0.75rem;
+  color: var(--hbar-app-ui-auth-text);
+}
+
+.hbar-app-ui-auth-project-row,
+.hbar-app-ui-auth-recent-row {
   border: 0.0625rem solid var(--hbar-app-ui-auth-border);
   border-radius: 0.625rem;
   background: var(--hbar-app-ui-auth-soft);
-  color: var(--hbar-app-ui-auth-text);
 }
 
 .hbar-app-ui-auth-device-row,
@@ -788,12 +789,6 @@
 .hbar-app-ui-auth-workspace-row {
   cursor: pointer;
   text-align: start;
-}
-
-.hbar-app-ui-auth-device-row.is-selected,
-.hbar-app-ui-auth-account-row.is-selected,
-.hbar-app-ui-auth-workspace-row.is-selected {
-  border-color: var(--hbar-app-ui-auth-text);
 }
 
 .hbar-app-ui-auth-device-copy,

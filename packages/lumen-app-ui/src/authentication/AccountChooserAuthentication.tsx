@@ -32,6 +32,8 @@ export function AccountChooserAuthentication({
             {accounts.map((account) => (
               <LumenButton
                 type="button"
+                indicatorEdge="right"
+                indicatorState={account.id === selected?.id ? 'selected' : 'idle'}
                 className={`hbar-app-ui-auth-account-row ${account.id === selected?.id ? 'is-selected' : ''}`}
                 key={account.id}
                 onClick={() => setSelectedId(account.id)}

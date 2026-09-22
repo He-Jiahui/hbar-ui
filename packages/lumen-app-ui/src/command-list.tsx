@@ -140,6 +140,8 @@ export function LumenCommandList({
           items.map((item, index) => (
             <LumenButton
               variant="text"
+              indicatorEdge="left"
+              indicatorState={item.id === selected?.id ? 'selected' : 'idle'}
               role="option"
               id={`${listId}-${encodeURIComponent(item.id)}`}
               key={item.id}

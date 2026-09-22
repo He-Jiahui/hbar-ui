@@ -38,6 +38,8 @@ export function PasskeyAuthentication({
             {passkeys.map((passkey) => (
               <LumenButton
                 type="button"
+                indicatorEdge="right"
+                indicatorState={passkey.id === selected?.id ? 'selected' : 'idle'}
                 className={`hbar-app-ui-auth-device-row ${passkey.id === selected?.id ? 'is-selected' : ''}`}
                 key={passkey.id}
                 onClick={() => setSelectedId(passkey.id)}

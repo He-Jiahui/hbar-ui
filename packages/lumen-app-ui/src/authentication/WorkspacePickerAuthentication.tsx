@@ -73,6 +73,8 @@ export function WorkspacePickerAuthentication({
               {visible.map((workspace) => (
                 <LumenButton
                   type="button"
+                  indicatorEdge="right"
+                  indicatorState={workspace.id === selected?.id ? 'selected' : 'idle'}
                   className={`hbar-app-ui-auth-workspace-row ${workspace.id === selected?.id ? 'is-selected' : ''}`}
                   key={workspace.id}
                   onClick={() => setSelectedId(workspace.id)}

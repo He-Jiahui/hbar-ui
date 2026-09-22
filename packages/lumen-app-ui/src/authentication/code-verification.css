@@ -40,9 +40,6 @@
   min-inline-size: 0;
   min-block-size: 2.25rem;
   color: var(--lumen-ink);
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: var(--lumen-radius-control);
-  background: var(--lumen-reading);
 }
 .hbar-app-ui-verification-digits {
   display: flex;

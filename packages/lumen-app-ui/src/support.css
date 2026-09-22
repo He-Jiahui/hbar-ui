@@ -93,8 +93,6 @@
   grid-template-columns: auto minmax(0, 1fr) auto;
   justify-content: stretch;
   padding: 0.875rem;
-  border: 0.0625rem solid var(--lumen-edge);
-  background: var(--lumen-glass);
   text-align: start;
 }
 .lumen-support-topics > button > span:nth-child(2),
