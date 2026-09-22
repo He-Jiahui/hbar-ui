@@ -2130,6 +2130,43 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getByText(/Passed · deploy-842/)).not.toBeNull();
   });
 
+  it('uses real kanban cards and preserves board interactions', async () => {
+    const entries = LUMEN_VARIANT_REGISTRY.filter((candidate) => candidate.category === 'kanban');
+    expect(entries).toHaveLength(6);
+    const expected = [
+      'Northwind product board',
+      'Swimlanes by team',
+      'Group by workstream',
+      'Card details',
+      'Sprint capacity',
+      'Compact board',
+    ];
+    entries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('kanban.compactColumns');
+      expect(view).not.toContain('item-1');
+      expect(view).toContain(expected[index]);
+      if (![2, 3, 4, 5].includes(index)) {
+        expect(view).toContain('NORTH-142');
+      }
+    });
+
+    const view = render(
+      <VariantPreviewHost entry={entries[0]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: /Research share-out/ }));
+    expect(screen.getByText('Northwind product board')).not.toBeNull();
+    view.unmount();
+
+    render(
+      <VariantPreviewHost entry={entries[3]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    expect(screen.getByText('Card details')).not.toBeNull();
+    expect(screen.getAllByText('Research share-out').length).toBeGreaterThan(0);
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',

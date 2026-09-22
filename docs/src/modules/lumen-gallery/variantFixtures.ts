@@ -7,7 +7,6 @@ import type {
   LumenCommandMenuContent,
   LumenCommentsContent,
   LumenEditorContent,
-  LumenKanbanContent,
   LumenPromptInputContent,
 } from '@lumen/app-ui';
 import { createAgentPlanFixtures } from './agentPlanFixtures';
@@ -24,6 +23,7 @@ import getFileManagerFixtures from './fileManagerFixtures';
 import { createFilteringFixtures } from './filteringFixtures';
 import { createFormsFixtures } from './formsFixtures';
 import { createIntegrationFixtures } from './integrationFixtures';
+import { createKanbanFixtures } from './kanbanFixtures';
 import { createListFixtures } from './listFixtures';
 import { createMonitoringFixtures } from './monitoringFixtures';
 import { createMobileFixtures } from './mobileFixtures';
@@ -115,10 +115,6 @@ function previewText(locale: LumenPreviewLocale, key: string): string {
   const familyLabel = familyNames[family]?.[locale === 'zh' ? 0 : 1] ?? family;
   const normalizedLabel = labelNames[label]?.[locale === 'zh' ? 0 : 1] ?? label;
   return `${familyLabel} · ${normalizedLabel}`;
-}
-
-function previewItemText(locale: LumenPreviewLocale, key: string, index: number): string {
-  return `${previewText(locale, key)} ${index}`;
 }
 
 function translated(locale: LumenPreviewLocale, zh: string, en: string) {
@@ -2977,7 +2973,8 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
     onboarding: createOnboardingFixtures(locale),
     paywall: createPaywallFixtures(locale),
     authentication: createAuthenticationFixtures(locale),
-    kanban: {
+    kanban: createKanbanFixtures(locale),
+    /* legacyKanban: {
       labels: {
         boardTitle: previewText(locale, 'kanban.labels.boardTitle'),
         boardDetail: (_count) => previewText(locale, 'kanban.labels.boardDetail'),
@@ -3257,7 +3254,7 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
       ],
       initialCompactColumnId: 'item-1',
       listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
-    } satisfies LumenKanbanContent,
+    } satisfies LumenKanbanContent, */
     wizard: createWizardFixtures(locale),
     /* legacyWizard: {
       information: {

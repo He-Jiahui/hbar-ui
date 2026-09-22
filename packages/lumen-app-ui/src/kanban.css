@@ -286,6 +286,7 @@
   gap: 0.35rem;
 }
 .hbar-app-ui-kanban-variant-5 {
+  min-block-size: 0;
 }
 .lumen-kanban-metrics {
   display: flex;
@@ -349,6 +350,7 @@
   background: var(--lumen-accent);
 }
 .hbar-app-ui-kanban-variant-6 {
+  min-block-size: 0;
 }
 .hbar-app-ui-kanban-variant-6 > .lumen-kanban-tabs {
   justify-content: center;
@@ -394,11 +396,13 @@
     flex-wrap: wrap;
   }
   .lumen-kanban-board {
+    flex-wrap: nowrap;
   }
   .lumen-kanban-board > * {
     flex: 0 1 85vw;
   }
   .lumen-kanban-detail {
+    min-block-size: 0;
   }
   .lumen-kanban-detail > aside {
     border-inline-start: 0;
