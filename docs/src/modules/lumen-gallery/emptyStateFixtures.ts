@@ -18,6 +18,20 @@ const zh = {
   eventStatus: (label: string, value: string) => `${label}: ${value}`,
   none: '等待操作',
   variants: ['初次使用', '无搜索结果', '处理完毕', '加载失败', '空文件夹'],
+  previewContent: {
+    query: 'october',
+    filters: [
+      { id: 'blocked', label: '状态：已阻塞' },
+      { id: 'owner', label: '负责人：我' },
+    ],
+    suggestions: [
+      { id: 'workspace', label: '工作区', query: 'workspace' },
+      { id: 'review', label: '评审', query: 'review' },
+    ],
+    requestId: 'req_91a2',
+    traceId: 'trace_7f12',
+    lastAttempt: '10:24:18',
+  },
   first: {
     heading: '欢迎来到工作区',
     detail: '选择一个开始方式',
@@ -82,6 +96,20 @@ const en: typeof zh = {
   eventStatus: (label: string, value: string) => `${label}: ${value}`,
   none: 'Waiting for interaction',
   variants: ['First run', 'No results', 'Caught up', 'Load failure', 'Empty folder'],
+  previewContent: {
+    query: 'october',
+    filters: [
+      { id: 'blocked', label: 'Status: blocked' },
+      { id: 'owner', label: 'Owner: me' },
+    ],
+    suggestions: [
+      { id: 'workspace', label: 'Workspace', query: 'workspace' },
+      { id: 'review', label: 'Review', query: 'review' },
+    ],
+    requestId: 'req_91a2',
+    traceId: 'trace_7f12',
+    lastAttempt: '10:24:18',
+  },
   first: {
     heading: 'Welcome to your workspace',
     detail: 'Choose a starting path',

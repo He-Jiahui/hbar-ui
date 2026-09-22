@@ -158,16 +158,13 @@ export default function EmptyStateGallery() {
   }
   const stableEntry = requestedId ? getLumenVariant(requestedId) : undefined;
   if (stableEntry) {
-    const stablePreview =
-      stableEntry.category === 'empty-state' ? (
-        sample[stableEntry.variant - 1]
-      ) : (
-        <VariantPreviewHost
-          entry={stableEntry}
-          locale={locale}
-          unavailableLabel={copy.previewUnavailable}
-        />
-      );
+    const stablePreview = (
+      <VariantPreviewHost
+        entry={stableEntry}
+        locale={locale}
+        unavailableLabel={copy.previewUnavailable}
+      />
+    );
     return (
       <LumenProvider appearance={appearance}>
         <main className={styles.stablePreview} data-lumen-mode={mode} data-embedded={embedded}>

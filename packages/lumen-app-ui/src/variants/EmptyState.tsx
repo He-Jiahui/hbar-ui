@@ -111,6 +111,7 @@ function Frame({
     <LumenSurface
       className={styles.frame}
       glassStrength={glassStrength}
+      data-hbar-app-ui-component={id}
       data-hbar-app-ui-variant={id}
     >
       <section className={styles.body} aria-labelledby={`${id}-title`}>

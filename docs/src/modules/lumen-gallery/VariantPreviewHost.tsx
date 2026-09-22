@@ -5,6 +5,7 @@ import {
   type LumenPreviewLocale,
   type LumenVariantFixtures,
 } from './variantFixtures';
+import getEmptyStateFixtures from './emptyStateFixtures';
 import styles from './VariantPreviewHost.module.css';
 
 export interface VariantPreviewHostProps {
@@ -20,6 +21,84 @@ function hasFixture(
   return Object.hasOwn(fixtures, category);
 }
 
+function EmptyStateVariantPreview({
+  entry,
+  locale,
+}: {
+  entry: LumenVariantRegistryEntry;
+  locale: LumenPreviewLocale;
+}) {
+  const fixture = getEmptyStateFixtures(locale);
+  const preview = fixture.previewContent;
+  const [query, setQuery] = React.useState(preview.query);
+  const [filters, setFilters] = React.useState(preview.filters);
+  const [retryStatus, setRetryStatus] = React.useState<'failed' | 'retrying' | 'recovered'>(
+    'failed',
+  );
+  const retryTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  React.useEffect(
+    () => () => {
+      if (retryTimer.current) {
+        clearTimeout(retryTimer.current);
+      }
+    },
+    [],
+  );
+  const Component = entry.component!;
+  let componentProps: Record<string, unknown>;
+  if (entry.variant === 1) {
+    componentProps = {
+      copy: fixture.first,
+      actions: { onConnect: () => undefined, onCreate: () => undefined, onTour: () => undefined },
+    };
+  } else if (entry.variant === 2) {
+    componentProps = {
+      copy: fixture.search,
+      content: { query, filters, suggestions: preview.suggestions },
+      actions: {
+        onQueryChange: setQuery,
+        onRemoveFilter: (id: string) =>
+          setFilters((current) => current.filter((item) => item.id !== id)),
+        onSelectSuggestion: (_id: string, value: string) => setQuery(value),
+      },
+    };
+  } else if (entry.variant === 3) {
+    componentProps = {
+      copy: fixture.caught,
+      actions: { onCreate: () => undefined, onOpenHistory: () => undefined },
+    };
+  } else if (entry.variant === 4) {
+    componentProps = {
+      copy: fixture.failure,
+      content: {
+        requestId: preview.requestId,
+        traceId: preview.traceId,
+        lastAttempt: preview.lastAttempt,
+      },
+      state: {
+        status: retryStatus,
+        error: retryStatus === 'failed' ? fixture.failure.detail : null,
+      },
+      actions: {
+        onRetry: () => {
+          setRetryStatus('retrying');
+          if (retryTimer.current) {
+            clearTimeout(retryTimer.current);
+          }
+          retryTimer.current = setTimeout(() => setRetryStatus('recovered'), 600);
+        },
+      },
+    };
+  } else {
+    componentProps = {
+      copy: fixture.dropzone,
+      content: { accept: '.png,.jpg,.jpeg,.pdf,.csv,.md', multiple: true },
+      actions: { onUpload: () => undefined },
+    };
+  }
+  return <Component {...componentProps} />;
+}
+
 export default function VariantPreviewHost({
   entry,
   locale,
@@ -30,7 +109,19 @@ export default function VariantPreviewHost({
   const [openCommandId, setOpenCommandId] = React.useState<string | null>(null);
   const Component = entry.component;
 
-  if (!Component || !hasFixture(entry.category, fixtures)) {
+  if (!Component) {
+    return <div className={styles.unavailable}>{unavailableLabel}</div>;
+  }
+
+  if (entry.category === 'empty-state') {
+    return (
+      <div className={styles.stage} data-lumen-preview-id={entry.id}>
+        <EmptyStateVariantPreview entry={entry} locale={locale} />
+      </div>
+    );
+  }
+
+  if (!hasFixture(entry.category, fixtures)) {
     return <div className={styles.unavailable}>{unavailableLabel}</div>;
   }
 

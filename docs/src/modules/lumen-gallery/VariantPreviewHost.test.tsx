@@ -15,11 +15,9 @@ describe('Lumen formal variant fixtures', () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation((...messages) => {
       renderErrors.push(`${renderingId}: ${messages.map(String).join(' ')}`);
     });
-    const formalEntries = LUMEN_VARIANT_REGISTRY.filter(
-      (entry) => entry.category !== 'empty-state',
-    );
+    const formalEntries = LUMEN_VARIANT_REGISTRY;
 
-    expect(formalEntries).toHaveLength(295);
+    expect(formalEntries).toHaveLength(300);
     try {
       for (const entry of formalEntries) {
         renderingId = entry.id;
@@ -57,9 +55,7 @@ describe('Lumen formal variant fixtures', () => {
     });
 
     try {
-      for (const entry of LUMEN_VARIANT_REGISTRY.filter(
-        (candidate) => candidate.category !== 'empty-state',
-      )) {
+      for (const entry of LUMEN_VARIANT_REGISTRY) {
         renderingId = entry.id;
         const view = render(
           <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
@@ -90,9 +86,7 @@ describe('Lumen formal variant fixtures', () => {
 
   it('keeps each formal family structurally distinct across its variants', () => {
     const fingerprints = new Map<string, Map<string, string[]>>();
-    for (const entry of LUMEN_VARIANT_REGISTRY.filter(
-      (candidate) => candidate.category !== 'empty-state',
-    )) {
+    for (const entry of LUMEN_VARIANT_REGISTRY) {
       const view = ReactDOMServer.renderToStaticMarkup(
         <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
       );
