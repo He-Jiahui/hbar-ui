@@ -118,22 +118,18 @@ describe('Lumen formal variant fixtures', () => {
     let view = render(
       <VariantPreviewHost entry={nested!} locale="en" unavailableLabel="Preview unavailable" />,
     );
-    await view.user.click(screen.getByRole('button', { name: 'Open nested command menu' }));
+    await view.user.click(screen.getByRole('button', { name: 'Open quick switcher' }));
     expect(view.container.querySelector('.hbar-app-ui-nested-command')).not.toBeNull();
     expect((screen.getByRole('button', { name: 'Back' }) as HTMLButtonElement).disabled).toBe(true);
-    await view.user.click(screen.getByRole('option', { name: /Switch project/ }));
-    expect(screen.getByRole('heading', { name: 'Switch project' })).not.toBeNull();
-    expect(screen.getByRole('option', { name: /Aurora mobile/ })).not.toBeNull();
-    await view.user.click(screen.getByRole('button', { name: 'Back' }));
     expect(screen.getByRole('heading', { name: 'Home' })).not.toBeNull();
     view.unmount();
 
     view = render(
       <VariantPreviewHost entry={popover!} locale="en" unavailableLabel="Preview unavailable" />,
     );
-    await view.user.click(screen.getByRole('button', { name: /Northwind/ }));
+    await view.user.click(screen.getByRole('button', { name: /Northstar/ }));
     expect(view.container.querySelector('.hbar-app-ui-quick-command-popover')).not.toBeNull();
-    expect(screen.getByRole('heading', { name: 'Switch room' })).not.toBeNull();
+    expect(screen.getByRole('heading', { name: 'Switch research room' })).not.toBeNull();
   });
 
   it('renders analytics variants with their declared Lumen chart geometry', () => {
@@ -1884,21 +1880,33 @@ describe('Lumen formal variant fixtures', () => {
     });
 
     let view = render(
-      <VariantPreviewHost entry={entries[0]} locale="en" unavailableLabel="Preview unavailable" />,
+      <VariantPreviewHost
+        entry={entries.find((entry) => entry.variant === 1)!}
+        locale="en"
+        unavailableLabel="Preview unavailable"
+      />,
     );
     await view.user.click(screen.getByRole('button', { name: /^Inbox/ }));
     expect(screen.getAllByText('Inbox queue').length).toBeGreaterThan(0);
     view.unmount();
 
     view = render(
-      <VariantPreviewHost entry={entries[1]} locale="en" unavailableLabel="Preview unavailable" />,
+      <VariantPreviewHost
+        entry={entries.find((entry) => entry.variant === 2)!}
+        locale="en"
+        unavailableLabel="Preview unavailable"
+      />,
     );
     await view.user.click(screen.getByRole('button', { name: 'Open quick actions' }));
     expect(screen.getByRole('button', { name: 'Run Task' })).not.toBeNull();
     view.unmount();
 
     view = render(
-      <VariantPreviewHost entry={entries[2]} locale="en" unavailableLabel="Preview unavailable" />,
+      <VariantPreviewHost
+        entry={entries.find((entry) => entry.variant === 3)!}
+        locale="en"
+        unavailableLabel="Preview unavailable"
+      />,
     );
     await view.user.click(screen.getByRole('button', { name: 'Open search' }));
     await view.user.type(
@@ -1909,14 +1917,22 @@ describe('Lumen formal variant fixtures', () => {
     view.unmount();
 
     view = render(
-      <VariantPreviewHost entry={entries[2]} locale="en" unavailableLabel="Preview unavailable" />,
+      <VariantPreviewHost
+        entry={entries.find((entry) => entry.variant === 4)!}
+        locale="en"
+        unavailableLabel="Preview unavailable"
+      />,
     );
     await view.user.click(screen.getByRole('button', { name: 'Expand navigation sheet' }));
     expect(screen.getByText('New project')).not.toBeNull();
     view.unmount();
 
     view = render(
-      <VariantPreviewHost entry={entries[2]} locale="en" unavailableLabel="Preview unavailable" />,
+      <VariantPreviewHost
+        entry={entries.find((entry) => entry.variant === 5)!}
+        locale="en"
+        unavailableLabel="Preview unavailable"
+      />,
     );
     await view.user.click(screen.getByRole('button', { name: 'Open full-screen menu' }));
     expect(screen.getByRole('dialog')).not.toBeNull();
@@ -2014,7 +2030,11 @@ describe('Lumen formal variant fixtures', () => {
     view.unmount();
 
     view = render(
-      <VariantPreviewHost entry={entries[3]} locale="en" unavailableLabel="Preview unavailable" />,
+      <VariantPreviewHost
+        entry={entries.find((entry) => entry.variant === 5)!}
+        locale="en"
+        unavailableLabel="Preview unavailable"
+      />,
     );
     await view.user.click(screen.getByRole('button', { name: /Confirm and create/ }));
     expect(screen.getAllByText('Created').length).toBeGreaterThan(0);

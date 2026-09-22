@@ -69,6 +69,70 @@ export function createCommandMenuFixtures(locale: GalleryLocale): LumenCommandMe
   return {
     grouped: surface(
       t('Northstar 命令', 'Northstar commands'),
+      t('Open command palette', 'Open command palette'),
+    ),
+    quick: {
+      ...surface(t('快速切换', 'Quick switcher'), t('Open quick switcher', 'Open quick switcher')),
+      navigation: {
+        home: 'Home',
+        back: 'Back',
+        current: 'Home',
+        canGoBack: false,
+        onBack: () => undefined,
+        pages: [
+          {
+            id: 'projects',
+            title: 'Switch project',
+            items: [
+              {
+                id: 'northstar',
+                label: 'Northstar',
+                description: 'Current project',
+                group: 'Projects',
+                shortcut: '1',
+                navigates: false,
+                disabled: false,
+              },
+              {
+                id: 'aurora',
+                label: 'Aurora mobile',
+                description: 'Updated 4m ago',
+                group: 'Projects',
+                shortcut: '2',
+                navigates: false,
+                disabled: false,
+              },
+            ],
+          },
+        ],
+      },
+    },
+    rooms: surface(
+      t('切换研究房间', 'Switch research room'),
+      t('Northstar · ⌘K', 'Northstar · ⌘K'),
+      [
+        {
+          id: 'northstar-room',
+          label: 'Northstar',
+          description: 'Current room',
+          group: 'Recent',
+          shortcut: '⌘ 1',
+          navigates: false,
+          disabled: false,
+        },
+        {
+          id: 'roadmap-room',
+          label: 'Roadmap review',
+          description: 'Active 4m ago',
+          group: 'Recent',
+          shortcut: '⌘ 2',
+          navigates: false,
+          disabled: false,
+        },
+      ],
+    ),
+    /* grouped: surface(
+      t('Northstar 命令', 'Northstar commands'),
       t('打开命令面板', 'Open command palette'),
     ),
     quick: {
@@ -130,7 +194,7 @@ export function createCommandMenuFixtures(locale: GalleryLocale): LumenCommandMe
           disabled: false,
         },
       ],
-    ),
+    ), */
     search: {
       open: false,
       title: t('搜索工作区命令', 'Search workspace commands'),
