@@ -510,6 +510,76 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getByRole('button', { name: 'Skip Update invoice contract' })).not.toBeNull();
   });
 
+  it('uses distinct host-owned file management scenarios for all four browsers', () => {
+    const fileEntries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'file-manager',
+    );
+    expect(fileEntries).toHaveLength(4);
+    const expected = [
+      'Product workspace files',
+      'Launch asset library',
+      'Launch files',
+      'Upload manager',
+    ];
+
+    fileEntries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('File manager ·');
+      expect(view).toContain(expected[index]);
+    });
+
+    const detail = fileEntries.find((entry) => entry.variant === 3)!;
+    const view = ReactDOMServer.renderToStaticMarkup(
+      <VariantPreviewHost entry={detail} locale="zh" unavailableLabel="无法预览" />,
+    );
+    expect(view).toContain('发布文件');
+    expect(view).toContain('仅 Aurora 发布团队可访问');
+  });
+
+  it('searches, filters, selects, inspects, and retries Lumen file manager items', async () => {
+    const entry = (variant: number) =>
+      LUMEN_VARIANT_REGISTRY.find(
+        (candidate) => candidate.category === 'file-manager' && candidate.variant === variant,
+      )!;
+
+    let view = render(
+      <VariantPreviewHost entry={entry(1)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    const search = screen.getByPlaceholderText('Search workspace files');
+    await view.user.type(search, 'hero');
+    expect(screen.getByText('campaign-hero.png')).not.toBeNull();
+    expect(screen.queryByText('Q4-launch-brief.pdf')).toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(2)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Video' }));
+    expect(screen.getByText('launch-teaser.mp4')).not.toBeNull();
+    expect(screen.queryByText('hero-light.png')).toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Select launch-teaser.mp4' }));
+    expect(screen.getByText('2 selected')).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(3)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'View campaign-hero.png' }));
+    expect(screen.getByText('Display P3')).not.toBeNull();
+    expect(screen.getByRole('button', { name: 'Share campaign-hero.png' })).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(4)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Retry customer-research.zip' }));
+    expect(screen.getByRole('button', { name: 'Pause customer-research.zip' })).not.toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Remove Q4-launch-brief.pdf' }));
+    expect(screen.queryByText('Q4-launch-brief.pdf')).toBeNull();
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',
