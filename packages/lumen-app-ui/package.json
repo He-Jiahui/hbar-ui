@@ -41,6 +41,7 @@
     }
   },
   "scripts": {
+    "validate-boundaries": "node scripts/validate-lumen-boundaries.mjs",
     "typescript": "tsc -p tsconfig.json",
     "build": "pnpm typescript && vite build && tsc -p tsconfig.build.json"
   },
