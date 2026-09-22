@@ -73,7 +73,33 @@ export function createNavbarFixtures(locale: NavbarFixtureLocale): LumenNavbarCo
         sortedBy: t('按优先级排序', 'Sorted by priority'),
         metadataSeparator: '·',
         breadcrumbLabel: (items) => t(`路径：${items.join(' / ')}`, `Path: ${items.join(' / ')}`),
+        inviteTitle: t('邀请到九月冲刺', 'Invite to September sprint'),
+        emptyMenu: t('没有可用操作', 'No available actions'),
       },
+      members: [
+        { id: 'sofia', name: 'Sofia Alvarez', detail: t('产品设计', 'Product design') },
+        { id: 'marcus', name: 'Marcus Bell', detail: t('前端工程', 'Frontend engineering') },
+        {
+          id: 'amelia',
+          name: 'Amelia Whitfield-Osei',
+          detail: t('产品运营', 'Product operations'),
+        },
+      ],
+      filterOptions: [
+        { id: 'assigned', label: t('分配给我', 'Assigned to me') },
+        { id: 'unassigned', label: t('未分配', 'Unassigned') },
+        { id: 'blocked', label: t('已阻塞', 'Blocked') },
+      ],
+      sortOptions: [
+        { id: 'priority', label: t('优先级', 'Priority') },
+        { id: 'updated', label: t('最近更新', 'Recently updated') },
+        { id: 'owner', label: t('负责人', 'Owner') },
+      ],
+      moreActions: [
+        { id: 'duplicate', label: t('复制视图', 'Duplicate view') },
+        { id: 'copy-link', label: t('复制视图链接', 'Copy view link') },
+        { id: 'archive', label: t('归档冲刺', 'Archive sprint') },
+      ],
       rows: [
         {
           id: 'task-184',
@@ -106,7 +132,32 @@ export function createNavbarFixtures(locale: NavbarFixtureLocale): LumenNavbarCo
         ...actionLabels,
         upgrade: t('升级方案', 'Upgrade plan'),
         breadcrumbSeparator: '/',
+        projectSearch: t('搜索项目', 'Search projects'),
+        projectEmpty: t('没有匹配的项目', 'No matching projects'),
+        selectorOpen: t('打开选择器', 'Open selector'),
+        selectorLoading: t('正在加载', 'Loading'),
       },
+      initialWorkspaceId: 'northwind',
+      initialProjectId: 'lumen-web',
+      initialEnvironmentId: 'production',
+      workspaceOptions: [
+        { id: 'northwind', label: 'Northwind', detail: t('产品组织', 'Product organization') },
+        { id: 'aurora', label: 'Aurora Labs', detail: t('移动产品', 'Mobile products') },
+      ],
+      projectOptions: [
+        {
+          id: 'lumen-web',
+          label: 'lumen-web',
+          detail: t('主要 Web 应用', 'Primary web application'),
+        },
+        { id: 'lumen-api', label: 'lumen-api', detail: t('边缘 API 服务', 'Edge API service') },
+        { id: 'docs', label: 'docs', detail: t('开发者文档', 'Developer documentation') },
+      ],
+      environmentOptions: [
+        { id: 'production', label: t('生产环境', 'Production') },
+        { id: 'preview', label: t('预览环境', 'Preview') },
+        { id: 'development', label: t('开发环境', 'Development') },
+      ],
       deploymentLabel: t('最新部署', 'Latest deployment'),
       deploymentSummary: t(
         'release-2026.09.22 已在 4 个区域就绪',
@@ -355,6 +406,10 @@ export function createNavbarFixtures(locale: NavbarFixtureLocale): LumenNavbarCo
         today: t('今天', 'Today'),
         shortcut: '⌘ K',
         accountInitial: 'PN',
+        notificationsTitle: t('最近通知', 'Recent notifications'),
+        accountMenu: t('账户菜单', 'Account menu'),
+        signOut: t('退出登录', 'Sign out'),
+        emptyMenu: t('暂无内容', 'Nothing here yet'),
       },
       items: [
         {

@@ -88,7 +88,17 @@ export interface LumenNavbarTaskListContent {
     readonly sortedBy: string;
     readonly metadataSeparator: string;
     readonly breadcrumbLabel: (items: readonly string[]) => string;
+    readonly inviteTitle: string;
+    readonly emptyMenu: string;
   };
+  readonly members: readonly {
+    readonly id: string;
+    readonly name: string;
+    readonly detail: string;
+  }[];
+  readonly filterOptions: readonly { readonly id: string; readonly label: string }[];
+  readonly sortOptions: readonly { readonly id: string; readonly label: string }[];
+  readonly moreActions: readonly { readonly id: string; readonly label: string }[];
   readonly rows: readonly LumenNavbarTaskRow[];
   readonly listStrategy: LumenNavbarListStrategy;
 }
@@ -107,7 +117,29 @@ export interface LumenNavbarDeploymentContent {
   readonly actions: LumenNavbarActionLabelSet & {
     readonly upgrade: string;
     readonly breadcrumbSeparator: string;
+    readonly projectSearch: string;
+    readonly projectEmpty: string;
+    readonly selectorOpen: string;
+    readonly selectorLoading: string;
   };
+  readonly initialWorkspaceId: string;
+  readonly initialProjectId: string;
+  readonly initialEnvironmentId: string;
+  readonly workspaceOptions: readonly {
+    readonly id: string;
+    readonly label: string;
+    readonly detail?: string | undefined;
+  }[];
+  readonly projectOptions: readonly {
+    readonly id: string;
+    readonly label: string;
+    readonly detail?: string | undefined;
+  }[];
+  readonly environmentOptions: readonly {
+    readonly id: string;
+    readonly label: string;
+    readonly detail?: string | undefined;
+  }[];
   readonly deploymentLabel: string;
   readonly deploymentSummary: string;
   readonly stats: readonly LumenNavbarDeploymentStat[];
@@ -165,6 +197,10 @@ export interface LumenNavbarActivityContent {
     readonly today: string;
     readonly shortcut: string;
     readonly accountInitial: string;
+    readonly notificationsTitle: string;
+    readonly accountMenu: string;
+    readonly signOut: string;
+    readonly emptyMenu: string;
   };
   readonly items: readonly LumenNavbarActivityItem[];
   readonly listStrategy: LumenNavbarListStrategy;

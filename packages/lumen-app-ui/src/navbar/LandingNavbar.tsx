@@ -137,6 +137,7 @@ export default function LandingNavbar({
           {!centered && (
             <NavbarButton
               className="hbar-app-ui-navbar-landing-primary"
+              variant="solid"
               onClick={() => reportNavbarAction(onAction, spec, 'primary')}
             >
               <span>{content.labels.primaryAction}</span>

@@ -1,4 +1,8 @@
+'use client';
+
+import * as React from 'react';
 import { LumenButton } from '../primitives';
+import { LumenMenu, LumenPopover } from '../ui-controls';
 import { Filter, Grid2X2, House, MoreHorizontal, SlidersHorizontal, UserPlus } from './glyphs';
 import type { LumenNavbarTaskListContent } from './content';
 import { uniqueLumenNavbarItems } from './content';
@@ -19,6 +23,21 @@ export default function TaskListNavbar({
   readonly content: LumenNavbarTaskListContent;
 }) {
   const rows = uniqueLumenNavbarItems(content.rows);
+  const [openMenu, setOpenMenu] = React.useState<'invite' | 'filter' | 'sort' | 'more' | null>(
+    null,
+  );
+  const [filterId, setFilterId] = React.useState<string | null>(null);
+  const [sortId, setSortId] = React.useState(content.sortOptions[0]?.id ?? null);
+  const choose = (kind: 'filter' | 'sort' | 'more', id: string) => {
+    if (kind === 'filter') {
+      setFilterId(id);
+    } else if (kind === 'sort') {
+      setSortId(id);
+    }
+    reportNavbarAction(onAction, spec, kind, id);
+    setOpenMenu(null);
+  };
+  const selectedSort = content.sortOptions.find((item) => item.id === sortId);
   return (
     <NavbarFrame spec={spec} className="hbar-app-ui-navbar-task-list">
       <header className="hbar-app-ui-navbar-task-header">
@@ -42,7 +61,12 @@ export default function TaskListNavbar({
         </div>
         <NavbarButton
           className="hbar-app-ui-navbar-task-invite"
-          onClick={() => reportNavbarAction(onAction, spec, 'invite')}
+          variant="outlined"
+          aria-expanded={openMenu === 'invite'}
+          onClick={() => {
+            setOpenMenu((current) => (current === 'invite' ? null : 'invite'));
+            reportNavbarAction(onAction, spec, 'invite');
+          }}
         >
           <NavbarGlyph icon={UserPlus} tier="sm" />
           <span>{content.labels.invite}</span>
@@ -51,19 +75,69 @@ export default function TaskListNavbar({
           label={content.labels.filter}
           icon={Filter}
           tier="sm"
-          onClick={() => reportNavbarAction(onAction, spec, 'filter')}
+          aria-expanded={openMenu === 'filter'}
+          onClick={() => setOpenMenu((current) => (current === 'filter' ? null : 'filter'))}
         />
         <NavbarIconOnly
           label={content.labels.sort}
           icon={SlidersHorizontal}
           tier="sm"
-          onClick={() => reportNavbarAction(onAction, spec, 'sort')}
+          aria-expanded={openMenu === 'sort'}
+          onClick={() => setOpenMenu((current) => (current === 'sort' ? null : 'sort'))}
         />
         <NavbarIconOnly
           label={content.labels.more}
           icon={MoreHorizontal}
           tier="sm"
-          onClick={() => reportNavbarAction(onAction, spec, 'more')}
+          aria-expanded={openMenu === 'more'}
+          onClick={() => setOpenMenu((current) => (current === 'more' ? null : 'more'))}
+        />
+        <LumenPopover
+          open={openMenu === 'invite'}
+          label={content.labels.inviteTitle}
+          className="hbar-app-ui-navbar-task-invite-popover"
+        >
+          {content.members.map((member) => (
+            <LumenButton
+              variant="text"
+              key={member.id}
+              onClick={() => {
+                reportNavbarAction(onAction, spec, 'invite-member', member.id);
+                setOpenMenu(null);
+              }}
+            >
+              <span>
+                <strong>{member.name}</strong>
+                <small>{member.detail}</small>
+              </span>
+            </LumenButton>
+          ))}
+        </LumenPopover>
+        <LumenMenu
+          open={openMenu === 'filter'}
+          label={content.labels.filter}
+          items={content.filterOptions}
+          empty={content.labels.emptyMenu}
+          selectedId={filterId}
+          onSelect={(id) => choose('filter', id)}
+          className="hbar-app-ui-navbar-task-filter-menu"
+        />
+        <LumenMenu
+          open={openMenu === 'sort'}
+          label={content.labels.sort}
+          items={content.sortOptions}
+          empty={content.labels.emptyMenu}
+          selectedId={sortId}
+          onSelect={(id) => choose('sort', id)}
+          className="hbar-app-ui-navbar-task-sort-menu"
+        />
+        <LumenMenu
+          open={openMenu === 'more'}
+          label={content.labels.more}
+          items={content.moreActions}
+          empty={content.labels.emptyMenu}
+          onSelect={(id) => choose('more', id)}
+          className="hbar-app-ui-navbar-task-more-menu"
         />
       </header>
       <main
@@ -71,12 +145,13 @@ export default function TaskListNavbar({
         data-hbar-app-ui-list-strategy={content.listStrategy.kind}
         data-hbar-app-ui-expected-maximum={content.listStrategy.expectedMaximum}
       >
-        <p>{content.labels.sortedBy}</p>
+        <p>{selectedSort?.label ?? content.labels.sortedBy}</p>
         <ol>
           {rows.map((row) => (
             <li key={row.id}>
               <LumenButton
                 type="button"
+                variant="text"
                 onClick={() => reportNavbarAction(onAction, spec, 'open', row.id)}
               >
                 <strong>{row.title}</strong>

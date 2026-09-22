@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { LumenButton, LumenIconButton } from '../primitives';
+import { LumenButton, LumenIconButton, type LumenButtonProps } from '../primitives';
 
 export type NavbarIconTier = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 export type NavbarIcon = React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -76,12 +76,11 @@ export function NavbarFrame({
 export function NavbarButton({
   children,
   type = 'button',
+  variant = 'text',
   ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  readonly children: React.ReactNode;
-}) {
+}: LumenButtonProps) {
   return (
-    <LumenButton {...props} type={type}>
+    <LumenButton {...props} type={type} variant={variant}>
       {children}
     </LumenButton>
   );

@@ -269,4 +269,42 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getByRole('region', { name: 'Table of contents' })).not.toBeNull();
     expect(screen.getByRole('button', { name: 'Preserve the signal first' })).not.toBeNull();
   });
+
+  it('opens task menus, searches deployment projects, and exposes app-header popovers', async () => {
+    const entry = (variant: number) =>
+      LUMEN_VARIANT_REGISTRY.find(
+        (candidate) => candidate.category === 'navbar' && candidate.variant === variant,
+      )!;
+
+    let view = render(
+      <VariantPreviewHost entry={entry(2)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: /Invite/ }));
+    expect(screen.getByRole('region', { name: 'Invite to September sprint' })).not.toBeNull();
+    expect(screen.getByRole('button', { name: /Sofia Alvarez/ })).not.toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Filter' }));
+    expect(screen.getByRole('menu', { name: 'Filter' })).not.toBeNull();
+    expect(screen.getByRole('menuitem', { name: 'Assigned to me' })).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(3)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    const projectSearch = screen.getByPlaceholderText('Search projects');
+    await view.user.clear(projectSearch);
+    await view.user.type(projectSearch, 'api');
+    expect(screen.getByRole('option', { name: /lumen-api/ })).not.toBeNull();
+    expect(screen.getAllByRole('combobox')).toHaveLength(3);
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(6)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Notifications' }));
+    const notifications = screen.getByRole('region', { name: 'Recent notifications' });
+    expect(notifications.textContent).toContain('Priya');
+    await view.user.click(screen.getByRole('button', { name: 'Account' }));
+    expect(screen.getByRole('menu', { name: 'Account menu' })).not.toBeNull();
+    expect(screen.getByRole('menuitem', { name: 'Sign out' })).not.toBeNull();
+  });
 });

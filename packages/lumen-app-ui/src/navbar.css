@@ -265,6 +265,7 @@
 }
 
 .hbar-app-ui-navbar-task-header {
+  position: relative;
   display: flex;
   min-inline-size: 0;
   min-block-size: 3.5rem;
@@ -322,6 +323,38 @@
   border: 0.0625rem solid var(--lumen-edge) !important;
   background: var(--lumen-glass) !important;
   color: var(--lumen-ink) !important;
+}
+
+.hbar-app-ui-dialog-menu.hbar-app-ui-navbar-task-invite-popover,
+.hbar-app-ui-dialog-menu.hbar-app-ui-navbar-task-filter-menu,
+.hbar-app-ui-dialog-menu.hbar-app-ui-navbar-task-sort-menu,
+.hbar-app-ui-dialog-menu.hbar-app-ui-navbar-task-more-menu {
+  inset-block-start: calc(100% + 0.5rem);
+  inset-inline-end: 1rem;
+  inline-size: min(22rem, calc(100vw - 2rem));
+}
+
+.hbar-app-ui-navbar-task-invite-popover > div {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.hbar-app-ui-navbar-task-invite-popover button {
+  justify-content: flex-start;
+  text-align: start;
+}
+
+.hbar-app-ui-navbar-task-invite-popover button > span {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.hbar-app-ui-navbar-task-invite-popover small {
+  color: var(--lumen-muted);
 }
 
 .hbar-app-ui-navbar-task-main {
@@ -427,7 +460,28 @@
 }
 
 .hbar-app-ui-navbar-deployment-path {
-  overflow: hidden;
+  overflow: visible;
+}
+
+.hbar-app-ui-navbar-deployment-selector,
+.hbar-app-ui-navbar-deployment-project {
+  display: flex;
+  min-inline-size: 0;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.hbar-app-ui-navbar-deployment-selector > select {
+  inline-size: 8rem;
+}
+
+.hbar-app-ui-navbar-deployment-project {
+  inline-size: min(14rem, 28vw);
+}
+
+.hbar-app-ui-navbar-deployment-project > .lumen-combobox {
+  min-inline-size: 0;
+  flex: 1 1 auto;
 }
 
 .hbar-app-ui-navbar-deployment-path .hbar-app-ui-button {
@@ -867,6 +921,7 @@
 }
 
 .hbar-app-ui-navbar-activity > header {
+  position: relative;
   display: flex;
   min-inline-size: 0;
   min-block-size: 3.5rem;
@@ -944,6 +999,7 @@
 }
 
 .hbar-app-ui-navbar-activity-actions {
+  position: relative;
   flex: 0 0 auto;
   gap: 0.25rem;
 }
@@ -955,6 +1011,45 @@
 
 .hbar-app-ui-navbar-activity-mobile-search {
   display: none !important;
+}
+
+.hbar-app-ui-dialog-menu.hbar-app-ui-navbar-activity-search-popover,
+.hbar-app-ui-dialog-menu.hbar-app-ui-navbar-activity-notifications,
+.hbar-app-ui-dialog-menu.hbar-app-ui-navbar-activity-account-menu {
+  inset-block-start: calc(100% + 0.5rem);
+  inset-inline-end: 0;
+  inline-size: min(24rem, calc(100vw - 2rem));
+}
+
+.hbar-app-ui-navbar-activity-search-popover input {
+  inline-size: 100%;
+}
+
+.hbar-app-ui-navbar-activity-notifications > div {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.hbar-app-ui-navbar-activity-notifications button {
+  display: flex;
+  min-inline-size: 0;
+  justify-content: space-between;
+  gap: 0.75rem;
+  text-align: start;
+}
+
+.hbar-app-ui-navbar-activity-notifications button > span {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.hbar-app-ui-navbar-activity-notifications small,
+.hbar-app-ui-navbar-activity-notifications time {
+  color: var(--lumen-muted);
 }
 
 .hbar-app-ui-navbar-account-button {
