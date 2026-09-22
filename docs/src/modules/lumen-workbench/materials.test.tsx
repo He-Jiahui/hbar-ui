@@ -3,7 +3,13 @@ import { describe, it, expect, vi } from 'vitest';
 import Button from '@mui/material/Button';
 import { ThemeProvider } from '@mui/material/styles';
 import { createRenderer, screen } from '@mui/internal-test-utils';
-import { LumenIndicator, LumenSurface, createLumenTheme } from '@lumen/app-ui';
+import {
+  LumenDivider,
+  LumenField,
+  LumenIndicator,
+  LumenSurface,
+  createLumenTheme,
+} from '@lumen/app-ui';
 
 describe('Lumen materials', () => {
   const { render } = createRenderer();
@@ -39,5 +45,22 @@ describe('Lumen materials', () => {
       </LumenSurface>,
     );
     expect(screen.getByRole('heading', { name: '执行步骤' })).toBeVisible();
+  });
+
+  it('renders surface, field, and divider boundaries as decorative lamps', () => {
+    const { container } = render(
+      <LumenSurface boundary="horizontal" state="selected" tone="warning">
+        <LumenField boundary="vertical" invalid>
+          <input aria-label="Filter" />
+        </LumenField>
+        <LumenDivider orientation="horizontal" tone="info" />
+      </LumenSurface>,
+    );
+
+    expect(screen.getByRole('textbox', { name: 'Filter' })).toBeVisible();
+    expect(screen.getByRole('separator')).to.have.attribute('aria-orientation', 'horizontal');
+    expect(container.querySelectorAll('[data-edge]')).to.have.length(5);
+    expect(container.querySelectorAll('[data-tone="danger"]')).to.have.length(2);
+    expect(container.querySelectorAll('[data-tone="warning"]')).to.have.length(2);
   });
 });

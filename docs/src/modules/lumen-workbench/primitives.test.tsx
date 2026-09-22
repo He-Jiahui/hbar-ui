@@ -52,7 +52,7 @@ describe('Lumen application primitives', () => {
   });
 
   it('provides accessible icon, navigation, text, and status semantics', () => {
-    render(
+    const { container } = render(
       <LumenProvider appearance={appearance} withCssBaseline={false}>
         <LumenIconButton label="Open settings">
           <span aria-hidden="true">+</span>
@@ -72,5 +72,6 @@ describe('Lumen application primitives', () => {
     );
     expect(screen.getByText('Supporting text')).to.have.attribute('data-tone', 'muted');
     expect(screen.getByText('Connected')).to.have.attribute('data-tone', 'success');
+    expect(container.querySelectorAll('button [data-length="action"]')).to.have.length(2);
   });
 });

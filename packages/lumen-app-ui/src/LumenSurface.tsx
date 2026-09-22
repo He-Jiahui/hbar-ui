@@ -3,20 +3,27 @@
 import * as React from 'react';
 import createLensMap from './lensMap';
 import type { LumenShape } from './appearance';
+import LumenIndicator, { type LumenState, type LumenTone } from './LumenIndicator';
 import styles from './materials.module.css';
 
 export interface LumenSurfaceProps extends React.HTMLAttributes<HTMLDivElement> {
+  boundary?: 'none' | 'horizontal' | 'vertical' | undefined;
   material?: 'glass' | 'frost' | undefined;
   glassStrength?: number | undefined;
   interactive?: boolean | undefined;
   shape?: LumenShape | undefined;
+  state?: LumenState | undefined;
+  tone?: LumenTone | undefined;
 }
 
 export default function LumenSurface({
+  boundary = 'none',
   material = 'glass',
   glassStrength = 65,
   interactive = false,
   shape = 'rounded',
+  state = 'idle',
+  tone = 'neutral',
   className = '',
   children,
   ...props
@@ -64,11 +71,18 @@ export default function LumenSurface({
     map && glassStrength > 0
       ? { backdropFilter: `url(#${id}) blur(${0.12 + glassStrength * 0.002}rem)` }
       : undefined;
+  const edges =
+    boundary === 'horizontal'
+      ? (['top', 'bottom'] as const)
+      : boundary === 'vertical'
+        ? (['left', 'right'] as const)
+        : undefined;
   return (
     <div
       {...props}
       ref={root}
       className={`${styles.surface} ${className}`}
+      data-boundary={boundary}
       data-material={material}
       data-interactive={interactive}
       data-shape={shape}
@@ -104,7 +118,9 @@ export default function LumenSurface({
         </svg>
       )}
       <div className={styles.glass} style={lensStyle} aria-hidden="true" />
+      {edges ? <LumenIndicator edge={edges[0]} length="area" state={state} tone={tone} /> : null}
       <div className={styles.surfaceContent}>{children}</div>
+      {edges ? <LumenIndicator edge={edges[1]} length="area" state={state} tone={tone} /> : null}
     </div>
   );
 }

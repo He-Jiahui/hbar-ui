@@ -6,6 +6,8 @@ export { default as LumenIndicator } from './LumenIndicator';
 export type { LumenIndicatorProps, LumenState, LumenTone } from './LumenIndicator';
 export { default as LumenField } from './LumenField';
 export type { LumenFieldProps } from './LumenField';
+export { default as LumenDivider } from './LumenDivider';
+export type { LumenDividerProps } from './LumenDivider';
 export { default as LumenSlider } from './LumenSlider';
 export type { LumenSliderProps } from './LumenSlider';
 export { LumenDialog } from './dialog';
@@ -1549,12 +1551,7 @@ export type {
   LumenTextTone,
   LumenTextVariant,
 } from './primitives';
-export {
-  LumenCollection,
-  LumenCollectionItem,
-  LumenFrame,
-  LumenOption,
-} from './structure';
+export { LumenCollection, LumenCollectionItem, LumenFrame, LumenOption } from './structure';
 export type {
   LumenCollectionElement,
   LumenCollectionItemElement,

@@ -69,14 +69,12 @@ export const LumenButton = React.forwardRef<HTMLButtonElement, LumenButtonProps>
         disabled={disabled || loading}
       >
         {children}
-        {state ? (
-          <LumenIndicator
-            edge={indicatorEdge}
-            state={state}
-            tone={indicatorTone(tone)}
-            length="action"
-          />
-        ) : null}
+        <LumenIndicator
+          edge={indicatorEdge}
+          state={state ?? 'idle'}
+          tone={indicatorTone(tone)}
+          length="action"
+        />
       </button>
     );
   },
@@ -92,6 +90,8 @@ export interface LumenIconButtonProps extends Omit<
   size?: LumenSize | undefined;
   shape?: LumenShape | undefined;
   loading?: boolean | undefined;
+  indicatorState?: LumenState | undefined;
+  indicatorEdge?: 'top' | 'bottom' | 'left' | 'right' | undefined;
 }
 
 export const LumenIconButton = React.forwardRef<HTMLButtonElement, LumenIconButtonProps>(
@@ -102,6 +102,8 @@ export const LumenIconButton = React.forwardRef<HTMLButtonElement, LumenIconButt
       size = 'm',
       shape = 'rounded',
       loading = false,
+      indicatorState,
+      indicatorEdge = 'bottom',
       className,
       disabled,
       children,
@@ -116,6 +118,7 @@ export const LumenIconButton = React.forwardRef<HTMLButtonElement, LumenIconButt
         ref={ref}
         type={type}
         className={[styles.iconButton, className].filter(Boolean).join(' ')}
+        data-lumen-variant="text"
         data-tone={tone}
         data-size={size}
         data-shape={shape}
@@ -125,6 +128,12 @@ export const LumenIconButton = React.forwardRef<HTMLButtonElement, LumenIconButt
         disabled={disabled || loading}
       >
         {children}
+        <LumenIndicator
+          edge={indicatorEdge}
+          state={disabled ? 'disabled' : loading ? 'running' : (indicatorState ?? 'idle')}
+          tone={indicatorTone(tone)}
+          length="action"
+        />
       </button>
     );
   },
