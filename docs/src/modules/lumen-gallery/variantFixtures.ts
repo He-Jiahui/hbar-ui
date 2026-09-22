@@ -1,7 +1,6 @@
 import type {
   LumenAgentActivityContent,
   LumenAgentApprovalContent,
-  LumenAiChatContent,
   LumenAppShellContent,
   LumenAppSidebarContent,
   LumenCommandMenuContent,
@@ -10,6 +9,7 @@ import type {
   LumenPromptInputContent,
 } from '@lumen/app-ui';
 import { createAgentPlanFixtures } from './agentPlanFixtures';
+import { createAiChatFixtures } from './aiChatFixtures';
 import { createAppDialogFixtures } from './appDialogFixtures';
 import { createAnalyticsFixtures } from './analyticsFixtures';
 import { createAuthenticationFixtures } from './authenticationFixtures';
@@ -139,7 +139,8 @@ function commandLabels(locale: LumenPreviewLocale, search: string, available: st
 
 export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
   return {
-    'ai-chat': {
+    'ai-chat': createAiChatFixtures(locale),
+    /* legacyAiChat: {
       labels: {
         threadTitle: previewText(locale, 'ai-chat.labels.threadTitle'),
         threadDetail: previewText(locale, 'ai-chat.labels.threadDetail'),
@@ -361,7 +362,7 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
       ],
       initialEffortId: 'item-1',
       listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
-    } satisfies LumenAiChatContent,
+    } satisfies LumenAiChatContent, */
     'prompt-input': {
       composerLabels: {
         input: previewText(locale, 'prompt-input.composerLabels.input'),

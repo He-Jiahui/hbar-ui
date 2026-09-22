@@ -2167,6 +2167,43 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getAllByText('Research share-out').length).toBeGreaterThan(0);
   });
 
+  it('uses real AI chat threads, sources, and model choices', async () => {
+    const entries = LUMEN_VARIANT_REGISTRY.filter((candidate) => candidate.category === 'ai-chat');
+    expect(entries).toHaveLength(9);
+    entries.forEach((entry) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('ai-chat.messages.item');
+      expect(view).not.toContain('item-1');
+    });
+
+    let view = render(
+      <VariantPreviewHost entry={entries[0]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    expect(screen.getByText('Northstar research assistant')).not.toBeNull();
+    const composer = screen.getByRole('textbox', { name: 'Message composer' });
+    await view.user.type(composer, 'Plan the Q4 roadmap');
+    expect((composer as HTMLTextAreaElement).value).toBe('Plan the Q4 roadmap');
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[4]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Allow' }));
+    expect(screen.getAllByText('Approved').length).toBeGreaterThan(0);
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[8]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    expect(screen.getAllByText('Vertex AI').length).toBeGreaterThan(0);
+    await view.user.click(screen.getByRole('button', { name: /OpenRouter/ }));
+    expect(screen.getAllByText('OpenRouter').length).toBeGreaterThan(0);
+    await view.user.click(screen.getByRole('button', { name: 'Use this model' }));
+    expect(screen.getAllByText('OpenRouter').length).toBeGreaterThan(0);
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',
