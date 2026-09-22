@@ -3,9 +3,9 @@ import LumenIndicator, { type LumenIndicatorProps } from './LumenIndicator';
 import styles from './materials.module.css';
 
 export interface LumenDividerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
-  length?: LumenIndicatorProps['length'];
+  length?: LumenIndicatorProps['length'] | undefined;
   orientation?: 'horizontal' | 'vertical' | undefined;
-  tone?: LumenIndicatorProps['tone'];
+  tone?: LumenIndicatorProps['tone'] | undefined;
 }
 
 export default function LumenDivider({

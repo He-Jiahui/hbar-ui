@@ -85,12 +85,12 @@ export default function LumenSurface<Element extends LumenSurfaceElement = 'div'
     map && glassStrength > 0
       ? { backdropFilter: `url(#${id}) blur(${0.12 + glassStrength * 0.002}rem)` }
       : undefined;
-  const edges =
-    boundary === 'horizontal'
-      ? (['top', 'bottom'] as const)
-      : boundary === 'vertical'
-        ? (['left', 'right'] as const)
-        : undefined;
+  let edges: readonly ['top', 'bottom'] | readonly ['left', 'right'] | undefined;
+  if (boundary === 'horizontal') {
+    edges = ['top', 'bottom'];
+  } else if (boundary === 'vertical') {
+    edges = ['left', 'right'];
+  }
   return (
     <Component
       {...(props as unknown as React.HTMLAttributes<HTMLElement>)}
