@@ -659,6 +659,28 @@ function permissionTone(
   return 'neutral';
 }
 
+function PermissionAction({
+  itemId,
+  action,
+  onAction,
+}: {
+  readonly itemId: string;
+  readonly action: LumenToolCallsPermissionAction;
+  readonly onAction: LumenToolCallsProps['onAction'];
+}) {
+  return (
+    <LumenButton
+      variant={action.tone === 'accent' ? 'solid' : 'outlined'}
+      tone={permissionTone(action.tone)}
+      className={`hbar-app-ui-tool-calls-button${action.tone ? ` is-${action.tone}` : ''}`}
+      onClick={() => report(onAction, 'permission-request-action', `${itemId}:${action.id}`)}
+    >
+      {action.id === 'view' ? <ToolGlyph name="chevron-right" /> : null}
+      {action.label}
+    </LumenButton>
+  );
+}
+
 function ToolPermissions(
   props: Omit<LumenToolCallsProps, 'content'> & { content: LumenToolCallsPermissionsContent },
 ) {
@@ -681,6 +703,9 @@ function ToolPermissions(
                   item.kind === 'request' &&
                   item.statusLabel !== undefined &&
                   (item.actions?.length ?? 0) > 0;
+                const viewActions = item.actions?.filter((action) => action.id === 'view') ?? [];
+                const decisionActions =
+                  item.actions?.filter((action) => action.id !== 'view') ?? [];
                 const enabled = overrides.get(item.id) ?? item.enabled;
                 return (
                   <li className={`is-${item.kind}`} key={item.id}>
@@ -693,24 +718,30 @@ function ToolPermissions(
                     </div>
                     {item.kind === 'request' && item.actions ? (
                       <nav>
-                        {item.actions.map((action) => (
-                          <LumenButton
-                            variant={action.tone === 'accent' ? 'solid' : 'outlined'}
-                            tone={permissionTone(action.tone)}
-                            className={`hbar-app-ui-tool-calls-button${action.tone ? ` is-${action.tone}` : ''}`}
-                            key={action.id}
-                            onClick={() =>
-                              report(
-                                onAction,
-                                'permission-request-action',
-                                `${item.id}:${action.id}`,
-                              )
-                            }
-                          >
-                            {action.id === 'view' ? <ToolGlyph name="chevron-right" /> : null}
-                            {action.label}
-                          </LumenButton>
-                        ))}
+                        {viewActions.length > 0 ? (
+                          <div className="hbar-app-ui-tool-calls-request-view-actions">
+                            {viewActions.map((action) => (
+                              <PermissionAction
+                                itemId={item.id}
+                                action={action}
+                                onAction={onAction}
+                                key={action.id}
+                              />
+                            ))}
+                          </div>
+                        ) : null}
+                        {decisionActions.length > 0 ? (
+                          <div className="hbar-app-ui-tool-calls-request-decision-actions">
+                            {decisionActions.map((action) => (
+                              <PermissionAction
+                                itemId={item.id}
+                                action={action}
+                                onAction={onAction}
+                                key={action.id}
+                              />
+                            ))}
+                          </div>
+                        ) : null}
                       </nav>
                     ) : null}
                     {statusAfterActions ? (

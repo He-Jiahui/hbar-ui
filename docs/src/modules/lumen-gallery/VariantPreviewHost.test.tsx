@@ -1580,6 +1580,16 @@ describe('Lumen formal variant fixtures', () => {
     );
     const modify = screen.getByRole('switch', { name: 'Toggle modifying workspace files' });
     expect(modify.getAttribute('aria-checked')).toBe('false');
+    const pendingRequest = view.container.querySelector(
+      '.hbar-app-ui-tool-calls-permissions li.is-request',
+    );
+    expect(pendingRequest).not.toBeNull();
+    expect(
+      pendingRequest?.querySelector('.hbar-app-ui-tool-calls-request-view-actions'),
+    ).not.toBeNull();
+    expect(
+      pendingRequest?.querySelector('.hbar-app-ui-tool-calls-request-decision-actions'),
+    ).not.toBeNull();
     await view.user.click(modify);
     expect(modify.getAttribute('aria-checked')).toBe('true');
   });
