@@ -6,6 +6,7 @@ import {
   LUMEN_VARIANT_REGISTRY,
 } from '@lumen/app-ui/catalog';
 import * as variants from '@lumen/app-ui/variants';
+import { createLumenPreviewHref } from './lumenPreviewRoute';
 
 describe('Lumen source catalog', () => {
   it('retains 38 source families and exposes all 300 stable IDs as formal component variants', () => {
@@ -30,5 +31,17 @@ describe('Lumen source catalog', () => {
         .join('')}${match![2]!.padStart(2, '0')}`;
       expect(variants).toHaveProperty(name);
     }
+  });
+
+  it('assigns every stable component ID a canonical preview URL', () => {
+    const hrefs = LUMEN_VARIANT_REGISTRY.map((entry) =>
+      createLumenPreviewHref(entry.id, { embedded: true, locale: 'en', mode: 'light' }),
+    );
+
+    expect(new Set(hrefs).size).toBe(300);
+    expect(hrefs[0]).toContain('id=hbar-app-ui-ai-chat-1');
+    expect(hrefs[0]).toContain('embed=1');
+    expect(hrefs[0]).toContain('locale=en');
+    expect(hrefs[0]).toContain('mode=light');
   });
 });

@@ -13,6 +13,7 @@ import {
   HbarAppUiEmptyState04,
   HbarAppUiEmptyState05,
 } from '@lumen/app-ui/variants';
+import { getLumenVariant } from '@lumen/app-ui/catalog';
 import getEmptyStateFixtures, { type GalleryLocale } from './emptyStateFixtures';
 import ScenarioPreview, { type ScenarioKind } from './ScenarioPreview';
 import FeedbackGallery from './FeedbackGallery';
@@ -23,12 +24,14 @@ import getPromptInputFixtures from './promptInputFixtures';
 import getFileManagerFixtures from './fileManagerFixtures';
 import { getScenarioFixtures } from './scenarioFixtures';
 import styles from './gallery.module.css';
+import VariantPreviewHost from './VariantPreviewHost';
 
 export default function EmptyStateGallery() {
   const [embedded, setEmbedded] = React.useState(false);
   const [mode, setMode] = React.useState<'dark' | 'light'>('dark');
   const [locale, setLocale] = React.useState<GalleryLocale>('zh');
   const [variant, setVariant] = React.useState(1);
+  const [requestedId, setRequestedId] = React.useState<string | null>(null);
   const [query, setQuery] = React.useState('october');
   const [filters, setFilters] = React.useState([
     { id: 'blocked', label: 'Status: blocked' },
@@ -53,6 +56,7 @@ export default function EmptyStateGallery() {
     setEmbedded(params.get('embed') === '1');
     const requestedMode = params.get('mode');
     const requestedLocale = params.get('locale');
+    setRequestedId(params.get('id'));
     if (requestedMode === 'dark' || requestedMode === 'light') {
       setMode(requestedMode);
     }
@@ -151,6 +155,40 @@ export default function EmptyStateGallery() {
     activeGallery = <PromptInputGallery variant={variant - 15} locale={locale} />;
   } else if (variant > 9) {
     activeGallery = <FeedbackGallery variant={variant - 9} locale={locale} />;
+  }
+  const stableEntry = requestedId ? getLumenVariant(requestedId) : undefined;
+  if (stableEntry) {
+    const stablePreview =
+      stableEntry.category === 'empty-state' ? (
+        sample[stableEntry.variant - 1]
+      ) : (
+        <VariantPreviewHost
+          entry={stableEntry}
+          locale={locale}
+          unavailableLabel={copy.previewUnavailable}
+        />
+      );
+    return (
+      <LumenProvider appearance={appearance}>
+        <main className={styles.stablePreview} data-lumen-mode={mode} data-embedded={embedded}>
+          <header className={styles.stablePreviewHeader}>
+            <div>
+              <small>{copy.preview}</small>
+              <h1>{stableEntry.id}</h1>
+            </div>
+            <nav className={styles.stablePreviewActions} aria-label={copy.previewNavigation}>
+              <LumenLink className={styles.toolbarLink} href="/experiments/lumen-app-ui/">
+                {copy.previewBack}
+              </LumenLink>
+              <LumenLink className={styles.toolbarLink} href="/experiments/lumen-app-ui/catalog/">
+                {copy.catalog}
+              </LumenLink>
+            </nav>
+          </header>
+          <div className={styles.stablePreviewStage}>{stablePreview}</div>
+        </main>
+      </LumenProvider>
+    );
   }
   return (
     <LumenProvider appearance={appearance}>

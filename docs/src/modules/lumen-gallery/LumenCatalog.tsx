@@ -16,7 +16,7 @@ import {
   LUMEN_VARIANT_REGISTRY,
 } from '@lumen/app-ui/catalog';
 import styles from './catalog.module.css';
-import VariantPreviewHost from './VariantPreviewHost';
+import { createLumenPreviewHref } from './lumenPreviewRoute';
 
 const labels: Record<string, [string, string]> = {
   'ai-chat': ['AI 对话', 'AI Chat'],
@@ -121,13 +121,6 @@ const localized = {
   },
 };
 
-function galleryVariant(category: string, variant: number) {
-  if (category === 'empty-state') {
-    return variant;
-  }
-  return null;
-}
-
 export default function LumenCatalog() {
   const [mode, setMode] = React.useState<'dark' | 'light'>('dark');
   const [locale, setLocale] = React.useState<'zh' | 'en'>('zh');
@@ -150,7 +143,6 @@ export default function LumenCatalog() {
   const selected = matching.find((item) => item.id === selectedId) ?? matching[0];
   const ready = selected && migrated.has(selected.id);
   const selectedStatus = selected ? statusFor(selected.id) : copy.pending;
-  const galleryIndex = selected ? galleryVariant(selected.category, selected.variant) : null;
   let previewLabel = copy.previewPending;
   let preview: React.ReactNode = (
     <div className={styles.previewPending}>
@@ -158,20 +150,15 @@ export default function LumenCatalog() {
       <p>{copy.previewPending}</p>
     </div>
   );
-  if (ready && galleryIndex) {
+  if (selected) {
     previewLabel = copy.previewReady;
     preview = (
       <iframe
         className={styles.previewFrame}
         title={`${selected.id} ${copy.previewReady}`}
-        src={`/experiments/lumen-app-ui/?variant=${galleryIndex}&embed=1&mode=${mode}&locale=${locale}`}
+        src={createLumenPreviewHref(selected.id, { embedded: true, mode, locale })}
         loading="lazy"
       />
-    );
-  } else if (selected) {
-    previewLabel = copy.previewReady;
-    preview = (
-      <VariantPreviewHost entry={selected} locale={locale} unavailableLabel={copy.previewPending} />
     );
   }
 
@@ -292,10 +279,10 @@ export default function LumenCatalog() {
                       <dd>{copy.controlSummary(selected.profile.controls)}</dd>
                     </div>
                   </dl>
-                  {ready && galleryIndex && (
+                  {ready && (
                     <LumenLink
                       className={styles.openLink}
-                      href={`/experiments/lumen-app-ui/?variant=${galleryIndex}`}
+                      href={createLumenPreviewHref(selected.id, { mode, locale })}
                     >
                       {copy.open}
                     </LumenLink>

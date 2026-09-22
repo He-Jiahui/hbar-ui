@@ -8,6 +8,10 @@ const zh = {
   migratedGroup: '已迁移组件',
   sceneShortcut: '探索更多场景',
   catalog: '浏览全部 300 项',
+  preview: '稳定组件预览',
+  previewNavigation: '预览导航',
+  previewBack: '返回组合导航',
+  previewUnavailable: '无法加载此组件预览',
   navigationItem: (position: number, name: string) =>
     `${String(position).padStart(2, '0')} · ${name}`,
   event: '最近动作',
@@ -68,6 +72,10 @@ const en: typeof zh = {
   migratedGroup: 'Migrated components',
   sceneShortcut: 'Explore more scenes',
   catalog: 'Browse all 300 entries',
+  preview: 'Stable component preview',
+  previewNavigation: 'Preview navigation',
+  previewBack: 'Back to composition navigation',
+  previewUnavailable: 'This component preview could not be loaded',
   navigationItem: (position: number, name: string) =>
     `${String(position).padStart(2, '0')} · ${name}`,
   event: 'Last action',
