@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { LumenFormField, LumenInput, LumenSelect, LumenTextarea } from './forms';
+import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './support.css';
 
@@ -277,27 +278,30 @@ function Root({
   className,
   children,
 }: Omit<LumenSupportProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
+  const contentClassName = [
+    'lumen-support',
+    `hbar-app-ui-support-variant-${variant}`,
+    density ? `hbar-app-ui-density-${density}` : '',
+    surface ? `hbar-app-ui-surface-${surface}` : '',
+    state ? `hbar-app-ui-state-${state}` : '',
+    visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-support',
-        'hbar-app-ui-variant',
-        `hbar-app-ui-support-variant-${variant}`,
-        density ? `hbar-app-ui-density-${density}` : '',
-        surface ? `hbar-app-ui-surface-${surface}` : '',
-        state ? `hbar-app-ui-state-${state}` : '',
-        visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-support-surface"
+      contentClassName={contentClassName}
       data-lumen-component="support"
       data-lumen-variant={variant}
       data-hbar-app-ui-component={variantId}
       data-hbar-app-ui-state={state}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 function Header({

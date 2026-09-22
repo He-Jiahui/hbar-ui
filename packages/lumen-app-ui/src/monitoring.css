@@ -1,3 +1,11 @@
+.lumen-monitoring-surface {
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: hidden;
+}
+
 .lumen-monitoring {
   display: flex;
   min-inline-size: 0;
@@ -7,7 +15,7 @@
   gap: 1rem;
   overflow: auto;
   padding: clamp(0.75rem, 3vw, 2rem);
-  background: var(--lumen-reading);
+  background: transparent;
   color: var(--lumen-ink);
 }
 .lumen-monitoring *,

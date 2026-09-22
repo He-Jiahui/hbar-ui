@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { LumenInput, LumenTextarea } from './forms';
+import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
 import './paywall.css';
 
@@ -256,21 +257,24 @@ function Root({
   className,
   children,
 }: Omit<LumenPaywallProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
+  const contentClassName = [
+    'lumen-paywall',
+    'hbar-app-ui-paywall-surface',
+    `hbar-app-ui-paywall-variant-${variant}`,
+    density ? `hbar-app-ui-density-${density}` : '',
+    surface ? `hbar-app-ui-surface-${surface}` : '',
+    state ? `hbar-app-ui-state-${state}` : '',
+    visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-paywall',
-        'hbar-app-ui-variant',
-        'hbar-app-ui-paywall-surface',
-        `hbar-app-ui-paywall-variant-${variant}`,
-        density ? `hbar-app-ui-density-${density}` : '',
-        surface ? `hbar-app-ui-surface-${surface}` : '',
-        state ? `hbar-app-ui-state-${state}` : '',
-        visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-paywall-surface"
+      contentClassName={contentClassName}
       data-lumen-component="paywall"
       data-lumen-variant={variant}
       data-hbar-app-ui-component={variantId}
@@ -278,7 +282,7 @@ function Root({
       data-hbar-app-ui-state={state}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 

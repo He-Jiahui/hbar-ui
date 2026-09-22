@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { LumenCheckBoxControl, LumenInput } from './forms';
+import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus } from './primitives';
 import './file-manager.css';
 
@@ -347,21 +348,24 @@ function FileManagerRoot({
   className,
   children,
 }: Omit<LumenFileManagerProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
+  const contentClassName = [
+    'lumen-file-manager',
+    'hbar-app-ui-file-manager-surface',
+    `hbar-app-ui-file-manager-variant-${variant}`,
+    density ? `hbar-app-ui-density-${density}` : '',
+    surface ? `hbar-app-ui-surface-${surface}` : '',
+    state ? `hbar-app-ui-state-${state}` : '',
+    visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-file-manager',
-        'hbar-app-ui-variant',
-        'hbar-app-ui-file-manager-surface',
-        `hbar-app-ui-file-manager-variant-${variant}`,
-        density ? `hbar-app-ui-density-${density}` : '',
-        surface ? `hbar-app-ui-surface-${surface}` : '',
-        state ? `hbar-app-ui-state-${state}` : '',
-        visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-file-manager-surface"
+      contentClassName={contentClassName}
       data-lumen-component="file-manager"
       data-lumen-variant={variant}
       data-hbar-app-ui-component={variantId}
@@ -369,7 +373,7 @@ function FileManagerRoot({
       data-hbar-app-ui-state={state}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 

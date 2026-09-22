@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { LumenFormField, LumenInput, LumenSelect } from './forms';
+import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
 import './onboarding.css';
 
@@ -217,27 +218,30 @@ function Root({
   className,
   children,
 }: Omit<LumenOnboardingProps, 'content' | 'onAction'> & { children: React.ReactNode }) {
+  const contentClassName = [
+    'lumen-onboarding',
+    `hbar-app-ui-onboarding-variant-${variant}`,
+    density ? `hbar-app-ui-density-${density}` : '',
+    surface ? `hbar-app-ui-surface-${surface}` : '',
+    state ? `hbar-app-ui-state-${state}` : '',
+    visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-onboarding',
-        'hbar-app-ui-variant',
-        `hbar-app-ui-onboarding-variant-${variant}`,
-        density ? `hbar-app-ui-density-${density}` : '',
-        surface ? `hbar-app-ui-surface-${surface}` : '',
-        state ? `hbar-app-ui-state-${state}` : '',
-        visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-onboarding-surface"
+      contentClassName={contentClassName}
       data-lumen-component="onboarding"
       data-lumen-variant={variant}
       data-hbar-app-ui-component={variantId}
       data-hbar-app-ui-state={state}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 function Header({ title, detail }: { title: string; detail: string }) {

@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { LumenSelect, LumenTextarea } from './forms';
+import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
 import './monitoring.css';
 
@@ -328,27 +329,30 @@ function Root({
   className,
   children,
 }: Omit<LumenMonitoringProps, 'content' | 'onAction'> & { children: React.ReactNode }) {
+  const contentClassName = [
+    'lumen-monitoring',
+    `hbar-app-ui-monitoring-variant-${variant}`,
+    density ? `hbar-app-ui-density-${density}` : '',
+    surface ? `hbar-app-ui-surface-${surface}` : '',
+    state ? `hbar-app-ui-state-${state}` : '',
+    visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-monitoring',
-        'hbar-app-ui-variant',
-        `hbar-app-ui-monitoring-variant-${variant}`,
-        density ? `hbar-app-ui-density-${density}` : '',
-        surface ? `hbar-app-ui-surface-${surface}` : '',
-        state ? `hbar-app-ui-state-${state}` : '',
-        visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-monitoring-surface"
+      contentClassName={contentClassName}
       data-lumen-component="monitoring"
       data-lumen-variant={variant}
       data-hbar-app-ui-component={variantId}
       data-hbar-app-ui-state={state}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 function Header({

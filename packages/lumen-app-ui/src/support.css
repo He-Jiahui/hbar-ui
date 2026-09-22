@@ -1,3 +1,11 @@
+.lumen-support-surface {
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: hidden;
+}
+
 .lumen-support {
   display: flex;
   min-inline-size: 0;
@@ -7,7 +15,7 @@
   gap: 1rem;
   overflow: auto;
   padding: clamp(0.75rem, 3vw, 2rem);
-  background: var(--lumen-reading);
+  background: transparent;
   color: var(--lumen-ink);
 }
 .lumen-support *,
@@ -418,10 +426,9 @@
 .lumen-support-requests > [role='row'] {
   display: grid;
   min-inline-size: 46rem;
-  grid-template-columns: minmax(5rem, 0.4fr) minmax(16rem, 1.4fr) minmax(9rem, 0.7fr) minmax(
-      7rem,
-      0.6fr
-    ) auto;
+  grid-template-columns:
+    minmax(5rem, 0.4fr) minmax(16rem, 1.4fr) minmax(9rem, 0.7fr) minmax(7rem, 0.6fr)
+    auto;
   align-items: center;
   gap: 0.75rem;
   padding: 0.625rem;

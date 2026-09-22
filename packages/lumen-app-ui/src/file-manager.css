@@ -1,3 +1,11 @@
+.lumen-file-manager-surface {
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: hidden;
+}
+
 .lumen-file-manager {
   display: flex;
   min-inline-size: 0;
@@ -5,7 +13,7 @@
   flex: 1 1 auto;
   flex-direction: column;
   overflow: hidden;
-  background: var(--lumen-reading);
+  background: transparent;
   color: var(--lumen-ink);
 }
 

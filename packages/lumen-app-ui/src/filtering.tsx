@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { LumenCheckBox, LumenFormField, LumenInput, LumenSelect } from './forms';
+import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './filtering.css';
 
@@ -292,27 +293,30 @@ function Root({
   className,
   children,
 }: Omit<LumenFilteringProps, 'content' | 'onAction'> & { children: React.ReactNode }) {
+  const contentClassName = [
+    'lumen-filtering',
+    `hbar-app-ui-filter-variant-${variant}`,
+    density ? `hbar-app-ui-density-${density}` : '',
+    surface ? `hbar-app-ui-surface-${surface}` : '',
+    state ? `hbar-app-ui-state-${state}` : '',
+    visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-filtering',
-        'hbar-app-ui-variant',
-        `hbar-app-ui-filter-variant-${variant}`,
-        density ? `hbar-app-ui-density-${density}` : '',
-        surface ? `hbar-app-ui-surface-${surface}` : '',
-        state ? `hbar-app-ui-state-${state}` : '',
-        visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-filtering-surface"
+      contentClassName={contentClassName}
       data-lumen-component="filtering"
       data-lumen-variant={variant}
       data-hbar-app-ui-component={variantId}
       data-hbar-app-ui-state={state}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 function Header({

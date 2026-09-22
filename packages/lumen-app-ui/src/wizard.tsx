@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { LumenFormField, LumenInput, LumenSelect } from './forms';
+import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './wizard.css';
 
@@ -226,27 +227,30 @@ function Root({
   className,
   children,
 }: Omit<LumenWizardProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
+  const contentClassName = [
+    'lumen-wizard-stage',
+    `hbar-app-ui-wizard-variant-${variant}`,
+    density ? `hbar-app-ui-density-${density}` : '',
+    surface ? `hbar-app-ui-surface-${surface}` : '',
+    state ? `hbar-app-ui-state-${state}` : '',
+    visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-wizard-stage',
-        'hbar-app-ui-variant',
-        `hbar-app-ui-wizard-variant-${variant}`,
-        density ? `hbar-app-ui-density-${density}` : '',
-        surface ? `hbar-app-ui-surface-${surface}` : '',
-        state ? `hbar-app-ui-state-${state}` : '',
-        visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-wizard-stage-surface"
+      contentClassName={contentClassName}
       data-lumen-component="wizard"
       data-lumen-variant={variant}
       data-hbar-app-ui-component={variantId}
       data-hbar-app-ui-state={state}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 function Frame({ children }: { readonly children: React.ReactNode }) {
