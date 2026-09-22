@@ -2029,6 +2029,61 @@ describe('Lumen formal variant fixtures', () => {
     ).toBe('true');
   });
 
+  it('uses real data-table records and distinct table workflows', async () => {
+    const entries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'data-table',
+    );
+    expect(entries).toHaveLength(8);
+    const expected = [
+      'Service catalog',
+      'Bulk archive',
+      'Edit service catalog',
+      'Service details',
+      'Group by team',
+      'Service master detail',
+      'Table states',
+      'Service cost table',
+    ];
+    entries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('data-table.rows.item');
+      expect(view).not.toContain('item-1');
+      expect(view).toContain(expected[index]);
+      if (index !== 6) {
+        expect(view).toContain('Northstar API');
+      }
+    });
+
+    let view = render(
+      <VariantPreviewHost entry={entries[0]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.type(screen.getByRole('textbox', { name: 'Search services' }), 'Northstar');
+    expect(screen.getAllByText('Northstar API').length).toBeGreaterThan(0);
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[1]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('checkbox', { name: 'Select Northstar API' }));
+    expect(screen.getByRole('button', { name: 'Archive' })).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[5]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    expect(screen.getAllByText('Northstar API').length).toBeGreaterThan(0);
+    expect(screen.getByText('Operational context')).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[6]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('tab', { name: 'Error' }));
+    expect(screen.getByText('Service catalog is temporarily unavailable.')).not.toBeNull();
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',

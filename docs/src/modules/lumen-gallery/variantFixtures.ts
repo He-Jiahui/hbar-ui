@@ -7,7 +7,6 @@ import type {
   LumenAppSidebarContent,
   LumenCommandMenuContent,
   LumenCommentsContent,
-  LumenDataTableContent,
   LumenEditorContent,
   LumenKanbanContent,
   LumenPromptInputContent,
@@ -19,6 +18,7 @@ import { createBillingFixtures } from './billingFixtures';
 import { createCardFixtures } from './cardFixtures';
 import { createChatFixtures } from './chatFixtures';
 import { createDashboardFixtures } from './dashboardFixtures';
+import { createDataTableFixtures } from './dataTableFixtures';
 import { createFeedbackFixtures } from './feedbackFixtures';
 import getFileManagerFixtures from './fileManagerFixtures';
 import { createFilteringFixtures } from './filteringFixtures';
@@ -2508,7 +2508,8 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
         listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
       },
     } satisfies LumenCardContent, */
-    'data-table': {
+    'data-table': createDataTableFixtures(locale),
+    /* legacyDataTable: {
       rows: [
         {
           id: 'item-1',
@@ -2704,7 +2705,7 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
           empty: previewText(locale, 'data-table.wide.labels.empty'),
         },
       },
-    } satisfies LumenDataTableContent,
+    } satisfies LumenDataTableContent, */
     dashboard: createDashboardFixtures(locale),
     analytics: createAnalyticsFixtures(locale),
     list: createListFixtures(locale),

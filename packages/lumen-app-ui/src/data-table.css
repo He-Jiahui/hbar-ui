@@ -446,6 +446,7 @@
     border-block-end: 0.0625rem solid var(--lumen-edge);
   }
   .lumen-data-table-edit-list > article {
+    flex-wrap: wrap;
   }
   .lumen-data-table-edit-list > article > :nth-child(2n + 1) {
     flex: 1 1 0;
@@ -456,5 +457,6 @@
     min-inline-size: 0;
   }
   .lumen-data-table-edit-list > article > input {
+    flex-basis: 100%;
   }
 }
