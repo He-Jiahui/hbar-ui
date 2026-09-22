@@ -221,7 +221,7 @@ function Header({
           {detail}
         </LumenText>
       </div>
-      {actions}
+      {actions ? <div className="lumen-ai-chat-header-actions">{actions}</div> : null}
     </header>
   );
 }

@@ -72,4 +72,19 @@ describe('Lumen formal variant fixtures', () => {
 
     expect(renderErrors).toEqual([]);
   });
+
+  it('groups AI chat header actions so title copy retains available width', () => {
+    const entry = LUMEN_VARIANT_REGISTRY.find(
+      (candidate) => candidate.id === 'hbar-app-ui-ai-chat-4',
+    );
+    expect(entry).not.toBeUndefined();
+
+    const { container } = render(
+      <VariantPreviewHost entry={entry!} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    const actions = container.querySelector('.lumen-ai-chat-header-actions');
+    expect(actions).not.toBeNull();
+    expect(actions!.querySelectorAll('button, select')).to.have.length(2);
+    expect(container.querySelector('.lumen-ai-chat-header > div:first-child h1')).not.toBeNull();
+  });
 });
