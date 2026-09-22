@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import LumenSurface from './LumenSurface';
 import {
   HbarAppUiFeedback01,
   HbarAppUiFeedback02,
@@ -9,6 +10,7 @@ import {
   HbarAppUiFeedback05,
   HbarAppUiFeedback06,
 } from './variants/Feedback';
+import './feedback-workflows.css';
 
 export type LumenFeedbackListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -709,21 +711,24 @@ function FeedbackRoot({
   className,
   children,
 }: Omit<LumenFeedbackProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
+  const contentClassName = [
+    'lumen-feedback-workflow',
+    'hbar-app-ui-feedback-surface',
+    `hbar-app-ui-feedback-variant-${variant}`,
+    density ? `hbar-app-ui-density-${density}` : '',
+    surface ? `hbar-app-ui-surface-${surface}` : '',
+    state ? `hbar-app-ui-state-${state}` : '',
+    visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-feedback-workflow',
-        'hbar-app-ui-variant',
-        'hbar-app-ui-feedback-surface',
-        `hbar-app-ui-feedback-variant-${variant}`,
-        density ? `hbar-app-ui-density-${density}` : '',
-        surface ? `hbar-app-ui-surface-${surface}` : '',
-        state ? `hbar-app-ui-state-${state}` : '',
-        visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-feedback-workflow-surface"
+      contentClassName={contentClassName}
       data-lumen-component="feedback"
       data-lumen-variant={variant}
       data-hbar-app-ui-component={variantId}
@@ -731,7 +736,7 @@ function FeedbackRoot({
       data-hbar-app-ui-state={state}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 

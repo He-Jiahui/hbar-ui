@@ -1,3 +1,11 @@
+.lumen-command-menu-surface {
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: hidden;
+}
+
 .lumen-command-menu {
   position: relative;
   display: flex;
@@ -8,7 +16,7 @@
   justify-content: center;
   padding: clamp(0.75rem, 3vw, 2rem);
   overflow: hidden;
-  background: var(--lumen-reading);
+  background: transparent;
   color: var(--lumen-ink);
 }
 

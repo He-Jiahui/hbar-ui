@@ -4,6 +4,7 @@ import * as React from 'react';
 import { LumenCommandList, type LumenCommandListProps } from './command-list';
 import { LumenDialog } from './dialog';
 import { LumenInput, LumenSelect } from './forms';
+import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
 import './command-menu.css';
 
@@ -167,20 +168,23 @@ function CommandMenuRoot({
   className,
   children,
 }: Omit<LumenCommandMenuProps, 'content'> & { readonly children: React.ReactNode }) {
+  const contentClassName = [
+    'lumen-command-menu',
+    `hbar-app-ui-command-variant-${variant}`,
+    density ? `hbar-app-ui-density-${density}` : '',
+    surface ? `hbar-app-ui-surface-${surface}` : '',
+    state ? `hbar-app-ui-state-${state}` : '',
+    visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-command-menu',
-        'hbar-app-ui-variant',
-        `hbar-app-ui-command-variant-${variant}`,
-        density ? `hbar-app-ui-density-${density}` : '',
-        surface ? `hbar-app-ui-surface-${surface}` : '',
-        state ? `hbar-app-ui-state-${state}` : '',
-        visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-command-menu-surface"
+      contentClassName={contentClassName}
       data-lumen-component="command-menu"
       data-lumen-variant={variant}
       data-hbar-app-ui-component={variantId}
@@ -188,7 +192,7 @@ function CommandMenuRoot({
       data-hbar-app-ui-state={state}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 

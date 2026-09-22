@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { LumenInput, LumenSelect, LumenTextarea } from './forms';
+import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { LumenAppShell } from './workbench';
 import './app-shell-workflows.css';
@@ -158,27 +159,30 @@ function Root({
   className,
   children,
 }: Omit<LumenAppShellWorkflowsProps, 'content' | 'onAction'> & { children: React.ReactNode }) {
+  const contentClassName = [
+    'lumen-app-shell-stage',
+    `hbar-app-ui-shell-variant-${variant}`,
+    density ? `hbar-app-ui-density-${density}` : '',
+    surface ? `hbar-app-ui-surface-${surface}` : '',
+    state ? `hbar-app-ui-state-${state}` : '',
+    visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-app-shell-stage',
-        'hbar-app-ui-variant',
-        `hbar-app-ui-shell-variant-${variant}`,
-        density ? `hbar-app-ui-density-${density}` : '',
-        surface ? `hbar-app-ui-surface-${surface}` : '',
-        state ? `hbar-app-ui-state-${state}` : '',
-        visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-app-shell-stage-surface"
+      contentClassName={contentClassName}
       data-lumen-component="app-shell"
       data-lumen-variant={variant}
       data-hbar-app-ui-component={variantId}
       data-hbar-app-ui-state={state}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 function Header({ content, title }: { content: LumenAppShellContent; title?: string | undefined }) {
