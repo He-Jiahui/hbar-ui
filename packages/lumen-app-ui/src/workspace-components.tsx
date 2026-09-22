@@ -271,9 +271,9 @@ export function LumenBarSeries({
           blockSize: `${Math.max(0, Math.min(1, Number.isFinite(point.value) ? point.value / scale : 0)) * 100}%`,
         };
         return onSelect ? (
-          <button
+          <LumenButton
             key={point.id}
-            type="button"
+            variant="text"
             title={point.label}
             aria-label={selectLabel?.(point) ?? point.label}
             aria-pressed={selectedId === point.id}

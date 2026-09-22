@@ -16,20 +16,6 @@
   flex-direction: column;
   min-width: 0;
 }
-.dropzone > [data-edge='top'],
-.dropzone > [data-edge='bottom'] {
-  position: absolute;
-  left: 0;
-  width: 100%;
-}
-.dropzone > [data-edge='top'] {
-  top: 0;
-}
-.dropzone > [data-edge='bottom'] {
-  bottom: 0;
-  align-items: flex-end;
-}
-
 .body {
   flex: 1;
   gap: 1.5rem;
@@ -143,9 +129,6 @@
 
 .dropzone[data-dragging='true'] {
   box-shadow: inset 0 0 0 0.125rem var(--lumen-info);
-}
-.fileInput {
-  display: none;
 }
 
 @media (max-width: 48rem) {

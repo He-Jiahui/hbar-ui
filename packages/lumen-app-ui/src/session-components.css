@@ -187,15 +187,9 @@
   cursor: pointer;
 }
 
-.lumen-attachment-button[data-disabled='true'] {
+.lumen-attachment-button:disabled {
   cursor: not-allowed;
   opacity: 0.5;
-}
-
-.lumen-attachment-button > input {
-  inline-size: 0;
-  block-size: 0;
-  opacity: 0;
 }
 
 .lumen-session-glyph {
@@ -440,10 +434,9 @@
   flex: 2 1 16rem;
 }
 
-.lumen-inline-usage > progress,
-.lumen-compact-usage > progress {
+.lumen-inline-usage > .lumen-progress,
+.lumen-compact-usage > .lumen-progress {
   inline-size: 100%;
-  accent-color: var(--lumen-ink);
 }
 
 .lumen-compact-usage {

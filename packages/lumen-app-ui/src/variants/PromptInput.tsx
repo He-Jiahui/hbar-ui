@@ -357,7 +357,6 @@ export function HbarAppUiPromptInput05({
           }
         }}
       >
-        <LumenIndicator edge="top" length="area" />
         <strong>{dragging ? copy.release : copy.drop}</strong>
         <LumenFileButton
           label={copy.choose}
@@ -365,7 +364,6 @@ export function HbarAppUiPromptInput05({
           multiple
           onFiles={(files) => actions.onUpload(content.id, files, 'picker')}
         />
-        <LumenIndicator edge="bottom" length="area" />
       </div>
       <div className={styles.uploads}>
         {unique(content.attachments).map((item) => (

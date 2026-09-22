@@ -4,8 +4,9 @@ import * as React from 'react';
 import LumenField from '../LumenField';
 import LumenIndicator from '../LumenIndicator';
 import LumenSurface from '../LumenSurface';
-import { LumenFormField, LumenInput, LumenTextarea } from '../forms';
+import { LumenFileButton, LumenFormField, LumenInput, LumenTextarea } from '../forms';
 import { LumenButton } from '../primitives';
+import { LumenProgress } from '../ui-controls';
 import type {
   FeedbackActionCopy,
   FeedbackBaseCopy,
@@ -178,7 +179,6 @@ function frameStatus(submission: FeedbackSubmission) {
 export function HbarAppUiFeedback01({ copy, content, state, actions }: HbarAppUiFeedback01Props) {
   const selected = content.types.find((item) => item.id === state.selectedId);
   const busy = state.submission.status === 'submitting';
-  const attachmentInputRef = React.useRef<HTMLInputElement>(null);
   return (
     <Frame id="hbar-app-ui-feedback-1" copy={copy} {...frameStatus(state.submission)}>
       {state.submission.status === 'sent' ? (
@@ -209,25 +209,17 @@ export function HbarAppUiFeedback01({ copy, content, state, actions }: HbarAppUi
             </LumenFormField>
           </LumenField>
           <div className={styles.row}>
-            <LumenButton
+            <LumenFileButton
               className={styles.attachment}
+              label={copy.attachment}
               variant="outlined"
               indicatorState={busy ? 'disabled' : 'idle'}
               disabled={busy}
-              onClick={() => attachmentInputRef.current?.click()}
-            >
-              {copy.attachment}
-            </LumenButton>
-            <input
-              ref={attachmentInputRef}
-              hidden
-              type="file"
-              onChange={(event) => {
-                const file = event.target.files?.[0];
+              onFiles={(files) => {
+                const file = files[0];
                 if (file) {
                   actions.onAttach(content.id, file);
                 }
-                event.target.value = '';
               }}
             />
             {content.attachmentName && <span>{content.attachmentName}</span>}
@@ -572,11 +564,7 @@ function InsightRows({
             <span>{row.label}</span>
             <strong>{row.value}</strong>
           </div>
-          <progress
-            max={100}
-            value={Math.max(0, Math.min(100, row.percent))}
-            aria-label={row.label}
-          />
+          <LumenProgress label={row.label} value={row.percent} />
         </div>
       ))}
     </section>

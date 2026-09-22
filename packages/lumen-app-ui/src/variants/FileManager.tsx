@@ -375,7 +375,6 @@ export function HbarAppUiFileManager04({ copy, content, actions }: HbarAppUiFile
           }
         }}
       >
-        <LumenIndicator edge="top" length="area" />
         <strong>{dragging ? copy.release : copy.drop}</strong>
         <LumenFileButton
           label={copy.choose}
@@ -383,7 +382,6 @@ export function HbarAppUiFileManager04({ copy, content, actions }: HbarAppUiFile
           multiple={content.multiple}
           onFiles={(files) => actions.onUpload(content.id, files, 'picker')}
         />
-        <LumenIndicator edge="bottom" length="area" />
       </div>
       <p role="status">{copy.summary(finished, transfers.length)}</p>
       <div className={styles.transfers} aria-label={copy.title}>

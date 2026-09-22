@@ -4,7 +4,7 @@ import * as React from 'react';
 import LumenField from '../LumenField';
 import LumenIndicator from '../LumenIndicator';
 import LumenSurface from '../LumenSurface';
-import { LumenFormField, LumenInput } from '../forms';
+import { LumenFileButton, LumenFormField, LumenInput } from '../forms';
 import { LumenButton } from '../primitives';
 import styles from './empty-state.module.css';
 
@@ -304,7 +304,6 @@ export function HbarAppUiEmptyState05({
   glassStrength,
 }: HbarAppUiEmptyState05Props) {
   const [dragging, setDragging] = React.useState(false);
-  const inputRef = React.useRef<HTMLInputElement>(null);
   return (
     <Frame id="hbar-app-ui-empty-state-5" {...copy} glassStrength={glassStrength}>
       <div
@@ -323,33 +322,18 @@ export function HbarAppUiEmptyState05({
           }
         }}
       >
-        <LumenIndicator edge="top" length="area" />
         <strong>{dragging ? copy.release : copy.drop}</strong>
         <p>{copy.supported}</p>
-        <LumenButton
+        <LumenFileButton
           className={styles.action}
+          label={copy.choose}
           variant="outlined"
           indicatorState="idle"
-          onClick={() => inputRef.current?.click()}
-        >
-          {copy.choose}
-        </LumenButton>
-        <input
-          ref={inputRef}
-          className={styles.fileInput}
-          type="file"
           accept={content.accept}
           multiple={content.multiple}
-          onChange={(event) => {
-            const files = Array.from(event.target.files ?? []);
-            if (files.length) {
-              actions.onUpload(files, 'picker');
-            }
-            event.target.value = '';
-          }}
+          onFiles={(files) => actions.onUpload(files, 'picker')}
         />
         <small>{copy.storage}</small>
-        <LumenIndicator edge="bottom" length="area" />
       </div>
     </Frame>
   );

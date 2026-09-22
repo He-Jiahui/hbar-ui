@@ -84,8 +84,8 @@ export function LumenAppShell({
             <div className="lumen-app-sidebar-drawer-panel hbar-app-ui-app-sidebar-drawer-panel">
               {sidebar}
             </div>
-            <button
-              type="button"
+            <LumenButton
+              variant="text"
               className="lumen-app-sidebar-backdrop hbar-app-ui-app-sidebar-backdrop"
               aria-label={closeSidebarLabel}
               onClick={onCloseSidebar}

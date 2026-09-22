@@ -2,8 +2,9 @@
 
 import * as React from 'react';
 import { LumenDisclosure } from './disclosure';
-import { LumenInput, LumenTextarea } from './forms';
+import { LumenFileButton, LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
+import { LumenProgress } from './ui-controls';
 import { LumenCompactMetrics } from './workspace-components';
 
 function uniqueById<Item extends { id: string }>(items: readonly Item[]): readonly Item[] {
@@ -317,28 +318,16 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
       <div className="lumen-composer-toolbar">
         <div>
           {props.onAddAttachments ? (
-            <label
+            <LumenFileButton
               className="lumen-attachment-button"
               title={props.labels.addAttachment}
               aria-label={props.labels.addAttachment}
-              data-disabled={!props.canAddAttachments || undefined}
-            >
-              <input
-                type="file"
-                multiple
-                disabled={!props.canAddAttachments}
-                onChange={(event) => {
-                  const files = event.currentTarget.files
-                    ? Array.from(event.currentTarget.files)
-                    : [];
-                  event.currentTarget.value = '';
-                  if (files.length > 0) {
-                    props.onAddAttachments?.(files);
-                  }
-                }}
-              />
-              <SessionGlyph name="add" />
-            </label>
+              label={<SessionGlyph name="add" />}
+              multiple
+              variant="outlined"
+              disabled={!props.canAddAttachments}
+              onFiles={(files) => props.onAddAttachments?.(files)}
+            />
           ) : null}
           {props.controls}
           {props.uploading ? (
@@ -924,7 +913,7 @@ export function LumenCompactUsage({
           <span>{detail}</span>
         </div>
         <LumenCompactMetrics label={title} metrics={metrics} />
-        <progress value={normalized} max={1} aria-label={progressLabel} />
+        <LumenProgress label={progressLabel} value={normalized} maximum={1} tone={mappedTone} />
       </section>
     );
   }
@@ -947,7 +936,7 @@ export function LumenCompactUsage({
       </div>
       <strong>{value}</strong>
       <small>{detail}</small>
-      <progress value={normalized} max={1} aria-label={progressLabel} />
+      <LumenProgress label={progressLabel} value={normalized} maximum={1} tone={mappedTone} />
       <LumenCompactMetrics label={title} metrics={metrics} />
     </section>
   );
