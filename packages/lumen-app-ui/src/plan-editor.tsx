@@ -109,6 +109,7 @@ export function LumenPlanEditor({
 }: LumenPlanEditorProps) {
   const steps = uniquePlanSteps(sourceSteps);
   const includedCount = steps.filter((step) => step.state !== 'skipped').length;
+  const hasDraft = Boolean(draft.trim());
 
   return (
     <section className="lumen-plan-editor" aria-label={labels.title} aria-busy={busy || undefined}>
@@ -211,7 +212,7 @@ export function LumenPlanEditor({
           className="lumen-plan-add-row"
           onSubmit={(event) => {
             event.preventDefault();
-            if (canAdd && !busy) {
+            if (canAdd && hasDraft && !busy) {
               onAdd();
             }
           }}
@@ -223,7 +224,7 @@ export function LumenPlanEditor({
             onChange={(event) => onDraftChange(event.currentTarget.value)}
             disabled={busy || !canAdd}
           />
-          <LumenButton type="submit" variant="outlined" disabled={busy || !canAdd}>
+          <LumenButton type="submit" variant="outlined" disabled={busy || !canAdd || !hasDraft}>
             <PlanGlyph name="add" />
             {labels.add}
           </LumenButton>

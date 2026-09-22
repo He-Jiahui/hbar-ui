@@ -455,6 +455,61 @@ describe('Lumen formal variant fixtures', () => {
     }
   });
 
+  it('uses distinct host-owned agent plans for all six planning modes', () => {
+    const planEntries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'agent-plan',
+    );
+    expect(planEntries).toHaveLength(6);
+    const expected = [
+      'Identity migration plan',
+      'Review execution plan',
+      'Workspace search refactor',
+      'Release plan: estimated vs actual',
+      'Agent work queue',
+      'Plan summary',
+    ];
+
+    planEntries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('Agent plan ·');
+      expect(view).toContain(expected[index]);
+    });
+
+    const tree = planEntries.find((entry) => entry.variant === 3)!;
+    const view = ReactDOMServer.renderToStaticMarkup(
+      <VariantPreviewHost entry={tree} locale="zh" unavailableLabel="无法预览" />,
+    );
+    expect(view).toContain('工作区搜索重构');
+    expect(view).toContain('受阻于：增量索引器');
+  });
+
+  it('adds, reorders, skips, and restores editable agent plan steps', async () => {
+    const entry = LUMEN_VARIANT_REGISTRY.find(
+      (candidate) => candidate.category === 'agent-plan' && candidate.variant === 2,
+    )!;
+    const view = render(
+      <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+
+    const draft = screen.getByPlaceholderText('Add a plan step');
+    await view.user.type(draft, 'Generate rollout report');
+    await view.user.click(screen.getByRole('button', { name: 'Add' }));
+    expect(screen.getByDisplayValue('Generate rollout report')).not.toBeNull();
+
+    await view.user.click(screen.getByRole('button', { name: 'Move Update invoice contract up' }));
+    const titles = [...view.container.querySelectorAll('.lumen-plan-step-fields input')].map(
+      (input) => (input as HTMLInputElement).value,
+    );
+    expect(titles.slice(0, 2)).toEqual(['Update invoice contract', 'Inspect payment module']);
+
+    await view.user.click(screen.getByRole('button', { name: 'Skip Update invoice contract' }));
+    expect(screen.getByRole('button', { name: 'Restore Update invoice contract' })).not.toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Restore Update invoice contract' }));
+    expect(screen.getByRole('button', { name: 'Skip Update invoice contract' })).not.toBeNull();
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import type { LumenAgentPlanStep, LumenPlanState } from '@lumen/app-ui';
 import type { LumenVariantRegistryEntry } from '@lumen/app-ui/catalog';
 import {
   createLumenVariantFixtures,
@@ -108,6 +109,10 @@ export default function VariantPreviewHost({
   const [promptValue, setPromptValue] = React.useState('');
   const [openCommandId, setOpenCommandId] = React.useState<string | null>(null);
   const [nestedCommandPageId, setNestedCommandPageId] = React.useState<string | null>(null);
+  const [agentPlanDraft, setAgentPlanDraft] = React.useState('');
+  const [agentPlanSteps, setAgentPlanSteps] = React.useState<readonly LumenAgentPlanStep[]>(
+    () => fixtures['agent-plan'].editable?.steps ?? [],
+  );
   const Component = entry.component;
 
   if (!Component) {
@@ -169,6 +174,92 @@ export default function VariantPreviewHost({
             : {}),
         },
       } as (typeof fixtures)['command-menu'];
+    }
+  }
+  if (entry.category === 'agent-plan' && entry.variant === 2) {
+    const editable = fixtures['agent-plan'].editable;
+    if (editable?.editing) {
+      const queuedLabel =
+        editable.editing.statuses.find((status) => status.id === 'queued')?.label ??
+        editable.labels.newStepStateLabel;
+      const skippedLabel =
+        editable.editing.statuses.find((status) => status.id === 'skipped')?.label ??
+        editable.labels.newStepStateLabel;
+      content = {
+        ...fixtures['agent-plan'],
+        editable: {
+          ...editable,
+          steps: agentPlanSteps,
+          draft: agentPlanDraft,
+          canAdd: agentPlanSteps.length < editable.listStrategy.expectedMaximum,
+          canSubmit: agentPlanSteps.some((step) => step.state !== 'skipped'),
+          editing: {
+            ...editable.editing,
+            onTitleChange: (id: string, value: string) =>
+              setAgentPlanSteps((current) =>
+                current.map((step) => (step.id === id ? { ...step, title: value } : step)),
+              ),
+            onStatusChange: (id: string, value: LumenPlanState) =>
+              setAgentPlanSteps((current) =>
+                current.map((step) =>
+                  step.id === id
+                    ? {
+                        ...step,
+                        state: value,
+                        stateLabel: value === 'skipped' ? skippedLabel : queuedLabel,
+                      }
+                    : step,
+                ),
+              ),
+          },
+          onDraftChange: setAgentPlanDraft,
+          onAdd: () => {
+            const title = agentPlanDraft.trim();
+            if (!title) {
+              return;
+            }
+            setAgentPlanSteps((current) => [
+              ...current,
+              {
+                id: `custom-${current.length + 1}`,
+                title,
+                state: 'queued',
+                stateLabel: queuedLabel,
+              },
+            ]);
+            setAgentPlanDraft('');
+          },
+          onMove: (id: string, direction: -1 | 1) =>
+            setAgentPlanSteps((current) => {
+              const index = current.findIndex((step) => step.id === id);
+              const nextIndex = index + direction;
+              if (index < 0 || nextIndex < 0 || nextIndex >= current.length) {
+                return current;
+              }
+              const next = [...current];
+              const [step] = next.splice(index, 1);
+              if (!step) {
+                return current;
+              }
+              next.splice(nextIndex, 0, step);
+              return next;
+            }),
+          onRemove: (id: string) =>
+            setAgentPlanSteps((current) =>
+              current.map((step) => {
+                if (step.id !== id) {
+                  return step;
+                }
+                const skipped = step.state === 'skipped';
+                return {
+                  ...step,
+                  state: skipped ? 'queued' : 'skipped',
+                  stateLabel: skipped ? queuedLabel : skippedLabel,
+                };
+              }),
+            ),
+        },
+      } as (typeof fixtures)['agent-plan'];
     }
   }
   const componentProps =

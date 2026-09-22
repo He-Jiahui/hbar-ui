@@ -20,6 +20,7 @@ export interface LumenAgentPlanStep {
   readonly target?: string | undefined;
   readonly estimate?: string | undefined;
   readonly duration?: string | undefined;
+  readonly dependency?: { readonly id: string; readonly label: string } | undefined;
 }
 
 export interface LumenAgentPlanChecklistContent {
@@ -580,6 +581,18 @@ function PlanTree(
                         <li key={item.id}>
                           <AgentPlanNumber value={index + 1} />
                           <span className="hbar-app-ui-agent-plan-step-title">{item.title}</span>
+                          {item.dependency ? (
+                            <LumenButton
+                              className="hbar-app-ui-agent-plan-dependency"
+                              size="s"
+                              variant="text"
+                              onClick={() =>
+                                report(onAction, 'open-plan-dependency', item.dependency?.id)
+                              }
+                            >
+                              {item.dependency.label}
+                            </LumenButton>
+                          ) : null}
                           {item.state === 'failed' ? (
                             <LumenButton
                               size="s"

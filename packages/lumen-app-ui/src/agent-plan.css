@@ -265,6 +265,15 @@
   background: var(--lumen-frost);
 }
 
+.hbar-app-ui-agent-plan-dependency {
+  min-inline-size: 0;
+  flex: 0 1 auto;
+  overflow: hidden;
+  color: var(--lumen-info);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .hbar-app-ui-agent-plan-editable-content,
 .hbar-app-ui-agent-plan-editable-content > .lumen-plan-editor {
   display: flex;
@@ -545,23 +554,26 @@
   }
 
   .hbar-app-ui-agent-plan-breakdown-list li {
+    flex-wrap: wrap;
   }
 
-  .hbar-app-ui-agent-plan-breakdown-list li > :nth-child(3n + 1) {
+  .hbar-app-ui-agent-plan-breakdown-list li > :nth-child(4n + 1) {
     flex: 0 0 auto;
     min-inline-size: 0;
   }
 
-  .hbar-app-ui-agent-plan-breakdown-list li > :nth-child(3n + 2) {
+  .hbar-app-ui-agent-plan-breakdown-list li > :nth-child(4n + 2) {
     flex: 1 1 0;
     min-inline-size: 0;
   }
 
-  .hbar-app-ui-agent-plan-breakdown-list li > :nth-child(3n + 3) {
+  .hbar-app-ui-agent-plan-breakdown-list li > :nth-child(4n + 3),
+  .hbar-app-ui-agent-plan-breakdown-list li > :nth-child(4n + 4) {
     flex: 0 0 auto;
     min-inline-size: 0;
   }
 
   .hbar-app-ui-agent-plan-breakdown-list li > span:last-child {
+    margin-inline-start: 2.25rem;
   }
 }
