@@ -125,38 +125,21 @@ Suggestions and recent prompts grow with content, while the recent region
 scrolls within a bounded pane. Duplicate option IDs retain their first item.
 
 The opt-in `@lumen/app-ui/catalog` export records all 300 source IDs and their
-presentation profiles. `LUMEN_MIGRATED_VARIANT_IDS` lists only validated ports;
-the other source entries are inventory, not components or placeholder exports.
-Four of the 38 families, totaling 22 variants, are migrated so far.
+presentation profiles. `LUMEN_MIGRATED_VARIANT_IDS` and
+`LUMEN_VARIANT_REGISTRY` contain the complete set of 38 families and 300
+interactive Lumen variants; every entry resolves to a concrete component and
+has a stable preview URL. There is no generic fallback or pending source-only
+entry in the registry.
+
 The docs-only directory at `/experiments/lumen-app-ui/catalog/` makes all 38
-families and 300 source IDs searchable, identifies pending entries as source
-structure rather than completed components, and links validated ports back to
-the interactive gallery.
+families and 300 source IDs searchable and embeds the corresponding interactive
+Lumen variant. The catalog is an inspection surface for the same components
+exported by `@lumen/app-ui/variants`, not a second legacy skin.
 
-The `@lumen/app-ui/designs` export adds composable design coverage for source
-families that do not have one-to-one ports yet: `LumenAnalyticsDesign`,
-`LumenDialogDesign`, `LumenBillingDesign`, `LumenDashboardDesign`, `LumenDataTableDesign`,
-`LumenKanbanDesign`, `LumenMonitoringDesign`, `LumenNotificationsDesign`,
-`LumenOnboardingDesign`, `LumenSettingsFormDesign`, and `LumenWizardDesign`. These
-components keep the same host-owned copy, content, state, and action contract,
-but they are intentionally design directions rather than migrated source IDs.
-The docs-only preview at `/experiments/lumen-app-ui/designs/` shows their dark
-and light Lumen treatment with long content, selection, movement, and step
-navigation states.
-
-The catalog exposes these 34 names through
-`LUMEN_DESIGN_COVERAGE_CATEGORIES`, so a design preview is visibly distinct
-from a validated source port in both code and the docs catalog.
-
-The remaining catalog families use the typed `LumenCategoryDesign` composition
-with explicit layout primitives for chat, comments, commerce, editor, list,
-navigation, and the ten source page surfaces. The host still owns all copy,
-items, selection state, and actions; the component supplies only the Lumen
-material and interaction language.
-
-The docs catalog also resolves every pending source ID to an individual page
-example. Its source `surface`, `initialState`, `controls`, and `itemCount`
-select and populate calendar, form, grid, overlay, panel, rail, split, stream,
-table, or timeline compositions. These 278 examples make the frozen source
-structures visually reviewable without marking them as migrated production
-components.
+`@lumen/app-ui/designs` remains as a backwards-compatible export for the older
+composable design-direction API. It is implemented entirely with the shared
+Lumen primitives and is not used as a fallback for catalog variants;
+`LUMEN_DESIGN_COVERAGE_CATEGORIES` is intentionally empty because every source
+family now has one-to-one variants. New Application UI code should import from
+`@lumen/app-ui/ui` and compose the concrete variant components from
+`@lumen/app-ui/variants`.
