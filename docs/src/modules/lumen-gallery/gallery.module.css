@@ -4,7 +4,7 @@
   min-height: 100dvh;
   gap: 2rem;
   padding: 2rem;
-  background: #090909;
+  background: var(--lumen-contrast);
   color: var(--lumen-ink);
   color-scheme: dark;
   font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
@@ -17,7 +17,7 @@
 }
 
 .gallery[data-lumen-mode='light'] {
-  background-color: #f5f5f5;
+  background-color: var(--lumen-contrast);
   background-image: linear-gradient(115deg, transparent 18%, rgb(0 0 0 / 8%) 20%, transparent 23%);
   color-scheme: light;
 }
@@ -41,7 +41,22 @@
   font-weight: 500;
 }
 .toolbarActions {
+  align-items: center;
   flex-wrap: wrap;
+}
+
+.toolbarLink {
+  display: inline-flex;
+  min-block-size: var(--lumen-control-size);
+  align-items: center;
+  padding-inline: var(--lumen-control-padding-inline);
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-control);
+  text-decoration: none;
+}
+
+.toolbarLink:hover {
+  background: color-mix(in srgb, var(--lumen-ink) 8%, transparent);
 }
 .toolbar button,
 .navigation button {
@@ -80,9 +95,6 @@
   min-width: 0;
   align-self: center;
   overflow-wrap: anywhere;
-}
-.navigation button > :global([data-edge='bottom']) {
-  display: none;
 }
 .navigation button:focus-visible .navigationLabel {
   text-decoration: underline;
@@ -153,11 +165,5 @@
   }
   .navigationLabel {
     white-space: nowrap;
-  }
-  .navigation button > :global([data-edge='right']) {
-    display: none;
-  }
-  .navigation button > :global([data-edge='bottom']) {
-    display: flex;
   }
 }

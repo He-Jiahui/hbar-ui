@@ -136,22 +136,24 @@ export interface LumenNavigationButtonProps extends Omit<LumenButtonProps, 'indi
   selected?: boolean | undefined;
 }
 
-export function LumenNavigationButton({
-  selected = false,
-  variant = 'text',
-  indicatorEdge = 'right',
-  ...other
-}: LumenNavigationButtonProps) {
+export const LumenNavigationButton = React.forwardRef<
+  HTMLButtonElement,
+  LumenNavigationButtonProps
+>(function LumenNavigationButton(
+  { selected = false, variant = 'text', indicatorEdge = 'right', ...other },
+  ref,
+) {
   return (
     <LumenButton
       {...other}
+      ref={ref}
       variant={variant}
       indicatorEdge={indicatorEdge}
       indicatorState={selected ? 'selected' : undefined}
       aria-current={selected ? 'page' : undefined}
     />
   );
-}
+});
 
 export type LumenTextTone = 'neutral' | 'muted' | 'subtle' | 'success' | 'warning' | 'danger';
 export type LumenTextVariant = 'title' | 'heading' | 'body' | 'label' | 'supporting' | 'code';

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import Button from '@mui/material/Button';
+import { LumenButton } from '@lumen/app-ui/ui';
 import {
   HbarAppUiFeedback01,
   HbarAppUiFeedback02,
@@ -236,11 +236,11 @@ export default function FeedbackGallery({ variant, locale }: FeedbackGalleryProp
   return (
     <React.Fragment>
       {dismissed.includes(variant) ? (
-        <Button
+        <LumenButton
           onClick={() => setDismissed((current) => current.filter((item) => item !== variant))}
         >
           {fixtures.reopen}
-        </Button>
+        </LumenButton>
       ) : (
         sample[variant - 1]
       )}

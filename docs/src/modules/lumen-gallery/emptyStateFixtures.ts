@@ -8,8 +8,10 @@ const zh = {
   migratedGroup: '已迁移组件',
   sceneShortcut: '探索更多场景',
   catalog: '浏览全部 300 项',
-  designs: '查看扩展设计',
+  navigationItem: (position: number, name: string) =>
+    `${String(position).padStart(2, '0')} · ${name}`,
   event: '最近动作',
+  eventStatus: (label: string, value: string) => `${label}: ${value}`,
   none: '等待操作',
   variants: ['初次使用', '无搜索结果', '处理完毕', '加载失败', '空文件夹'],
   first: {
@@ -66,8 +68,10 @@ const en: typeof zh = {
   migratedGroup: 'Migrated components',
   sceneShortcut: 'Explore more scenes',
   catalog: 'Browse all 300 entries',
-  designs: 'Open extended designs',
+  navigationItem: (position: number, name: string) =>
+    `${String(position).padStart(2, '0')} · ${name}`,
   event: 'Last action',
+  eventStatus: (label: string, value: string) => `${label}: ${value}`,
   none: 'Waiting for interaction',
   variants: ['First run', 'No results', 'Caught up', 'Load failure', 'Empty folder'],
   first: {

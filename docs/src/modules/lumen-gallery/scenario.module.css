@@ -111,7 +111,7 @@
   backdrop-filter: blur(0.75rem);
 }
 
-.composer :global(.MuiInputBase-root) {
+.composer :global(.lumen-control) {
   flex: 1;
   min-width: 0;
   color: var(--lumen-ink);
