@@ -7,12 +7,12 @@
 | Button / IconButton | LumenButton / LumenIconButton | text 是轻动作，outlined 是需要边界的次动作，solid 是少量主动作。以线芯反馈交互；loading 禁止重复提交并保留名称。 |
 | Autocomplete / Combo box | LumenComboBox | 平面输入及底部边界、独立下拉面。方向键只移动高亮，Enter 提交，Escape 取消展开；active descendant 与 selected value 分开。宿主筛选并提供分页。 |
 | TextField / Select | LumenFormField + LumenInput / LumenSelect | 可见标签、说明、错误分别呈现。默认以底边表达输入范围，焦点增加清晰指示。原生 select 保留平台选择行为。 |
-| List / ListItemButton | LumenList | 文本主次、行尾辅助信息、选中侧条。独立行尾动作放在行按钮之外，避免嵌套交互。短列表随内容增长，大列表由宿主管理分页。 |
+| List / ListItemButton | LumenList | 文本主次、行尾辅助信息。当前 trailing 位于行按钮内，只放非交互信息；未来扩展独立操作时须放在行按钮之外并单测，不能嵌套按钮。短列表随内容增长，大列表由宿主管理分页。 |
 | Chip / Tag | LumenChip | 短标签或过滤条件，透明底面与局部边界，无胶囊外观依赖。可选选择与删除；删除有独立宿主标签，避免让删除同时触发选择。 |
 | Badge | LumenBadge | 简短状态或计数，线芯/点与文字组合；可附着到图标旁，提供可访问名称。数值格式、上限和复数由宿主决定。 |
 | Tabs / Toggle Button | LumenTabs / LumenSegmentedControl | 选中使用水平/垂直条和字重；方向键、Home/End 跳过禁用项。Tab 对应 panel，单一 roving tab stop。 |
 | Switch / Checkbox / Radio | LumenSwitch / LumenCheckBox / LumenRadioGroup | 保留原生表单语义；checked、disabled、focus 均可辨识，颜色不独自承担状态。 |
-| Paper / Card / Divider | LumenSurface / LumenPanel / LumenDivider | 默认透明，由宿主背景承载，按信息分组需要引入边界；不要给每条正文包装卡片。 |
+| Paper / Card / Divider | LumenSurface / LumenPanel / LumenDivider | 基础面依赖宿主背景，现有 Surface 默认半透明 glass；保留参照。以留白组织信息，不给每条正文包装卡片。 |
 | Menu / Dialog / Popover | LumenMenu / LumenDialog / LumenPopover | 覆盖层使用可读底色；各自的焦点管理、关闭行为需单独核对，不能因皮肤一致就宣称交互完成。 |
 
 ## 扩展边界
