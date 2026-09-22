@@ -1,11 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
 import LumenField from '../LumenField';
 import LumenIndicator, { type LumenTone } from '../LumenIndicator';
 import LumenSurface from '../LumenSurface';
+import { LumenFormField, LumenInput, LumenSelect, LumenTextarea } from '../forms';
+import { LumenButton, type LumenButtonProps } from '../primitives';
 import type {
   AnalyticsDesignProps,
   BillingDesignProps,
@@ -23,6 +23,10 @@ import type {
   WizardDesignProps,
 } from './designTypes';
 import styles from './designs.module.css';
+
+function Button({ variant = 'text', ...props }: LumenButtonProps) {
+  return <LumenButton {...props} variant={variant} />;
+}
 
 function Frame({
   id,
@@ -69,21 +73,19 @@ export function LumenAnalyticsDesign({ copy, content, state, actions }: Analytic
     <Frame id="lumen-design-analytics" copy={copy} tone="info">
       <div className={styles.designToolbar}>
         <LumenField boundary="vertical" className={styles.compactField}>
-          <TextField
-            select
-            fullWidth
-            size="small"
-            label={copy.period}
-            value={period}
-            onChange={(event) => actions.onPeriodChange(event.target.value)}
-            slotProps={{ select: { native: true } }}
-          >
-            {content.periods.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.label}
-              </option>
-            ))}
-          </TextField>
+          <LumenFormField controlId="lumen-design-analytics-period" label={copy.period} size="s">
+            <LumenSelect
+              size="s"
+              value={period}
+              onChange={(event) => actions.onPeriodChange(event.target.value)}
+            >
+              {content.periods.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.label}
+                </option>
+              ))}
+            </LumenSelect>
+          </LumenFormField>
         </LumenField>
         <span className={styles.muted}>{copy.series}</span>
       </div>
@@ -290,13 +292,13 @@ export function LumenWizardDesign({ copy, content, state, actions }: WizardDesig
           <div className={styles.wizardFields}>
             {content.fields.map((field) => (
               <LumenField boundary="horizontal" key={field.id}>
-                <TextField
-                  fullWidth
-                  label={field.label}
-                  value={field.value}
-                  placeholder={field.placeholder}
-                  onChange={(event) => actions.onFieldChange(field.id, event.target.value)}
-                />
+                <LumenFormField controlId={`lumen-wizard-${field.id}`} label={field.label}>
+                  <LumenInput
+                    value={field.value}
+                    placeholder={field.placeholder}
+                    onChange={(event) => actions.onFieldChange(field.id, event.target.value)}
+                  />
+                </LumenFormField>
               </LumenField>
             ))}
           </div>
@@ -381,14 +383,14 @@ export function LumenDataTableDesign({ copy, content, state, actions }: DataTabl
   return (
     <Frame id="lumen-design-data-table" copy={copy} tone="info">
       <LumenField boundary="vertical" className={styles.tableSearch}>
-        <TextField
-          fullWidth
-          size="small"
-          value={state.query}
-          label={copy.search}
-          onChange={(event) => actions.onQueryChange(event.target.value)}
-          slotProps={{ htmlInput: { 'aria-label': copy.search } }}
-        />
+        <LumenFormField controlId="lumen-design-table-search" label={copy.search} size="s">
+          <LumenInput
+            size="s"
+            type="search"
+            value={state.query}
+            onChange={(event) => actions.onQueryChange(event.target.value)}
+          />
+        </LumenFormField>
       </LumenField>
       <div className={styles.tableShell} role="region" aria-label={copy.title}>
         <table>
@@ -588,14 +590,14 @@ export function LumenSettingsFormDesign({
               <small>{field.detail}</small>
             </div>
             <LumenField boundary="horizontal" className={styles.settingsField}>
-              <TextField
-                fullWidth
-                size="small"
-                label={field.label}
-                value={field.value}
-                placeholder={field.placeholder}
-                onChange={(event) => actions.onFieldChange(field.id, event.target.value)}
-              />
+              <LumenFormField controlId={`lumen-settings-${field.id}`} label={field.label} size="s">
+                <LumenInput
+                  size="s"
+                  value={field.value}
+                  placeholder={field.placeholder}
+                  onChange={(event) => actions.onFieldChange(field.id, event.target.value)}
+                />
+              </LumenFormField>
             </LumenField>
           </div>
         ))}
@@ -623,9 +625,7 @@ export function LumenOnboardingDesign({ copy, content, state, actions }: Onboard
             aria-current={itemIndex === index ? 'step' : undefined}
             onClick={() => actions.onStepChange(itemIndex)}
           >
-            <span>
-              {String(itemIndex + 1).padStart(2, '0')} · {item.title}
-            </span>
+            <span>{copy.stepLabel(itemIndex + 1, item.title)}</span>
             <LumenIndicator
               edge="bottom"
               state={itemIndex === index ? 'selected' : 'idle'}
@@ -755,13 +755,14 @@ export function LumenCategoryDesign({
     <div className={styles.categoryToolbar}>
       {showSearch && (
         <LumenField boundary="horizontal" className={styles.categorySearch}>
-          <TextField
-            fullWidth
-            size="small"
-            label={copy.search}
-            value={state.query}
-            onChange={(event) => actions.onQueryChange(event.target.value)}
-          />
+          <LumenFormField controlId={`${id}-search`} label={copy.search} size="s">
+            <LumenInput
+              size="s"
+              type="search"
+              value={state.query}
+              onChange={(event) => actions.onQueryChange(event.target.value)}
+            />
+          </LumenFormField>
         </LumenField>
       )}
       <Button onClick={() => actions.onAction(selected?.id ?? '')}>
@@ -799,14 +800,13 @@ export function LumenCategoryDesign({
       <div className={styles.categoryForm}>
         {items.map((item) => (
           <LumenField boundary="horizontal" className={styles.categoryFormField} key={item.id}>
-            <TextField
-              fullWidth
-              label={item.label}
-              helperText={item.detail}
-              value={state.values?.[item.id] ?? item.value ?? ''}
-              onChange={(event) => actions.onItemChange?.(item.id, event.target.value)}
-              slotProps={{ htmlInput: { readOnly: !actions.onItemChange } }}
-            />
+            <LumenFormField controlId={`${id}-${item.id}`} label={item.label} hint={item.detail}>
+              <LumenInput
+                value={state.values?.[item.id] ?? item.value ?? ''}
+                readOnly={!actions.onItemChange}
+                onChange={(event) => actions.onItemChange?.(item.id, event.target.value)}
+              />
+            </LumenFormField>
           </LumenField>
         ))}
       </div>
@@ -934,11 +934,11 @@ export function LumenCategoryDesign({
               state={item.id === activeId ? (item.state ?? 'running') : 'idle'}
               tone={item.tone}
             />
-            <button type="button" onClick={() => actions.onSelect(item.id)}>
+            <Button onClick={() => actions.onSelect(item.id)}>
               <strong>{item.label}</strong>
               <span>{item.detail}</span>
               <small>{item.value}</small>
-            </button>
+            </Button>
           </article>
         ))}
       </div>
@@ -990,14 +990,14 @@ export function LumenCategoryDesign({
           ))}
         </div>
         <LumenField boundary="vertical" className={styles.categoryComposer}>
-          <TextField
-            multiline
-            minRows={2}
-            label={copy.input}
-            placeholder={copy.secondary}
-            value={state.input}
-            onChange={(event) => actions.onInputChange(event.target.value)}
-          />
+          <LumenFormField controlId={`${id}-composer`} label={copy.input}>
+            <LumenTextarea
+              rows={2}
+              placeholder={copy.secondary}
+              value={state.input}
+              onChange={(event) => actions.onInputChange(event.target.value)}
+            />
+          </LumenFormField>
           <Button
             className={styles.categoryComposerAction}
             onClick={() => actions.onAction(selected?.id ?? '')}
@@ -1022,14 +1022,13 @@ export function LumenCategoryDesign({
           ))}
         </nav>
         <LumenField boundary="vertical" className={styles.categoryEditorField}>
-          <TextField
-            fullWidth
-            multiline
-            minRows={7}
-            label={selected?.label ?? copy.secondary}
-            value={state.input}
-            onChange={(event) => actions.onInputChange(event.target.value)}
-          />
+          <LumenFormField controlId={`${id}-editor`} label={selected?.label ?? copy.secondary}>
+            <LumenTextarea
+              rows={7}
+              value={state.input}
+              onChange={(event) => actions.onInputChange(event.target.value)}
+            />
+          </LumenFormField>
           <Button onClick={() => actions.onAction(selected?.id ?? '')}>
             {copy.action}
             <LumenIndicator edge="bottom" state="selected" />

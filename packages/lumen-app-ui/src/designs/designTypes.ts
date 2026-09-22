@@ -219,7 +219,13 @@ export interface OnboardingStep {
 }
 
 export interface OnboardingDesignProps {
-  copy: LumenDesignCopy & { skip: string; next: string; finish: string; steps: string };
+  copy: LumenDesignCopy & {
+    skip: string;
+    next: string;
+    finish: string;
+    steps: string;
+    stepLabel: (position: number, title: string) => string;
+  };
   content: { steps: readonly OnboardingStep[] };
   state: { currentStep: number };
   actions: { onStepChange: (step: number) => void; onSkip: () => void };
