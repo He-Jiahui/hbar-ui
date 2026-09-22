@@ -228,6 +228,10 @@
   min-width: 42rem;
 }
 
+.lumen-agent-activity-history-table ol {
+  flex-direction: column;
+}
+
 .lumen-agent-activity-history-header,
 .lumen-agent-activity-history-table li {
   display: flex;
@@ -236,26 +240,38 @@
   min-inline-size: 0;
 }
 
-.lumen-agent-activity-history-header,
-.lumen-agent-activity-history-table li > :nth-child(4n + 1) {
+.lumen-agent-activity-history-header > :nth-child(6n + 1),
+.lumen-agent-activity-history-table li > :nth-child(6n + 1) {
   flex: 1.75 1 12rem;
   min-inline-size: 12rem;
 }
 
-.lumen-agent-activity-history-header,
-.lumen-agent-activity-history-table li > :nth-child(4n + 2) {
+.lumen-agent-activity-history-header > :nth-child(6n + 2),
+.lumen-agent-activity-history-table li > :nth-child(6n + 2) {
   flex: 1 1 8rem;
   min-inline-size: 8rem;
 }
 
-.lumen-agent-activity-history-header,
-.lumen-agent-activity-history-table li > :nth-child(4n + 3) {
+.lumen-agent-activity-history-header > :nth-child(6n + 3),
+.lumen-agent-activity-history-table li > :nth-child(6n + 3) {
   flex: 0.65 1 5rem;
   min-inline-size: 0;
 }
 
-.lumen-agent-activity-history-header,
-.lumen-agent-activity-history-table li > :nth-child(4n + 4) {
+.lumen-agent-activity-history-header > :nth-child(6n + 4),
+.lumen-agent-activity-history-table li > :nth-child(6n + 4) {
+  flex: 0.65 1 5rem;
+  min-inline-size: 0;
+}
+
+.lumen-agent-activity-history-header > :nth-child(6n + 5),
+.lumen-agent-activity-history-table li > :nth-child(6n + 5) {
+  flex: 0 1 8rem;
+  min-inline-size: 0;
+}
+
+.lumen-agent-activity-history-header > :nth-child(6n + 6),
+.lumen-agent-activity-history-table li > :nth-child(6n + 6) {
   flex: 0 0 2.25rem;
   min-inline-size: 0;
 }
@@ -457,24 +473,44 @@
   }
 
   .lumen-agent-activity-history-table li {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 0.5rem;
-    flex-wrap: wrap;
+    align-items: start;
   }
 
-  .lumen-agent-activity-history-table li > :nth-child(2n + 1) {
-    flex: 1 1 0;
+  .lumen-agent-activity-history-table li > :nth-child(6n + 1),
+  .lumen-agent-activity-history-table li > :nth-child(6n + 2),
+  .lumen-agent-activity-history-table li > :nth-child(6n + 3),
+  .lumen-agent-activity-history-table li > :nth-child(6n + 4),
+  .lumen-agent-activity-history-table li > :nth-child(6n + 5) {
+    flex: none;
     min-inline-size: 0;
   }
 
-  .lumen-agent-activity-history-table li > :nth-child(2n + 2) {
-    flex: 0 0 auto;
+  .lumen-agent-activity-history-table li > :nth-child(6n + 6) {
+    justify-self: end;
+    min-inline-size: 0;
+  }
+
+  .hbar-app-ui-agent-activity-history-cell {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: baseline;
+    gap: 0.25rem 0.5rem;
+  }
+
+  .lumen-agent-activity-history-table li > :nth-child(2n + 1) {
     min-inline-size: 0;
   }
 
   .hbar-app-ui-agent-activity-history-cell small {
     display: block;
     color: var(--lumen-muted);
+  }
+
+  .hbar-app-ui-agent-activity-history-cell small + * {
+    min-inline-size: 0;
   }
 
   .lumen-agent-activity-deployment-footer,

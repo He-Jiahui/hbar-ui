@@ -2323,6 +2323,9 @@ describe('Lumen formal variant fixtures', () => {
     view = render(
       <VariantPreviewHost entry={entries[3]} locale="en" unavailableLabel="Preview unavailable" />,
     );
+    const historyRows = view.container.querySelectorAll('[role="row"]');
+    expect(historyRows).toHaveLength(4);
+    expect([...historyRows].slice(1).every((row) => row.children.length === 6)).toBe(true);
     await view.user.click(screen.getByRole('button', { name: /Rerun Q4 interview synthesis/ }));
     expect(screen.getByRole('button', { name: /Rerun Q4 interview synthesis/ })).not.toBeNull();
   });
