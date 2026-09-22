@@ -2,7 +2,6 @@ import type {
   LumenAgentActivityContent,
   LumenAgentApprovalContent,
   LumenAiChatContent,
-  LumenAppDialogContent,
   LumenAppShellContent,
   LumenAppSidebarContent,
   LumenCommandMenuContent,
@@ -12,6 +11,7 @@ import type {
   LumenPromptInputContent,
 } from '@lumen/app-ui';
 import { createAgentPlanFixtures } from './agentPlanFixtures';
+import { createAppDialogFixtures } from './appDialogFixtures';
 import { createAnalyticsFixtures } from './analyticsFixtures';
 import { createAuthenticationFixtures } from './authenticationFixtures';
 import { createBillingFixtures } from './billingFixtures';
@@ -2714,7 +2714,8 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
     monitoring: createMonitoringFixtures(locale),
     'settings-form': createSettingsFormFixtures(locale),
     forms: createFormsFixtures(locale),
-    'app-dialog': {
+    'app-dialog': createAppDialogFixtures(locale),
+    /* legacyAppDialog: {
       plan: {
         labels: {
           trigger: previewText(locale, 'app-dialog.plan.labels.trigger'),
@@ -2971,7 +2972,7 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
         ],
         listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
       },
-    } satisfies LumenAppDialogContent,
+    } satisfies LumenAppDialogContent, */
     notifications: createNotificationFixtures(locale),
     onboarding: createOnboardingFixtures(locale),
     paywall: createPaywallFixtures(locale),

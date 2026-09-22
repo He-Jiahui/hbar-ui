@@ -2084,6 +2084,52 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getByText('Service catalog is temporarily unavailable.')).not.toBeNull();
   });
 
+  it('uses real app-dialog scenarios and keeps overlay actions local', async () => {
+    const entries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'app-dialog',
+    );
+    expect(entries).toHaveLength(7);
+    const expected = [
+      'Review deployment plan',
+      'Delete Northstar project',
+      'Invite a member to Northwind',
+      'Create workspace',
+      'Configure latency alert',
+      'Run evidence for deploy #842',
+      'Run actions',
+    ];
+    entries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('app-dialog.plan');
+      expect(view).not.toContain('item-1');
+      expect(view).toContain(expected[index]);
+    });
+
+    let view = render(
+      <VariantPreviewHost entry={entries[2]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Invite member' }));
+    expect(screen.getByRole('dialog')).not.toBeNull();
+    expect(screen.getByText('Invite a member to Northwind')).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[4]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Create alert rule' }));
+    expect(screen.getByRole('dialog')).not.toBeNull();
+    expect(screen.getByRole('switch', { name: 'Toggle alert state' })).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[5]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'View run evidence' }));
+    expect(screen.getByText(/Passed · deploy-842/)).not.toBeNull();
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',
