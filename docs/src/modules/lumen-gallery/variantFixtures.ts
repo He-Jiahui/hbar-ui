@@ -1,5 +1,4 @@
 import type {
-  LumenAgentActivityContent,
   LumenAgentApprovalContent,
   LumenAppShellContent,
   LumenAppSidebarContent,
@@ -8,6 +7,7 @@ import type {
   LumenEditorContent,
 } from '@lumen/app-ui';
 import { createAgentPlanFixtures } from './agentPlanFixtures';
+import { createAgentActivityFixtures } from './agentActivityLumenFixtures';
 import { createAiChatFixtures } from './aiChatFixtures';
 import { createAppDialogFixtures } from './appDialogFixtures';
 import { createAnalyticsFixtures } from './analyticsFixtures';
@@ -597,7 +597,8 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
         ],
       },
     } satisfies LumenPromptInputContent, */
-    'agent-activity': {
+    'agent-activity': createAgentActivityFixtures(locale),
+    /* legacyAgentActivity: {
       live: {
         labels: {
           title: previewText(locale, 'agent-activity.live.labels.title'),
@@ -897,7 +898,7 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
         ],
         listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
       },
-    } satisfies LumenAgentActivityContent,
+    } satisfies LumenAgentActivityContent, */
     'tool-calls': createToolCallsFixtures(locale),
     'agent-approval': {
       inline: {

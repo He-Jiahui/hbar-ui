@@ -2262,6 +2262,51 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getAllByText('Q4 roadmap').length).toBeGreaterThan(0);
   });
 
+  it('uses real agent activity runs, logs, and worker states', async () => {
+    const entries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'agent-activity',
+    );
+    expect(entries).toHaveLength(7);
+    const markers = [
+      'Research agent is running',
+      'Research plan steps',
+      'Deploy research brief',
+      'Research agent runs',
+      'Run log',
+      'Parallel research workers',
+      'Research run failed',
+    ];
+    entries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('agent-activity.live.steps.item.label');
+      expect(view).not.toContain('item-1');
+      expect(view).toContain(markers[index]);
+    });
+
+    let view = render(
+      <VariantPreviewHost entry={entries[1]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: /Expand|Collapse/ }));
+    expect(screen.getAllByText('Research plan steps').length).toBeGreaterThan(0);
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[4]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('tab', { name: 'Warnings' }));
+    expect(screen.getByText('theme-coding.csv is missing 3 tags')).not.toBeNull();
+    expect(screen.queryByText('Loaded 12 interview sources')).toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[3]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: /Rerun Q4 interview synthesis/ }));
+    expect(screen.getByRole('button', { name: /Rerun Q4 interview synthesis/ })).not.toBeNull();
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',
