@@ -2307,6 +2307,55 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getByRole('button', { name: /Rerun Q4 interview synthesis/ })).not.toBeNull();
   });
 
+  it('uses real agent approval requests and preserves decisions', async () => {
+    const entries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'agent-approval',
+    );
+    expect(entries).toHaveLength(6);
+    const markers = [
+      'Read Northstar project docs',
+      'Update roadmap priorities',
+      'Approval queue',
+      'Grant research permissions',
+      'Approve run budget',
+      'Approval history',
+    ];
+    entries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('agent-approval.inline.userMessage');
+      expect(view).not.toContain('item-1');
+      expect(view).toContain(markers[index]);
+    });
+
+    let view = render(
+      <VariantPreviewHost entry={entries[0]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Allow' }));
+    expect(screen.getAllByText('Waiting for approval').length).toBeGreaterThan(0);
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[3]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    const scope = screen.getByRole('checkbox', { name: /Billing records/ });
+    await view.user.click(scope);
+    expect((scope as HTMLInputElement).checked).toBe(true);
+    await view.user.click(screen.getByRole('button', { name: 'Grant access' }));
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[5]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.type(
+      screen.getByRole('textbox', { name: 'Search approval history' }),
+      'roadmap',
+    );
+    expect(screen.getByText('Sync themes to roadmap')).not.toBeNull();
+    expect(screen.queryByText('Read search metrics')).toBeNull();
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',

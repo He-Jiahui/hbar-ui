@@ -1,5 +1,4 @@
 import type {
-  LumenAgentApprovalContent,
   LumenAppShellContent,
   LumenAppSidebarContent,
   LumenCommandMenuContent,
@@ -8,6 +7,7 @@ import type {
 } from '@lumen/app-ui';
 import { createAgentPlanFixtures } from './agentPlanFixtures';
 import { createAgentActivityFixtures } from './agentActivityLumenFixtures';
+import { createAgentApprovalFixtures } from './agentApprovalLumenFixtures';
 import { createAiChatFixtures } from './aiChatFixtures';
 import { createAppDialogFixtures } from './appDialogFixtures';
 import { createAnalyticsFixtures } from './analyticsFixtures';
@@ -900,7 +900,8 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
       },
     } satisfies LumenAgentActivityContent, */
     'tool-calls': createToolCallsFixtures(locale),
-    'agent-approval': {
+    'agent-approval': createAgentApprovalFixtures(locale),
+    /* legacyAgentApproval: {
       inline: {
         labels: {
           day: previewText(locale, 'agent-approval.inline.labels.day'),
@@ -1107,7 +1108,7 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
         ],
         listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
       },
-    } satisfies LumenAgentApprovalContent,
+    } satisfies LumenAgentApprovalContent, */
     'agent-plan': createAgentPlanFixtures(locale),
     'ai-usage': createUsageFixtures(locale),
     'app-shell': {

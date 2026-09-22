@@ -251,6 +251,7 @@
 }
 
 .hbar-app-ui-agent-approval-cost-metrics > div {
+  min-inline-size: 0;
 }
 
 .hbar-app-ui-agent-approval-cost-metrics dd {
@@ -307,6 +308,8 @@
   .hbar-app-ui-agent-approval-change-list > div,
   .hbar-app-ui-agent-approval-queue-compact-row,
   .hbar-app-ui-agent-approval-history-pane li {
+    align-items: flex-start;
+    flex-wrap: wrap;
   }
 
   .hbar-app-ui-agent-approval-action-row,
