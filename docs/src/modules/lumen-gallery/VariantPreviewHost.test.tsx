@@ -1132,6 +1132,180 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getByText('Maya Chen')).not.toBeNull();
   });
 
+  it('uses distinct host-owned list scenarios for all twelve collection patterns', () => {
+    const listEntries = LUMEN_VARIANT_REGISTRY.filter((candidate) => candidate.category === 'list');
+    expect(listEntries).toHaveLength(12);
+    const expected = [
+      'Metric definitions',
+      'Vendor spend ranking',
+      'Security events',
+      'Publishing queue',
+      'Brand assets',
+      'Webhook deliveries',
+      'Supplier directory',
+      'Team inbox',
+      'Partner contacts',
+      'API latency incident runbook',
+      'Support leaderboard',
+      'Project files',
+    ];
+
+    listEntries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('list.');
+      expect(view).not.toContain('item-1');
+      expect(view).toContain(expected[index]);
+    });
+
+    const runbook = listEntries.find((entry) => entry.variant === 10)!;
+    const view = ReactDOMServer.renderToStaticMarkup(
+      <VariantPreviewHost entry={runbook} locale="zh" unavailableLabel="无法预览" />,
+    );
+    expect(view).toContain('API 延迟事件处置');
+    expect(view).toContain('检查数据库与队列容量');
+  });
+
+  it('expands, filters, reorders, selects, and restores Lumen list collections', async () => {
+    const entry = (variant: number) =>
+      LUMEN_VARIANT_REGISTRY.find(
+        (candidate) => candidate.category === 'list' && candidate.variant === variant,
+      )!;
+
+    let view = render(
+      <VariantPreviewHost entry={entry(1)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Expand 90-day retention' }));
+    expect(screen.getByText('retained_cohort / eligible_cohort × 100')).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(3)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Policy' }));
+    expect(screen.getByText('Blocked a sign-in from an unknown region')).not.toBeNull();
+    expect(screen.queryByText('Maya Chen enabled a passkey')).toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(4)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(
+      screen.getByRole('button', { name: 'Move September release notes down' }),
+    );
+    expect(
+      [...view.container.querySelectorAll('.lumen-list-queue strong')].map(
+        (node) => node.textContent,
+      ),
+    ).toEqual([
+      'Design-system migration guide',
+      'September release notes',
+      'Northstar customer story',
+      'Passkey security announcement',
+      'Q4 roadmap',
+    ]);
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(5)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Video' }));
+    expect(screen.queryByText('launch-hero.webp')).toBeNull();
+    await view.user.click(screen.getByRole('checkbox', { name: 'Select launch-cut.mp4' }));
+    expect(screen.getByRole('button', { name: 'Archive 1 assets' })).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(8)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(
+      screen.getByRole('button', { name: 'Archive Northstar renewal risk increased' }),
+    );
+    expect(screen.queryByText('Northstar renewal risk increased')).toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Undo' }));
+    expect(screen.getByText('Northstar renewal risk increased')).not.toBeNull();
+  });
+
+  it('composes list filters, progress, measures, and tree keyboard disclosure', async () => {
+    const entry = (variant: number) =>
+      LUMEN_VARIANT_REGISTRY.find(
+        (candidate) => candidate.category === 'list' && candidate.variant === variant,
+      )!;
+
+    let view = render(
+      <VariantPreviewHost entry={entry(6)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Failed only' }));
+    await view.user.selectOptions(
+      screen.getByRole('combobox', { name: 'Endpoint filter' }),
+      'deploys',
+    );
+    expect(screen.getByText('evt_9K3P')).not.toBeNull();
+    expect(screen.queryByText('evt_9JX8')).toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Expand delivery evt_9K3P' }));
+    expect(screen.getByText(/"deployment_id": "dep_184"/)).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(7)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.selectOptions(
+      screen.getByRole('combobox', { name: 'Category filter' }),
+      'software',
+    );
+    await view.user.type(screen.getByRole('textbox', { name: 'Search suppliers' }), 'Signal');
+    expect(screen.getByText('Signal Works')).not.toBeNull();
+    expect(screen.queryByText('Atlas Storage')).toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(9)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'M' }));
+    await view.user.selectOptions(
+      screen.getByRole('combobox', { name: 'Relationship' }),
+      'customer',
+    );
+    expect(screen.getByText('Maya Chen')).not.toBeNull();
+    expect(screen.queryByText('Amara Okafor')).toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(10)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(
+      screen.getByRole('button', { name: /Pause the latest rollout and prepare rollback/ }),
+    );
+    expect(screen.getByText('3 of 6 steps complete')).not.toBeNull();
+    expect(
+      screen
+        .getByRole('progressbar', { name: 'Incident response progress' })
+        .getAttribute('aria-valuenow'),
+    ).toBe('50');
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(11)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('tab', { name: 'Resolved' }));
+    await view.user.click(screen.getByRole('button', { name: 'This month' }));
+    expect(screen.getByText('84')).not.toBeNull();
+    expect(screen.getByRole('button', { name: 'This month' }).getAttribute('data-variant')).toBe(
+      'solid',
+    );
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(12)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    const library = screen.getByRole('button', { name: 'Expand lib' });
+    await view.user.click(library);
+    expect(screen.getByText('api.ts')).not.toBeNull();
+    await view.user.keyboard('{ArrowLeft}');
+    expect(screen.queryByText('api.ts')).toBeNull();
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',

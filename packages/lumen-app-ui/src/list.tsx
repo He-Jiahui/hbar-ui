@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { LumenInput } from './forms';
+import { LumenInput, LumenSelect } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 
 export interface LumenListStrategy {
@@ -102,6 +102,7 @@ export interface LumenListQueueContent {
 
 export interface LumenListAsset {
   readonly id: string;
+  readonly kindId: string;
   readonly name: string;
   readonly detail: string;
 }
@@ -110,11 +111,15 @@ export interface LumenListAssetsContent {
   readonly labels: {
     readonly title: string;
     readonly detail: (count: number) => string;
+    readonly filters: string;
     readonly clear: string;
     readonly select: (name: string) => string;
     readonly archive: (count: number) => string;
     readonly empty: string;
   };
+  readonly filters: readonly LumenListChoice[];
+  readonly allFilterId: string;
+  readonly initialFilterId: string;
   readonly assets: readonly LumenListAsset[];
   readonly listStrategy: LumenListStrategy;
 }
@@ -124,6 +129,7 @@ export interface LumenListDelivery {
   readonly status: string;
   readonly tone: 'neutral' | 'success' | 'warning' | 'danger';
   readonly endpoint: string;
+  readonly endpointId: string;
   readonly payload: string;
   readonly failed: boolean;
 }
@@ -133,11 +139,15 @@ export interface LumenListDeliveriesContent {
     readonly title: string;
     readonly detail: string;
     readonly failedOnly: string;
+    readonly endpoint: string;
     readonly expand: (id: string) => string;
     readonly collapse: (id: string) => string;
     readonly replay: string;
     readonly empty: string;
   };
+  readonly endpoints: readonly LumenListChoice[];
+  readonly allEndpointId: string;
+  readonly initialEndpointId: string;
   readonly deliveries: readonly LumenListDelivery[];
   readonly listStrategy: LumenListStrategy;
 }
@@ -146,6 +156,7 @@ export interface LumenListSupplier {
   readonly id: string;
   readonly name: string;
   readonly category: string;
+  readonly categoryId: string;
   readonly status: string;
   readonly tone: 'neutral' | 'success' | 'warning' | 'danger';
 }
@@ -162,6 +173,9 @@ export interface LumenListSuppliersContent {
     readonly status: string;
     readonly empty: string;
   };
+  readonly categories: readonly LumenListChoice[];
+  readonly allCategoryId: string;
+  readonly initialCategoryId: string;
   readonly suppliers: readonly LumenListSupplier[];
   readonly listStrategy: LumenListStrategy;
 }
@@ -194,6 +208,7 @@ export interface LumenListContact {
   readonly letterId: string;
   readonly avatar: string;
   readonly meta: string;
+  readonly relationshipId: string;
 }
 
 export interface LumenListContactsContent {
@@ -204,6 +219,9 @@ export interface LumenListContactsContent {
     readonly letters: string;
     readonly empty: string;
   };
+  readonly relationships: readonly LumenListChoice[];
+  readonly allRelationshipId: string;
+  readonly initialRelationshipId: string;
   readonly letters: readonly LumenListChoice[];
   readonly initialLetterId: string;
   readonly contacts: readonly LumenListContact[];
@@ -244,10 +262,13 @@ export interface LumenListLeaderboardContent {
     readonly title: string;
     readonly detail: string;
     readonly measures: string;
+    readonly periods: string;
     readonly empty: string;
   };
   readonly measures: readonly LumenListChoice[];
   readonly initialMeasureId: string;
+  readonly periods: readonly LumenListChoice[];
+  readonly initialPeriodId: string;
   readonly entries: readonly LumenListLeaderboardEntry[];
   readonly listStrategy: LumenListStrategy;
 }
@@ -396,7 +417,7 @@ function Root({
   return (
     <section
       className={[
-        'lumen-list',
+        'lumen-app-list',
         'hbar-app-ui-variant',
         `hbar-app-ui-list-variant-${variant}`,
         density ? `hbar-app-ui-density-${density}` : '',
@@ -629,6 +650,7 @@ function Security(props: Omit<LumenListProps, 'content'> & { content: LumenListS
 
 function Queue(props: Omit<LumenListProps, 'content'> & { content: LumenListQueueContent }) {
   const [items, setItems] = React.useState(() => [...uniqueLumenListItems(props.content.items)]);
+  const [draggedId, setDraggedId] = React.useState<string>();
   const move = (index: number, direction: -1 | 1) => {
     const target = index + direction;
     if (target < 0 || target >= items.length) {
@@ -652,7 +674,33 @@ function Queue(props: Omit<LumenListProps, 'content'> & { content: LumenListQueu
           data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
         >
           {items.map((item, index) => (
-            <li key={item.id}>
+            <li
+              key={item.id}
+              draggable
+              onDragStart={() => setDraggedId(item.id)}
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={() => {
+                if (!draggedId || draggedId === item.id) {
+                  return;
+                }
+                setItems((current) => {
+                  const from = current.findIndex((entry) => entry.id === draggedId);
+                  const to = current.findIndex((entry) => entry.id === item.id);
+                  if (from < 0 || to < 0) {
+                    return current;
+                  }
+                  const next = [...current];
+                  const [dragged] = next.splice(from, 1);
+                  if (!dragged) {
+                    return current;
+                  }
+                  next.splice(to, 0, dragged);
+                  report(props.onAction, 'reorder', next.map((entry) => entry.id).join('|'));
+                  return next;
+                });
+                setDraggedId(undefined);
+              }}
+            >
               <span>{index + 1}</span>
               <strong>{item.title}</strong>
               <LumenIconButton
@@ -684,7 +732,12 @@ function Queue(props: Omit<LumenListProps, 'content'> & { content: LumenListQueu
 
 function Assets(props: Omit<LumenListProps, 'content'> & { content: LumenListAssetsContent }) {
   const assets = uniqueLumenListItems(props.content.assets);
+  const filters = uniqueLumenListItems(props.content.filters);
   const [selectedIds, setSelectedIds] = React.useState<readonly string[]>([]);
+  const [filterId, setFilterId] = React.useState(props.content.initialFilterId);
+  const visible = assets.filter(
+    (asset) => filterId === props.content.allFilterId || asset.kindId === filterId,
+  );
   return (
     <Root {...props}>
       <Header
@@ -701,12 +754,23 @@ function Assets(props: Omit<LumenListProps, 'content'> & { content: LumenListAss
           </LumenButton>
         }
       />
+      <div className="lumen-list-pills" role="group" aria-label={props.content.labels.filters}>
+        {filters.map((filter) => (
+          <LumenButton
+            key={filter.id}
+            variant={filterId === filter.id ? 'solid' : 'outlined'}
+            onClick={() => setFilterId(filter.id)}
+          >
+            {filter.label}
+          </LumenButton>
+        ))}
+      </div>
       <div
         className="lumen-list-assets"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
       >
-        {assets.length ? (
-          assets.map((asset) => (
+        {visible.length ? (
+          visible.map((asset) => (
             <div key={asset.id}>
               <LumenInput
                 type="checkbox"
@@ -749,9 +813,15 @@ function Deliveries(
   props: Omit<LumenListProps, 'content'> & { content: LumenListDeliveriesContent },
 ) {
   const deliveries = uniqueLumenListItems(props.content.deliveries);
+  const endpoints = uniqueLumenListItems(props.content.endpoints);
   const [failedOnly, setFailedOnly] = React.useState(false);
+  const [endpointId, setEndpointId] = React.useState(props.content.initialEndpointId);
   const [openId, setOpenId] = React.useState<string>();
-  const visible = failedOnly ? deliveries.filter((delivery) => delivery.failed) : deliveries;
+  const visible = deliveries.filter(
+    (delivery) =>
+      (!failedOnly || delivery.failed) &&
+      (endpointId === props.content.allEndpointId || delivery.endpointId === endpointId),
+  );
   return (
     <Root {...props}>
       <Header
@@ -767,6 +837,17 @@ function Deliveries(
           </LumenButton>
         }
       />
+      <LumenSelect
+        aria-label={props.content.labels.endpoint}
+        value={endpointId}
+        onChange={(event) => setEndpointId(event.currentTarget.value)}
+      >
+        {endpoints.map((endpoint) => (
+          <option key={endpoint.id} value={endpoint.id}>
+            {endpoint.label}
+          </option>
+        ))}
+      </LumenSelect>
       <div
         className="lumen-list-deliveries"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
@@ -818,10 +899,14 @@ function Suppliers(
   props: Omit<LumenListProps, 'content'> & { content: LumenListSuppliersContent },
 ) {
   const suppliers = uniqueLumenListItems(props.content.suppliers);
+  const categories = uniqueLumenListItems(props.content.categories);
   const [query, setQuery] = React.useState('');
+  const [categoryId, setCategoryId] = React.useState(props.content.initialCategoryId);
   const normalized = query.trim().toLocaleLowerCase();
-  const visible = suppliers.filter((supplier) =>
-    supplier.name.toLocaleLowerCase().includes(normalized),
+  const visible = suppliers.filter(
+    (supplier) =>
+      supplier.name.toLocaleLowerCase().includes(normalized) &&
+      (categoryId === props.content.allCategoryId || supplier.categoryId === categoryId),
   );
   return (
     <Root {...props}>
@@ -836,13 +921,17 @@ function Suppliers(
             placeholder={props.content.labels.searchPlaceholder}
           />
         </label>
-        <LumenButton
-          variant="outlined"
-          onClick={() => report(props.onAction, 'filter', 'category')}
+        <LumenSelect
+          aria-label={props.content.labels.categoryFilter}
+          value={categoryId}
+          onChange={(event) => setCategoryId(event.currentTarget.value)}
         >
-          <Glyph name="filter" />
-          {props.content.labels.categoryFilter}
-        </LumenButton>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.label}
+            </option>
+          ))}
+        </LumenSelect>
       </div>
       <div
         className="lumen-list-directory"
@@ -948,22 +1037,34 @@ function Inbox(props: Omit<LumenListProps, 'content'> & { content: LumenListInbo
 
 function Contacts(props: Omit<LumenListProps, 'content'> & { content: LumenListContactsContent }) {
   const letters = uniqueLumenListItems(props.content.letters);
+  const relationships = uniqueLumenListItems(props.content.relationships);
   const contacts = uniqueLumenListItems(props.content.contacts);
   const [letterId, setLetterId] = React.useState(props.content.initialLetterId);
+  const [relationshipId, setRelationshipId] = React.useState(props.content.initialRelationshipId);
   const letter = selectLumenListItem(letters, letterId);
-  const visible = contacts.filter((contact) => contact.letterId === letter?.id);
+  const visible = contacts.filter(
+    (contact) =>
+      contact.letterId === letter?.id &&
+      (relationshipId === props.content.allRelationshipId ||
+        contact.relationshipId === relationshipId),
+  );
   return (
     <Root {...props}>
       <Header
         title={props.content.labels.title}
         detail={props.content.labels.detail}
         actions={
-          <LumenButton
-            variant="outlined"
-            onClick={() => report(props.onAction, 'filter', 'relationship')}
+          <LumenSelect
+            aria-label={props.content.labels.relationship}
+            value={relationshipId}
+            onChange={(event) => setRelationshipId(event.currentTarget.value)}
           >
-            {props.content.labels.relationship}
-          </LumenButton>
+            {relationships.map((relationship) => (
+              <option key={relationship.id} value={relationship.id}>
+                {relationship.label}
+              </option>
+            ))}
+          </LumenSelect>
         }
       />
       <div className="lumen-list-contacts">
@@ -1053,8 +1154,10 @@ function Leaderboard(
   props: Omit<LumenListProps, 'content'> & { content: LumenListLeaderboardContent },
 ) {
   const measures = uniqueLumenListItems(props.content.measures);
+  const periods = uniqueLumenListItems(props.content.periods);
   const entries = uniqueLumenListItems(props.content.entries);
   const [measureId, setMeasureId] = React.useState(props.content.initialMeasureId);
+  const [periodId, setPeriodId] = React.useState(props.content.initialPeriodId);
   const measure = selectLumenListItem(measures, measureId);
   return (
     <Root {...props}>
@@ -1069,6 +1172,18 @@ function Leaderboard(
             onClick={() => setMeasureId(item.id)}
           >
             {item.label}
+          </LumenButton>
+        ))}
+      </div>
+      <div className="lumen-list-pills" role="group" aria-label={props.content.labels.periods}>
+        {periods.map((period) => (
+          <LumenButton
+            key={period.id}
+            size="s"
+            variant={periodId === period.id ? 'solid' : 'outlined'}
+            onClick={() => setPeriodId(period.id)}
+          >
+            {period.label}
           </LumenButton>
         ))}
       </div>
@@ -1134,6 +1249,21 @@ function TreeBranch({
                   });
                 } else {
                   report(onAction, 'open', node.id);
+                }
+              }}
+              onKeyDown={(event) => {
+                if (!branch) {
+                  return;
+                }
+                if (event.key === 'ArrowRight' && !open) {
+                  setOpenIds((current) => new Set(current).add(node.id));
+                }
+                if (event.key === 'ArrowLeft' && open) {
+                  setOpenIds((current) => {
+                    const next = new Set(current);
+                    next.delete(node.id);
+                    return next;
+                  });
                 }
               }}
             >
