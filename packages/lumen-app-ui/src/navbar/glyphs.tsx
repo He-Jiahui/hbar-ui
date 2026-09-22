@@ -19,6 +19,9 @@ function Glyph({ name, ...props }: Props & { readonly name: string }) {
     case 'plus':
       path = 'M12 5v14M5 12h14';
       break;
+    case 'minus':
+      path = 'M5 12h14';
+      break;
     case 'search':
       path = 'M10.5 4a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13Zm5 11 5 5';
       break;
@@ -142,6 +145,7 @@ export const ArrowLeft = named('arrow-left'),
   List = named('list'),
   Menu = named('menu'),
   MessageSquare = named('message'),
+  Minus = named('minus'),
   Moon = named('moon'),
   MoreHorizontal = named('more'),
   Plus = named('plus'),

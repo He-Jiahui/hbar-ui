@@ -307,4 +307,57 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getByRole('menu', { name: 'Account menu' })).not.toBeNull();
     expect(screen.getByRole('menuitem', { name: 'Sign out' })).not.toBeNull();
   });
+
+  it('opens commerce, documentation, and collaborative document navbar workflows', async () => {
+    const entry = (variant: number) =>
+      LUMEN_VARIANT_REGISTRY.find(
+        (candidate) => candidate.category === 'navbar' && candidate.variant === variant,
+      )!;
+
+    let view = render(
+      <VariantPreviewHost entry={entry(9)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Apparel' }));
+    expect(screen.getByRole('region', { name: 'Product categories' })).not.toBeNull();
+    expect(screen.getByRole('button', { name: 'Outerwear' })).not.toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Cart' }));
+    const cart = screen.getByRole('region', { name: 'Your cart' });
+    expect(cart.textContent).toContain('Workbench notebook');
+    expect(screen.getByRole('button', { name: 'Checkout' })).not.toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Open store navigation' }));
+    expect(screen.getByRole('dialog', { name: 'Browse Lumen Market' })).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(10)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'v2.4' }));
+    expect(screen.getByRole('menu', { name: 'Choose documentation version' })).not.toBeNull();
+    expect(screen.getByRole('menuitem', { name: 'v2.0 LTS' })).not.toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Open docs navigation' }));
+    expect(screen.getByRole('dialog', { name: 'Documentation navigation' })).not.toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Close documentation navigation' }));
+    await view.user.click(screen.getByRole('button', { name: /Search documentation/ }));
+    expect(screen.getByRole('dialog', { name: 'Search documentation' })).not.toBeNull();
+    await view.user.type(screen.getByPlaceholderText('Search guides, API, and examples'), 'focus');
+    expect(screen.getByRole('button', { name: /Keyboard and focus/ })).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(11)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Q4 launch brief' }));
+    const title = screen.getByRole('textbox', { name: 'Document title' });
+    await view.user.clear(title);
+    await view.user.type(title, 'Q4 release brief');
+    expect(screen.getByText('Unsaved changes')).not.toBeNull();
+    await view.user.tab();
+    expect(screen.getByRole('heading', { name: 'Q4 release brief' })).not.toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Share' }));
+    expect(screen.getByRole('region', { name: 'Share document' })).not.toBeNull();
+    expect(screen.getByRole('textbox', { name: 'Share link' })).not.toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'More document actions' }));
+    expect(screen.getByRole('menu', { name: 'Document actions' })).not.toBeNull();
+    expect(screen.getByRole('menuitem', { name: 'Export Markdown' })).not.toBeNull();
+  });
 });
