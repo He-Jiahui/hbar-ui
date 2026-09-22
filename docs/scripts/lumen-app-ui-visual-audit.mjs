@@ -1,3 +1,5 @@
+/* eslint-disable no-console -- CLI progress and summary are the script's output. */
+
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
@@ -149,6 +151,8 @@ async function worker(browser, workerId) {
       if (taskIndex >= tasks.length) {
         return;
       }
+      // Each worker deliberately processes one page at a time to keep browser memory bounded.
+      // eslint-disable-next-line no-await-in-loop
       const result = await auditTask(page, tasks[taskIndex]);
       results[taskIndex] = result;
       completed += 1;
