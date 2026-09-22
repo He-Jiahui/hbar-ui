@@ -107,6 +107,7 @@ export default function VariantPreviewHost({
   const fixtures = React.useMemo(() => createLumenVariantFixtures(locale), [locale]);
   const [promptValue, setPromptValue] = React.useState('');
   const [openCommandId, setOpenCommandId] = React.useState<string | null>(null);
+  const [nestedCommandPageId, setNestedCommandPageId] = React.useState<string | null>(null);
   const Component = entry.component;
 
   if (!Component) {
@@ -132,13 +133,40 @@ export default function VariantPreviewHost({
     ] as keyof (typeof fixtures)['command-menu'] | undefined;
     const command = commandKey ? fixtures['command-menu'][commandKey] : undefined;
     if (commandKey && command) {
+      const quickCommand = commandKey === 'quick' ? fixtures['command-menu'].quick : undefined;
+      const nestedPage = quickCommand?.navigation.pages.find(
+        (page) => page.id === nestedCommandPageId,
+      );
       content = {
         ...fixtures['command-menu'],
         [commandKey]: {
           ...command,
           open: openCommandId === entry.id,
-          onOpen: () => setOpenCommandId(entry.id),
-          onClose: () => setOpenCommandId(null),
+          onOpen: () => {
+            setNestedCommandPageId(null);
+            setOpenCommandId(entry.id);
+          },
+          onClose: () => {
+            setOpenCommandId(null);
+            setNestedCommandPageId(null);
+          },
+          ...(quickCommand
+            ? {
+                items: nestedPage?.items ?? quickCommand.items,
+                selectedId: nestedPage?.items[0]?.id ?? quickCommand.selectedId,
+                onExecute: (id: string) => {
+                  if (!nestedPage && quickCommand.navigation.pages.some((page) => page.id === id)) {
+                    setNestedCommandPageId(id);
+                  }
+                },
+                navigation: {
+                  ...quickCommand.navigation,
+                  current: nestedPage?.title ?? quickCommand.navigation.home,
+                  canGoBack: Boolean(nestedPage),
+                  onBack: () => setNestedCommandPageId(null),
+                },
+              }
+            : {}),
         },
       } as (typeof fixtures)['command-menu'];
     }

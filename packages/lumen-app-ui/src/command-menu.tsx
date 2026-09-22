@@ -1,11 +1,15 @@
 'use client';
 
 import * as React from 'react';
-import { LumenCommandList, type LumenCommandListProps } from './command-list';
+import {
+  LumenCommandList,
+  type LumenCommandItem,
+  type LumenCommandListProps,
+} from './command-list';
 import { LumenDialog } from './dialog';
 import { LumenInput, LumenSelect } from './forms';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
-import { LumenDrawer, LumenPopover } from './ui-controls';
+import { LumenPopover } from './ui-controls';
 
 export interface LumenCommandSurfaceContent extends LumenCommandListProps {
   readonly open: boolean;
@@ -13,6 +17,21 @@ export interface LumenCommandSurfaceContent extends LumenCommandListProps {
   readonly trigger: string;
   readonly onOpen: () => void;
   readonly onClose: () => void;
+}
+
+export interface LumenNestedCommandSurfaceContent extends LumenCommandSurfaceContent {
+  readonly navigation: {
+    readonly home: string;
+    readonly back: string;
+    readonly current: string;
+    readonly canGoBack: boolean;
+    readonly onBack: () => void;
+    readonly pages: readonly {
+      readonly id: string;
+      readonly title: string;
+      readonly items: readonly LumenCommandItem[];
+    }[];
+  };
 }
 
 export interface LumenCommandOverlay {
@@ -93,7 +112,7 @@ export interface LumenAssistantCommandsProps {
 
 export interface LumenCommandMenuContent {
   readonly grouped?: LumenCommandSurfaceContent | undefined;
-  readonly quick?: LumenCommandSurfaceContent | undefined;
+  readonly quick?: LumenNestedCommandSurfaceContent | undefined;
   readonly rooms?: LumenCommandSurfaceContent | undefined;
   readonly search?: (LumenCommandOverlay & LumenSearchCommandsProps) | undefined;
   readonly invite?: (LumenCommandOverlay & LumenInviteCommandProps) | undefined;
@@ -424,7 +443,65 @@ function GroupedCommandSurface({
   );
 }
 
-function QuickCommandSurface({
+function NestedCommandSurface({
+  props,
+  content,
+}: {
+  readonly props: LumenCommandMenuProps;
+  readonly content: LumenNestedCommandSurfaceContent | undefined;
+}) {
+  return (
+    <CommandMenuRoot {...props}>
+      {content ? (
+        <React.Fragment>
+          <LumenButton className="hbar-app-ui-command-trigger" onClick={content.onOpen}>
+            {content.trigger}
+          </LumenButton>
+          <LumenDialog
+            open={content.open}
+            title={content.title}
+            closeLabel={content.labels.close}
+            onClose={content.onClose}
+            className="hbar-app-ui-command-dialog hbar-app-ui-command-dialog-nested"
+            chromeless
+          >
+            <div className="hbar-app-ui-nested-command">
+              <header>
+                <LumenButton
+                  variant="text"
+                  size="s"
+                  disabled={!content.navigation.canGoBack}
+                  onClick={content.navigation.onBack}
+                >
+                  <CommandGlyph name="back" />
+                  {content.navigation.back}
+                </LumenButton>
+                <div>
+                  <LumenText as="small" tone="muted" variant="supporting">
+                    {content.navigation.home}
+                  </LumenText>
+                  <LumenText as="h2" variant="heading">
+                    {content.navigation.current}
+                  </LumenText>
+                </div>
+              </header>
+              <LumenCommandList
+                {...content}
+                breadcrumb={
+                  <LumenText as="p" tone="subtle" variant="supporting">
+                    {content.navigation.current}
+                  </LumenText>
+                }
+              />
+            </div>
+          </LumenDialog>
+        </React.Fragment>
+      ) : null}
+    </CommandMenuRoot>
+  );
+}
+
+function PopoverCommandSurface({
   props,
   content,
 }: {
@@ -454,36 +531,6 @@ function QuickCommandSurface({
             <LumenCommandList {...content} />
           </LumenPopover>
         </div>
-      ) : null}
-    </CommandMenuRoot>
-  );
-}
-
-function RoomCommandSurface({
-  props,
-  content,
-}: {
-  readonly props: LumenCommandMenuProps;
-  readonly content: LumenCommandSurfaceContent | undefined;
-}) {
-  return (
-    <CommandMenuRoot {...props}>
-      {content ? (
-        <React.Fragment>
-          <LumenButton className="hbar-app-ui-command-trigger" onClick={content.onOpen}>
-            {content.trigger}
-          </LumenButton>
-          <LumenDrawer
-            open={content.open}
-            title={content.title}
-            closeLabel={content.labels.close}
-            onClose={content.onClose}
-            side="start"
-            className="hbar-app-ui-room-command-drawer"
-          >
-            <LumenCommandList {...content} />
-          </LumenDrawer>
-        </React.Fragment>
       ) : null}
     </CommandMenuRoot>
   );
@@ -535,10 +582,10 @@ export function LumenCommandMenu(props: LumenCommandMenuProps) {
     return <GroupedCommandSurface props={props} content={content.grouped} />;
   }
   if (props.variant === 2) {
-    return <QuickCommandSurface props={props} content={content.quick} />;
+    return <NestedCommandSurface props={props} content={content.quick} />;
   }
   if (props.variant === 6) {
-    return <RoomCommandSurface props={props} content={content.rooms} />;
+    return <PopoverCommandSurface props={props} content={content.rooms} />;
   }
   if (props.variant === 3) {
     return (

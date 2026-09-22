@@ -1478,6 +1478,7 @@ export type {
   LumenCommandMenuProps,
   LumenCommandMenuProviderProps,
   LumenCommandMenuVariantProps,
+  LumenNestedCommandSurfaceContent,
   LumenCommandOverlay,
   LumenCommandSurfaceContent,
   LumenInviteCommandProps,

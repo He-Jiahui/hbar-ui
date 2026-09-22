@@ -106,26 +106,33 @@ describe('Lumen formal variant fixtures', () => {
   });
 
   it('keeps distinct command menu surfaces interactive in the preview host', async () => {
-    const quick = LUMEN_VARIANT_REGISTRY.find(
+    const nested = LUMEN_VARIANT_REGISTRY.find(
       (candidate) => candidate.id === 'hbar-app-ui-command-menu-2',
     );
-    const rooms = LUMEN_VARIANT_REGISTRY.find(
+    const popover = LUMEN_VARIANT_REGISTRY.find(
       (candidate) => candidate.id === 'hbar-app-ui-command-menu-6',
     );
-    expect(quick).not.toBeUndefined();
-    expect(rooms).not.toBeUndefined();
+    expect(nested).not.toBeUndefined();
+    expect(popover).not.toBeUndefined();
 
     let view = render(
-      <VariantPreviewHost entry={quick!} locale="en" unavailableLabel="Preview unavailable" />,
+      <VariantPreviewHost entry={nested!} locale="en" unavailableLabel="Preview unavailable" />,
     );
-    await view.user.click(screen.getByRole('button', { name: /trigger/i }));
-    expect(view.container.querySelector('.hbar-app-ui-quick-command-popover')).not.toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Open nested command menu' }));
+    expect(view.container.querySelector('.hbar-app-ui-nested-command')).not.toBeNull();
+    expect((screen.getByRole('button', { name: 'Back' }) as HTMLButtonElement).disabled).toBe(true);
+    await view.user.click(screen.getByRole('option', { name: /Switch project/ }));
+    expect(screen.getByRole('heading', { name: 'Switch project' })).not.toBeNull();
+    expect(screen.getByRole('option', { name: /Aurora mobile/ })).not.toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Back' }));
+    expect(screen.getByRole('heading', { name: 'Home' })).not.toBeNull();
     view.unmount();
 
     view = render(
-      <VariantPreviewHost entry={rooms!} locale="en" unavailableLabel="Preview unavailable" />,
+      <VariantPreviewHost entry={popover!} locale="en" unavailableLabel="Preview unavailable" />,
     );
-    await view.user.click(screen.getByRole('button', { name: /trigger/i }));
-    expect(view.container.querySelector('.hbar-app-ui-room-command-drawer')).not.toBeNull();
+    await view.user.click(screen.getByRole('button', { name: /Northwind/ }));
+    expect(view.container.querySelector('.hbar-app-ui-quick-command-popover')).not.toBeNull();
+    expect(screen.getByRole('heading', { name: 'Switch room' })).not.toBeNull();
   });
 });

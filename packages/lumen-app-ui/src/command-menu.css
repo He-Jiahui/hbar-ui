@@ -35,6 +35,10 @@
   --lumen-dialog-width: 34rem;
 }
 
+.hbar-app-ui-command-dialog-nested.lumen-dialog {
+  --lumen-dialog-width: 38rem;
+}
+
 .hbar-app-ui-command-dialog .lumen-dialog-body {
   min-block-size: min(32rem, calc(100vh - 2rem));
 }
@@ -44,18 +48,48 @@
   display: flex;
 }
 
-.hbar-app-ui-command-variant-2 {
+.hbar-app-ui-command-variant-6 {
   align-items: flex-start;
 }
 
-.hbar-app-ui-command-variant-2 .hbar-app-ui-quick-command-anchor {
+.hbar-app-ui-command-variant-6 .hbar-app-ui-quick-command-anchor {
   margin-block-start: 1rem;
 }
 
-.hbar-app-ui-quick-command-popover {
-  inline-size: min(34rem, calc(100vw - 2rem));
+.hbar-app-ui-nested-command {
+  display: flex;
+  min-inline-size: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+.hbar-app-ui-nested-command > header {
+  display: flex;
+  min-inline-size: 0;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-block-end: 0.0625rem solid var(--lumen-edge);
+}
+
+.hbar-app-ui-nested-command > header > div {
+  display: flex;
+  min-inline-size: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+.hbar-app-ui-nested-command > header h2,
+.hbar-app-ui-nested-command > .lumen-command-list > p {
+  margin: 0;
+}
+
+.hbar-app-ui-dialog-menu.hbar-app-ui-quick-command-popover {
+  inset-inline-start: 50%;
+  inline-size: min(30rem, calc(100vw - 4rem));
   max-block-size: min(34rem, calc(100vh - 2rem));
   overflow: auto;
+  transform: translateX(-50%);
 }
 
 .hbar-app-ui-quick-command-popover > div {
@@ -75,10 +109,6 @@
 
 .hbar-app-ui-quick-command-popover header h2 {
   margin: 0;
-}
-
-.hbar-app-ui-room-command-drawer .lumen-drawer-panel {
-  inline-size: min(38rem, calc(100vw - 1rem));
 }
 
 .hbar-app-ui-search-commands,
