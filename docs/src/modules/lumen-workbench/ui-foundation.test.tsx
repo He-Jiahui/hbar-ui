@@ -4,7 +4,9 @@ import { createRenderer, screen } from '@mui/internal-test-utils';
 import {
   LumenButton,
   LumenCalendar,
+  LumenCandlestickChart,
   LumenChart,
+  LumenComboChart,
   LumenDataTable,
   LumenDiffView,
   LumenDrawer,
@@ -14,6 +16,7 @@ import {
   LumenProgress,
   LumenProvider,
   LumenRadioGroup,
+  LumenScatterChart,
   LumenSwitch,
   LumenTabs,
   type LumenAppearance,
@@ -130,7 +133,8 @@ describe('Lumen UI public foundation', () => {
     ]);
   });
 
-  it('provides distinct area, bar, and line chart structures', () => {
+  it('provides distinct area, stacked area, grouped bar, and line chart structures', async () => {
+    const onPointChange = vi.fn();
     const series = [
       {
         id: 'requests',
@@ -142,11 +146,21 @@ describe('Lumen UI public foundation', () => {
         ],
       },
     ];
-    const { container } = render(
+    const { container, user } = render(
       <LumenProvider appearance={appearance} withCssBaseline={false}>
         <LumenChart label="Request area" kind="area" series={series} empty="No data" />
         <LumenChart label="Request line" kind="line" series={series} empty="No data" />
         <LumenChart label="Request bars" kind="bar" series={series} empty="No data" />
+        <LumenChart label="Request groups" kind="grouped-bar" series={series} empty="No data" />
+        <LumenChart
+          label="Request stack"
+          kind="stacked-area"
+          series={series}
+          selectedPointId="tue"
+          cursorLabel="Tuesday: 42"
+          onPointChange={onPointChange}
+          empty="No data"
+        />
       </LumenProvider>,
     );
 
@@ -159,6 +173,56 @@ describe('Lumen UI public foundation', () => {
     expect(line.querySelector('polyline')).not.toBeNull();
     expect(bars.querySelector('svg')).toBeNull();
     expect(container.querySelectorAll('[data-kind="bar"] > span')).to.have.length(3);
+    expect(screen.getByRole('img', { name: 'Request groups' })).to.have.attribute(
+      'data-kind',
+      'grouped-bar',
+    );
+    const stack = screen.getByRole('img', { name: 'Request stack' });
+    expect(stack.querySelector('path')).not.toBeNull();
+    expect(stack.querySelector('.lumen-chart-selection')).not.toBeNull();
+    stack.focus();
+    await user.keyboard('{ArrowRight}');
+    expect(onPointChange).toHaveBeenCalled();
+  });
+
+  it('keeps specialized chart geometry inside Lumen UI primitives', () => {
+    const onPointSelect = vi.fn();
+    const { container } = render(
+      <LumenProvider appearance={appearance} withCssBaseline={false}>
+        <LumenCandlestickChart
+          label="Price candles"
+          volumeLabel="Trade volume"
+          points={[
+            { id: 'day-1', label: 'Monday', open: 42, high: 58, low: 38, close: 54, volume: 60 },
+          ]}
+          itemLabel={(point) => point.label}
+          empty="No candles"
+        />
+        <LumenScatterChart
+          label="Accounts by growth"
+          points={[{ id: 'northwind', label: 'Northwind', x: 64, y: 72, size: 18 }]}
+          pointLabel={(point) => point.label}
+          selectedPointId="northwind"
+          onPointSelect={onPointSelect}
+          empty="No accounts"
+        />
+        <LumenComboChart
+          label="Revenue and margin"
+          bars={[{ id: 'sep', label: 'September', value: 72 }]}
+          trend={[{ id: 'sep', label: 'September', value: 31 }]}
+          barsLabel="Revenue"
+          trendLabel="Margin"
+          empty="No values"
+        />
+      </LumenProvider>,
+    );
+
+    expect(container.querySelector('.lumen-candlestick-body')).not.toBeNull();
+    expect(
+      container.querySelector('.lumen-scatter-chart circle[data-selected="true"]'),
+    ).not.toBeNull();
+    expect(container.querySelector('.lumen-combo-bar')).not.toBeNull();
+    expect(container.querySelector('.lumen-combo-trend')).not.toBeNull();
   });
 
   it('keeps table, calendar, and diff data supplied by the host', async () => {

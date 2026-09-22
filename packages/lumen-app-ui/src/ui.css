@@ -646,12 +646,19 @@
   display: flex;
   min-inline-size: 0;
   min-block-size: 10rem;
+  flex-direction: column;
+  gap: 0.35rem;
   color: var(--lumen-info);
+}
+
+.lumen-chart[data-compact='true'] {
+  min-block-size: 2.5rem;
 }
 
 .lumen-chart > svg {
   inline-size: 100%;
-  block-size: auto;
+  min-block-size: 0;
+  flex: 1 1 auto;
   overflow: visible;
 }
 
@@ -667,6 +674,10 @@
   stroke: none;
 }
 
+.lumen-chart[data-kind='stacked-area'] path {
+  fill: color-mix(in srgb, currentColor 32%, transparent);
+}
+
 .lumen-chart [data-tone='success'] {
   color: var(--lumen-success);
 }
@@ -678,6 +689,7 @@
 }
 
 .lumen-chart-bars {
+  flex-direction: row;
   align-items: flex-end;
   gap: 0.25rem;
 }
@@ -696,6 +708,122 @@
   border-radius: var(--lumen-radius-control) var(--lumen-radius-control) 0 0;
   background: currentColor;
   box-shadow: 0 0 0.5rem color-mix(in srgb, currentColor 30%, transparent);
+}
+
+.lumen-chart-grouped-bars {
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.lumen-chart-bar-group {
+  display: flex;
+  min-inline-size: 0;
+  flex: 1 1 0;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.15rem;
+}
+
+.lumen-chart-bar-group > i {
+  inline-size: min(1rem, 42%);
+  min-block-size: 0.2rem;
+  border-radius: var(--lumen-radius-control) var(--lumen-radius-control) 0 0;
+  background: currentColor;
+}
+
+.lumen-chart-selection > line {
+  stroke: var(--lumen-ink);
+  stroke-dasharray: 2 2;
+  stroke-width: 0.75;
+  vector-effect: non-scaling-stroke;
+}
+
+.lumen-chart-selection > circle {
+  fill: var(--lumen-reading);
+  stroke: var(--lumen-ink);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.lumen-chart-cursor-label {
+  align-self: flex-end;
+  color: var(--lumen-muted);
+}
+
+.lumen-candlestick-chart,
+.lumen-scatter-chart,
+.lumen-combo-chart {
+  display: flex;
+  min-inline-size: 0;
+  min-block-size: 14rem;
+  padding: 0.75rem;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-surface);
+  background: var(--lumen-glass);
+}
+
+.lumen-candlestick-chart > svg,
+.lumen-scatter-chart > svg,
+.lumen-combo-chart > svg {
+  inline-size: 100%;
+  min-block-size: 0;
+  flex: 1 1 auto;
+  overflow: visible;
+}
+
+.lumen-candlestick-wick {
+  stroke: var(--lumen-danger);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.lumen-candlestick-body {
+  fill: var(--lumen-danger);
+}
+
+.lumen-candlestick-volume {
+  fill: color-mix(in srgb, var(--lumen-accent) 45%, transparent);
+}
+
+.lumen-candlestick-chart [data-up='true'] .lumen-candlestick-wick {
+  stroke: var(--lumen-success);
+}
+
+.lumen-candlestick-chart [data-up='true'] .lumen-candlestick-body {
+  fill: var(--lumen-success);
+}
+
+.lumen-scatter-guide {
+  stroke: var(--lumen-edge);
+  stroke-dasharray: 2 2;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.lumen-scatter-chart circle {
+  fill: color-mix(in srgb, var(--lumen-accent) 68%, transparent);
+  stroke: var(--lumen-accent);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  cursor: pointer;
+}
+
+.lumen-scatter-chart circle[data-selected='true'] {
+  fill: var(--lumen-accent);
+  stroke: var(--lumen-ink);
+  stroke-width: 2;
+}
+
+.lumen-combo-bar {
+  fill: color-mix(in srgb, var(--lumen-accent) 62%, transparent);
+}
+
+.lumen-combo-trend {
+  fill: none;
+  stroke: var(--lumen-warning);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
 }
 
 .lumen-calendar {

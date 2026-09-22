@@ -518,9 +518,14 @@ export interface LumenChartSeries {
 
 export interface LumenChartProps {
   label: string;
-  kind: 'area' | 'bar' | 'line';
+  kind: 'area' | 'bar' | 'grouped-bar' | 'line' | 'stacked-area';
   series: readonly LumenChartSeries[];
   empty: React.ReactNode;
+  className?: string | undefined;
+  compact?: boolean | undefined;
+  selectedPointId?: string | undefined;
+  cursorLabel?: React.ReactNode;
+  onPointChange?: ((point: LumenChartPoint) => void) | undefined;
 }
 
 function chartCoordinates(points: readonly LumenChartPoint[], maximum: number): string {
@@ -534,45 +539,421 @@ function chartCoordinates(points: readonly LumenChartPoint[], maximum: number): 
     .join(' ');
 }
 
-export function LumenChart({ label, kind, series, empty }: LumenChartProps) {
+function chartCoordinate(index: number, count: number, value: number, maximum: number) {
+  const x = count > 1 ? (index / (count - 1)) * 100 : 50;
+  const safeValue = Number.isFinite(value) ? value : 0;
+  const y = 100 - Math.max(0, Math.min(1, safeValue / maximum)) * 92;
+  return { x, y };
+}
+
+export function LumenChart({
+  label,
+  kind,
+  series,
+  empty,
+  className,
+  compact = false,
+  selectedPointId,
+  cursorLabel,
+  onPointChange,
+}: LumenChartProps) {
   const values = uniqueItems(series).map((item) => ({ ...item, points: uniqueItems(item.points) }));
-  const maximum = Math.max(
-    1,
-    ...values.flatMap((item) =>
-      item.points.map((point) => (Number.isFinite(point.value) ? point.value : 0)),
-    ),
-  );
+  const pointCount = Math.max(0, ...values.map((item) => item.points.length));
+  const maximum =
+    kind === 'stacked-area'
+      ? Math.max(
+          1,
+          ...Array.from({ length: pointCount }, (_, index) =>
+            values.reduce((sum, item) => sum + Math.max(0, item.points[index]?.value ?? 0), 0),
+          ),
+        )
+      : Math.max(
+          1,
+          ...values.flatMap((item) =>
+            item.points.map((point) => (Number.isFinite(point.value) ? point.value : 0)),
+          ),
+        );
   if (!values.length || values.every((item) => !item.points.length)) {
     return <div className="lumen-chart-empty">{empty}</div>;
   }
-  if (kind === 'bar') {
+  const interactivePoints = values[0]?.points ?? [];
+  const selectedIndex = interactivePoints.findIndex((point) => point.id === selectedPointId);
+  const selectedPoint = selectedIndex >= 0 ? interactivePoints[selectedIndex] : undefined;
+  const moveSelection = (direction: -1 | 1) => {
+    if (!onPointChange || !interactivePoints.length) {
+      return;
+    }
+    let current = selectedIndex;
+    if (current < 0) {
+      current = direction > 0 ? -1 : 0;
+    }
+    const next = (current + direction + interactivePoints.length) % interactivePoints.length;
+    const point = interactivePoints[next];
+    if (point) {
+      onPointChange(point);
+    }
+  };
+  const interactionProps = onPointChange
+    ? {
+        tabIndex: 0,
+        onKeyDown: (event: React.KeyboardEvent<HTMLDivElement>) => {
+          if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+            event.preventDefault();
+            moveSelection(event.key === 'ArrowRight' ? 1 : -1);
+          }
+        },
+        onPointerMove: (event: React.PointerEvent<HTMLDivElement>) => {
+          const bounds = event.currentTarget.getBoundingClientRect();
+          if (!bounds.width || !interactivePoints.length) {
+            return;
+          }
+          const ratio = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width));
+          const point = interactivePoints[Math.round(ratio * (interactivePoints.length - 1))];
+          if (point && point.id !== selectedPointId) {
+            onPointChange(point);
+          }
+        },
+      }
+    : {};
+  const classes = ['lumen-chart', className].filter(Boolean).join(' ');
+  if (kind === 'bar' || kind === 'grouped-bar') {
     return (
-      <div className="lumen-chart lumen-chart-bars" role="img" aria-label={label} data-kind={kind}>
-        {values.flatMap((item) =>
-          item.points.map((point) => (
-            <span key={`${item.id}-${point.id}`} data-tone={item.tone}>
-              <i
-                style={{ blockSize: `${Math.max(0, Math.min(1, point.value / maximum)) * 100}%` }}
-              />
-            </span>
-          )),
-        )}
+      <div
+        className={`${classes} ${
+          kind === 'grouped-bar' ? 'lumen-chart-grouped-bars' : 'lumen-chart-bars'
+        }`}
+        role="img"
+        aria-label={label}
+        data-kind={kind}
+        data-compact={compact || undefined}
+      >
+        {kind === 'grouped-bar'
+          ? Array.from({ length: pointCount }, (_, index) => (
+              <span className="lumen-chart-bar-group" key={index}>
+                {values.map((item) => {
+                  const point = item.points[index];
+                  return point ? (
+                    <i
+                      key={`${item.id}-${point.id}`}
+                      data-tone={item.tone}
+                      title={`${item.label}: ${point.label}`}
+                      style={{
+                        blockSize: `${Math.max(0, Math.min(1, point.value / maximum)) * 100}%`,
+                      }}
+                    />
+                  ) : null;
+                })}
+              </span>
+            ))
+          : values.flatMap((item) =>
+              item.points.map((point) => (
+                <span key={`${item.id}-${point.id}`} data-tone={item.tone} title={point.label}>
+                  <i
+                    style={{
+                      blockSize: `${Math.max(0, Math.min(1, point.value / maximum)) * 100}%`,
+                    }}
+                  />
+                </span>
+              )),
+            )}
       </div>
     );
   }
+  const cumulative = Array.from({ length: pointCount }, () => 0);
   return (
-    <div className="lumen-chart" role="img" aria-label={label} data-kind={kind}>
+    <div
+      className={classes}
+      role="img"
+      aria-label={label}
+      data-kind={kind}
+      data-compact={compact || undefined}
+      {...interactionProps}
+    >
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
         {values.map((item) => {
-          const points = chartCoordinates(item.points, maximum);
-          const area = `M 0 100 L ${points.replaceAll(' ', ' L ')} L 100 100 Z`;
+          const lower = item.points.map((_, index) => cumulative[index] ?? 0);
+          const upper = item.points.map((point, index) => {
+            const value = (cumulative[index] ?? 0) + Math.max(0, point.value);
+            cumulative[index] = value;
+            return value;
+          });
+          const points =
+            kind === 'stacked-area'
+              ? upper
+                  .map((value, index) => {
+                    const point = chartCoordinate(index, upper.length, value, maximum);
+                    return `${point.x},${point.y}`;
+                  })
+                  .join(' ')
+              : chartCoordinates(item.points, maximum);
+          const area =
+            kind === 'stacked-area'
+              ? `M ${points.replaceAll(' ', ' L ')} L ${lower
+                  .map((value, index) => {
+                    const point = chartCoordinate(index, lower.length, value, maximum);
+                    return `${point.x},${point.y}`;
+                  })
+                  .reverse()
+                  .join(' L ')} Z`
+              : `M 0 100 L ${points.replaceAll(' ', ' L ')} L 100 100 Z`;
           return (
             <g key={item.id} data-tone={item.tone} data-series={item.id}>
-              {kind === 'area' ? <path d={area} /> : null}
+              {kind === 'area' || kind === 'stacked-area' ? <path d={area} /> : null}
               <polyline points={points} />
             </g>
           );
         })}
+        {selectedPoint ? (
+          <g className="lumen-chart-selection">
+            <line
+              x1={
+                chartCoordinate(
+                  selectedIndex,
+                  interactivePoints.length,
+                  selectedPoint.value,
+                  maximum,
+                ).x
+              }
+              x2={
+                chartCoordinate(
+                  selectedIndex,
+                  interactivePoints.length,
+                  selectedPoint.value,
+                  maximum,
+                ).x
+              }
+              y1="4"
+              y2="100"
+            />
+            <circle
+              cx={
+                chartCoordinate(
+                  selectedIndex,
+                  interactivePoints.length,
+                  selectedPoint.value,
+                  maximum,
+                ).x
+              }
+              cy={
+                chartCoordinate(
+                  selectedIndex,
+                  interactivePoints.length,
+                  selectedPoint.value,
+                  maximum,
+                ).y
+              }
+              r="2.25"
+            />
+          </g>
+        ) : null}
+      </svg>
+      {cursorLabel ? <small className="lumen-chart-cursor-label">{cursorLabel}</small> : null}
+    </div>
+  );
+}
+
+export interface LumenCandlestickPoint {
+  id: string;
+  label: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+}
+
+export interface LumenCandlestickChartProps {
+  label: string;
+  volumeLabel: string;
+  points: readonly LumenCandlestickPoint[];
+  empty: React.ReactNode;
+  itemLabel: (point: LumenCandlestickPoint) => string;
+}
+
+export function LumenCandlestickChart({
+  label,
+  volumeLabel,
+  points: sourcePoints,
+  empty,
+  itemLabel,
+}: LumenCandlestickChartProps) {
+  const points = uniqueItems(sourcePoints);
+  if (!points.length) {
+    return <div className="lumen-chart-empty">{empty}</div>;
+  }
+  const lowest = Math.min(...points.map((point) => point.low));
+  const highest = Math.max(...points.map((point) => point.high));
+  const range = Math.max(1, highest - lowest);
+  const volumeMaximum = Math.max(1, ...points.map((point) => point.volume));
+  const priceY = (value: number) => 5 + ((highest - value) / range) * 66;
+  return (
+    <div className="lumen-candlestick-chart" role="img" aria-label={`${label}. ${volumeLabel}`}>
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        {points.map((point, index) => {
+          const x = points.length > 1 ? 7 + (index / (points.length - 1)) * 86 : 50;
+          const openY = priceY(point.open);
+          const closeY = priceY(point.close);
+          const bodyY = Math.min(openY, closeY);
+          const bodyHeight = Math.max(1.5, Math.abs(closeY - openY));
+          const volumeHeight = Math.max(1, (point.volume / volumeMaximum) * 18);
+          return (
+            <g key={point.id} data-up={point.close >= point.open}>
+              <title>{itemLabel(point)}</title>
+              <line
+                className="lumen-candlestick-wick"
+                x1={x}
+                x2={x}
+                y1={priceY(point.high)}
+                y2={priceY(point.low)}
+              />
+              <rect
+                className="lumen-candlestick-body"
+                x={x - 1.6}
+                y={bodyY}
+                width="3.2"
+                height={bodyHeight}
+              />
+              <rect
+                className="lumen-candlestick-volume"
+                x={x - 1.6}
+                y={96 - volumeHeight}
+                width="3.2"
+                height={volumeHeight}
+              />
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
+export interface LumenScatterChartPoint {
+  id: string;
+  label: string;
+  x: number;
+  y: number;
+  size: number;
+}
+
+export interface LumenScatterChartProps {
+  label: string;
+  points: readonly LumenScatterChartPoint[];
+  selectedPointId?: string | undefined;
+  pointLabel: (point: LumenScatterChartPoint) => string;
+  onPointSelect?: ((point: LumenScatterChartPoint) => void) | undefined;
+  empty: React.ReactNode;
+}
+
+export function LumenScatterChart({
+  label,
+  points: sourcePoints,
+  selectedPointId,
+  pointLabel,
+  onPointSelect,
+  empty,
+}: LumenScatterChartProps) {
+  const points = uniqueItems(sourcePoints);
+  if (!points.length) {
+    return <div className="lumen-chart-empty">{empty}</div>;
+  }
+  const sizeMaximum = Math.max(1, ...points.map((point) => point.size));
+  const selectedIndex = Math.max(
+    0,
+    points.findIndex((point) => point.id === selectedPointId),
+  );
+  return (
+    <div className="lumen-scatter-chart">
+      <svg
+        viewBox="0 0 100 100"
+        role="img"
+        aria-label={label}
+        tabIndex={onPointSelect ? 0 : undefined}
+        onKeyDown={(event) => {
+          if (!onPointSelect || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) {
+            return;
+          }
+          event.preventDefault();
+          const direction = event.key === 'ArrowRight' ? 1 : -1;
+          const point = points[(selectedIndex + direction + points.length) % points.length];
+          if (point) {
+            onPointSelect(point);
+          }
+        }}
+      >
+        <line className="lumen-scatter-guide" x1="50" x2="50" y1="4" y2="96" />
+        <line className="lumen-scatter-guide" x1="4" x2="96" y1="50" y2="50" />
+        {points.map((point) => (
+          <circle
+            key={point.id}
+            data-selected={point.id === selectedPointId || undefined}
+            cx={Math.max(4, Math.min(96, point.x))}
+            cy={100 - Math.max(4, Math.min(96, point.y))}
+            r={2 + (Math.max(0, point.size) / sizeMaximum) * 4}
+            onClick={() => onPointSelect?.(point)}
+          >
+            <title>{pointLabel(point)}</title>
+          </circle>
+        ))}
+      </svg>
+    </div>
+  );
+}
+
+export interface LumenComboChartProps {
+  label: string;
+  bars: readonly LumenChartPoint[];
+  trend: readonly LumenChartPoint[];
+  barsLabel: string;
+  trendLabel: string;
+  empty: React.ReactNode;
+}
+
+export function LumenComboChart({
+  label,
+  bars: sourceBars,
+  trend: sourceTrend,
+  barsLabel,
+  trendLabel,
+  empty,
+}: LumenComboChartProps) {
+  const bars = uniqueItems(sourceBars);
+  const trend = uniqueItems(sourceTrend);
+  if (!bars.length && !trend.length) {
+    return <div className="lumen-chart-empty">{empty}</div>;
+  }
+  const barMaximum = Math.max(1, ...bars.map((point) => point.value));
+  const trendMaximum = Math.max(1, ...trend.map((point) => point.value));
+  const barWidth = Math.max(2, Math.min(12, 66 / Math.max(1, bars.length)));
+  return (
+    <div className="lumen-combo-chart" role="img" aria-label={label}>
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <g aria-label={barsLabel}>
+          {bars.map((point, index) => {
+            const x = bars.length > 1 ? 7 + (index / (bars.length - 1)) * 86 : 50;
+            const height = Math.max(1, (point.value / barMaximum) * 82);
+            return (
+              <rect
+                key={point.id}
+                className="lumen-combo-bar"
+                x={x - barWidth / 2}
+                y={94 - height}
+                width={barWidth}
+                height={height}
+              />
+            );
+          })}
+        </g>
+        <polyline
+          aria-label={trendLabel}
+          className="lumen-combo-trend"
+          points={trend
+            .map((point, index) => {
+              const coordinate = chartCoordinate(index, trend.length, point.value, trendMaximum);
+              return `${coordinate.x},${coordinate.y}`;
+            })
+            .join(' ')}
+        />
       </svg>
     </div>
   );

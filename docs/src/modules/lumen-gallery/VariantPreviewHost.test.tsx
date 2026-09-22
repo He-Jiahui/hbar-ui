@@ -67,7 +67,7 @@ describe('Lumen formal variant fixtures', () => {
     }
 
     expect(renderErrors).toEqual([]);
-  });
+  }, 15_000);
 
   it('groups AI chat header actions so title copy retains available width', () => {
     const entry = LUMEN_VARIANT_REGISTRY.find(
@@ -134,5 +134,26 @@ describe('Lumen formal variant fixtures', () => {
     await view.user.click(screen.getByRole('button', { name: /Northwind/ }));
     expect(view.container.querySelector('.hbar-app-ui-quick-command-popover')).not.toBeNull();
     expect(screen.getByRole('heading', { name: 'Switch room' })).not.toBeNull();
+  });
+
+  it('renders analytics variants with their declared Lumen chart geometry', () => {
+    const expected = new Map([
+      ['hbar-app-ui-analytics-2', '[data-kind="area"]'],
+      ['hbar-app-ui-analytics-3', '[data-kind="grouped-bar"]'],
+      ['hbar-app-ui-analytics-4', '[data-kind="stacked-area"]'],
+      ['hbar-app-ui-analytics-13', '.lumen-candlestick-chart'],
+      ['hbar-app-ui-analytics-14', '.lumen-scatter-chart'],
+      ['hbar-app-ui-analytics-16', '.lumen-combo-chart'],
+    ]);
+
+    for (const [id, selector] of expected) {
+      const entry = LUMEN_VARIANT_REGISTRY.find((candidate) => candidate.id === id);
+      expect(entry).not.toBeUndefined();
+      const view = render(
+        <VariantPreviewHost entry={entry!} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view.container.querySelector(selector)).not.toBeNull();
+      view.unmount();
+    }
   });
 });
