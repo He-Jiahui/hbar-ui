@@ -1581,6 +1581,72 @@ describe('Lumen formal variant fixtures', () => {
     expect(modify.getAttribute('aria-checked')).toBe('true');
   });
 
+  it('uses distinct host-owned notification scenarios for all six delivery patterns', () => {
+    const entries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'notifications',
+    );
+    expect(entries).toHaveLength(6);
+    const expected = [
+      'Notification center',
+      'Toast playground',
+      'Notification preferences',
+      'Workspace activity',
+      'System messages',
+      'Press Esc to close',
+    ];
+    entries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('notifications.');
+      expect(view).not.toContain('item-1');
+      expect(view).toContain(expected[index]);
+    });
+  });
+
+  it('filters, configures, expands, and clears notification state', async () => {
+    const entry = (variant: number) =>
+      LUMEN_VARIANT_REGISTRY.find(
+        (candidate) => candidate.category === 'notifications' && candidate.variant === variant,
+      )!;
+
+    let view = render(
+      <VariantPreviewHost entry={entry(1)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('tab', { name: 'Mentions' }));
+    expect(screen.getByText('Maya mentioned you in Release summary')).not.toBeNull();
+    expect(screen.queryByText('Preview deployment completed')).toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(3)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    const deploymentEmail = screen.getByRole('switch', {
+      name: 'Toggle Email for Deployment results',
+    });
+    expect(deploymentEmail.getAttribute('aria-checked')).toBe('false');
+    await view.user.click(deploymentEmail);
+    await view.user.click(screen.getByRole('button', { name: 'Save preferences' }));
+    expect(screen.getByText('Preferences saved')).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(5)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getAllByRole('button', { name: 'Show details' })[0]!);
+    expect(
+      screen.getByText('Read-only time is expected to remain under 8 minutes.'),
+    ).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(6)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: '2 unread notifications' }));
+    await view.user.click(screen.getByRole('button', { name: 'Mark all as read' }));
+    expect(screen.getByRole('button', { name: '0 unread notifications' })).not.toBeNull();
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',

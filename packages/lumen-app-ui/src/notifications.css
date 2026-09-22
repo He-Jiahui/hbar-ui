@@ -265,8 +265,6 @@
 .lumen-notifications [role='switch'][aria-checked='true'] {
   color: var(--lumen-accent);
   background: color-mix(in srgb, var(--lumen-accent) 16%, transparent);
-}
-.lumen-notifications [role='switch'][aria-checked='true'] {
   justify-content: flex-end;
 }
 .lumen-notifications-quiet {
@@ -527,6 +525,7 @@
 }
 @media (max-width: 44rem) {
   .lumen-notifications-feed > section > article {
+    flex-wrap: wrap;
   }
   .lumen-notifications-feed > section > article > :nth-child(4n + 1) {
     flex: 0 0 auto;
@@ -545,8 +544,10 @@
     min-inline-size: 0;
   }
   .lumen-notifications-feed time {
+    margin-inline-start: 2.6rem;
   }
   .lumen-notifications-activity {
+    flex-direction: column;
   }
   .lumen-notifications-activity.is-detail > nav {
     display: none;
