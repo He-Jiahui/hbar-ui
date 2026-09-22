@@ -1,3 +1,11 @@
+.lumen-integrations-root-surface {
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: hidden;
+}
+
 .lumen-integrations.hbar-app-ui-integration-surface {
   --hbar-app-ui-integration-bg: var(--lumen-reading);
   --hbar-app-ui-integration-surface: var(--lumen-glass);

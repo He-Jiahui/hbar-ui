@@ -1,4 +1,5 @@
 import { LumenButton, LumenIconButton } from '../primitives';
+import LumenSurface from '../LumenSurface';
 import type { ButtonHTMLAttributes, ComponentType, ReactNode, SVGProps } from 'react';
 
 export type NavbarIconTier = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -46,22 +47,25 @@ export function NavbarFrame({
   readonly className: string;
   readonly children: ReactNode;
 }) {
+  const contentClassName = [
+    'lumen-navbar',
+    'hbar-app-ui-navbar-surface',
+    `hbar-app-ui-navbar-variant-${spec.variant}`,
+    spec.density ? `hbar-app-ui-density-${spec.density}` : '',
+    spec.profile.surface ? `hbar-app-ui-surface-${spec.profile.surface}` : '',
+    spec.profile.initialState ? `hbar-app-ui-state-${spec.profile.initialState}` : '',
+    spec.profile.visualMode ? `hbar-app-ui-visual-${spec.profile.visualMode}` : '',
+    spec.className,
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-navbar',
-        'hbar-app-ui-variant',
-        'hbar-app-ui-navbar-surface',
-        `hbar-app-ui-navbar-variant-${spec.variant}`,
-        spec.density ? `hbar-app-ui-density-${spec.density}` : '',
-        spec.profile.surface ? `hbar-app-ui-surface-${spec.profile.surface}` : '',
-        spec.profile.initialState ? `hbar-app-ui-state-${spec.profile.initialState}` : '',
-        spec.profile.visualMode ? `hbar-app-ui-visual-${spec.profile.visualMode}` : '',
-        spec.className,
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-navbar-root-surface"
+      contentClassName={contentClassName}
       data-lumen-component="navbar"
       data-lumen-variant={spec.variant}
       data-hbar-app-ui-component={spec.id}
@@ -69,7 +73,7 @@ export function NavbarFrame({
       data-hbar-app-ui-state={spec.profile.initialState}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 

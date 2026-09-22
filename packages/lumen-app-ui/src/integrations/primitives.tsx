@@ -1,4 +1,5 @@
 import { LumenButton } from '../primitives';
+import LumenSurface from '../LumenSurface';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import type { LumenIntegrationTone } from './content';
 
@@ -31,22 +32,25 @@ export function IntegrationFrame({
   readonly children: ReactNode;
   readonly className?: string | undefined;
 }) {
+  const contentClassName = [
+    'lumen-integrations',
+    'hbar-app-ui-integration-surface',
+    `hbar-app-ui-integration-variant-${spec.variant}`,
+    spec.density ? `hbar-app-ui-density-${spec.density}` : '',
+    spec.profile.surface ? `hbar-app-ui-surface-${spec.profile.surface}` : '',
+    spec.profile.initialState ? `hbar-app-ui-state-${spec.profile.initialState}` : '',
+    spec.profile.visualMode ? `hbar-app-ui-visual-${spec.profile.visualMode}` : '',
+    spec.className,
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-integrations',
-        'hbar-app-ui-variant',
-        'hbar-app-ui-integration-surface',
-        `hbar-app-ui-integration-variant-${spec.variant}`,
-        spec.density ? `hbar-app-ui-density-${spec.density}` : '',
-        spec.profile.surface ? `hbar-app-ui-surface-${spec.profile.surface}` : '',
-        spec.profile.initialState ? `hbar-app-ui-state-${spec.profile.initialState}` : '',
-        spec.profile.visualMode ? `hbar-app-ui-visual-${spec.profile.visualMode}` : '',
-        spec.className,
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-integrations-root-surface"
+      contentClassName={contentClassName}
       data-lumen-component="integrations"
       data-lumen-variant={spec.variant}
       data-hbar-app-ui-component={spec.id}
@@ -54,7 +58,7 @@ export function IntegrationFrame({
       data-hbar-app-ui-state={spec.profile.initialState}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 

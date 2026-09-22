@@ -1,6 +1,14 @@
 /* Canonical Lumen navbar surfaces preserve the reference document flow. Header rows,
  * short collections and article bodies own their layout through flex/grid;
  * no variant is positioned against a screenshot coordinate. */
+.lumen-navbar-root-surface {
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: hidden;
+}
+
 .lumen-navbar.hbar-app-ui-navbar-surface {
   display: flex;
   block-size: 100%;

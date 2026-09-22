@@ -1,4 +1,5 @@
 import { LumenButton } from '../primitives';
+import LumenSurface from '../LumenSurface';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import type {
   LumenBillingMetric,
@@ -36,22 +37,25 @@ export function BillingFrame({
   readonly children: ReactNode;
   readonly className?: string | undefined;
 }) {
+  const contentClassName = [
+    'lumen-billing',
+    'hbar-app-ui-billing-surface',
+    `hbar-app-ui-billing-variant-${spec.variant}`,
+    spec.density ? `hbar-app-ui-density-${spec.density}` : '',
+    spec.profile.surface ? `hbar-app-ui-surface-${spec.profile.surface}` : '',
+    spec.profile.initialState ? `hbar-app-ui-state-${spec.profile.initialState}` : '',
+    spec.profile.visualMode ? `hbar-app-ui-visual-${spec.profile.visualMode}` : '',
+    spec.className,
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-billing',
-        'hbar-app-ui-variant',
-        'hbar-app-ui-billing-surface',
-        `hbar-app-ui-billing-variant-${spec.variant}`,
-        spec.density ? `hbar-app-ui-density-${spec.density}` : '',
-        spec.profile.surface ? `hbar-app-ui-surface-${spec.profile.surface}` : '',
-        spec.profile.initialState ? `hbar-app-ui-state-${spec.profile.initialState}` : '',
-        spec.profile.visualMode ? `hbar-app-ui-visual-${spec.profile.visualMode}` : '',
-        spec.className,
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-billing-root-surface"
+      contentClassName={contentClassName}
       data-lumen-component="billing"
       data-lumen-variant={spec.variant}
       data-hbar-app-ui-component={spec.id}
@@ -59,7 +63,7 @@ export function BillingFrame({
       data-hbar-app-ui-state={spec.profile.initialState}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 

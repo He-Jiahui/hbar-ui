@@ -1,4 +1,5 @@
 import { LumenInput } from '../forms';
+import LumenSurface from '../LumenSurface';
 import { LumenButton } from '../primitives';
 import {
   Apple,
@@ -58,22 +59,25 @@ export function AuthFrame({
   readonly children: ReactNode;
   readonly className?: string | undefined;
 }) {
+  const contentClassName = [
+    'lumen-authentication',
+    'hbar-app-ui-auth-surface',
+    `hbar-app-ui-auth-variant-${spec.variant}`,
+    spec.density ? `hbar-app-ui-density-${spec.density}` : '',
+    spec.profile.surface ? `hbar-app-ui-surface-${spec.profile.surface}` : '',
+    spec.profile.initialState ? `hbar-app-ui-state-${spec.profile.initialState}` : '',
+    spec.profile.visualMode ? `hbar-app-ui-visual-${spec.profile.visualMode}` : '',
+    spec.className,
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-authentication',
-        'hbar-app-ui-variant',
-        'hbar-app-ui-auth-surface',
-        `hbar-app-ui-auth-variant-${spec.variant}`,
-        spec.density ? `hbar-app-ui-density-${spec.density}` : '',
-        spec.profile.surface ? `hbar-app-ui-surface-${spec.profile.surface}` : '',
-        spec.profile.initialState ? `hbar-app-ui-state-${spec.profile.initialState}` : '',
-        spec.profile.visualMode ? `hbar-app-ui-visual-${spec.profile.visualMode}` : '',
-        spec.className,
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-authentication-root-surface"
+      contentClassName={contentClassName}
       data-lumen-component="authentication"
       data-lumen-variant={spec.variant}
       data-hbar-app-ui-component={spec.id}
@@ -81,7 +85,7 @@ export function AuthFrame({
       data-hbar-app-ui-state={spec.profile.initialState}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 

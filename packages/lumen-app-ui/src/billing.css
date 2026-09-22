@@ -1,3 +1,11 @@
+.lumen-billing-root-surface {
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: hidden;
+}
+
 .lumen-billing.hbar-app-ui-billing-surface {
   --hbar-app-ui-billing-bg: var(--lumen-reading);
   --hbar-app-ui-billing-surface: var(--lumen-glass);
