@@ -1711,6 +1711,89 @@ describe('Lumen formal variant fixtures', () => {
     expect((send as HTMLButtonElement).disabled).toBe(false);
   });
 
+  it('uses distinct host-owned onboarding scenarios for all seven setup patterns', () => {
+    const entries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'onboarding',
+    );
+    expect(entries).toHaveLength(7);
+    const expected = [
+      'Tell us about yourself',
+      'Set up Northwind Cloud',
+      'Launch checklist',
+      'What will you use Lumen for?',
+      'Invite your team',
+      'Welcome to Northwind Cloud',
+      'Workspace identity',
+    ];
+    entries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('onboarding.');
+      expect(view).not.toContain('item-1');
+      expect(view).toContain(expected[index]);
+    });
+  });
+
+  it('advances, completes, invites, and edits onboarding state', async () => {
+    const entry = (variant: number) =>
+      LUMEN_VARIANT_REGISTRY.find(
+        (candidate) => candidate.category === 'onboarding' && candidate.variant === variant,
+      )!;
+
+    let view = render(
+      <VariantPreviewHost entry={entry(2)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    expect(screen.getByText('Step 2 of 4')).not.toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Complete and continue' }));
+    expect(screen.getByText('Step 3 of 4')).not.toBeNull();
+    expect(screen.getByText('Add collaborators and choose roles.')).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(3)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getAllByRole('button', { name: 'Start' })[0]!);
+    expect(screen.getByText('3 of 5 complete')).not.toBeNull();
+    expect(
+      screen
+        .getByRole('progressbar', { name: 'Launch checklist progress' })
+        .getAttribute('aria-valuenow'),
+    ).toBe('60');
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(4)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: /Research and analysis/ }));
+    await view.user.click(screen.getByRole('tab', { name: '2–10' }));
+    expect(
+      screen.getByRole('button', { name: /Research and analysis/ }).getAttribute('aria-pressed'),
+    ).toBe('true');
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(5)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    const invite = screen.getByRole('button', { name: 'Send invite' });
+    expect((invite as HTMLButtonElement).disabled).toBe(true);
+    await view.user.type(
+      screen.getByRole('textbox', { name: 'Member email' }),
+      'jonah@example.com',
+    );
+    expect((invite as HTMLButtonElement).disabled).toBe(false);
+    await view.user.click(screen.getByRole('button', { name: 'Copy invite link' }));
+    expect(screen.getByRole('button', { name: 'Link copied' })).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(7)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.clear(screen.getByRole('textbox', { name: 'Workspace URL' }));
+    await view.user.type(screen.getByRole('textbox', { name: 'Workspace URL' }), 'northwind-ops');
+    expect(screen.getByLabelText('Workspace URL preview').textContent).toContain('northwind-ops');
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',

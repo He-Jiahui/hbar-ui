@@ -376,8 +376,10 @@
 @media (max-width: 48rem) {
   .lumen-onboarding-profile,
   .lumen-onboarding-step-layout {
+    flex-direction: column;
   }
   .lumen-onboarding-invite-form {
+    flex-direction: column;
   }
   .lumen-onboarding-invite-form > button {
     justify-self: end;
