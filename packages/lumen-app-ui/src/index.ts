@@ -974,6 +974,7 @@ export type {
   LumenMobileFeedItem,
   LumenMobileHomeContent,
   LumenMobileListStrategy,
+  LumenMobileNavItem,
   LumenMobileOrder,
   LumenMobileOrdersContent,
   LumenMobileProps,

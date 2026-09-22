@@ -73,12 +73,46 @@
   min-inline-size: 0;
   min-block-size: 0;
   overflow: auto;
-  padding: 0.75rem;
+  padding: 1rem;
 }
 .lumen-mobile-stage [data-hbar-app-ui-list-strategy='pane-scroll'] {
   max-block-size: none;
   overflow: auto;
   overscroll-behavior: contain;
+}
+.lumen-mobile-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-block: 0.5rem 1rem;
+}
+.lumen-mobile-feed {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+}
+.lumen-mobile-feed > button {
+  display: flex;
+  inline-size: 100%;
+  min-inline-size: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.875rem 0.5rem;
+  border-block-end: 0.0625rem solid var(--lumen-edge);
+  border-radius: 0;
+  text-align: start;
+}
+.lumen-mobile-feed > button > span {
+  display: flex;
+  min-inline-size: 0;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.lumen-mobile-feed small {
+  color: var(--lumen-muted);
+  font-size: 0.75rem;
 }
 .lumen-mobile-empty {
   padding: 1rem;
@@ -86,65 +120,14 @@
   border-radius: var(--lumen-radius-control);
   text-align: center;
 }
-.lumen-mobile-heading {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.5rem;
-}
-.lumen-mobile-feed,
-.lumen-mobile-tasks,
-.lumen-mobile-runs {
-  display: flex;
-  min-inline-size: 0;
-  flex-direction: column;
-}
-.lumen-mobile-feed > button,
-.lumen-mobile-tasks > button,
-.lumen-mobile-runs > button {
-  display: flex;
-  inline-size: 100%;
-  min-inline-size: 0;
-  justify-content: stretch;
-  padding: 0.875rem 0.5rem;
-  border-block-end: 0.0625rem solid var(--lumen-edge);
-  border-radius: 0;
-  text-align: start;
-}
-.lumen-mobile-feed > button,
-.lumen-mobile-tasks > button,
-.lumen-mobile-runs > button > :nth-child(2n + 1) {
-  flex: 1 1 0;
-  min-inline-size: 0;
-}
-.lumen-mobile-feed > button,
-.lumen-mobile-tasks > button,
-.lumen-mobile-runs > button > :nth-child(2n + 2) {
-  flex: 0 0 auto;
-  min-inline-size: 0;
-}
-.lumen-mobile-feed > button > span,
-.lumen-mobile-tasks > button > span,
-.lumen-mobile-runs > button > span {
-  display: flex;
-  min-inline-size: 0;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-.lumen-mobile-feed small,
-.lumen-mobile-tasks small,
-.lumen-mobile-runs small {
-  color: var(--lumen-muted);
-  font-size: 0.75rem;
-}
 .lumen-mobile-tabs {
   display: flex;
+  min-inline-size: 0;
+  flex-wrap: wrap;
   gap: 0.125rem;
   padding: 0.4rem;
   border-block-start: 0.0625rem solid var(--lumen-edge);
   background: var(--lumen-glass);
-  min-inline-size: 0;
-  flex-wrap: wrap;
 }
 .lumen-mobile-tabs > * {
   flex: 1 1 3rem;
@@ -171,105 +154,120 @@
   background: var(--lumen-danger, #c2413b);
   color: white;
 }
-.lumen-mobile-route {
+.lumen-mobile-action-canvas {
   display: flex;
-  min-block-size: 16rem;
-  align-items: center;
-  justify-content: center;
-  align-content: center;
+  flex-direction: column;
   gap: 0.5rem;
-  text-align: center;
-  min-inline-size: 0;
 }
-.lumen-mobile-search {
+.lumen-mobile-scrim {
+  z-index: 1;
+  flex: 1 1 auto;
+  background: color-mix(in srgb, var(--lumen-ink) 24%, transparent);
+  backdrop-filter: blur(0.25rem);
+}
+.lumen-mobile-action-dock {
+  position: relative;
+  z-index: 2;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-block-end: 0.75rem;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.625rem;
+  margin-block-start: auto;
+  padding: 1rem;
 }
-.lumen-mobile-search input {
-  min-inline-size: 0;
+.lumen-mobile-action-list {
+  display: flex;
+  max-inline-size: 100%;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+.lumen-mobile-action-list > button {
+  justify-content: flex-start;
+}
+.lumen-mobile-action-trigger {
+  border-radius: 999rem;
+}
+.lumen-mobile-search-results {
   flex: 1 1 auto;
 }
-.lumen-mobile-tasks > button {
-}
-.lumen-mobile-tasks > button > :nth-child(2n + 1) {
-  flex: 0 0 auto;
+.lumen-mobile-search-dock {
+  display: flex;
   min-inline-size: 0;
-}
-.lumen-mobile-tasks > button > :nth-child(2n + 2) {
-  flex: 1 1 0;
-  min-inline-size: 0;
-}
-.lumen-mobile-tasks > button > i {
-  inline-size: 1rem;
-  block-size: 1rem;
-  margin-block-start: 0.15rem;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.75rem;
+  padding: 0.625rem 0.75rem;
   border: 0.0625rem solid var(--lumen-edge);
   border-radius: 999rem;
+  background: var(--lumen-glass);
 }
-.lumen-mobile-tasks > button[aria-pressed='true'] > i {
-  background: var(--lumen-accent);
-  box-shadow: inset 0 0 0 0.2rem var(--lumen-reading);
+.lumen-mobile-search-dock.is-open {
+  border-color: var(--lumen-accent);
 }
-.lumen-mobile-floating {
+.lumen-mobile-search-dock input {
+  min-inline-size: 0;
+  flex: 1 1 auto;
+  border: 0;
+  background: transparent;
+}
+.lumen-mobile-search-dock input:focus {
+  outline: none;
+}
+.lumen-mobile-sheet {
   display: flex;
-  justify-content: flex-end;
-  margin-block-start: auto;
-  margin-inline-start: auto;
+  max-block-size: 52%;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-block-start: 0.0625rem solid var(--lumen-edge);
+  border-radius: 1rem 1rem 0 0;
+  background: var(--lumen-glass);
+  box-shadow: 0 -0.75rem 2rem color-mix(in srgb, var(--lumen-ink) 10%, transparent);
 }
-.lumen-mobile-floating > button {
-  inline-size: 3rem;
-  block-size: 3rem;
-  border-radius: 999rem;
-  color: var(--lumen-reading);
-  background: var(--lumen-accent);
-  box-shadow: 0 0.5rem 1rem color-mix(in srgb, var(--lumen-ink) 18%, transparent);
+.lumen-mobile-sheet.is-expanded {
+  max-block-size: 76%;
+  overflow: auto;
 }
-.lumen-mobile-run-tabs {
+.lumen-mobile-sheet > header {
   display: flex;
-  border-block-end: 0.0625rem solid var(--lumen-edge);
+  align-items: center;
+  justify-content: space-between;
+}
+.lumen-mobile-shortcuts {
+  display: flex;
   min-inline-size: 0;
   flex-wrap: wrap;
+  gap: 0.5rem;
 }
-.lumen-mobile-run-tabs > * {
-  flex: 1 1 4rem;
-  min-inline-size: 4rem;
+.lumen-mobile-shortcuts > button {
+  flex: 1 1 8rem;
 }
-.lumen-mobile-run-tabs > button[aria-selected='true'] {
+.lumen-mobile-segmented {
+  display: flex;
+  min-inline-size: 0;
+  padding: 0.5rem 0.75rem 0;
+  border-block-end: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-mobile-segmented > button {
+  flex: 1 1 0;
+  border-radius: 0;
+}
+.lumen-mobile-segmented > button[aria-selected='true'] {
   color: var(--lumen-accent);
   box-shadow: inset 0 -0.125rem var(--lumen-accent);
-}
-.lumen-mobile-runs > button {
-}
-.lumen-mobile-runs > button > :nth-child(2n + 1) {
-  flex: 0 0 auto;
-  min-inline-size: 0;
-}
-.lumen-mobile-runs > button > :nth-child(2n + 2) {
-  flex: 1 1 0;
-  min-inline-size: 0;
-}
-.lumen-mobile-run-icon {
-  display: flex;
-  inline-size: 2rem;
-  block-size: 2rem;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999rem;
-  background: color-mix(in srgb, var(--lumen-accent) 12%, transparent);
-  color: var(--lumen-accent);
-  min-inline-size: 0;
 }
 .lumen-mobile-menu.hbar-app-ui-dialog-backdrop {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 3;
   display: flex;
+  min-inline-size: 0;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.75rem;
   padding: 1rem;
-  background: var(--lumen-reading);
+  background: color-mix(in srgb, var(--lumen-frost) 96%, var(--lumen-contrast));
 }
 .lumen-mobile-menu > header {
   display: flex;
@@ -278,8 +276,38 @@
   padding-block-end: 0.75rem;
   border-block-end: 0.0625rem solid var(--lumen-edge);
 }
-.lumen-mobile-menu > button {
-  justify-content: flex-start;
+.lumen-mobile-menu-sections {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.5rem;
+  overflow: auto;
+}
+.lumen-mobile-menu-sections > section {
+  border-block-end: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-mobile-menu-sections > section > button {
+  display: flex;
+  inline-size: 100%;
+  justify-content: space-between;
+}
+.lumen-mobile-menu-sections > section > div {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  padding-inline-start: 0.75rem;
+}
+.lumen-mobile-menu-sections > section > div > button {
+  display: flex;
+  min-inline-size: 0;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border-radius: var(--lumen-radius-control);
+  text-align: start;
+}
+.lumen-mobile-menu-sections small {
+  color: var(--lumen-muted);
 }
 @media (max-width: 28rem) {
   .lumen-mobile-stage {

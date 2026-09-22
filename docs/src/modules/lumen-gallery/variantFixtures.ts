@@ -11,7 +11,6 @@ import type {
   LumenDataTableContent,
   LumenEditorContent,
   LumenKanbanContent,
-  LumenMobileContent,
   LumenPromptInputContent,
   LumenWizardContent,
 } from '@lumen/app-ui';
@@ -28,6 +27,7 @@ import { createFormsFixtures } from './formsFixtures';
 import { createIntegrationFixtures } from './integrationFixtures';
 import { createListFixtures } from './listFixtures';
 import { createMonitoringFixtures } from './monitoringFixtures';
+import { createMobileFixtures } from './mobileFixtures';
 import { createNavbarFixtures } from './navbarFixtures';
 import { createNotificationFixtures } from './notificationFixtures';
 import { createOnboardingFixtures } from './onboardingFixtures';
@@ -1891,7 +1891,9 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
       },
     } satisfies LumenCommandMenuContent,
     navbar: createNavbarFixtures(locale),
-    mobile: {
+    mobile: createMobileFixtures(locale),
+    /* legacy mobile fixture removed */
+    /* mobile: {
       activity: {
         labels: {
           brand: previewText(locale, 'mobile.activity.labels.brand'),
@@ -2119,7 +2121,7 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
         ],
         listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
       },
-    } satisfies LumenMobileContent,
+    } satisfies LumenMobileContent, */
     card: {
       member: {
         labels: {

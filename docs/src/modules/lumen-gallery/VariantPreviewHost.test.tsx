@@ -1864,6 +1864,65 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getByLabelText('Available times for Mon 28')).not.toBeNull();
   });
 
+  it('uses five distinct host-owned mobile compositions', async () => {
+    const entries = LUMEN_VARIANT_REGISTRY.filter((candidate) => candidate.category === 'mobile');
+    expect(entries).toHaveLength(5);
+    const expected = [
+      'Today at a glance',
+      'Quick actions',
+      'Explore',
+      'Quick navigation',
+      'Northwind mobile',
+    ];
+    entries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('mobile.activity');
+      expect(view).not.toContain('item-1');
+      expect(view).toContain(expected[index]);
+    });
+
+    let view = render(
+      <VariantPreviewHost entry={entries[0]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: /^Inbox/ }));
+    expect(screen.getAllByText('Inbox queue').length).toBeGreaterThan(0);
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[1]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Open quick actions' }));
+    expect(screen.getByRole('button', { name: 'Run Task' })).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[2]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Open search' }));
+    await view.user.type(
+      screen.getByRole('textbox', { name: 'Search projects, people, or docs' }),
+      'roadmap',
+    );
+    expect(screen.getByText('Q4 product roadmap')).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[3]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Expand navigation sheet' }));
+    expect(screen.getByText('New project')).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[4]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Open full-screen menu' }));
+    expect(screen.getByRole('dialog')).not.toBeNull();
+    expect(screen.getByText('Workspace')).not.toBeNull();
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',
