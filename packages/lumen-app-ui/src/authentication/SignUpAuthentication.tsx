@@ -1,4 +1,4 @@
-import { LumenInput } from '../forms';
+import { LumenCheckBoxControl, LumenInput } from '../forms';
 import { LumenButton } from '../primitives';
 import { useState } from 'react';
 import type { LumenAuthCompositionProps } from './primitives';
@@ -88,10 +88,9 @@ export function SignUpAuthentication({
           </div>
           <div className="hbar-app-ui-auth-check">
             <label>
-              <LumenInput
-                type="checkbox"
+              <LumenCheckBoxControl
                 checked={agreed}
-                onChange={() => setAgreed((current) => !current)}
+                onChange={(event) => setAgreed(event.currentTarget.checked)}
               />
               <span>{content.labels.agreementPrefix}</span>
             </label>

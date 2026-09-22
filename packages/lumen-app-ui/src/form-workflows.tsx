@@ -1,7 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import { LumenFormField, LumenInput, LumenSelect, LumenTextarea } from './forms';
+import {
+  LumenFormField,
+  LumenInput,
+  LumenSelect,
+  LumenTextarea,
+  LumenToggleControl,
+} from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './form-workflows.css';
 
@@ -914,15 +920,16 @@ function Hours(props: Omit<LumenFormsProps, 'content'> & { content: LumenFormsHo
             const active = enabled[day.id] ?? false;
             return (
               <div key={day.id}>
-                <LumenButton
-                  role="switch"
-                  variant="outlined"
-                  aria-checked={active}
+                <LumenToggleControl
                   aria-label={props.content.labels.toggle(day.label)}
-                  onClick={() => setEnabled((current) => ({ ...current, [day.id]: !active }))}
-                >
-                  <i />
-                </LumenButton>
+                  checked={active}
+                  onChange={(event) =>
+                    setEnabled((current) => ({
+                      ...current,
+                      [day.id]: event.currentTarget.checked,
+                    }))
+                  }
+                />
                 <strong>{day.label}</strong>
                 {active ? (
                   <>

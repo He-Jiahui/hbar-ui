@@ -180,27 +180,6 @@
   gap: 0.25rem;
 }
 
-.lumen-card-switch {
-  inline-size: 2.25rem;
-  min-inline-size: 2.25rem;
-  block-size: 1.25rem;
-  justify-content: flex-start;
-  padding: 0.125rem;
-  border-radius: 999rem;
-}
-
-.lumen-card-switch > i {
-  inline-size: 0.875rem;
-  block-size: 0.875rem;
-  border-radius: 999rem;
-  background: currentColor;
-  transition: translate 140ms ease;
-}
-
-.lumen-card-switch[aria-checked='true'] > i {
-  translate: 1rem 0;
-}
-
 .lumen-card-onboarding-grid {
   grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
 }

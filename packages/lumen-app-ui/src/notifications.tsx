@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { LumenToggleControl } from './forms';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
 import './notifications.css';
 
@@ -608,19 +609,16 @@ function Preferences(
                         const key = `${item.id}:${channel.id}`;
                         return (
                           <span role="cell" key={channel.id}>
-                            <LumenButton
-                              role="switch"
-                              variant="outlined"
+                            <LumenToggleControl
                               aria-label={props.content.labels.toggle(item.label, channel.label)}
-                              aria-checked={values[key] ?? false}
-                              onClick={() => {
-                                setValues((current) => ({ ...current, [key]: !current[key] }));
+                              checked={values[key] ?? false}
+                              onChange={(event) => {
+                                const next = event.currentTarget.checked;
+                                setValues((current) => ({ ...current, [key]: next }));
                                 setSaved(false);
                                 report(props.onAction, 'delivery', key);
                               }}
-                            >
-                              <i />
-                            </LumenButton>
+                            />
                           </span>
                         );
                       })}
@@ -639,18 +637,14 @@ function Preferences(
               {props.content.labels.quietDetail}
             </LumenText>
           </div>
-          <LumenButton
-            role="switch"
-            variant="outlined"
+          <LumenToggleControl
             aria-label={props.content.labels.quietToggle}
-            aria-checked={quiet}
-            onClick={() => {
-              setQuiet((value) => !value);
+            checked={quiet}
+            onChange={(event) => {
+              setQuiet(event.currentTarget.checked);
               setSaved(false);
             }}
-          >
-            <i />
-          </LumenButton>
+          />
           <div className="lumen-notifications-days" aria-label={props.content.labels.days}>
             {props.content.days.map((day) => (
               <LumenButton

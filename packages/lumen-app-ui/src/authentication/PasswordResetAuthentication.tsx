@@ -1,4 +1,4 @@
-import { LumenInput } from '../forms';
+import { LumenCheckBoxControl, LumenInput } from '../forms';
 import { Laptop, Smartphone } from './glyphs';
 import { useMemo, useState } from 'react';
 import type { LumenAuthCompositionProps } from './primitives';
@@ -82,10 +82,9 @@ export function PasswordResetAuthentication({
             helper={content.labels.confirmHelper}
           />
           <label className="hbar-app-ui-auth-check">
-            <LumenInput
-              type="checkbox"
+            <LumenCheckBoxControl
               checked={signOutOther}
-              onChange={() => setSignOutOther((current) => !current)}
+              onChange={(event) => setSignOutOther(event.currentTarget.checked)}
             />
             {content.labels.signOutOther}
           </label>

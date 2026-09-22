@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { LumenInput } from './forms';
+import { LumenCheckBoxControl, LumenInput } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './list.css';
 
@@ -711,15 +711,14 @@ function Assets(props: Omit<LumenListProps, 'content'> & { content: LumenListAss
         {assets.length ? (
           assets.map((asset) => (
             <label key={asset.id}>
-              <LumenInput
-                type="checkbox"
+              <LumenCheckBoxControl
                 aria-label={props.content.labels.select(asset.name)}
                 checked={selectedIds.includes(asset.id)}
-                onChange={() =>
+                onChange={(event) =>
                   setSelectedIds((current) =>
-                    current.includes(asset.id)
-                      ? current.filter((id) => id !== asset.id)
-                      : [...current, asset.id],
+                    event.currentTarget.checked
+                      ? [...current.filter((id) => id !== asset.id), asset.id]
+                      : current.filter((id) => id !== asset.id),
                   )
                 }
               />

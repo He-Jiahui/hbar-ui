@@ -707,22 +707,6 @@
   font-size: 0.8125rem;
 }
 
-.hbar-app-ui-billing-toggle-row input {
-  appearance: none;
-  inline-size: 2.25rem;
-  block-size: 1.25rem;
-  flex: 0 0 auto;
-  border: 0.0625rem solid var(--hbar-app-ui-billing-border-strong);
-  border-radius: 999rem;
-  background: var(--hbar-app-ui-billing-bg);
-  cursor: pointer;
-}
-
-.hbar-app-ui-billing-toggle-row input:checked {
-  border-color: var(--hbar-app-ui-billing-text);
-  background: var(--hbar-app-ui-billing-text);
-}
-
 .hbar-app-ui-billing-unsaved {
   display: flex;
   min-inline-size: 0;

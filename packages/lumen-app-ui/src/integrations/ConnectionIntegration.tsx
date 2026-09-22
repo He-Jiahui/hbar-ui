@@ -1,4 +1,4 @@
-import { LumenInput } from '../forms';
+import { LumenToggleControl } from '../forms';
 import { ArrowUpRight, RefreshCw, Unplug } from './glyphs';
 import { useMemo, useState } from 'react';
 import type { LumenIntegrationsCompositionProps } from './primitives';
@@ -110,12 +110,9 @@ export function ConnectionIntegration({
                       </strong>
                       <p>{scope.description}</p>
                     </div>
-                    <LumenInput
+                    <LumenToggleControl
                       className="hbar-app-ui-integration-switch"
-                      type="checkbox"
-                      role="switch"
                       aria-label={content.labels.toggleScope(scope.label)}
-                      aria-checked={scopeValues[scope.id] ?? scope.enabled}
                       checked={scopeValues[scope.id] ?? scope.enabled}
                       disabled={scope.required || !connected}
                       onChange={(event) => updateScope(scope.id, event.target.checked)}

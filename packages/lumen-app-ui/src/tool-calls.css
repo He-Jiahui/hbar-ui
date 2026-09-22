@@ -480,29 +480,6 @@
   grid-column: 1 / -1;
 }
 
-.hbar-app-ui-tool-calls-toggle {
-  inline-size: 2.25rem;
-  min-inline-size: 2.25rem;
-  padding: 0.1875rem;
-  border-radius: 999rem;
-}
-
-.hbar-app-ui-tool-calls-toggle > i {
-  inline-size: 0.875rem;
-  block-size: 0.875rem;
-  border-radius: 50%;
-  background: currentColor;
-  transition: translate 120ms ease;
-}
-
-.hbar-app-ui-tool-calls-toggle.is-enabled {
-  color: var(--lumen-success);
-}
-
-.hbar-app-ui-tool-calls-toggle.is-enabled > i {
-  translate: 0.875rem 0;
-}
-
 [data-lumen-shape='square'] .hbar-app-ui-tool-calls-trace-pane,
 [data-lumen-shape='square'] .hbar-app-ui-tool-calls-activity-pane,
 [data-lumen-shape='square'] .hbar-app-ui-tool-calls-diff > main,

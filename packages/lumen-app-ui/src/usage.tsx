@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { LumenDisclosure } from './disclosure';
-import { LumenInput, LumenSelect } from './forms';
+import { LumenInput, LumenSelect, LumenToggleControl } from './forms';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
 import './usage.css';
 
@@ -571,17 +571,13 @@ export function LumenUsageBudget(content: LumenUsageBudgetContent) {
             <LumenText as="span" variant="label">
               {content.hardStop.label}
             </LumenText>
-            <LumenButton
-              role="switch"
+            <LumenToggleControl
               size="s"
-              variant={content.hardStop.checked ? 'solid' : 'outlined'}
               aria-label={content.hardStop.label}
-              aria-checked={content.hardStop.checked}
+              checked={content.hardStop.checked}
               disabled={content.busy}
-              onClick={() => content.hardStop?.onChange(!content.hardStop.checked)}
-            >
-              <i aria-hidden="true" />
-            </LumenButton>
+              onChange={(event) => content.hardStop?.onChange(event.currentTarget.checked)}
+            />
           </div>
         ) : null}
         {content.error ? (

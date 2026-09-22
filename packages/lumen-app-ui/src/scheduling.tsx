@@ -1,7 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import { LumenFormField, LumenInput, LumenSelect, LumenTextarea } from './forms';
+import {
+  LumenFormField,
+  LumenInput,
+  LumenSelect,
+  LumenTextarea,
+  LumenToggleControl,
+} from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './scheduling.css';
 
@@ -731,16 +737,17 @@ function Availability(
             const active = enabled[day.id] ?? day.initiallyEnabled;
             return (
               <article key={day.id}>
-                <LumenButton
+                <LumenToggleControl
                   className="lumen-scheduling-switch"
-                  role="switch"
-                  aria-checked={active}
                   aria-label={props.content.labels.enableDay(day.label)}
-                  variant={active ? 'solid' : 'outlined'}
-                  onClick={() => setEnabled((current) => ({ ...current, [day.id]: !active }))}
-                >
-                  <i aria-hidden="true" />
-                </LumenButton>
+                  checked={active}
+                  onChange={(event) =>
+                    setEnabled((current) => ({
+                      ...current,
+                      [day.id]: event.currentTarget.checked,
+                    }))
+                  }
+                />
                 <LumenText as="strong" variant="label">
                   {day.label}
                 </LumenText>

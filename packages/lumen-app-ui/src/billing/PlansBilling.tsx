@@ -1,4 +1,4 @@
-import { LumenInput } from '../forms';
+import { LumenToggleControl } from '../forms';
 import { Bolt, Database, Layers3, Pencil, Plus, Shield, Sparkles, Users } from './glyphs';
 import { useMemo, useState } from 'react';
 import type { LumenBillingCompositionProps } from './primitives';
@@ -192,11 +192,8 @@ export function PlansBilling({
                     return (
                       <label className="hbar-app-ui-billing-toggle-row" key={toggle.id}>
                         <span>{toggle.label}</span>
-                        <LumenInput
-                          type="checkbox"
-                          role="switch"
+                        <LumenToggleControl
                           aria-label={content.labels.togglePlan(plan.name, toggle.label)}
-                          aria-checked={checked}
                           checked={checked}
                           onChange={(event) =>
                             updateToggle(plan.id, toggle.id, event.target.checked)

@@ -1,4 +1,4 @@
-import { LumenInput } from '../forms';
+import { LumenCheckBoxControl, LumenInput } from '../forms';
 import { LumenButton } from '../primitives';
 import { useState } from 'react';
 import type { LumenAuthCompositionProps } from './primitives';
@@ -70,10 +70,9 @@ export function SignInAuthentication({
             </div>
           </div>
           <label className="hbar-app-ui-auth-check">
-            <LumenInput
-              type="checkbox"
+            <LumenCheckBoxControl
               checked={remember}
-              onChange={() => setRemember((current) => !current)}
+              onChange={(event) => setRemember(event.currentTarget.checked)}
             />
             <span>{content.labels.rememberLabel}</span>
           </label>

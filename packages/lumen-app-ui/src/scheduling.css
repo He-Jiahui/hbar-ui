@@ -295,27 +295,6 @@
   grid-column: 3 / -1;
 }
 
-.lumen-scheduling-switch {
-  inline-size: 2.25rem;
-  min-inline-size: 2.25rem;
-  block-size: 1.25rem;
-  padding: 0.125rem;
-  border-radius: 999rem;
-  justify-content: flex-start;
-}
-
-.lumen-scheduling-switch > i {
-  inline-size: 0.875rem;
-  block-size: 0.875rem;
-  border-radius: 999rem;
-  background: currentColor;
-  transition: translate 140ms ease;
-}
-
-.lumen-scheduling-switch[aria-checked='true'] > i {
-  translate: 1rem 0;
-}
-
 .lumen-scheduling-tabs {
   border-block-end: 0.0625rem solid var(--lumen-edge);
 }

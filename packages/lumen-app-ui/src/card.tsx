@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { LumenToggleControl } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './card.css';
 
@@ -435,23 +436,20 @@ function Integrations(
                     {connected ? integration.connectedDetail : integration.disconnectedDetail}
                   </LumenText>
                 </div>
-                <LumenButton
+                <LumenToggleControl
                   className="lumen-card-switch"
-                  role="switch"
-                  variant={connected ? 'solid' : 'outlined'}
-                  aria-checked={connected}
                   aria-label={props.content.labels.toggle(integration.name)}
-                  onClick={() => {
+                  checked={connected}
+                  onChange={(event) => {
+                    const next = event.currentTarget.checked;
                     setConnectedIds((current) =>
-                      connected
-                        ? current.filter((id) => id !== integration.id)
-                        : [...current, integration.id],
+                      next
+                        ? [...current.filter((id) => id !== integration.id), integration.id]
+                        : current.filter((id) => id !== integration.id),
                     );
-                    report(props.onAction, connected ? 'disconnect' : 'connect', integration.id);
+                    report(props.onAction, next ? 'connect' : 'disconnect', integration.id);
                   }}
-                >
-                  <i aria-hidden="true" />
-                </LumenButton>
+                />
               </article>
             );
           })

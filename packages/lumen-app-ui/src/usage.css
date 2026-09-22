@@ -211,14 +211,6 @@
   flex: 1 1 auto;
 }
 
-.lumen-usage-toggle-row > button i {
-  display: block;
-  inline-size: 0.75rem;
-  block-size: 0.75rem;
-  background: currentcolor;
-  border-radius: 50%;
-}
-
 .lumen-usage-overage > * {
   flex: 1 1 14rem;
 }

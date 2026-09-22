@@ -207,25 +207,6 @@
 .lumen-notifications-preferences small {
   color: var(--lumen-muted);
 }
-.lumen-notifications [role='switch'] {
-  inline-size: 2.25rem;
-  padding: 0.2rem;
-  border-radius: 999rem;
-  justify-content: flex-start;
-}
-.lumen-notifications [role='switch'] > i {
-  inline-size: 0.75rem;
-  block-size: 0.75rem;
-  border-radius: 999rem;
-  background: currentColor;
-}
-.lumen-notifications [role='switch'][aria-checked='true'] {
-  color: var(--lumen-accent);
-  background: color-mix(in srgb, var(--lumen-accent) 16%, transparent);
-}
-.lumen-notifications [role='switch'][aria-checked='true'] > i {
-  transform: translateX(0.8rem);
-}
 .lumen-notifications-quiet {
   display: grid;
   min-inline-size: 0;

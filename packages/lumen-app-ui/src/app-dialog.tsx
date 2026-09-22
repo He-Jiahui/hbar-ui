@@ -1,7 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import { LumenFormField, LumenInput, LumenSelect, LumenTextarea } from './forms';
+import {
+  LumenFormField,
+  LumenInput,
+  LumenSelect,
+  LumenTextarea,
+  LumenToggleControl,
+} from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './app-dialog.css';
 
@@ -747,18 +753,15 @@ function Alert(
                 <strong>{props.content.labels.enabled}</strong>
                 <small>{props.content.labels.enabledHint}</small>
               </span>
-              <LumenButton
-                role="switch"
-                variant="outlined"
+              <LumenToggleControl
                 aria-label={props.content.labels.toggle}
-                aria-checked={enabled}
-                onClick={() => {
-                  setEnabled((value) => !value);
-                  report(props.onAction, 'toggle', enabled ? 'disabled' : 'enabled');
+                checked={enabled}
+                onChange={(event) => {
+                  const next = event.currentTarget.checked;
+                  setEnabled(next);
+                  report(props.onAction, 'toggle', next ? 'enabled' : 'disabled');
                 }}
-              >
-                <i />
-              </LumenButton>
+              />
             </label>
           </Panel>
         )}

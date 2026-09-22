@@ -1,7 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import { LumenInput, LumenSelect, LumenTextarea } from './forms';
+import {
+  LumenCheckBoxControl,
+  LumenInput,
+  LumenSelect,
+  LumenTextarea,
+  LumenToggleControl,
+} from './forms';
 import { LumenButton, LumenIconButton, LumenStatus } from './primitives';
 import './settings-form.css';
 
@@ -757,19 +763,19 @@ export function LumenPreferencesSettings(content: LumenSettingsPreferencesConten
                   {item.changed ? <small>{labels.changed}</small> : null}
                   <small>{item.description}</small>
                 </div>
-                <LumenButton
-                  variant="outlined"
-                  role="switch"
+                <LumenToggleControl
                   aria-label={item.label}
-                  aria-checked={item.enabled}
+                  checked={item.enabled}
                   disabled={busy}
-                  className={`hbar-app-ui-settings-toggle ${item.enabled ? 'is-on' : ''}`}
-                  onClick={() =>
-                    content.onChange({ type: 'toggle', id: item.id, enabled: !item.enabled })
+                  className="hbar-app-ui-settings-toggle"
+                  onChange={(event) =>
+                    content.onChange({
+                      type: 'toggle',
+                      id: item.id,
+                      enabled: event.currentTarget.checked,
+                    })
                   }
-                >
-                  <i aria-hidden="true" />
-                </LumenButton>
+                />
               </div>
             ))}
             {content.checkbox ? (
@@ -777,8 +783,7 @@ export function LumenPreferencesSettings(content: LumenSettingsPreferencesConten
                 <label className="hbar-app-ui-settings-toggle-copy">
                   <strong>{content.checkbox.label}</strong>
                   <small>{content.checkbox.description}</small>
-                  <LumenInput
-                    type="checkbox"
+                  <LumenCheckBoxControl
                     checked={content.checkbox.enabled}
                     disabled={busy}
                     aria-label={content.checkbox.label}
@@ -1065,16 +1070,12 @@ function ApiKeysSettings(
                   </div>
                   <small>{integration.description}</small>
                 </div>
-                <LumenButton
-                  variant="outlined"
-                  role="switch"
-                  aria-checked={integration.enabled}
+                <LumenToggleControl
+                  checked={integration.enabled}
                   aria-label={content.labels.toggle(integration.name)}
-                  className={`hbar-app-ui-settings-toggle ${integration.enabled ? 'is-on' : ''}`}
-                  onClick={() => toggleIntegration(integration.id)}
-                >
-                  <i aria-hidden="true" />
-                </LumenButton>
+                  className="hbar-app-ui-settings-toggle"
+                  onChange={() => toggleIntegration(integration.id)}
+                />
               </article>
             ))}
           </div>

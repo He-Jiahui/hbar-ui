@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { LumenToggleControl } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './tool-calls.css';
 
@@ -712,20 +713,16 @@ function ToolPermissions(
                       </span>
                     ) : null}
                     {item.kind === 'toggle' && enabled !== undefined && item.toggleLabel ? (
-                      <LumenButton
-                        variant="outlined"
-                        aria-checked={enabled}
+                      <LumenToggleControl
+                        checked={enabled}
                         aria-label={item.toggleLabel}
-                        className={`hbar-app-ui-tool-calls-toggle${enabled ? ' is-enabled' : ''}`}
-                        onClick={() => {
-                          const next = !enabled;
+                        className="hbar-app-ui-tool-calls-toggle"
+                        onChange={(event) => {
+                          const next = event.currentTarget.checked;
                           setOverrides((current) => new Map(current).set(item.id, next));
                           report(onAction, 'toggle-permission', `${item.id}:${next}`);
                         }}
-                        role="switch"
-                      >
-                        <i aria-hidden="true" />
-                      </LumenButton>
+                      />
                     ) : null}
                   </li>
                 );
