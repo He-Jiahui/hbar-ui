@@ -197,12 +197,14 @@ export interface LumenCardBalanceContent {
 export interface LumenCardInvoiceLine {
   readonly id: string;
   readonly label: string;
+  readonly detail?: string | undefined;
   readonly value: string;
+  readonly section?: 'items' | 'summary' | undefined;
   readonly emphasized?: boolean | undefined;
 }
 
 export interface LumenCardInvoiceContent {
-  readonly labels: { readonly download: string };
+  readonly labels: { readonly eyebrow: string; readonly download: string };
   readonly invoiceId: string;
   readonly meta: string;
   readonly status: string;
@@ -845,36 +847,57 @@ function Balance(props: Omit<LumenCardProps, 'content'> & { content: LumenCardBa
 
 function Invoice(props: Omit<LumenCardProps, 'content'> & { content: LumenCardInvoiceContent }) {
   const lines = uniqueLumenCardItems(props.content.lines);
+  const itemLines = lines.filter((line) => line.section !== 'summary');
+  const summaryLines = lines.filter((line) => line.section === 'summary');
   return (
     <Root {...props}>
       <article className="lumen-card-panel lumen-card-invoice">
-        <header>
-          <Glyph name="file" />
-          <div>
-            <LumenText as="strong" variant="heading">
+        <div className="lumen-card-invoice-header">
+          <LumenText as="p" variant="supporting" tone="muted">
+            {props.content.labels.eyebrow}
+          </LumenText>
+          <div className="lumen-card-invoice-heading">
+            <LumenText as="h2" variant="heading">
               {props.content.invoiceId}
             </LumenText>
-            <LumenText as="small" tone="muted">
-              {props.content.meta}
-            </LumenText>
+            <LumenStatus value={props.content.status} tone="success" />
           </div>
-          <LumenStatus value={props.content.status} tone="success" />
-        </header>
-        <dl data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}>
-          {lines.map((line) => (
-            <div key={line.id} data-emphasized={line.emphasized || undefined}>
-              <dt>{line.label}</dt>
-              <dd>{line.value}</dd>
-            </div>
-          ))}
-        </dl>
-        <LumenButton
-          variant="outlined"
-          onClick={() => report(props.onAction, 'download', props.content.invoiceId)}
-        >
-          <Glyph name="download" />
-          {props.content.labels.download}
-        </LumenButton>
+          <LumenText as="p" tone="muted" variant="supporting">
+            {props.content.meta}
+          </LumenText>
+        </div>
+        <div className="lumen-card-invoice-items">
+          <ul data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}>
+            {itemLines.map((line) => (
+              <li key={line.id} data-emphasized={line.emphasized || undefined}>
+                <span>
+                  <strong>{line.label}</strong>
+                  {line.detail ? <small>{line.detail}</small> : null}
+                </span>
+                <span>{line.value}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        {summaryLines.length > 0 ? (
+          <dl className="lumen-card-invoice-summary">
+            {summaryLines.map((line) => (
+              <div key={line.id} data-emphasized={line.emphasized || undefined}>
+                <dt>{line.label}</dt>
+                <dd>{line.value}</dd>
+              </div>
+            ))}
+          </dl>
+        ) : null}
+        <div className="lumen-card-invoice-actions">
+          <LumenButton
+            variant="outlined"
+            onClick={() => report(props.onAction, 'download', props.content.invoiceId)}
+          >
+            <Glyph name="download" />
+            {props.content.labels.download}
+          </LumenButton>
+        </div>
       </article>
     </Root>
   );
