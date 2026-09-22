@@ -1,3 +1,8 @@
+'use client';
+
+import * as React from 'react';
+import { LumenButton } from '../primitives';
+import { LumenPopover } from '../ui-controls';
 import { ArrowLeft, Bookmark, Copy, List, Share2 } from './glyphs';
 import type { LumenNavbarArticleContent } from './content';
 import { uniqueLumenNavbarItems } from './content';
@@ -18,6 +23,7 @@ export default function ArticleNavbar({
   readonly content: LumenNavbarArticleContent;
 }) {
   const sections = uniqueLumenNavbarItems(content.sections);
+  const [contentsOpen, setContentsOpen] = React.useState(false);
   return (
     <NavbarFrame spec={spec} className="hbar-app-ui-navbar-article">
       <header>
@@ -34,11 +40,38 @@ export default function ArticleNavbar({
         <section>
           <NavbarButton
             className="hbar-app-ui-navbar-article-contents"
-            onClick={() => reportNavbarAction(onAction, spec, 'contents')}
+            aria-expanded={contentsOpen}
+            onClick={() => {
+              setContentsOpen((value) => !value);
+              reportNavbarAction(onAction, spec, 'contents');
+            }}
           >
             <NavbarGlyph icon={List} tier="sm" />
             <span>{content.labels.contents}</span>
           </NavbarButton>
+          <LumenPopover
+            open={contentsOpen}
+            label={content.labels.contents}
+            className="hbar-app-ui-navbar-article-contents-popover"
+          >
+            <nav aria-label={content.labels.contents}>
+              {sections.map((section) => (
+                <LumenButton
+                  variant="text"
+                  key={section.id}
+                  onClick={() => {
+                    reportNavbarAction(onAction, spec, 'open', section.id);
+                    setContentsOpen(false);
+                  }}
+                >
+                  {section.title}
+                </LumenButton>
+              ))}
+            </nav>
+            <LumenButton variant="text" onClick={() => setContentsOpen(false)}>
+              {content.labels.closeContents}
+            </LumenButton>
+          </LumenPopover>
           <NavbarIconOnly
             label={content.labels.bookmark}
             icon={Bookmark}

@@ -224,4 +224,49 @@ describe('Lumen formal variant fixtures', () => {
     );
     expect(view).toContain('为什么安静的界面更适合复杂工作');
   });
+
+  it('opens the distinct marketing, mobile, portfolio, and article navigation surfaces', async () => {
+    const entry = (variant: number) =>
+      LUMEN_VARIANT_REGISTRY.find(
+        (candidate) => candidate.category === 'navbar' && candidate.variant === variant,
+      )!;
+
+    let view = render(
+      <VariantPreviewHost entry={entry(4)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Product' }));
+    expect(screen.getByRole('region', { name: 'Product' })).not.toBeNull();
+    expect(screen.getByRole('button', { name: /Agent workbench/ })).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(5)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Platform' }));
+    expect(screen.getByRole('region', { name: 'Platform' })).not.toBeNull();
+    expect(screen.getByRole('button', { name: /Roadmaps/ })).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(12)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Open floating navigation' }));
+    expect(screen.getByRole('dialog', { name: 'Navigation' })).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(13)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Open full-screen menu' }));
+    const portfolioDialog = screen.getByRole('dialog', { name: 'Studio navigation' });
+    expect(portfolioDialog.textContent).toContain('Atlas Research');
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(14)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Table of contents' }));
+    expect(screen.getByRole('region', { name: 'Table of contents' })).not.toBeNull();
+    expect(screen.getByRole('button', { name: 'Preserve the signal first' })).not.toBeNull();
+  });
 });

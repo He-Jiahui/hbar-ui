@@ -122,8 +122,24 @@ export interface LumenNavbarLandingContent {
     readonly signIn: string;
     readonly primaryAction: string;
     readonly menu: string;
+    readonly menuTitle: string;
+    readonly closeMenu: string;
+    readonly footerAction: string;
     readonly eyebrow?: string | undefined;
   };
+  readonly menuPanels: readonly {
+    readonly id: string;
+    readonly trigger: string;
+    readonly groups: readonly {
+      readonly id: string;
+      readonly title: string;
+      readonly links: readonly {
+        readonly id: string;
+        readonly label: string;
+        readonly detail: string;
+      }[];
+    }[];
+  }[];
   readonly title: string;
   readonly description: string;
   readonly stats?: readonly LumenNavbarDeploymentStat[] | undefined;
@@ -265,7 +281,13 @@ export interface LumenNavbarPortfolioContent {
   readonly brand: string;
   readonly leftNav: readonly string[];
   readonly rightNav: readonly string[];
-  readonly labels: { readonly menu: string; readonly eyebrow: string };
+  readonly labels: {
+    readonly menu: string;
+    readonly closeMenu: string;
+    readonly overlayTitle: string;
+    readonly overlayDescription: string;
+    readonly eyebrow: string;
+  };
   readonly title: string;
   readonly projects: readonly {
     readonly id: string;
@@ -282,6 +304,7 @@ export interface LumenNavbarArticleContent {
   readonly labels: {
     readonly back: string;
     readonly contents: string;
+    readonly closeContents: string;
     readonly bookmark: string;
     readonly copyLink: string;
     readonly share: string;

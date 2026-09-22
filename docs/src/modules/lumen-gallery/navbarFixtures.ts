@@ -133,8 +133,95 @@ export function createNavbarFixtures(locale: NavbarFixtureLocale): LumenNavbarCo
         signIn: t('登录', 'Sign in'),
         primaryAction: t('免费开始', 'Start for free'),
         menu: t('打开导航菜单', 'Open navigation menu'),
+        menuTitle: t('移动导航', 'Mobile navigation'),
+        closeMenu: t('关闭导航', 'Close navigation'),
+        footerAction: t('浏览全部产品能力', 'Explore all product features'),
         eyebrow: t('面向专注团队的工作台', 'A workbench for focused teams'),
       },
+      menuPanels: [
+        {
+          id: 'product',
+          trigger: t('产品', 'Product'),
+          groups: [
+            {
+              id: 'workspace',
+              title: t('工作空间', 'Workspace'),
+              links: [
+                {
+                  id: 'agent-workbench',
+                  label: t('代理工作台', 'Agent workbench'),
+                  detail: t('查看计划、工具与审批', 'Review plans, tools, and approvals'),
+                },
+                {
+                  id: 'files-decisions',
+                  label: t('文件与决策', 'Files and decisions'),
+                  detail: t('让上下文与产出保持连接', 'Keep context connected to output'),
+                },
+              ],
+            },
+            {
+              id: 'insights',
+              title: t('洞察', 'Insights'),
+              links: [
+                {
+                  id: 'analytics',
+                  label: t('分析', 'Analytics'),
+                  detail: t('从信号到决策', 'Move from signal to decision'),
+                },
+                {
+                  id: 'usage',
+                  label: t('用量与预算', 'Usage and budgets'),
+                  detail: t('控制模型成本和限额', 'Control model cost and limits'),
+                },
+              ],
+            },
+          ],
+        },
+        {
+          id: 'solutions',
+          trigger: t('解决方案', 'Solutions'),
+          groups: [
+            {
+              id: 'teams',
+              title: t('按团队', 'By team'),
+              links: [
+                {
+                  id: 'engineering',
+                  label: t('工程', 'Engineering'),
+                  detail: t('规划并验证复杂变更', 'Plan and verify complex changes'),
+                },
+                {
+                  id: 'product',
+                  label: t('产品', 'Product'),
+                  detail: t('统一研究、范围与发布', 'Unify research, scope, and launch'),
+                },
+              ],
+            },
+          ],
+        },
+        {
+          id: 'resources',
+          trigger: t('资源', 'Resources'),
+          groups: [
+            {
+              id: 'learn',
+              title: t('学习', 'Learn'),
+              links: [
+                {
+                  id: 'docs',
+                  label: t('文档', 'Documentation'),
+                  detail: t('从基础组件开始', 'Start with the foundations'),
+                },
+                {
+                  id: 'stories',
+                  label: t('客户案例', 'Customer stories'),
+                  detail: t('了解团队如何交付', 'See how teams ship'),
+                },
+              ],
+            },
+          ],
+        },
+      ],
       title: t('构建更安静的软件体验', 'Build calmer software experiences'),
       description: t(
         '统一代理、文件、指标和决策，让团队保持上下文而不被界面噪声打断。',
@@ -161,8 +248,89 @@ export function createNavbarFixtures(locale: NavbarFixtureLocale): LumenNavbarCo
         signIn: t('客户登录', 'Customer login'),
         primaryAction: t('预约演示', 'Book a demo'),
         menu: t('浏览全部导航', 'Browse full navigation'),
+        menuTitle: t('全部导航', 'Full navigation'),
+        closeMenu: t('关闭导航', 'Close navigation'),
+        footerAction: t('探索完整平台', 'Explore the full platform'),
         eyebrow: t('面向产品组织的操作系统', 'The operating system for product organizations'),
       },
+      menuPanels: [
+        {
+          id: 'platform',
+          trigger: t('平台', 'Platform'),
+          groups: [
+            {
+              id: 'plan',
+              title: t('规划', 'Plan'),
+              links: [
+                {
+                  id: 'roadmaps',
+                  label: t('路线图', 'Roadmaps'),
+                  detail: t('连接战略与范围', 'Connect strategy to scope'),
+                },
+                {
+                  id: 'briefs',
+                  label: t('产品简报', 'Product briefs'),
+                  detail: t('保留决策上下文', 'Preserve decision context'),
+                },
+              ],
+            },
+            {
+              id: 'ship',
+              title: t('交付', 'Ship'),
+              links: [
+                {
+                  id: 'projects',
+                  label: t('项目', 'Projects'),
+                  detail: t('协调跨职能工作', 'Coordinate cross-functional work'),
+                },
+                {
+                  id: 'releases',
+                  label: t('发布', 'Releases'),
+                  detail: t('从候选版本到生产环境', 'Move from candidate to production'),
+                },
+              ],
+            },
+            {
+              id: 'learn',
+              title: t('学习', 'Learn'),
+              links: [
+                {
+                  id: 'insights',
+                  label: t('洞察', 'Insights'),
+                  detail: t('汇总定量与定性信号', 'Combine quantitative and qualitative signals'),
+                },
+                {
+                  id: 'experiments',
+                  label: t('实验', 'Experiments'),
+                  detail: t('验证假设并记录结果', 'Validate hypotheses and record outcomes'),
+                },
+              ],
+            },
+          ],
+        },
+        {
+          id: 'customers',
+          trigger: t('客户', 'Customers'),
+          groups: [
+            {
+              id: 'segments',
+              title: t('客户规模', 'Customer scale'),
+              links: [
+                {
+                  id: 'startup',
+                  label: t('初创团队', 'Startups'),
+                  detail: t('用更少流程快速交付', 'Ship quickly with less process'),
+                },
+                {
+                  id: 'enterprise',
+                  label: t('企业', 'Enterprise'),
+                  detail: t('在治理下保持速度', 'Keep speed with governance'),
+                },
+              ],
+            },
+          ],
+        },
+      ],
       title: t('把计划、交付与洞察放在一个空间', 'Plan, ship, and learn in one connected space'),
       description: t(
         '按产品、工程和市场分组的 Mega Menu 保留全局上下文，并把核心行动放在页脚。',
@@ -379,8 +547,12 @@ export function createNavbarFixtures(locale: NavbarFixtureLocale): LumenNavbarCo
         signIn: t('登录', 'Sign in'),
         primaryAction: t('加入候补名单', 'Join the waitlist'),
         menu: t('打开浮动导航', 'Open floating navigation'),
+        menuTitle: t('导航', 'Navigation'),
+        closeMenu: t('关闭导航', 'Close navigation'),
+        footerAction: t('加入候补名单', 'Join the waitlist'),
         eyebrow: t('设计不会争夺你的注意力', 'Design that does not compete for attention'),
       },
+      menuPanels: [],
       title: t('专注于工作，而不是工具', 'Focus on the work, not the tool'),
       description: t(
         '半透明导航随滚动获得层次，同时保持内容与行动清晰可读。',
@@ -399,6 +571,12 @@ export function createNavbarFixtures(locale: NavbarFixtureLocale): LumenNavbarCo
       rightNav: [t('日志', 'Journal'), t('联系', 'Contact')],
       labels: {
         menu: t('打开全屏菜单', 'Open full-screen menu'),
+        closeMenu: t('关闭全屏菜单', 'Close full-screen menu'),
+        overlayTitle: t('工作室导航', 'Studio navigation'),
+        overlayDescription: t(
+          '浏览工作、工作室日志和联系方式。',
+          'Browse work, studio notes, and ways to get in touch.',
+        ),
         eyebrow: t('独立数字产品工作室', 'Independent digital product studio'),
       },
       title: t('为复杂产品找到清晰的形状', 'Giving complex products a clear shape'),
@@ -436,6 +614,7 @@ export function createNavbarFixtures(locale: NavbarFixtureLocale): LumenNavbarCo
       labels: {
         back: t('返回期刊', 'Back to journal'),
         contents: t('文章目录', 'Table of contents'),
+        closeContents: t('关闭文章目录', 'Close table of contents'),
         bookmark: t('收藏文章', 'Bookmark article'),
         copyLink: t('复制链接', 'Copy link'),
         share: t('分享', 'Share'),
