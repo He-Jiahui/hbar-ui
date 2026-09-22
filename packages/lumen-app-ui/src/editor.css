@@ -1,10 +1,18 @@
+.lumen-editor-root-surface {
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: hidden;
+}
+
 .lumen-editor {
   display: flex;
   min-inline-size: 0;
   min-block-size: 0;
   flex: 1 1 auto;
   overflow: hidden;
-  background: var(--lumen-reading);
+  background: transparent;
   color: var(--lumen-ink);
 }
 .lumen-editor * {

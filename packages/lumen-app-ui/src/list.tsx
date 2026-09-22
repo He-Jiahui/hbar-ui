@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { LumenCheckBoxControl, LumenInput } from './forms';
+import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './list.css';
 
@@ -398,20 +399,23 @@ function Root({
   className,
   children,
 }: Omit<LumenListProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
+  const contentClassName = [
+    'lumen-list',
+    `hbar-app-ui-list-variant-${variant}`,
+    density ? `hbar-app-ui-density-${density}` : '',
+    surface ? `hbar-app-ui-surface-${surface}` : '',
+    state ? `hbar-app-ui-state-${state}` : '',
+    visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-list',
-        'hbar-app-ui-variant',
-        `hbar-app-ui-list-variant-${variant}`,
-        density ? `hbar-app-ui-density-${density}` : '',
-        surface ? `hbar-app-ui-surface-${surface}` : '',
-        state ? `hbar-app-ui-state-${state}` : '',
-        visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-list-surface"
+      contentClassName={contentClassName}
       data-lumen-component="list"
       data-lumen-variant={variant}
       data-hbar-app-ui-component={variantId}
@@ -421,7 +425,7 @@ function Root({
       data-hbar-app-ui-visual={visualMode}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 

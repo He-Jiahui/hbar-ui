@@ -1,3 +1,11 @@
+.lumen-card-family-surface {
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: hidden;
+}
+
 .lumen-card-family {
   --lumen-card-icon-xs: 0.75rem;
   --lumen-card-icon-sm: 0.875rem;

@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { LumenInput, LumenTextarea } from './forms';
+import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus } from './primitives';
 import './editor.css';
 
@@ -263,27 +264,30 @@ function Root({
   className,
   children,
 }: Omit<LumenEditorProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
+  const contentClassName = [
+    'lumen-editor',
+    'hbar-app-ui-editor-surface',
+    `hbar-app-ui-editor-variant-${variant}`,
+    density ? `hbar-app-ui-density-${density}` : '',
+    surface ? `hbar-app-ui-surface-${surface}` : '',
+    state ? `hbar-app-ui-state-${state}` : '',
+    visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-editor',
-        'hbar-app-ui-variant',
-        'hbar-app-ui-editor-surface',
-        `hbar-app-ui-editor-variant-${variant}`,
-        density ? `hbar-app-ui-density-${density}` : '',
-        surface ? `hbar-app-ui-surface-${surface}` : '',
-        state ? `hbar-app-ui-state-${state}` : '',
-        visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-editor-root-surface"
+      contentClassName={contentClassName}
       data-lumen-component="editor"
       data-lumen-variant={variant}
       data-hbar-app-ui-component={variantId}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 
