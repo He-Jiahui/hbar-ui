@@ -235,7 +235,6 @@ export default function createLumenTheme(
         },
       },
       MuiSwitch: {
-        defaultProps: { size: 'small' },
         styleOverrides: {
           root: { overflow: 'visible' },
           switchBase: {
