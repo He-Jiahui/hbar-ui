@@ -1,13 +1,21 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
+import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
 
-const root = process.cwd();
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const sourcePath = path.resolve(root, 'packages/lumen-app-ui/src/source-catalog.json');
 const defaultOutput = path.resolve(root, 'tmp/lumen-app-ui-visual-audit');
+const recordFile = path.resolve(
+  root,
+  process.env.LUMEN_AUDIT_RECORD ?? 'docs/src/modules/lumen-gallery/lumen-visual-audit-record.json',
+);
 const baseUrl = process.env.LUMEN_PREVIEW_URL ?? 'http://127.0.0.1:3020/experiments/lumen-app-ui/';
-const outputDir = path.resolve(process.env.LUMEN_VISUAL_AUDIT_DIR ?? defaultOutput);
+const outputDir = path.resolve(
+  root,
+  process.env.LUMEN_VISUAL_AUDIT_DIR ?? path.relative(root, defaultOutput),
+);
 const workerCount = Math.max(1, Number.parseInt(process.env.LUMEN_AUDIT_WORKERS ?? '4', 10) || 4);
 const limit = Number.parseInt(process.env.LUMEN_AUDIT_LIMIT ?? '', 10) || Number.POSITIVE_INFINITY;
 const selectedIds = new Set(
@@ -209,6 +217,68 @@ const manifest = {
   results: completedResults,
 };
 await fs.writeFile(path.join(outputDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+
+if (
+  selectedIds.size === 0 &&
+  variants.length === sourceVariants.length &&
+  completedResults.length === tasks.length
+) {
+  const byVariant = new Map();
+  for (const result of completedResults) {
+    const entry = byVariant.get(result.id) ?? {
+      id: result.id,
+      category: result.category,
+      variant: variants.find((item) => item.id === result.id)?.variant,
+      combinations: {},
+      issues: [],
+    };
+    const key = `${result.mode}/${result.viewport}`;
+    const failedCombination =
+      Boolean(result.error) ||
+      result.consoleErrors.length > 0 ||
+      result.pageErrors.length > 0 ||
+      result.horizontalOverflow;
+    entry.combinations[key] = failedCombination ? 'failed' : 'passed';
+    if (failedCombination) {
+      entry.issues.push({
+        combination: key,
+        error: result.error,
+        consoleErrors: result.consoleErrors.length,
+        pageErrors: result.pageErrors.length,
+        horizontalOverflow: result.horizontalOverflow,
+      });
+    }
+    byVariant.set(result.id, entry);
+  }
+  const record = {
+    schemaVersion: 1,
+    generatedAt: finishedAt,
+    baseUrl,
+    viewports,
+    modes,
+    summary: {
+      variants: variants.length,
+      combinations: tasks.length,
+      passed: completedResults.filter(
+        (result) =>
+          !result.error &&
+          result.consoleErrors.length === 0 &&
+          result.pageErrors.length === 0 &&
+          !result.horizontalOverflow,
+      ).length,
+      failed: completedResults.filter(
+        (result) =>
+          result.error ||
+          result.consoleErrors.length > 0 ||
+          result.pageErrors.length > 0 ||
+          result.horizontalOverflow,
+      ).length,
+    },
+    variants: [...byVariant.values()],
+  };
+  await fs.writeFile(recordFile, `${JSON.stringify(record, null, 2)}\n`);
+  console.info(`Committed visual audit record: ${recordFile}`);
+}
 
 console.info(`Visual audit manifest: ${path.join(outputDir, 'manifest.json')}`);
 console.info(
