@@ -1923,6 +1923,61 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getByText('Workspace')).not.toBeNull();
   });
 
+  it('uses eleven distinct host-owned card scenarios and preserves card actions', async () => {
+    const entries = LUMEN_VARIANT_REGISTRY.filter((candidate) => candidate.category === 'card');
+    expect(entries).toHaveLength(11);
+    const expected = [
+      'Liam Chen',
+      'Slack',
+      'Northwind activation checklist',
+      'Northstar research share-out',
+      'Choose a workspace plan',
+      'Team health',
+      'Faster workspace search',
+      'Research assets',
+      'Maya Chen',
+      '$18,420.00',
+      'INV-2026-0918',
+    ];
+    entries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('card.member');
+      expect(view).not.toContain('item-1');
+      expect(view).toContain(expected[index]);
+    });
+
+    let view = render(
+      <VariantPreviewHost entry={entries[0]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Connect' }));
+    expect(screen.getByRole('button', { name: 'Disconnect' })).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[1]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    const github = screen.getByRole('switch', { name: 'Toggle GitHub' });
+    expect(github.getAttribute('aria-checked')).toBe('false');
+    await view.user.click(github);
+    expect(github.getAttribute('aria-checked')).toBe('true');
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[6]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Bookmark update' }));
+    expect(screen.getByRole('button', { name: 'Remove bookmark' })).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[7]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: /journey-flows\.fig/ }));
+    expect(screen.getByLabelText('File preview').textContent).toContain('journey-flows.fig');
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',

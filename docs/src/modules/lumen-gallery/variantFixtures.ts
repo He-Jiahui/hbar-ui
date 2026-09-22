@@ -5,7 +5,6 @@ import type {
   LumenAppDialogContent,
   LumenAppShellContent,
   LumenAppSidebarContent,
-  LumenCardContent,
   LumenCommandMenuContent,
   LumenCommentsContent,
   LumenDataTableContent,
@@ -18,6 +17,7 @@ import { createAgentPlanFixtures } from './agentPlanFixtures';
 import { createAnalyticsFixtures } from './analyticsFixtures';
 import { createAuthenticationFixtures } from './authenticationFixtures';
 import { createBillingFixtures } from './billingFixtures';
+import { createCardFixtures } from './cardFixtures';
 import { createChatFixtures } from './chatFixtures';
 import { createDashboardFixtures } from './dashboardFixtures';
 import { createFeedbackFixtures } from './feedbackFixtures';
@@ -2122,7 +2122,8 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
         listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
       },
     } satisfies LumenMobileContent, */
-    card: {
+    card: createCardFixtures(locale),
+    /* legacyCard: {
       member: {
         labels: {
           online: previewText(locale, 'card.member.labels.online'),
@@ -2506,7 +2507,7 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
         ],
         listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
       },
-    } satisfies LumenCardContent,
+    } satisfies LumenCardContent, */
     'data-table': {
       rows: [
         {

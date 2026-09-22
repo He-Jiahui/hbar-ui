@@ -641,6 +641,8 @@
 
 @media (max-width: 40rem) {
   .lumen-card-agenda {
+    align-items: flex-start;
+    flex-wrap: wrap;
   }
   .lumen-card-agenda > :nth-child(2n + 1) {
     flex: 0 0 auto;
@@ -657,6 +659,7 @@
   }
 
   .lumen-card-invoice > header {
+    flex-wrap: wrap;
   }
 
   .lumen-card-invoice > header > :nth-child(2n + 1) {
@@ -670,5 +673,7 @@
   }
 
   .lumen-card-invoice > header > span:last-child {
+    margin-inline-start: auto;
+    flex: 0 0 auto;
   }
 }
