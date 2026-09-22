@@ -953,6 +953,7 @@ function Hours(props: Omit<LumenFormsProps, 'content'> & { content: LumenFormsHo
 function Survey(props: Omit<LumenFormsProps, 'content'> & { content: LumenFormsSurveyContent }) {
   const rows = uniqueLumenFormsItems(props.content.ratingRows);
   const [score, setScore] = React.useState(props.content.initialScore);
+  const [ratings, setRatings] = React.useState<Readonly<Record<string, number>>>({});
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
@@ -971,11 +972,22 @@ function Survey(props: Omit<LumenFormsProps, 'content'> & { content: LumenFormsS
       </div>
       <LumenText as="p">{props.content.labels.question}</LumenText>
       <div className="lumen-forms-rating">
+        <div className="lumen-forms-rating-header" aria-hidden="true">
+          <span />
+          {props.content.ratingValues.map((value) => (
+            <span key={value}>{value}</span>
+          ))}
+        </div>
         {rows.map((row) => (
           <div key={row.id}>
             <span>{row.label}</span>
             {props.content.ratingValues.map((value) => (
-              <LumenIconButton key={value} label={props.content.labels.rating(row.label, value)}>
+              <LumenIconButton
+                key={value}
+                label={props.content.labels.rating(row.label, value)}
+                aria-pressed={ratings[row.id] === value}
+                onClick={() => setRatings((current) => ({ ...current, [row.id]: value }))}
+              >
                 <Glyph name="circle" />
               </LumenIconButton>
             ))}

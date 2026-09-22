@@ -580,6 +580,96 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.queryByText('Q4-launch-brief.pdf')).toBeNull();
   });
 
+  it('uses distinct host-owned form scenarios for all twelve workflows', () => {
+    const formEntries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'forms',
+    );
+    expect(formEntries).toHaveLength(12);
+    const expected = [
+      'Edit release record',
+      'Submit engineering request',
+      'Team event booking',
+      'Project properties',
+      'Provision customer portal',
+      'Complete device order',
+      'Apply to the design partner program',
+      'Build customer segment rule',
+      'Support team opening hours',
+      'Guest stay survey',
+      'Create environment',
+      'Review coverage quote',
+    ];
+
+    formEntries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('Forms ·');
+      expect(view).toContain(expected[index]);
+    });
+
+    const quote = formEntries.find((entry) => entry.variant === 12)!;
+    const view = ReactDOMServer.renderToStaticMarkup(
+      <VariantPreviewHost entry={quote} locale="zh" unavailableLabel="无法预览" />,
+    );
+    expect(view).toContain('审阅保障方案报价');
+    expect(view).toContain('财产保障');
+  });
+
+  it('updates rule, hours, survey, environment, and quote form controls', async () => {
+    const entry = (variant: number) =>
+      LUMEN_VARIANT_REGISTRY.find(
+        (candidate) => candidate.category === 'forms' && candidate.variant === variant,
+      )!;
+
+    let view = render(
+      <VariantPreviewHost entry={entry(8)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.selectOptions(screen.getByRole('combobox', { name: 'Field' }), 'seats');
+    expect(screen.getByText('is greater than')).not.toBeNull();
+    expect(screen.getByPlaceholderText('For example: 50')).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(9)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    const saturday = screen.getByRole('switch', { name: 'Toggle Saturday' });
+    expect(saturday.getAttribute('aria-checked')).toBe('false');
+    await view.user.click(saturday);
+    expect(saturday.getAttribute('aria-checked')).toBe('true');
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(10)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    expect(screen.getByPlaceholderText('Share specific details')).not.toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Recommendation score 9' }));
+    expect(screen.queryByPlaceholderText('Share specific details')).toBeNull();
+    const serviceRating = screen.getByRole('button', { name: 'Rate Service 5' });
+    await view.user.click(serviceRating);
+    expect(serviceRating.getAttribute('aria-pressed')).toBe('true');
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(11)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    const slug = screen.getByRole('textbox', { name: 'Environment slug' });
+    await view.user.clear(slug);
+    await view.user.type(slug, 'qa');
+    expect(screen.getByText('Enter at least 3 characters')).not.toBeNull();
+    expect(
+      (screen.getByRole('button', { name: 'Create environment' }) as HTMLButtonElement).disabled,
+    ).toBe(true);
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(12)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Expand Liability coverage' }));
+    expect(screen.getByText(/Third-party injury/)).not.toBeNull();
+    expect(screen.getByRole('button', { name: 'Edit this section' })).not.toBeNull();
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',

@@ -349,8 +349,6 @@
 .lumen-forms-hours [role='switch'][aria-checked='true'] {
   color: var(--lumen-accent);
   background: color-mix(in srgb, var(--lumen-accent) 16%, transparent);
-}
-.lumen-forms-hours [role='switch'][aria-checked='true'] {
   justify-content: flex-end;
 }
 .lumen-forms-hours em {
@@ -423,13 +421,22 @@
   gap: 0.25rem;
   min-inline-size: 0;
 }
-.lumen-forms-rating > div > :nth-child(2n + 1) {
+.lumen-forms-rating > div > :first-child {
   flex: 1 1 7rem;
   min-inline-size: 7rem;
 }
-.lumen-forms-rating > div > :nth-child(2n + 2) {
-  flex: 0 0 auto;
-  min-inline-size: 0;
+.lumen-forms-rating > div > :not(:first-child) {
+  inline-size: 2rem;
+  flex: 0 0 2rem;
+  text-align: center;
+}
+.lumen-forms-rating-header {
+  color: var(--lumen-muted);
+  font-size: 0.75rem;
+}
+.lumen-forms-rating button[aria-pressed='true'] {
+  color: var(--lumen-accent);
+  background: color-mix(in srgb, var(--lumen-accent) 12%, transparent);
 }
 .lumen-forms-tabs {
   border-block-end: 0.0625rem solid var(--lumen-edge);
@@ -475,8 +482,10 @@
 @media (max-width: 42rem) {
   .lumen-forms-two-column,
   .lumen-forms-checkout {
+    flex-direction: column;
   }
   .lumen-forms-properties > div {
+    flex-wrap: wrap;
   }
   .lumen-forms-properties > div > :nth-child(2n + 1) {
     flex: 1 1 0;
@@ -490,5 +499,6 @@
     flex-basis: 100%;
   }
   .lumen-forms-rule {
+    flex-wrap: wrap;
   }
 }
