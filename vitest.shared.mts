@@ -123,6 +123,9 @@ export default async function create(
         enabled: testEnv === 'browser',
         provider: playwright({
           launchOptions: {
+            ...(process.env.LUMEN_CHROMIUM_EXECUTABLE
+              ? { executablePath: process.env.LUMEN_CHROMIUM_EXECUTABLE }
+              : {}),
             ignoreDefaultArgs: [...(enableScrollbars ? ['--hide-scrollbars'] : [])],
           },
         }),
