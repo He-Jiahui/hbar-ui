@@ -849,6 +849,101 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getByRole('img', { name: 'Error budget burn-down' })).not.toBeNull();
   });
 
+  it('uses distinct host-owned AI usage scenarios for all eight cost and capacity views', () => {
+    const usageEntries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'ai-usage',
+    );
+    expect(usageEntries).toHaveLength(8);
+    const expected = [
+      'Token usage',
+      'Spend by model',
+      'Rate limits',
+      'Usage by seat',
+      'Monthly budget',
+      'Usage overage',
+      'Request log',
+      'Plan usage',
+    ];
+
+    usageEntries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('ai-usage.');
+      expect(view).not.toContain('item-1');
+      expect(view).toContain(expected[index]);
+    });
+
+    const compact = usageEntries.find((entry) => entry.variant === 8)!;
+    const view = ReactDOMServer.renderToStaticMarkup(
+      <VariantPreviewHost entry={compact} locale="zh" unavailableLabel="无法预览" />,
+    );
+    expect(view).toContain('套餐用量');
+    expect(view).toContain('升级套餐');
+  });
+
+  it('sorts, filters, and edits AI usage workflows through host-owned state', async () => {
+    const entry = (variant: number) =>
+      LUMEN_VARIANT_REGISTRY.find(
+        (candidate) => candidate.category === 'ai-usage' && candidate.variant === variant,
+      )!;
+
+    let view = render(
+      <VariantPreviewHost entry={entry(2)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.selectOptions(
+      screen.getByRole('combobox', { name: 'Sort models' }),
+      'spend-asc',
+    );
+    const modelRows = document.querySelector('.lumen-usage-list');
+    expect(modelRows?.textContent?.indexOf('Embed v3')).toBeLessThan(
+      modelRows?.textContent?.indexOf('Reasoning Pro') ?? 0,
+    );
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(3)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.selectOptions(
+      screen.getByRole('combobox', { name: 'Service tier' }),
+      'starter',
+    );
+    expect(screen.getByText('340 / 500')).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(4)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.selectOptions(screen.getByRole('combobox', { name: 'Team filter' }), 'product');
+    await view.user.type(screen.getByRole('textbox', { name: 'Search name or email' }), 'Marcus');
+    expect(screen.getByText('Marcus Bell')).not.toBeNull();
+    expect(screen.queryByText('Maya Chen')).toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(5)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('switch', { name: 'Pause new requests at the cap' }));
+    expect(
+      (screen.getByRole('button', { name: 'Save budget' }) as HTMLButtonElement).disabled,
+    ).toBe(false);
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(7)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.selectOptions(
+      screen.getByRole('combobox', { name: 'Model filter' }),
+      'reasoning',
+    );
+    expect(screen.queryByText('req_7J19')).toBeNull();
+    await view.user.click(screen.getByText('req_7J2K'));
+    expect(
+      (screen.getByRole('group', { name: 'Expand request req_7J2K' }) as HTMLDetailsElement).open,
+    ).toBe(true);
+    expect(screen.getByText(/"cached_tokens": 8192/)).not.toBeNull();
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',

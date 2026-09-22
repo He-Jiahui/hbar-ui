@@ -76,7 +76,7 @@ export interface LumenUsageModelSpendContent extends LumenUsageHeading, LumenUsa
     readonly spend: string;
     readonly change: string;
   };
-  readonly sort?: LumenUsageAction | undefined;
+  readonly sort?: LumenUsageChoice | undefined;
 }
 
 export interface LumenUsageRateLimitsContent extends LumenUsageHeading {
@@ -87,6 +87,7 @@ export interface LumenUsageRateLimitsContent extends LumenUsageHeading {
 
 export interface LumenUsageSeatRow {
   readonly id: string;
+  readonly filterId: string;
   readonly initials: string;
   readonly name: string;
   readonly detail: string;
@@ -99,7 +100,7 @@ export interface LumenUsageSeatContent extends LumenUsageHeading, LumenUsageColl
   readonly query: string;
   readonly searchLabel: string;
   readonly onQueryChange: (value: string) => void;
-  readonly filter?: LumenUsageAction | undefined;
+  readonly filter?: LumenUsageChoice | undefined;
   readonly rows: readonly LumenUsageSeatRow[];
 }
 
@@ -144,6 +145,7 @@ export interface LumenUsageOverageContent extends LumenUsageHeading {
 
 export interface LumenUsageRequest {
   readonly id: string;
+  readonly filterId: string;
   readonly tokens: string;
   readonly latency: string;
   readonly cost: string;
@@ -153,7 +155,7 @@ export interface LumenUsageRequest {
 
 export interface LumenUsageRequestLogContent extends LumenUsageHeading, LumenUsageCollection {
   readonly rows: readonly LumenUsageRequest[];
-  readonly filter?: LumenUsageAction | undefined;
+  readonly filter?: LumenUsageChoice | undefined;
 }
 
 export interface LumenUsageCompactContent extends LumenUsageHeading {
@@ -446,11 +448,7 @@ export function LumenUsageOverview(content: LumenUsageOverviewContent) {
 export function LumenUsageModelSpend(content: LumenUsageModelSpendContent) {
   return (
     <UsageFrame content={content} variant={2}>
-      {content.sort ? (
-        <UsageActionButton action={content.sort}>
-          <UsageGlyph name="filter" />
-        </UsageActionButton>
-      ) : null}
+      {content.sort ? <UsageChoiceControl choice={content.sort} /> : null}
       <div className="lumen-usage-table-heading hbar-app-ui-table-heading">
         <span>{content.columns.model}</span>
         <span>{content.columns.share}</span>
@@ -509,11 +507,7 @@ export function LumenUsageSeats(content: LumenUsageSeatContent) {
           aria-label={content.searchLabel}
         />
       </div>
-      {content.filter ? (
-        <UsageActionButton action={content.filter}>
-          <UsageGlyph name="filter" />
-        </UsageActionButton>
-      ) : null}
+      {content.filter ? <UsageChoiceControl choice={content.filter} /> : null}
       <UsageCollectionView
         content={content}
         items={content.rows}
@@ -627,11 +621,7 @@ export function LumenUsageOverage(content: LumenUsageOverageContent) {
 export function LumenUsageRequestLog(content: LumenUsageRequestLogContent) {
   return (
     <UsageFrame content={content} variant={7}>
-      {content.filter ? (
-        <UsageActionButton action={content.filter}>
-          <UsageGlyph name="filter" />
-        </UsageActionButton>
-      ) : null}
+      {content.filter ? <UsageChoiceControl choice={content.filter} /> : null}
       <UsageCollectionView
         content={content}
         items={content.rows}
@@ -699,10 +689,12 @@ export function LumenUsageCompact(content: LumenUsageCompactContent) {
             />
           ))}
         </div>
-        <strong>{content.value}</strong>
-        <LumenText as="small" tone="muted">
-          {content.detail}
-        </LumenText>
+        <div className="lumen-usage-compact-summary">
+          <strong>{content.value}</strong>
+          <LumenText as="small" tone="muted">
+            {content.detail}
+          </LumenText>
+        </div>
         <UsageProgress value={content.progress} label={content.progressLabel} tone={content.tone} />
         <div className="lumen-usage-secondary-metrics hbar-app-ui-secondary-meters">
           {uniqueLumenUsageItems(content.metrics).map((metric) => (

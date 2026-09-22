@@ -128,6 +128,19 @@ export default function VariantPreviewHost({
     checkbox: true,
     dirty: false,
   }));
+  const [usageRange, setUsageRange] = React.useState('30d');
+  const [usageSort, setUsageSort] = React.useState('spend-desc');
+  const [usageTier, setUsageTier] = React.useState('scale');
+  const [usageSeatQuery, setUsageSeatQuery] = React.useState('');
+  const [usageSeatFilter, setUsageSeatFilter] = React.useState('all');
+  const [usageBudget, setUsageBudget] = React.useState({
+    cap: '3200',
+    threshold: '80',
+    hardStop: true,
+    dirty: false,
+  });
+  const [usagePlan, setUsagePlan] = React.useState('scale');
+  const [usageRequestFilter, setUsageRequestFilter] = React.useState('all');
   const Component = entry.component;
 
   if (!Component) {
@@ -339,6 +352,155 @@ export default function VariantPreviewHost({
         },
       } as (typeof fixtures)['settings-form'];
     }
+  }
+  if (entry.category === 'ai-usage') {
+    const usage = fixtures['ai-usage'];
+    const modelSpend = usage.modelSpend;
+    const seats = usage.seats;
+    const rateLimits = usage.rateLimits;
+    const requests = usage.requests;
+    const parseSpend = (value: string) => Number.parseFloat(value.replace(/[^\d.]/g, ''));
+    const sortedModels = modelSpend
+      ? [...modelSpend.rows].sort((left, right) => {
+          if (usageSort === 'model') {
+            return left.model.localeCompare(right.model);
+          }
+          const direction = usageSort === 'spend-asc' ? 1 : -1;
+          return (parseSpend(left.spend) - parseSpend(right.spend)) * direction;
+        })
+      : [];
+    const normalizedQuery = usageSeatQuery.trim().toLocaleLowerCase();
+    const visibleSeats = seats?.rows.filter(
+      (seat) =>
+        (usageSeatFilter === 'all' || seat.filterId === usageSeatFilter) &&
+        (!normalizedQuery ||
+          `${seat.name} ${seat.detail}`.toLocaleLowerCase().includes(normalizedQuery)),
+    );
+    const tierReadings: Record<string, readonly [string, number][]> = {
+      starter: [
+        ['340 / 500', 68],
+        ['78K / 150K', 52],
+        ['37K / 100K', 37],
+      ],
+      growth: [
+        ['1,980 / 2,500', 79],
+        ['438K / 600K', 73],
+        ['188K / 500K', 38],
+      ],
+      scale: [
+        ['8,420 / 10,000', 84],
+        ['1.42M / 2M', 71],
+        ['418K / 1M', 42],
+      ],
+    };
+    const selectedTierReadings = tierReadings[usageTier] ?? tierReadings.scale!;
+    const formattedCap = Number(usageBudget.cap || 0).toLocaleString(
+      locale === 'zh' ? 'zh-CN' : 'en-US',
+    );
+    content = {
+      ...usage,
+      overview: usage.overview
+        ? {
+            ...usage.overview,
+            range: usage.overview.range
+              ? { ...usage.overview.range, value: usageRange, onChange: setUsageRange }
+              : undefined,
+          }
+        : undefined,
+      modelSpend: modelSpend
+        ? {
+            ...modelSpend,
+            rows: sortedModels,
+            sort: modelSpend.sort
+              ? { ...modelSpend.sort, value: usageSort, onChange: setUsageSort }
+              : undefined,
+          }
+        : undefined,
+      rateLimits: rateLimits
+        ? {
+            ...rateLimits,
+            tier: rateLimits.tier
+              ? { ...rateLimits.tier, value: usageTier, onChange: setUsageTier }
+              : undefined,
+            meters: rateLimits.meters.map((meter, index) => ({
+              ...meter,
+              value: selectedTierReadings[index]?.[0] ?? meter.value,
+              progress: selectedTierReadings[index]?.[1] ?? meter.progress,
+            })),
+          }
+        : undefined,
+      seats: seats
+        ? {
+            ...seats,
+            query: usageSeatQuery,
+            onQueryChange: setUsageSeatQuery,
+            filter: seats.filter
+              ? { ...seats.filter, value: usageSeatFilter, onChange: setUsageSeatFilter }
+              : undefined,
+            rows: visibleSeats ?? [],
+          }
+        : undefined,
+      budget: usage.budget
+        ? {
+            ...usage.budget,
+            cap: {
+              ...usage.budget.cap,
+              value: usageBudget.cap,
+              display: `$${formattedCap}`,
+            },
+            threshold: usage.budget.threshold
+              ? {
+                  ...usage.budget.threshold,
+                  value: usageBudget.threshold,
+                  onChange: (threshold: string) =>
+                    setUsageBudget((current) => ({ ...current, threshold, dirty: true })),
+                }
+              : undefined,
+            hardStop: usage.budget.hardStop
+              ? {
+                  ...usage.budget.hardStop,
+                  checked: usageBudget.hardStop,
+                  onChange: (hardStop: boolean) =>
+                    setUsageBudget((current) => ({ ...current, hardStop, dirty: true })),
+                }
+              : undefined,
+            canSave: usageBudget.dirty,
+            onCapChange: (cap: string) =>
+              setUsageBudget((current) => ({ ...current, cap, dirty: true })),
+            onSave: () => setUsageBudget((current) => ({ ...current, dirty: false })),
+            clear: usage.budget.clear
+              ? {
+                  ...usage.budget.clear,
+                  onInvoke: () =>
+                    setUsageBudget({ cap: '3200', threshold: '80', hardStop: true, dirty: true }),
+                }
+              : undefined,
+          }
+        : undefined,
+      overage: usage.overage
+        ? {
+            ...usage.overage,
+            plan: usage.overage.plan
+              ? { ...usage.overage.plan, value: usagePlan, onChange: setUsagePlan }
+              : undefined,
+          }
+        : undefined,
+      requests: requests
+        ? {
+            ...requests,
+            filter: requests.filter
+              ? {
+                  ...requests.filter,
+                  value: usageRequestFilter,
+                  onChange: setUsageRequestFilter,
+                }
+              : undefined,
+            rows: requests.rows.filter(
+              (request) => usageRequestFilter === 'all' || request.filterId === usageRequestFilter,
+            ),
+          }
+        : undefined,
+    } as (typeof fixtures)['ai-usage'];
   }
   const componentProps =
     entry.id === 'hbar-app-ui-prompt-input-1'
