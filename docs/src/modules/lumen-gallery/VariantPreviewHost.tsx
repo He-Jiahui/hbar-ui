@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { LumenAgentPlanStep, LumenPlanState } from '@lumen/app-ui';
+import type { LumenAgentPlanStep, LumenPlanState, LumenPreferenceAction } from '@lumen/app-ui';
 import type { LumenVariantRegistryEntry } from '@lumen/app-ui/catalog';
 import {
   createLumenVariantFixtures,
@@ -113,6 +113,21 @@ export default function VariantPreviewHost({
   const [agentPlanSteps, setAgentPlanSteps] = React.useState<readonly LumenAgentPlanStep[]>(
     () => fixtures['agent-plan'].editable?.steps ?? [],
   );
+  const [settingsPreferences, setSettingsPreferences] = React.useState<{
+    themeId: string;
+    densityId: string;
+    languageId: string;
+    toggles: Readonly<Record<string, boolean>>;
+    checkbox: boolean;
+    dirty: boolean;
+  }>(() => ({
+    themeId: 'dark',
+    densityId: 'comfortable',
+    languageId: locale,
+    toggles: { motion: false, sounds: true, previews: true },
+    checkbox: true,
+    dirty: false,
+  }));
   const Component = entry.component;
 
   if (!Component) {
@@ -260,6 +275,69 @@ export default function VariantPreviewHost({
             ),
         },
       } as (typeof fixtures)['agent-plan'];
+    }
+  }
+  if (entry.category === 'settings-form' && entry.variant === 3) {
+    const preferences = fixtures['settings-form'].preferences;
+    if (preferences) {
+      const reset = () =>
+        setSettingsPreferences({
+          themeId: 'dark',
+          densityId: 'comfortable',
+          languageId: locale,
+          toggles: { motion: false, sounds: true, previews: true },
+          checkbox: true,
+          dirty: false,
+        });
+      const onChange = (action: LumenPreferenceAction) => {
+        setSettingsPreferences((current) => {
+          if ('enabled' in action) {
+            if (action.type === 'checkbox') {
+              return { ...current, checkbox: action.enabled, dirty: true };
+            }
+            return {
+              ...current,
+              toggles: { ...current.toggles, [action.id]: action.enabled },
+              dirty: true,
+            };
+          }
+          if (action.type === 'theme') {
+            return { ...current, themeId: action.id, dirty: true };
+          }
+          if (action.type === 'density') {
+            return { ...current, densityId: action.id, dirty: true };
+          }
+          if (action.type === 'language') {
+            return { ...current, languageId: action.id, dirty: true };
+          }
+          return current;
+        });
+      };
+      content = {
+        ...fixtures['settings-form'],
+        preferences: {
+          ...preferences,
+          themeId: settingsPreferences.themeId,
+          densityId: settingsPreferences.densityId,
+          languageId: settingsPreferences.languageId,
+          toggles: preferences.toggles.map((toggle) => ({
+            ...toggle,
+            enabled: settingsPreferences.toggles[toggle.id] ?? toggle.enabled,
+            changed: (settingsPreferences.toggles[toggle.id] ?? toggle.enabled) !== toggle.enabled,
+          })),
+          checkbox: preferences.checkbox
+            ? { ...preferences.checkbox, enabled: settingsPreferences.checkbox }
+            : undefined,
+          onChange,
+          persistence: {
+            mode: 'explicit',
+            dirty: settingsPreferences.dirty,
+            busy: false,
+            onSave: () => setSettingsPreferences((current) => ({ ...current, dirty: false })),
+            onCancel: reset,
+          },
+        },
+      } as (typeof fixtures)['settings-form'];
     }
   }
   const componentProps =

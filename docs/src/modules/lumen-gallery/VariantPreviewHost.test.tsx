@@ -670,6 +670,87 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getByRole('button', { name: 'Edit this section' })).not.toBeNull();
   });
 
+  it('uses distinct host-owned settings scenarios for all six administration views', () => {
+    const settingsEntries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'settings-form',
+    );
+    expect(settingsEntries).toHaveLength(6);
+    const expected = [
+      'Workspace settings',
+      'Public profile',
+      'Interface preferences',
+      'Team members',
+      'API and integrations',
+      'Danger zone',
+    ];
+
+    settingsEntries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('Settings form ·');
+      expect(view).toContain(expected[index]);
+    });
+
+    const danger = settingsEntries.find((entry) => entry.variant === 6)!;
+    const view = ReactDOMServer.renderToStaticMarkup(
+      <VariantPreviewHost entry={danger} locale="zh" unavailableLabel="无法预览" />,
+    );
+    expect(view).toContain('危险区');
+    expect(view).toContain('撤销所有 API 密钥与集成访问');
+  });
+
+  it('persists preferences and exercises member, key, integration, and danger controls', async () => {
+    const entry = (variant: number) =>
+      LUMEN_VARIANT_REGISTRY.find(
+        (candidate) => candidate.category === 'settings-form' && candidate.variant === variant,
+      )!;
+
+    let view = render(
+      <VariantPreviewHost entry={entry(3)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    const light = screen.getByRole('radio', { name: 'Light' });
+    await view.user.click(light);
+    expect((light as HTMLInputElement).checked).toBe(true);
+    const motion = screen.getByRole('switch', { name: 'Reduce motion' });
+    await view.user.click(motion);
+    expect(motion.getAttribute('aria-checked')).toBe('true');
+    await view.user.click(screen.getByRole('button', { name: 'Save preferences' }));
+    expect(
+      (screen.getByRole('button', { name: 'Save preferences' }) as HTMLButtonElement).disabled,
+    ).toBe(true);
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(4)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.type(
+      screen.getByPlaceholderText('name@northwind.example'),
+      'alex@northwind.example',
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Send invite' }));
+    expect(screen.getAllByText('alex@northwind.example')).toHaveLength(2);
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(5)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Reveal Production event stream' }));
+    expect(screen.getByText('lmn_prod_8F3K2Q7J9A')).not.toBeNull();
+    const linear = screen.getByRole('switch', { name: 'Toggle Linear' });
+    await view.user.click(linear);
+    expect(linear.getAttribute('aria-checked')).toBe('true');
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(6)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    const confirmation = screen.getByRole('textbox', { name: 'Workspace name' });
+    await view.user.type(confirmation, 'Northwind Cloud');
+    await view.user.click(screen.getByRole('button', { name: 'Delete permanently' }));
+    expect(screen.getByText('Workspace deletion request confirmed.')).not.toBeNull();
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',
