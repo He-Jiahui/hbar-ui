@@ -261,20 +261,44 @@ export interface LumenCheckBoxControlProps extends Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
   'type' | 'size'
 > {
+  indeterminate?: boolean | undefined;
   size?: LumenSize | undefined;
 }
 
 export const LumenCheckBoxControl = React.forwardRef<HTMLInputElement, LumenCheckBoxControlProps>(
-  function LumenCheckBoxControl({ size, className, ...other }, ref) {
+  function LumenCheckBoxControl(
+    { size, className, indeterminate = false, disabled, ...other },
+    ref,
+  ) {
     const compatibilitySize = (other as Record<string, unknown>)['data-size'];
+    const inputRef = React.useRef<HTMLInputElement>(null);
+    React.useImperativeHandle(ref, () => {
+      const input = inputRef.current;
+      if (!input) throw new Error('Lumen checkbox input is not mounted.');
+      return input;
+    });
+    React.useEffect(() => {
+      if (inputRef.current) inputRef.current.indeterminate = indeterminate;
+    }, [indeterminate]);
     return (
-      <input
-        {...other}
-        ref={ref}
-        type="checkbox"
+      <span
         className={['lumen-checkbox-control', className].filter(Boolean).join(' ')}
         data-size={size ?? (typeof compatibilitySize === 'string' ? compatibilitySize : undefined)}
-      />
+        data-disabled={disabled || undefined}
+        data-indeterminate={indeterminate || undefined}
+      >
+        <input
+          {...other}
+          ref={inputRef}
+          type="checkbox"
+          className="lumen-checkbox-input"
+          disabled={disabled}
+          aria-checked={indeterminate ? 'mixed' : other['aria-checked']}
+        />
+        <span className="lumen-checkbox-mark" aria-hidden="true">
+          <FormGlyph name={indeterminate ? 'minus' : 'check'} />
+        </span>
+      </span>
     );
   },
 );
@@ -285,6 +309,7 @@ export interface LumenCheckBoxProps extends Omit<
 > {
   label: string;
   description?: string | undefined;
+  indeterminate?: boolean | undefined;
   size?: LumenSize | undefined;
 }
 
@@ -303,6 +328,67 @@ export const LumenCheckBox = React.forwardRef<HTMLInputElement, LumenCheckBoxPro
             </LumenText>
           ) : null}
         </span>
+      </label>
+    );
+  },
+);
+
+export interface LumenToggleControlProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  'type' | 'size'
+> {
+  size?: LumenSize | undefined;
+}
+
+export const LumenToggleControl = React.forwardRef<HTMLInputElement, LumenToggleControlProps>(
+  function LumenToggleControl({ size, className, disabled, ...other }, ref) {
+    const compatibilitySize = (other as Record<string, unknown>)['data-size'];
+    return (
+      <span
+        className={['lumen-toggle-control', className].filter(Boolean).join(' ')}
+        data-size={size ?? (typeof compatibilitySize === 'string' ? compatibilitySize : undefined)}
+        data-disabled={disabled || undefined}
+      >
+        <input
+          {...other}
+          ref={ref}
+          type="checkbox"
+          role="switch"
+          className="lumen-toggle-input"
+          disabled={disabled}
+        />
+        <span className="lumen-toggle-track" aria-hidden="true">
+          <span className="lumen-toggle-lamp" />
+        </span>
+      </span>
+    );
+  },
+);
+
+export interface LumenToggleProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  'type' | 'children' | 'size'
+> {
+  label: string;
+  description?: string | undefined;
+  size?: LumenSize | undefined;
+}
+
+export const LumenToggle = React.forwardRef<HTMLInputElement, LumenToggleProps>(
+  function LumenToggle({ label, description, size, className, ...other }, ref) {
+    return (
+      <label className={['lumen-toggle', className].filter(Boolean).join(' ')}>
+        <span className="lumen-toggle-copy">
+          <LumenText as="span" variant="label" size={size}>
+            {label}
+          </LumenText>
+          {description ? (
+            <LumenText as="small" tone="muted" variant="supporting" size={size}>
+              {description}
+            </LumenText>
+          ) : null}
+        </span>
+        <LumenToggleControl {...other} ref={ref} size={size} />
       </label>
     );
   },
@@ -347,12 +433,13 @@ function uniqueOptions(options: readonly LumenControlOption[]): readonly LumenCo
   });
 }
 
-function FormGlyph({ name }: { name: 'check' | 'chevron' | 'close' }) {
+function FormGlyph({ name }: { name: 'check' | 'chevron' | 'close' | 'minus' }) {
   return (
     <svg className="lumen-form-glyph" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       {name === 'check' ? <path d="m3.5 8 3 3 6-6" /> : null}
       {name === 'chevron' ? <path d="m4 6 4 4 4-4" /> : null}
       {name === 'close' ? <path d="m4 4 8 8m0-8-8 8" /> : null}
+      {name === 'minus' ? <path d="M3 8h10" /> : null}
     </svg>
   );
 }

@@ -5,6 +5,7 @@ import {
   LumenBarSeries,
   LumenApprovalRequest,
   LumenCheckBox,
+  LumenCheckBoxControl,
   LumenCommandList,
   LumenComboBox,
   LumenCompactMetrics,
@@ -21,6 +22,7 @@ import {
   LumenQuestionnaire,
   LumenRunActivity,
   LumenToolPane,
+  LumenToggle,
   LumenWorkspaceFiles,
   type LumenAppearance,
 } from '@lumen/app-ui';
@@ -92,6 +94,36 @@ describe('Lumen application components', () => {
     expect(onQueryChange).toHaveBeenCalledWith('Local provider');
     expect(onValueChange).toHaveBeenCalledWith('local');
     expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it('keeps checkbox and switch semantics on their native controls', async () => {
+    const onToggle = vi.fn();
+    const { user } = render(
+      <LumenProvider appearance={appearance} withCssBaseline={false}>
+        <LumenCheckBox
+          label="Select every workspace"
+          description="Applies to the current filter"
+          indeterminate
+        />
+        <LumenCheckBoxControl aria-label="Select current workspace" defaultChecked />
+        <LumenToggle
+          label="Enable sync"
+          description="Keeps the workspace current"
+          checked={false}
+          onChange={onToggle}
+        />
+      </LumenProvider>,
+    );
+
+    const mixed = screen.getByRole('checkbox', { name: /Select every workspace/ });
+    expect(mixed).to.have.attribute('aria-checked', 'mixed');
+    expect(mixed).to.have.property('indeterminate', true);
+    expect(screen.getByRole('checkbox', { name: 'Select current workspace' })).to.have.property(
+      'checked',
+      true,
+    );
+    await user.click(screen.getByRole('switch', { name: /Enable sync/ }));
+    expect(onToggle).toHaveBeenCalledTimes(1);
   });
 
   it('moves the active combobox option before committing it with Enter', async () => {

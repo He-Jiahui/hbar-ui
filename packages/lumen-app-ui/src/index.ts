@@ -1435,6 +1435,8 @@ export {
   LumenMultiSelect,
   LumenSelect,
   LumenTextarea,
+  LumenToggle,
+  LumenToggleControl,
 } from './forms';
 export type {
   LumenCheckBoxControlProps,
@@ -1449,6 +1451,8 @@ export type {
   LumenMultiSelectProps,
   LumenSelectProps,
   LumenTextareaProps,
+  LumenToggleControlProps,
+  LumenToggleProps,
 } from './forms';
 export { LumenCommandDialog, LumenCommandList } from './command-list';
 export type {
