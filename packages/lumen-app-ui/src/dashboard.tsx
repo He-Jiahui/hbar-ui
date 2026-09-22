@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { LumenSelect } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
+import { LumenChart, type LumenChartPoint } from './ui-compositions';
 
 export interface LumenDashboardListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -15,6 +16,7 @@ export interface LumenDashboardChoice {
 }
 export interface LumenDashboardPoint {
   readonly id: string;
+  readonly label: string;
   readonly value: number;
 }
 export interface LumenDashboardMetric {
@@ -232,11 +234,14 @@ export interface LumenDashboardPayoutContent {
     readonly sweep: string;
     readonly chartTitle: string;
     readonly chart: string;
+    readonly paid: string;
+    readonly pending: string;
     readonly lanes: string;
     readonly empty: string;
   };
   readonly metrics: readonly LumenDashboardMetric[];
   readonly series: readonly LumenDashboardPoint[];
+  readonly comparisonSeries: readonly LumenDashboardPoint[];
   readonly lanes: readonly LumenDashboardChoice[];
 }
 export interface LumenDashboardObjective {
@@ -252,12 +257,18 @@ export interface LumenDashboardScorecardContent {
     readonly title: string;
     readonly detail: string;
     readonly quarter: string;
+    readonly chartTitle: string;
+    readonly chart: string;
+    readonly actual: string;
+    readonly plan: string;
     readonly percent: (value: number) => string;
     readonly empty: string;
   };
   readonly quarters: readonly LumenDashboardChoice[];
   readonly initialQuarterId: string;
   readonly objectives: readonly LumenDashboardObjective[];
+  readonly actualSeries: readonly LumenDashboardPoint[];
+  readonly planSeries: readonly LumenDashboardPoint[];
   readonly listStrategy: LumenDashboardListStrategy;
 }
 export interface LumenDashboardServiceDetail extends LumenDashboardService {
@@ -451,6 +462,13 @@ function Bars({
       ))}
     </div>
   );
+}
+function chartPoints(points: readonly LumenDashboardPoint[]): readonly LumenChartPoint[] {
+  return uniqueLumenDashboardItems(points).map((point) => ({
+    id: point.id,
+    label: point.label,
+    value: point.value,
+  }));
 }
 function Progress({
   value,
@@ -969,7 +987,19 @@ function Explorer(
       {measure ? (
         <section className="lumen-dashboard-chart-card">
           <strong>{measure.label}</strong>
-          <Bars points={measure.series} label={props.content.labels.chart(measure.label)} />
+          <LumenChart
+            kind="area"
+            label={props.content.labels.chart(measure.label)}
+            series={[
+              {
+                id: measure.id,
+                label: measure.label,
+                points: chartPoints(measure.series),
+                tone: 'info',
+              },
+            ]}
+            empty={props.content.labels.empty}
+          />
         </section>
       ) : (
         <Empty>{props.content.labels.empty}</Empty>
@@ -1036,8 +1066,32 @@ function Payouts(
       />
       <Metrics metrics={props.content.metrics} empty={props.content.labels.empty} />
       <section className="lumen-dashboard-chart-card">
-        <strong>{props.content.labels.chartTitle}</strong>
-        <Bars points={props.content.series} label={props.content.labels.chart} />
+        <div className="lumen-dashboard-chart-heading">
+          <strong>{props.content.labels.chartTitle}</strong>
+          <span>
+            <LumenStatus value={props.content.labels.paid} tone="info" />
+            <LumenStatus value={props.content.labels.pending} tone="warning" />
+          </span>
+        </div>
+        <LumenChart
+          kind="grouped-bar"
+          label={props.content.labels.chart}
+          series={[
+            {
+              id: 'paid',
+              label: props.content.labels.paid,
+              points: chartPoints(props.content.series),
+              tone: 'info',
+            },
+            {
+              id: 'pending',
+              label: props.content.labels.pending,
+              points: chartPoints(props.content.comparisonSeries),
+              tone: 'warning',
+            },
+          ]}
+          empty={props.content.labels.empty}
+        />
       </section>
       <div className="lumen-dashboard-lanes" aria-label={props.content.labels.lanes}>
         {lanes.map((lane) => (
@@ -1097,6 +1151,34 @@ function Scorecard(
           <Empty>{props.content.labels.empty}</Empty>
         )}
       </div>
+      <section className="lumen-dashboard-chart-card">
+        <div className="lumen-dashboard-chart-heading">
+          <strong>{props.content.labels.chartTitle}</strong>
+          <span>
+            <LumenStatus value={props.content.labels.actual} tone="info" />
+            <LumenStatus value={props.content.labels.plan} tone="warning" />
+          </span>
+        </div>
+        <LumenChart
+          kind="line"
+          label={props.content.labels.chart}
+          series={[
+            {
+              id: 'actual',
+              label: props.content.labels.actual,
+              points: chartPoints(props.content.actualSeries),
+              tone: 'info',
+            },
+            {
+              id: 'plan',
+              label: props.content.labels.plan,
+              points: chartPoints(props.content.planSeries),
+              tone: 'warning',
+            },
+          ]}
+          empty={props.content.labels.empty}
+        />
+      </section>
     </Root>
   );
 }

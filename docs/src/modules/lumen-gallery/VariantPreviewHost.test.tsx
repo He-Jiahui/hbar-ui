@@ -454,4 +454,44 @@ describe('Lumen formal variant fixtures', () => {
       view.unmount();
     }
   });
+
+  it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
+    const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'dashboard',
+    );
+    expect(dashboardEntries).toHaveLength(14);
+    const expected = [
+      'Growth overview',
+      'Request throughput',
+      'Team dashboard',
+      'Production operations',
+      'Workspace usage',
+      'Analytics comparison',
+      'Project overview',
+      'Delivery modules',
+      'Team worklog',
+      'Metric explorer',
+      'Workforce coverage',
+      'Payout desk',
+      'Quarterly scorecard',
+      'Edge gateway',
+    ];
+
+    dashboardEntries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('Dashboard ·');
+      expect(view).toContain(expected[index]);
+    });
+
+    const serviceBoard = dashboardEntries.find((entry) => entry.variant === 14)!;
+    {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={serviceBoard} locale="zh" unavailableLabel="无法预览" />,
+      );
+      expect(view).toContain('边缘网关');
+      expect(view).toContain('最近部署');
+    }
+  });
 });
