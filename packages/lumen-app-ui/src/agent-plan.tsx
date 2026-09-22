@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { LumenPlanEditor, type LumenPlanEditorProps } from './plan-editor';
+import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
 import './agent-plan.css';
 
@@ -318,21 +319,24 @@ function AgentPlanRoot({
   className,
   children,
 }: Omit<LumenAgentPlanProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
+  const contentClassName = [
+    'lumen-agent-plan',
+    'hbar-app-ui-agent-plan-surface',
+    `hbar-app-ui-agent-plan-variant-${variant}`,
+    density ? `hbar-app-ui-density-${density}` : '',
+    surface ? `hbar-app-ui-surface-${surface}` : '',
+    state ? `hbar-app-ui-state-${state}` : '',
+    visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-agent-plan',
-        'hbar-app-ui-variant',
-        'hbar-app-ui-agent-plan-surface',
-        `hbar-app-ui-agent-plan-variant-${variant}`,
-        density ? `hbar-app-ui-density-${density}` : '',
-        surface ? `hbar-app-ui-surface-${surface}` : '',
-        state ? `hbar-app-ui-state-${state}` : '',
-        visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-agent-plan-root-surface"
+      contentClassName={contentClassName}
       data-lumen-component="agent-plan"
       data-lumen-variant={variant}
       data-hbar-app-ui-component={variantId}
@@ -340,7 +344,7 @@ function AgentPlanRoot({
       data-hbar-app-ui-state={state}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 

@@ -8,6 +8,7 @@ import {
   LumenTextarea,
   LumenToggleControl,
 } from './forms';
+import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus } from './primitives';
 import './settings-form.css';
 
@@ -340,21 +341,24 @@ function SettingsRoot({
   className,
   children,
 }: Omit<LumenSettingsFormProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
+  const contentClassName = [
+    'lumen-settings-form',
+    'hbar-app-ui-settings-surface',
+    `hbar-app-ui-settings-variant-${variant}`,
+    density ? `hbar-app-ui-density-${density}` : '',
+    surface ? `hbar-app-ui-surface-${surface}` : '',
+    state ? `hbar-app-ui-state-${state}` : '',
+    visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-settings-form',
-        'hbar-app-ui-variant',
-        'hbar-app-ui-settings-surface',
-        `hbar-app-ui-settings-variant-${variant}`,
-        density ? `hbar-app-ui-density-${density}` : '',
-        surface ? `hbar-app-ui-surface-${surface}` : '',
-        state ? `hbar-app-ui-state-${state}` : '',
-        visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-settings-form-root-surface"
+      contentClassName={contentClassName}
       data-lumen-component="settings-form"
       data-lumen-variant={variant}
       data-hbar-app-ui-component={variantId}
@@ -362,7 +366,7 @@ function SettingsRoot({
       data-hbar-app-ui-state={state}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 

@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { LumenDisclosure } from './disclosure';
+import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './agent-activity.css';
 
@@ -338,21 +339,24 @@ function ActivityFrame({
 }: Omit<LumenAgentActivityProps, 'content' | 'onAction'> & {
   readonly children: React.ReactNode;
 }) {
+  const contentClassName = [
+    'lumen-agent-activity',
+    'hbar-app-ui-agent-activity-surface',
+    `hbar-app-ui-agent-activity-variant-${variant}`,
+    density ? `hbar-app-ui-density-${density}` : '',
+    surface ? `hbar-app-ui-surface-${surface}` : '',
+    state ? `hbar-app-ui-state-${state}` : '',
+    visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-agent-activity',
-        'hbar-app-ui-variant',
-        'hbar-app-ui-agent-activity-surface',
-        `hbar-app-ui-agent-activity-variant-${variant}`,
-        density ? `hbar-app-ui-density-${density}` : '',
-        surface ? `hbar-app-ui-surface-${surface}` : '',
-        state ? `hbar-app-ui-state-${state}` : '',
-        visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-agent-activity-root-surface"
+      contentClassName={contentClassName}
       data-lumen-component="agent-activity"
       data-lumen-variant={variant}
       data-hbar-app-ui-component={variantId}
@@ -360,7 +364,7 @@ function ActivityFrame({
       data-hbar-app-ui-state={state}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 

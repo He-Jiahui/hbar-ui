@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { LumenDisclosure } from './disclosure';
 import { LumenInput, LumenSelect, LumenToggleControl } from './forms';
+import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
 import './usage.css';
 
@@ -719,21 +720,24 @@ function UsageRoot({
   className,
   children,
 }: Omit<LumenUsageProps, 'content'> & { readonly children: React.ReactNode }) {
+  const contentClassName = [
+    'lumen-usage',
+    'hbar-app-ui-usage-catalog',
+    `hbar-app-ui-usage-variant-${variant}`,
+    density ? `hbar-app-ui-density-${density}` : '',
+    surface ? `hbar-app-ui-surface-${surface}` : '',
+    state ? `hbar-app-ui-state-${state}` : '',
+    visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-usage',
-        'hbar-app-ui-variant',
-        'hbar-app-ui-usage-catalog',
-        `hbar-app-ui-usage-variant-${variant}`,
-        density ? `hbar-app-ui-density-${density}` : '',
-        surface ? `hbar-app-ui-surface-${surface}` : '',
-        state ? `hbar-app-ui-state-${state}` : '',
-        visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-usage-root-surface"
+      contentClassName={contentClassName}
       data-lumen-component="usage"
       data-lumen-variant={variant}
       data-hbar-app-ui-component={variantId}
@@ -741,7 +745,7 @@ function UsageRoot({
       data-hbar-app-ui-state={state}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 

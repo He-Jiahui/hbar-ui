@@ -1,3 +1,11 @@
+.lumen-agent-plan-root-surface {
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: hidden;
+}
+
 .lumen-agent-plan {
   display: flex;
   min-inline-size: 0;
@@ -7,7 +15,7 @@
   gap: 0.75rem;
   padding: clamp(0.75rem, 2vw, 1.5rem);
   overflow: hidden;
-  background: var(--lumen-reading);
+  background: transparent;
   color: var(--lumen-ink);
 }
 
