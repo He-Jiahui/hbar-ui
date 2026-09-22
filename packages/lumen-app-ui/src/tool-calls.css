@@ -153,12 +153,24 @@
   text-align: start;
 }
 
+.hbar-app-ui-tool-calls-activity-pane > ol > li > .hbar-app-ui-tool-calls-activity-row {
+  inline-size: auto;
+  min-inline-size: 0;
+  flex: 1 1 auto;
+}
+
 .hbar-app-ui-tool-calls-trace-pane > ol > li,
 .hbar-app-ui-tool-calls-activity-pane > ol > li,
 .hbar-app-ui-tool-calls-diff > main > ol > li,
 .hbar-app-ui-tool-calls-search > main > ol > li {
   position: relative;
   border-block-end: 0.0625rem solid var(--lumen-edge);
+}
+
+.hbar-app-ui-tool-calls-activity-pane > ol > li {
+  display: flex;
+  align-items: center;
+  min-inline-size: 0;
 }
 
 .hbar-app-ui-tool-calls-trace-pane > ol > li:last-child,
@@ -298,6 +310,7 @@
 }
 
 .hbar-app-ui-tool-calls-retry {
+  flex: 0 0 auto;
   margin-inline-start: auto;
 }
 

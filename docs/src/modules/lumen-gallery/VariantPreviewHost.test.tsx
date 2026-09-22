@@ -1548,6 +1548,13 @@ describe('Lumen formal variant fixtures', () => {
     view = render(
       <VariantPreviewHost entry={entry(2)} locale="en" unavailableLabel="Preview unavailable" />,
     );
+    const failedActivityRow = Array.from(
+      view.container.querySelectorAll('.hbar-app-ui-tool-calls-activity-pane > ol > li'),
+    ).find((row) => row.textContent?.includes('send_webhook_test'));
+    expect(failedActivityRow).not.toBeUndefined();
+    expect(
+      failedActivityRow?.lastElementChild?.classList.contains('hbar-app-ui-tool-calls-retry'),
+    ).toBe(true);
     await view.user.click(screen.getByRole('tab', { name: 'Failed' }));
     expect(screen.getByText('send_webhook_test')).not.toBeNull();
     expect(screen.queryByText('deploy_preview')).toBeNull();
