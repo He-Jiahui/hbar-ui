@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { LumenCheckBoxControl, LumenSelect, LumenTextarea } from './forms';
+import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './ai-chat.css';
 
@@ -180,27 +181,30 @@ function Root({
   className,
   children,
 }: Omit<LumenAiChatProps, 'content' | 'onAction'> & { children: React.ReactNode }) {
+  const contentClassName = [
+    'lumen-ai-chat-stage',
+    `hbar-app-ui-ai-chat-variant-${variant}`,
+    density ? `hbar-app-ui-density-${density}` : '',
+    surface ? `hbar-app-ui-surface-${surface}` : '',
+    state ? `hbar-app-ui-state-${state}` : '',
+    visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-ai-chat-stage',
-        'hbar-app-ui-variant',
-        `hbar-app-ui-ai-chat-variant-${variant}`,
-        density ? `hbar-app-ui-density-${density}` : '',
-        surface ? `hbar-app-ui-surface-${surface}` : '',
-        state ? `hbar-app-ui-state-${state}` : '',
-        visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-ai-chat-surface"
+      contentClassName={contentClassName}
       data-lumen-component="ai-chat"
       data-lumen-variant={variant}
       data-hbar-app-ui-component={variantId}
       data-hbar-app-ui-state={state}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 function Header({
@@ -488,7 +492,14 @@ function Approval(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAiC
         }
       />
       <Transcript content={props.content} />
-      <section className="lumen-ai-chat-approval">
+      <LumenSurface
+        as="section"
+        boundary="horizontal"
+        className="lumen-ai-chat-approval-surface"
+        contentClassName="lumen-ai-chat-approval"
+        material="frost"
+        tone="warning"
+      >
         <Glyph name="shield" />
         <div>
           <strong>{props.content.approval.title}</strong>
@@ -514,7 +525,7 @@ function Approval(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAiC
             {props.content.labels.deny}
           </LumenButton>
         </div>
-      </section>
+      </LumenSurface>
       <Composer content={props.content} onAction={props.onAction} />
     </Root>
   );

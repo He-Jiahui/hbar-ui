@@ -6,10 +6,9 @@ import type { LumenShape } from './appearance';
 import LumenIndicator, { type LumenState, type LumenTone } from './LumenIndicator';
 import styles from './materials.module.css';
 
-export type LumenSurfaceElement = 'article' | 'aside' | 'div' | 'main' | 'nav' | 'section';
+export type LumenSurfaceElement = 'article' | 'aside' | 'div' | 'form' | 'main' | 'nav' | 'section';
 
-export interface LumenSurfaceProps extends React.HTMLAttributes<HTMLElement> {
-  as?: LumenSurfaceElement | undefined;
+interface LumenSurfaceOwnProps {
   boundary?: 'none' | 'horizontal' | 'vertical' | undefined;
   contentClassName?: string | undefined;
   material?: 'glass' | 'frost' | undefined;
@@ -20,8 +19,13 @@ export interface LumenSurfaceProps extends React.HTMLAttributes<HTMLElement> {
   tone?: LumenTone | undefined;
 }
 
-export default function LumenSurface({
-  as: element = 'div',
+export type LumenSurfaceProps<Element extends LumenSurfaceElement = 'div'> = LumenSurfaceOwnProps &
+  Omit<React.ComponentPropsWithoutRef<Element>, keyof LumenSurfaceOwnProps | 'as'> & {
+    as?: Element | undefined;
+  };
+
+export default function LumenSurface<Element extends LumenSurfaceElement = 'div'>({
+  as: suppliedElement,
   boundary = 'none',
   contentClassName,
   material = 'glass',
@@ -33,8 +37,11 @@ export default function LumenSurface({
   className = '',
   children,
   ...props
-}: LumenSurfaceProps) {
-  const Component: React.ElementType = element;
+}: LumenSurfaceProps<Element>) {
+  const element = suppliedElement ?? 'div';
+  const Component = element as unknown as React.ComponentType<
+    React.HTMLAttributes<HTMLElement> & React.RefAttributes<HTMLElement>
+  >;
   const root = React.useRef<HTMLElement>(null);
   const id = `lumen-lens-${React.useId().replace(/[^a-zA-Z0-9]/g, '')}`;
   const [map, setMap] = React.useState('');
@@ -86,7 +93,7 @@ export default function LumenSurface({
         : undefined;
   return (
     <Component
-      {...props}
+      {...(props as unknown as React.HTMLAttributes<HTMLElement>)}
       ref={(node: HTMLElement | null) => {
         root.current = node;
       }}

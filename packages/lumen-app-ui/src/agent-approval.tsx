@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 import { LumenCheckBox, LumenInput } from './forms';
+import LumenDivider from './LumenDivider';
+import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
 import './agent-approval.css';
 
@@ -310,21 +312,24 @@ function ApprovalRoot({
   className,
   children,
 }: Omit<LumenAgentApprovalProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
+  const contentClassName = [
+    'lumen-agent-approval',
+    'hbar-app-ui-agent-approval-surface',
+    `hbar-app-ui-agent-approval-variant-${variant}`,
+    density ? `hbar-app-ui-density-${density}` : '',
+    surface ? `hbar-app-ui-surface-${surface}` : '',
+    state ? `hbar-app-ui-state-${state}` : '',
+    visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-agent-approval',
-        'hbar-app-ui-variant',
-        'hbar-app-ui-agent-approval-surface',
-        `hbar-app-ui-agent-approval-variant-${variant}`,
-        density ? `hbar-app-ui-density-${density}` : '',
-        surface ? `hbar-app-ui-surface-${surface}` : '',
-        state ? `hbar-app-ui-state-${state}` : '',
-        visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-agent-approval-surface"
+      contentClassName={contentClassName}
       data-lumen-component="agent-approval"
       data-lumen-variant={variant}
       data-hbar-app-ui-component={variantId}
@@ -332,7 +337,7 @@ function ApprovalRoot({
       data-hbar-app-ui-state={state}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 
@@ -379,7 +384,14 @@ function InlineApproval(
           <code>{content.toolName}</code>
           <time>{content.toolDuration}</time>
         </div>
-        <section className="hbar-app-ui-agent-approval-request-card">
+        <LumenSurface
+          as="section"
+          boundary="horizontal"
+          className="hbar-app-ui-agent-approval-request-card"
+          contentClassName="hbar-app-ui-agent-approval-request-flow"
+          material="frost"
+          tone="warning"
+        >
           <div className="hbar-app-ui-agent-approval-request-summary">
             <ApprovalStatus
               state={decision === 'pending' ? 'needs-approval' : decision}
@@ -390,6 +402,7 @@ function InlineApproval(
             </LumenText>
             <p>{content.requestDescription}</p>
           </div>
+          <LumenDivider tone="warning" />
           <footer className="hbar-app-ui-agent-approval-action-row">
             <LumenButton
               variant="text"
@@ -420,7 +433,7 @@ function InlineApproval(
               </LumenButton>
             </div>
           </footer>
-        </section>
+        </LumenSurface>
       </main>
     </ApprovalRoot>
   );
@@ -445,8 +458,16 @@ function DiffApproval(
         </LumenText>
         <span>{content.labels.agent}</span>
       </header>
+      <LumenDivider />
       <main className="hbar-app-ui-agent-approval-centered-body">
-        <section className="hbar-app-ui-agent-approval-card">
+        <LumenSurface
+          as="section"
+          boundary="horizontal"
+          className="hbar-app-ui-agent-approval-card"
+          contentClassName="hbar-app-ui-agent-approval-card-flow"
+          material="frost"
+          tone="warning"
+        >
           <div className="hbar-app-ui-agent-approval-card-content">
             <ApprovalStatus
               state={decision === 'pending' ? 'needs-approval' : decision}
@@ -507,7 +528,7 @@ function DiffApproval(
               </LumenButton>
             </div>
           </footer>
-        </section>
+        </LumenSurface>
       </main>
     </ApprovalRoot>
   );
@@ -633,8 +654,16 @@ function PermissionApproval(
         </LumenText>
         <span>{content.labels.agent}</span>
       </header>
+      <LumenDivider />
       <main className="hbar-app-ui-agent-approval-centered-body">
-        <section className="hbar-app-ui-agent-approval-card">
+        <LumenSurface
+          as="section"
+          boundary="horizontal"
+          className="hbar-app-ui-agent-approval-card"
+          contentClassName="hbar-app-ui-agent-approval-card-flow"
+          material="frost"
+          tone="warning"
+        >
           <div className="hbar-app-ui-agent-approval-card-content">
             <ApprovalStatus state="needs-approval" label={content.labels.status} />
             <LumenText as="h2" variant="heading">
@@ -667,6 +696,7 @@ function PermissionApproval(
               ))}
             </div>
           ) : null}
+          <LumenDivider tone="warning" />
           <footer className="hbar-app-ui-agent-approval-action-row">
             <LumenButton
               variant="text"
@@ -693,7 +723,7 @@ function PermissionApproval(
               </LumenButton>
             </div>
           </footer>
-        </section>
+        </LumenSurface>
       </main>
     </ApprovalRoot>
   );

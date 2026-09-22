@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 import { LumenFormField, LumenInput, LumenSelect, LumenTextarea } from './forms';
+import LumenDivider from './LumenDivider';
+import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
 import {
   LumenPromptComposer,
@@ -245,27 +247,30 @@ function Root({
 }: Omit<LumenPromptInputProps, 'content' | 'composer' | 'onAction'> & {
   readonly children: React.ReactNode;
 }) {
+  const contentClassName = [
+    'lumen-prompt-input',
+    `hbar-app-ui-prompt-variant-${variant}`,
+    density ? `hbar-app-ui-density-${density}` : '',
+    surface ? `hbar-app-ui-surface-${surface}` : '',
+    state ? `hbar-app-ui-state-${state}` : '',
+    visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <section
-      className={[
-        'lumen-prompt-input',
-        'hbar-app-ui-variant',
-        `hbar-app-ui-prompt-variant-${variant}`,
-        density ? `hbar-app-ui-density-${density}` : '',
-        surface ? `hbar-app-ui-surface-${surface}` : '',
-        state ? `hbar-app-ui-state-${state}` : '',
-        visualMode ? `hbar-app-ui-visual-${visualMode}` : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <LumenSurface
+      as="section"
+      boundary="horizontal"
+      className="lumen-prompt-input-surface"
+      contentClassName={contentClassName}
       data-lumen-component="prompt-input"
       data-lumen-variant={variant}
       data-hbar-app-ui-component={variantId}
       data-hbar-app-ui-state={state}
     >
       {children}
-    </section>
+    </LumenSurface>
   );
 }
 
@@ -796,6 +801,7 @@ function Modes(
           </LumenButton>
         ))}
       </div>
+      <LumenDivider className="lumen-prompt-input-tab-divider" />
       <LocalComposer
         labels={props.composerLabels}
         placeholder={props.content.labels.placeholder(mode?.label ?? '')}

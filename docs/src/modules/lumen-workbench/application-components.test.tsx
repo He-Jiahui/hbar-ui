@@ -466,6 +466,9 @@ describe('Lumen application components', () => {
     await user.click(screen.getByRole('button', { name: 'Send' }));
     await user.click(screen.getByRole('button', { name: 'Allow' }));
     await user.click(screen.getByRole('radio', { name: /Fast/ }));
+    const composer = screen.getByRole('textbox', { name: 'Prompt' }).closest('form');
+    expect(composer).to.have.attribute('data-boundary', 'horizontal');
+    expect(composer?.querySelectorAll(':scope > [data-state="selected"]')).to.have.length(2);
     expect(onChange).toHaveBeenCalled();
     expect(onSubmit).toHaveBeenCalledTimes(1);
     expect(onDecision).toHaveBeenCalledWith('approval', 'allow');

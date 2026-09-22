@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { LumenDisclosure } from './disclosure';
 import { LumenInput, LumenTextarea } from './forms';
+import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { LumenCompactMetrics } from './workspace-components';
 import './session-components.css';
@@ -253,8 +254,25 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
     props.disabled || props.submitting || props.uploading || !props.canSubmit,
   );
   return (
-    <form
-      className="lumen-prompt-composer"
+    <LumenSurface
+      as="form"
+      boundary="horizontal"
+      className="lumen-prompt-composer-surface"
+      contentClassName="lumen-prompt-composer"
+      interactive
+      material="frost"
+      state={
+        props.error
+          ? 'failed'
+          : props.submitting || props.uploading
+            ? 'running'
+            : props.disabled
+              ? 'disabled'
+              : props.value.trim()
+                ? 'selected'
+                : 'idle'
+      }
+      tone={props.error ? 'danger' : 'neutral'}
       aria-busy={props.submitting || props.uploading || undefined}
       onSubmit={(event) => {
         event.preventDefault();
@@ -371,7 +389,7 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
           </LumenIconButton>
         </div>
       </div>
-    </form>
+    </LumenSurface>
   );
 }
 

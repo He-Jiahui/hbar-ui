@@ -1,10 +1,15 @@
+.lumen-agent-approval-surface {
+  inline-size: 100%;
+  block-size: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
 .lumen-agent-approval {
   min-width: 0;
   overflow: hidden;
   color: var(--lumen-ink);
-  background: var(--lumen-reading);
-  border: 1px solid var(--lumen-line);
-  border-radius: var(--lumen-radius-surface, 0.75rem);
+  background: transparent;
 }
 
 .hbar-app-ui-agent-approval-global-heading,
@@ -34,6 +39,11 @@
   border-block-end: 1px solid var(--lumen-line);
 }
 
+.hbar-app-ui-agent-approval-diff > .hbar-app-ui-agent-approval-global-heading,
+.hbar-app-ui-agent-approval-permission > .hbar-app-ui-agent-approval-global-heading {
+  border-block-end: 0;
+}
+
 .hbar-app-ui-agent-approval-global-heading h2,
 .hbar-app-ui-agent-approval-card h2,
 .hbar-app-ui-agent-approval-card p,
@@ -55,13 +65,23 @@
   place-items: center;
 }
 
-.hbar-app-ui-agent-approval-card,
-.hbar-app-ui-agent-approval-request-card,
 .hbar-app-ui-agent-approval-queue-featured {
   inline-size: min(100%, 48rem);
   background: var(--lumen-glass);
   border: 1px solid var(--lumen-line);
   border-radius: var(--lumen-radius-surface, 0.75rem);
+}
+
+.hbar-app-ui-agent-approval-card {
+  inline-size: min(100%, 48rem);
+}
+
+.hbar-app-ui-agent-approval-request-card {
+  inline-size: min(100%, 48rem);
+}
+
+.hbar-app-ui-agent-approval-card-flow {
+  background: transparent;
 }
 
 .hbar-app-ui-agent-approval-card-content,
@@ -78,6 +98,11 @@
   flex-wrap: wrap;
   padding: 0.75rem 1rem;
   border-block-start: 1px solid var(--lumen-line);
+}
+
+.hbar-app-ui-agent-approval-card-flow > .hbar-app-ui-agent-approval-action-row,
+.hbar-app-ui-agent-approval-request-flow > .hbar-app-ui-agent-approval-action-row {
+  border-block-start: 0;
 }
 
 .hbar-app-ui-agent-approval-day,
