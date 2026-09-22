@@ -252,3 +252,7 @@ textarea.lumen-control {
     background: Canvas;
   }
 }
+.lumen-file-button {
+  display: inline-flex;
+  max-inline-size: 100%;
+}

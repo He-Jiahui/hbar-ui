@@ -1428,6 +1428,7 @@ export {
   LumenCheckBox,
   LumenCheckBoxControl,
   LumenComboBox,
+  LumenFileButton,
   LumenFormField,
   LumenInput,
   LumenMultiSelect,
@@ -1440,6 +1441,7 @@ export type {
   LumenComboBoxLabels,
   LumenComboBoxProps,
   LumenControlOption,
+  LumenFileButtonProps,
   LumenFieldVariant,
   LumenFormFieldProps,
   LumenInputProps,
@@ -1550,7 +1552,6 @@ export type {
   LumenTextVariant,
 } from './primitives';
 export * from './ui-controls';
-export * from './ui-compositions';
 export { default as createLumenTheme } from './theme';
 export type { LumenThemeOptions } from './theme';
 export {

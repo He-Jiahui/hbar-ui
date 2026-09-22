@@ -45,6 +45,7 @@ const zh = {
     retry: (name: string) => `重试 ${name}`,
     cancel: (name: string) => `取消 ${name}`,
     progress: (name: string, value: number) => `${name} 上传 ${value}%`,
+    percentage: (value: number) => `${value}%`,
     status: {
       queued: '等待中',
       uploading: '上传中',
@@ -174,6 +175,7 @@ const en = {
     retry: (name: string) => `Retry ${name}`,
     cancel: (name: string) => `Cancel ${name}`,
     progress: (name: string, value: number) => `${name} upload ${value}%`,
+    percentage: (value: number) => `${value}%`,
     status: {
       queued: 'Queued',
       uploading: 'Uploading',

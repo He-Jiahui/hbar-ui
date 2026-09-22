@@ -1,13 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import Button from '@mui/material/Button';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import TextField from '@mui/material/TextField';
 import LumenField from '../LumenField';
 import LumenIndicator from '../LumenIndicator';
 import LumenSurface from '../LumenSurface';
+import { LumenFileButton, LumenFormField, LumenInput, LumenSelect, LumenTextarea } from '../forms';
+import { LumenButton } from '../primitives';
+import { LumenMenu, LumenProgress } from '../ui-controls';
 import type {
   HbarAppUiPromptInput01Props,
   HbarAppUiPromptInput02Props,
@@ -85,15 +84,16 @@ function Action({
     indicatorState = 'selected';
   }
   return (
-    <Button
+    <LumenButton
       className={styles.action}
+      variant="outlined"
+      indicatorState={indicatorState}
       onClick={onClick}
       disabled={disabled}
       aria-pressed={selected === undefined ? undefined : selected}
     >
       {children}
-      <LumenIndicator edge="bottom" length="action" state={indicatorState} />
-    </Button>
+    </LumenButton>
   );
 }
 
@@ -120,13 +120,11 @@ function Composer({
   return (
     <div className={styles.composer}>
       <LumenField boundary="horizontal" className={styles.field}>
-        <TextField
-          multiline
-          minRows={2}
-          maxRows={6}
+        <LumenTextarea
+          rows={2}
           value={state.draft}
           placeholder={copy.placeholder}
-          slotProps={{ htmlInput: { 'aria-label': copy.placeholder } }}
+          aria-label={copy.placeholder}
           disabled={running}
           onChange={(event) => actions.onDraftChange(id, event.target.value)}
           onKeyDown={(event) => {
@@ -166,59 +164,41 @@ export function HbarAppUiPromptInput01({
   state,
   actions,
 }: HbarAppUiPromptInput01Props) {
-  const commandRef = React.useRef<HTMLButtonElement>(null);
   return (
     <Frame id="hbar-app-ui-prompt-input-1" title={copy.title} detail={copy.detail}>
       <div className={styles.toolbar}>
-        <Button ref={commandRef} onClick={() => actions.onCommandOpen(content.id, true)}>
-          {copy.commands}
-        </Button>
-        <Menu
-          anchorEl={commandRef.current}
-          open={state.commandOpen}
-          onClose={() => actions.onCommandOpen(content.id, false)}
-        >
-          {unique(content.commands).length === 0 ? (
-            <MenuItem disabled>{copy.empty}</MenuItem>
-          ) : null}
-          {unique(content.commands).map((command) => (
-            <MenuItem
-              key={command.id}
-              onClick={() => {
-                actions.onCommand(content.id, command.id);
-                actions.onCommandOpen(content.id, false);
-              }}
-            >
-              {command.label}
-            </MenuItem>
-          ))}
-        </Menu>
-        <Button component="label">
-          {copy.attach}
-          <input
-            hidden
-            type="file"
-            accept={content.accept}
-            multiple
-            onChange={(event) => {
-              const files = Array.from(event.target.files ?? []);
-              if (files.length) {
-                actions.onAttach(content.id, files);
-              }
-              event.target.value = '';
+        <div className={styles.menuTrigger}>
+          <LumenButton onClick={() => actions.onCommandOpen(content.id, !state.commandOpen)}>
+            {copy.commands}
+          </LumenButton>
+          <LumenMenu
+            open={state.commandOpen}
+            label={copy.commands}
+            empty={copy.empty}
+            items={unique(content.commands)}
+            onSelect={(commandId) => {
+              actions.onCommand(content.id, commandId);
+              actions.onCommandOpen(content.id, false);
             }}
           />
-        </Button>
+        </div>
+        <LumenFileButton
+          label={copy.attach}
+          accept={content.accept}
+          multiple
+          onFiles={(files) => actions.onAttach(content.id, files)}
+        />
       </div>
       <div className={styles.pills}>
         {unique(content.attachments).map((item) => (
-          <Button
+          <LumenButton
             key={item.id}
+            variant="text"
             onClick={() => actions.onRemoveAttachment(content.id, item.id)}
             aria-label={copy.removeAttachment(item.label)}
           >
-            {item.label} ×
-          </Button>
+            {copy.removeAttachment(item.label)}
+          </LumenButton>
         ))}
       </div>
       <Composer id={content.id} copy={copy} state={state} actions={actions} />
@@ -237,22 +217,20 @@ export function HbarAppUiPromptInput02({
     <Frame id="hbar-app-ui-prompt-input-2" title={copy.title} detail={copy.detail}>
       <div className={styles.toolbar}>
         <LumenField boundary="vertical" className={styles.selectField}>
-          <TextField
-            select
-            fullWidth
-            size="small"
-            label={copy.model}
-            value={models.some((item) => item.id === state.modelId) ? state.modelId : ''}
-            onChange={(event) => actions.onModel(content.id, event.target.value)}
-            slotProps={{ select: { native: true } }}
-          >
-            <option value="">{copy.empty}</option>
-            {models.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.label}
-              </option>
-            ))}
-          </TextField>
+          <LumenFormField controlId={`${content.id}-model`} label={copy.model} size="s">
+            <LumenSelect
+              size="s"
+              value={models.some((item) => item.id === state.modelId) ? (state.modelId ?? '') : ''}
+              onChange={(event) => actions.onModel(content.id, event.target.value)}
+            >
+              <option value="">{copy.empty}</option>
+              {models.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.label}
+                </option>
+              ))}
+            </LumenSelect>
+          </LumenFormField>
         </LumenField>
         <span className={styles.muted}>{copy.tokens(state.tokenCount)}</span>
       </div>
@@ -313,22 +291,21 @@ export function HbarAppUiPromptInput04({
     <Frame id="hbar-app-ui-prompt-input-4" title={copy.title} detail={copy.detail}>
       <div className={styles.stack}>
         <LumenField boundary="horizontal">
-          <TextField
-            fullWidth
-            label={copy.name}
-            value={state.name}
-            onChange={(event) => actions.onNameChange(content.id, event.target.value)}
-          />
+          <LumenFormField controlId={`${content.id}-name`} label={copy.name}>
+            <LumenInput
+              value={state.name}
+              onChange={(event) => actions.onNameChange(content.id, event.target.value)}
+            />
+          </LumenFormField>
         </LumenField>
         <LumenField boundary="horizontal">
-          <TextField
-            fullWidth
-            multiline
-            minRows={4}
-            label={copy.template}
-            value={state.template}
-            onChange={(event) => actions.onTemplateChange(content.id, event.target.value)}
-          />
+          <LumenFormField controlId={`${content.id}-template`} label={copy.template}>
+            <LumenTextarea
+              rows={4}
+              value={state.template}
+              onChange={(event) => actions.onTemplateChange(content.id, event.target.value)}
+            />
+          </LumenFormField>
         </LumenField>
         <div className={styles.pills} aria-label={copy.variables}>
           {unique(content.variables).map((item) => (
@@ -382,34 +359,20 @@ export function HbarAppUiPromptInput05({
       >
         <LumenIndicator edge="top" length="area" />
         <strong>{dragging ? copy.release : copy.drop}</strong>
-        <Button component="label">
-          {copy.choose}
-          <input
-            hidden
-            type="file"
-            accept={content.accept}
-            multiple
-            onChange={(event) => {
-              const files = Array.from(event.target.files ?? []);
-              if (files.length) {
-                actions.onUpload(content.id, files, 'picker');
-              }
-              event.target.value = '';
-            }}
-          />
-        </Button>
+        <LumenFileButton
+          label={copy.choose}
+          accept={content.accept}
+          multiple
+          onFiles={(files) => actions.onUpload(content.id, files, 'picker')}
+        />
         <LumenIndicator edge="bottom" length="area" />
       </div>
       <div className={styles.uploads}>
         {unique(content.attachments).map((item) => (
           <div key={item.id} className={styles.upload}>
             <span>{item.label}</span>
-            <progress
-              max={100}
-              value={Math.max(0, Math.min(100, item.progress))}
-              aria-label={copy.progress(item.label, item.progress)}
-            />
-            <span>{item.progress}%</span>
+            <LumenProgress label={copy.progress(item.label, item.progress)} value={item.progress} />
+            <span>{copy.percentage(item.progress)}</span>
             {item.status === 'failed' && (
               <Action onClick={() => actions.onRetry(content.id, item.id)}>
                 {copy.retry(item.label)}
@@ -429,62 +392,54 @@ export function HbarAppUiPromptInput06({
   state,
   actions,
 }: HbarAppUiPromptInput06Props) {
-  const anchor = React.useRef<HTMLButtonElement>(null);
   const scopes = unique(content.scopes);
   return (
     <Frame id="hbar-app-ui-prompt-input-6" title={copy.title} detail={copy.detail}>
       <div className={styles.toolbar}>
-        <Button ref={anchor} onClick={() => actions.onMentionOpen(content.id, true)}>
-          {copy.mention}
-        </Button>
-        <Menu
-          anchorEl={anchor.current}
-          open={state.mentionOpen}
-          onClose={() => actions.onMentionOpen(content.id, false)}
-        >
-          {unique(content.sources).length === 0 ? <MenuItem disabled>{copy.empty}</MenuItem> : null}
-          {unique(content.sources).map((source) => (
-            <MenuItem
-              key={source.id}
-              onClick={() => {
-                actions.onSource(content.id, source.id);
-                actions.onMentionOpen(content.id, false);
-              }}
-            >
-              {source.label}
-            </MenuItem>
-          ))}
-        </Menu>
+        <div className={styles.menuTrigger}>
+          <LumenButton onClick={() => actions.onMentionOpen(content.id, !state.mentionOpen)}>
+            {copy.mention}
+          </LumenButton>
+          <LumenMenu
+            open={state.mentionOpen}
+            label={copy.mention}
+            empty={copy.empty}
+            items={unique(content.sources)}
+            onSelect={(sourceId) => {
+              actions.onSource(content.id, sourceId);
+              actions.onMentionOpen(content.id, false);
+            }}
+          />
+        </div>
         <LumenField boundary="vertical" className={styles.selectField}>
-          <TextField
-            select
-            fullWidth
-            size="small"
-            label={copy.scope}
-            value={scopes.some((item) => item.id === state.scopeId) ? state.scopeId : ''}
-            onChange={(event) => actions.onScope(content.id, event.target.value)}
-            slotProps={{ select: { native: true } }}
-          >
-            <option value="">{copy.empty}</option>
-            {scopes.map((scope) => (
-              <option key={scope.id} value={scope.id}>
-                {scope.label}
-              </option>
-            ))}
-          </TextField>
+          <LumenFormField controlId={`${content.id}-scope`} label={copy.scope} size="s">
+            <LumenSelect
+              size="s"
+              value={scopes.some((item) => item.id === state.scopeId) ? (state.scopeId ?? '') : ''}
+              onChange={(event) => actions.onScope(content.id, event.target.value)}
+            >
+              <option value="">{copy.empty}</option>
+              {scopes.map((scope) => (
+                <option key={scope.id} value={scope.id}>
+                  {scope.label}
+                </option>
+              ))}
+            </LumenSelect>
+          </LumenFormField>
         </LumenField>
       </div>
       <div className={styles.pills}>
         {unique(content.sources)
           .filter((source) => state.sourceIds.includes(source.id))
           .map((source) => (
-            <Button
+            <LumenButton
               key={source.id}
+              variant="text"
               aria-label={copy.remove(source.label)}
               onClick={() => actions.onRemoveSource(content.id, source.id)}
             >
-              {source.label} ×
-            </Button>
+              {copy.remove(source.label)}
+            </LumenButton>
           ))}
       </div>
       <Composer id={content.id} copy={copy} state={state} actions={actions} />

@@ -104,6 +104,7 @@ export interface HbarAppUiFileManager04Props {
     retry: (name: string) => string;
     cancel: (name: string) => string;
     progress: (name: string, value: number) => string;
+    percentage: (value: number) => string;
     status: Record<FileManagerTransfer['status'], string>;
   };
   content: {

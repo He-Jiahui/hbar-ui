@@ -1,11 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
 import LumenField from '../LumenField';
 import LumenIndicator from '../LumenIndicator';
 import LumenSurface from '../LumenSurface';
+import { LumenFileButton, LumenInput } from '../forms';
+import { LumenButton, LumenNavigationButton } from '../primitives';
+import { LumenProgress } from '../ui-controls';
+import { LumenIcon } from '../workbench';
 import type {
   FileManagerItem,
   HbarAppUiFileManager01Props,
@@ -71,10 +73,15 @@ function Action({
   disabled?: boolean | undefined;
 }) {
   return (
-    <Button className={styles.action} onClick={onClick} disabled={disabled}>
+    <LumenButton
+      className={styles.action}
+      variant="outlined"
+      indicatorState="idle"
+      onClick={onClick}
+      disabled={disabled}
+    >
       {children}
-      <LumenIndicator edge="bottom" length="action" state={disabled ? 'disabled' : 'idle'} />
-    </Button>
+    </LumenButton>
   );
 }
 
@@ -88,15 +95,40 @@ function FileRow({
   onClick: () => void;
 }) {
   return (
-    <Button className={styles.fileRow} aria-pressed={selected} onClick={onClick}>
+    <LumenNavigationButton
+      className={styles.fileRow}
+      selected={selected}
+      indicatorEdge="right"
+      onClick={onClick}
+    >
       <span>
         <strong>{item.name}</strong>
         <small>{item.description}</small>
       </span>
       <span className={styles.updated}>{item.updated}</span>
-      <LumenIndicator edge="right" state={selected ? 'selected' : 'idle'} />
-    </Button>
+    </LumenNavigationButton>
   );
+}
+
+function FolderGlyph(props: React.SVGAttributes<SVGSVGElement>) {
+  return (
+    <svg {...props} viewBox="0 0 20 20">
+      <path d="M2.5 5.5h6l1.5 2h7.5v8h-15z" />
+    </svg>
+  );
+}
+
+function FileGlyph(props: React.SVGAttributes<SVGSVGElement>) {
+  return (
+    <svg {...props} viewBox="0 0 20 20">
+      <path d="M5 2.5h6l4 4v11H5z" />
+      <path d="M11 2.5v4h4M7.5 10h5M7.5 13h5" />
+    </svg>
+  );
+}
+
+function AssetGlyph({ folder }: { folder: boolean }) {
+  return <LumenIcon icon={folder ? FolderGlyph : FileGlyph} tier="lg" />;
 }
 
 export function HbarAppUiFileManager01({
@@ -115,50 +147,40 @@ export function HbarAppUiFileManager01({
         <nav className={styles.folders} aria-label={copy.folders}>
           <h3>{copy.folders}</h3>
           {unique(content.folders).map((folder) => (
-            <Button
+            <LumenNavigationButton
               key={folder.id}
-              aria-current={folder.id === state.folderId ? 'page' : undefined}
+              selected={folder.id === state.folderId}
+              indicatorEdge="right"
               onClick={() => actions.onFolder(content.id, folder.id)}
             >
               {folder.label}
-              <LumenIndicator
-                edge="right"
-                state={folder.id === state.folderId ? 'selected' : 'idle'}
-              />
-            </Button>
+            </LumenNavigationButton>
           ))}
-          <label className={styles.storage}>
+          <div className={styles.storage}>
             <span>{copy.storage(content.storage.used, content.storage.total)}</span>
-            <progress max={100} value={Math.max(0, Math.min(100, content.storage.percent))} />
-          </label>
+            <LumenProgress
+              label={copy.storage(content.storage.used, content.storage.total)}
+              value={content.storage.percent}
+            />
+          </div>
         </nav>
         <div className={styles.driveMain}>
           <div className={styles.toolbar}>
             <LumenField boundary="vertical" className={styles.query}>
-              <TextField
-                size="small"
+              <LumenInput
+                size="s"
                 value={state.query}
                 placeholder={copy.search}
-                slotProps={{ htmlInput: { 'aria-label': copy.search } }}
+                aria-label={copy.search}
                 onChange={(event) => actions.onQuery(content.id, event.target.value)}
               />
             </LumenField>
-            <Button component="label">
-              {copy.upload}
-              <input
-                hidden
-                type="file"
-                accept={content.accept}
-                multiple
-                onChange={(event) => {
-                  const files = Array.from(event.target.files ?? []);
-                  if (files.length) {
-                    actions.onUpload(content.id, files);
-                  }
-                  event.target.value = '';
-                }}
-              />
-            </Button>
+            <LumenFileButton
+              label={copy.upload}
+              accept={content.accept}
+              multiple
+              onFiles={(files) => actions.onUpload(content.id, files)}
+            />
           </div>
           <section className={styles.suggested} aria-label={copy.suggested}>
             <h3>{copy.suggested}</h3>
@@ -213,35 +235,31 @@ export function HbarAppUiFileManager02({
       </nav>
       <div className={styles.filter} role="group" aria-label={copy.filter}>
         {unique(content.filters).map((item) => (
-          <Button
+          <LumenButton
             key={item.id}
+            variant="text"
+            indicatorState={item.id === state.filterId ? 'selected' : undefined}
             aria-pressed={item.id === state.filterId}
             onClick={() => actions.onFilter(content.id, item.id)}
           >
             {item.label}
-            <LumenIndicator
-              edge="bottom"
-              state={item.id === state.filterId ? 'selected' : 'idle'}
-            />
-          </Button>
+          </LumenButton>
         ))}
       </div>
       <div className={styles.assetGrid}>
         {assets.length === 0 && <p>{copy.empty}</p>}
         {assets.map((item) => (
           <article key={item.id} className={styles.asset}>
-            <Button
+            <LumenButton
+              variant="text"
+              indicatorState={selected.includes(item.id) ? 'selected' : undefined}
               aria-pressed={selected.includes(item.id)}
               onClick={() => actions.onSelect(content.id, item.id)}
             >
-              <span>{item.kind === 'folder' ? '▱' : '▤'}</span>
+              <AssetGlyph folder={item.kind === 'folder'} />
               <strong>{item.name}</strong>
               <small>{item.description}</small>
-              <LumenIndicator
-                edge="bottom"
-                state={selected.includes(item.id) ? 'selected' : 'idle'}
-              />
-            </Button>
+            </LumenButton>
             <Action onClick={() => actions.onOpen(content.id, item.id)}>{copy.open}</Action>
           </article>
         ))}
@@ -359,22 +377,12 @@ export function HbarAppUiFileManager04({ copy, content, actions }: HbarAppUiFile
       >
         <LumenIndicator edge="top" length="area" />
         <strong>{dragging ? copy.release : copy.drop}</strong>
-        <Button component="label">
-          {copy.choose}
-          <input
-            hidden
-            type="file"
-            accept={content.accept}
-            multiple={content.multiple}
-            onChange={(event) => {
-              const files = Array.from(event.target.files ?? []);
-              if (files.length) {
-                actions.onUpload(content.id, files, 'picker');
-              }
-              event.target.value = '';
-            }}
-          />
-        </Button>
+        <LumenFileButton
+          label={copy.choose}
+          accept={content.accept}
+          multiple={content.multiple}
+          onFiles={(files) => actions.onUpload(content.id, files, 'picker')}
+        />
         <LumenIndicator edge="bottom" length="area" />
       </div>
       <p role="status">{copy.summary(finished, transfers.length)}</p>
@@ -386,12 +394,8 @@ export function HbarAppUiFileManager04({ copy, content, actions }: HbarAppUiFile
               <strong>{item.name}</strong>
               <small>{copy.status[item.status]}</small>
             </div>
-            <progress
-              max={100}
-              value={Math.max(0, Math.min(100, item.progress))}
-              aria-label={copy.progress(item.name, item.progress)}
-            />
-            <span>{item.progress}%</span>
+            <LumenProgress label={copy.progress(item.name, item.progress)} value={item.progress} />
+            <span>{copy.percentage(item.progress)}</span>
             {item.status === 'failed' && (
               <Action onClick={() => actions.onRetry(content.id, item.id)}>
                 {copy.retry(item.name)}

@@ -45,6 +45,7 @@ const zh = {
       choose: '选择文件',
       retry: (label: string) => `重试 ${label}`,
       progress: (label: string, value: number) => `${label} ${value}%`,
+      percentage: (value: number) => `${value}%`,
     },
     {
       title: '关联上下文',
@@ -163,6 +164,7 @@ const en = {
       choose: 'Choose files',
       retry: (label: string) => `Retry ${label}`,
       progress: (label: string, value: number) => `${label} ${value}%`,
+      percentage: (value: number) => `${value}%`,
     },
     {
       title: 'Scoped context',

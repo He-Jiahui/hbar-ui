@@ -110,6 +110,7 @@ export interface HbarAppUiPromptInput05Props extends PromptBaseProps {
     choose: string;
     retry: (label: string) => string;
     progress: (label: string, value: number) => string;
+    percentage: (value: number) => string;
   };
   content: PromptBaseProps['content'] & {
     accept: string;

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import type { LumenSize } from './appearance';
-import { LumenButton, LumenIconButton, LumenText } from './primitives';
+import { LumenButton, LumenIconButton, LumenText, type LumenButtonProps } from './primitives';
 
 export type LumenFieldVariant = 'outlined' | 'plain';
 
@@ -11,6 +11,55 @@ export interface LumenControlOption {
   label: string;
   detail?: string | undefined;
   disabled?: boolean | undefined;
+}
+
+export interface LumenFileButtonProps extends Omit<
+  LumenButtonProps,
+  'children' | 'onChange' | 'onClick' | 'type'
+> {
+  label: React.ReactNode;
+  accept?: string | undefined;
+  multiple?: boolean | undefined;
+  onFiles: (files: readonly File[]) => void;
+}
+
+export function LumenFileButton({
+  label,
+  accept,
+  multiple,
+  onFiles,
+  disabled,
+  className,
+  ...buttonProps
+}: LumenFileButtonProps) {
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  return (
+    <span className="lumen-file-button">
+      <LumenButton
+        {...buttonProps}
+        className={className}
+        disabled={disabled}
+        onClick={() => inputRef.current?.click()}
+      >
+        {label}
+      </LumenButton>
+      <input
+        ref={inputRef}
+        hidden
+        tabIndex={-1}
+        type="file"
+        accept={accept}
+        multiple={multiple}
+        onChange={(event) => {
+          const files = Array.from(event.target.files ?? []);
+          if (files.length) {
+            onFiles(files);
+          }
+          event.target.value = '';
+        }}
+      />
+    </span>
+  );
 }
 
 export interface LumenFormFieldProps {

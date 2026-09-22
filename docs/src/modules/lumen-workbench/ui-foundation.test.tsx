@@ -8,6 +8,7 @@ import {
   LumenDataTable,
   LumenDiffView,
   LumenDrawer,
+  LumenFileButton,
   LumenMenu,
   LumenPanel,
   LumenProgress,
@@ -108,6 +109,25 @@ describe('Lumen UI public foundation', () => {
     );
     await user.click(screen.getByRole('button', { name: 'Close details' }));
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('normalizes file selection through the Lumen form contract', async () => {
+    const onFiles = vi.fn();
+    const { user, container } = render(
+      <LumenProvider appearance={appearance} withCssBaseline={false}>
+        <LumenFileButton label="Attach files" accept=".txt" multiple onFiles={onFiles} />
+      </LumenProvider>,
+    );
+    const input = container.querySelector<HTMLInputElement>('input[type="file"]');
+    expect(input).not.toBeNull();
+
+    const files = [new File(['one'], 'one.txt'), new File(['two'], 'two.txt')];
+    await user.upload(input!, files);
+    expect(onFiles).toHaveBeenCalledTimes(1);
+    expect(onFiles.mock.calls[0]![0].map((file: File) => file.name)).toEqual([
+      'one.txt',
+      'two.txt',
+    ]);
   });
 
   it('provides distinct area, bar, and line chart structures', () => {
