@@ -1,4 +1,3 @@
-import type { LumenCommandMenuContent } from '@lumen/app-ui';
 import { createAgentPlanFixtures } from './agentPlanFixtures';
 import { createAgentActivityFixtures } from './agentActivityLumenFixtures';
 import { createAgentApprovalFixtures } from './agentApprovalLumenFixtures';
@@ -38,103 +37,6 @@ import { createUsageFixtures } from './usageFixtures';
 import { createWizardFixtures } from './wizardFixtures';
 
 export type LumenPreviewLocale = 'zh' | 'en';
-
-const familyNames: Record<string, readonly [string, string]> = {
-  'ai-chat': ['AI 对话', 'AI chat'],
-  'prompt-input': ['提示词输入', 'Prompt input'],
-  'agent-activity': ['代理活动', 'Agent activity'],
-  'tool-calls': ['工具调用', 'Tool calls'],
-  'agent-approval': ['代理审批', 'Agent approval'],
-  'agent-plan': ['代理计划', 'Agent plan'],
-  'ai-usage': ['AI 用量', 'AI usage'],
-  'app-shell': ['应用框架', 'App shell'],
-  'app-sidebar': ['应用侧栏', 'App sidebar'],
-  'command-menu': ['命令菜单', 'Command menu'],
-  navbar: ['顶部导航', 'Navbar'],
-  mobile: ['移动界面', 'Mobile'],
-  card: ['卡片', 'Cards'],
-  'data-table': ['数据表格', 'Data table'],
-  dashboard: ['仪表盘', 'Dashboard'],
-  analytics: ['分析', 'Analytics'],
-  list: ['列表', 'Lists'],
-  filtering: ['筛选', 'Filtering'],
-  'file-manager': ['文件管理', 'File manager'],
-  monitoring: ['监控', 'Monitoring'],
-  'settings-form': ['设置表单', 'Settings form'],
-  forms: ['业务表单', 'Forms'],
-  'app-dialog': ['应用弹层', 'App dialog'],
-  notifications: ['通知', 'Notifications'],
-  onboarding: ['初始引导', 'Onboarding'],
-  paywall: ['功能门槛', 'Paywall'],
-  authentication: ['身份验证', 'Authentication'],
-  kanban: ['看板', 'Kanban'],
-  wizard: ['分步流程', 'Wizard'],
-  comments: ['评论', 'Comments'],
-  scheduling: ['日程', 'Scheduling'],
-  integrations: ['集成', 'Integrations'],
-  editor: ['编辑器', 'Editor'],
-  feedback: ['反馈', 'Feedback'],
-  support: ['支持', 'Support'],
-  billing: ['账单', 'Billing'],
-  chat: ['团队聊天', 'Team chat'],
-};
-
-const labelNames: Record<string, readonly [string, string]> = {
-  title: ['工作区', 'Workspace'],
-  detail: ['实时详情', 'Live details'],
-  description: ['说明', 'Description'],
-  status: ['状态', 'Status'],
-  empty: ['暂无内容', 'No items yet'],
-  search: ['搜索', 'Search'],
-  save: ['保存', 'Save'],
-  cancel: ['取消', 'Cancel'],
-  close: ['关闭', 'Close'],
-  open: ['打开', 'Open'],
-  continue: ['继续', 'Continue'],
-  send: ['发送', 'Send'],
-  name: ['名称', 'Name'],
-  label: ['项目', 'Item'],
-  value: ['数值', 'Value'],
-  progress: ['进度', 'Progress'],
-  settings: ['设置', 'Settings'],
-  activity: ['活动', 'Activity'],
-  messages: ['消息', 'Messages'],
-  files: ['文件', 'Files'],
-  members: ['成员', 'Members'],
-  actions: ['操作', 'Actions'],
-};
-
-function previewText(locale: LumenPreviewLocale, key: string): string {
-  const [family = 'lumen', ...parts] = key.split('.');
-  const label =
-    parts
-      .at(-1)
-      ?.replaceAll(/([a-z])([A-Z])/g, '$1 $2')
-      .replaceAll('-', ' ') ?? family;
-  const familyLabel = familyNames[family]?.[locale === 'zh' ? 0 : 1] ?? family;
-  const normalizedLabel = labelNames[label]?.[locale === 'zh' ? 0 : 1] ?? label;
-  return `${familyLabel} · ${normalizedLabel}`;
-}
-
-function translated(locale: LumenPreviewLocale, zh: string, en: string) {
-  return locale === 'zh' ? zh : en;
-}
-
-function commandLabels(locale: LumenPreviewLocale, search: string, available: string) {
-  return {
-    search,
-    available,
-    empty: translated(locale, '没有匹配的命令', 'No matching commands'),
-    unavailable: translated(locale, '当前选择已不可用', 'The current selection is unavailable'),
-    navigate: translated(locale, '移动', 'Navigate'),
-    execute: translated(locale, '执行', 'Execute'),
-    close: translated(locale, '关闭', 'Close'),
-    count: (count: number) => translated(locale, `${count} 个命令`, `${count} commands`),
-    navigateKeys: '↑↓',
-    executeKey: 'Enter',
-    closeKey: 'Esc',
-  };
-}
 
 export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
   return {
@@ -1527,7 +1429,8 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
       },
       listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
     } satisfies LumenAppSidebarContent, */
-    'command-menu': {
+    'command-menu': createCommandMenuFixtures(locale),
+    /* legacyCommandMenu: {
       grouped: {
         open: false,
         title: translated(locale, '搜索或运行命令', 'Search or run a command'),
@@ -1890,8 +1793,7 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
         onAsk: () => undefined,
         onSuggestion: (_id) => undefined,
       },
-      ...createCommandMenuFixtures(locale),
-    } satisfies LumenCommandMenuContent,
+    } satisfies LumenCommandMenuContent, */
     navbar: createNavbarFixtures(locale),
     mobile: createMobileFixtures(locale),
     /* legacy mobile fixture removed */
