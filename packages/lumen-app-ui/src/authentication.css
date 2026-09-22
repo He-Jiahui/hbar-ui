@@ -320,6 +320,12 @@
   accent-color: var(--hbar-app-ui-auth-text);
 }
 
+.hbar-app-ui-auth-check > span {
+  min-inline-size: 0;
+  flex: 1 1 auto;
+  line-height: 1.5;
+}
+
 .hbar-app-ui-auth-footer-links {
   display: flex;
   flex-wrap: wrap;
@@ -427,6 +433,12 @@
   font-size: 0.8125rem;
   text-decoration: underline;
   text-underline-offset: 0.125rem;
+}
+
+.hbar-app-ui-auth-inline-link {
+  min-block-size: 0;
+  padding: 0.125rem 0.25rem;
+  vertical-align: baseline;
 }
 
 .hbar-app-ui-auth-split,

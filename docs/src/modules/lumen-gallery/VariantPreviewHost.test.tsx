@@ -403,4 +403,55 @@ describe('Lumen formal variant fixtures', () => {
     ).not.toBeNull();
     view.unmount();
   });
+
+  it('uses distinct host-owned authentication scenarios for all fourteen entry flows', () => {
+    const authenticationEntries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'authentication',
+    );
+    expect(authenticationEntries).toHaveLength(14);
+    const expected = [
+      'Welcome back',
+      'Sign in to your workspace',
+      'From our customers',
+      'Continue signing in',
+      'Check your inbox',
+      'Enter your security code',
+      'Create your account',
+      'Sign in with your company identity',
+      'Sign in with a passkey',
+      'Choose an account',
+      'Choose a workspace',
+      'Join Cedar Labs',
+      'Set a new password',
+      'Approve sign-in request',
+    ];
+
+    authenticationEntries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('Authentication ·');
+      expect(view).toContain(expected[index]);
+    });
+
+    const approval = authenticationEntries.find((entry) => entry.variant === 14)!;
+    {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={approval} locale="zh" unavailableLabel="无法预览" />,
+      );
+      expect(view).toContain('批准登录请求');
+      expect(view).toContain('198.51.100.42');
+    }
+
+    for (const variant of [1, 7, 13]) {
+      const entry = authenticationEntries.find((candidate) => candidate.variant === variant)!;
+      const view = render(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(
+        view.container.querySelector('.lumen-checkbox, .lumen-checkbox-control'),
+      ).not.toBeNull();
+      view.unmount();
+    }
+  });
 });

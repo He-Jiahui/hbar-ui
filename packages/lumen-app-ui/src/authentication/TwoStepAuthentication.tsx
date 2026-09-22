@@ -112,6 +112,7 @@ export default function TwoStepAuthentication({
               </AuthButton>
               <LumenButton
                 type="button"
+                variant="text"
                 className="hbar-app-ui-auth-inline-link"
                 onClick={() => setStep(1)}
               >
@@ -125,6 +126,7 @@ export default function TwoStepAuthentication({
           {content.labels.needAccount}
           <LumenButton
             type="button"
+            variant="text"
             className="hbar-app-ui-auth-inline-link"
             onClick={() =>
               onAction?.({

@@ -33,6 +33,7 @@ export default function AccountChooserAuthentication({
             {accounts.map((account) => (
               <LumenButton
                 type="button"
+                variant="text"
                 className={`hbar-app-ui-auth-account-row ${account.id === selected?.id ? 'is-selected' : ''}`}
                 key={account.id}
                 onClick={() => setSelectedId(account.id)}
@@ -52,6 +53,7 @@ export default function AccountChooserAuthentication({
             ))}
             <LumenButton
               type="button"
+              variant="text"
               className="hbar-app-ui-auth-account-row"
               onClick={() => onAction?.({ variantId: spec.id, actionId: 'use-another' })}
             >
@@ -97,6 +99,7 @@ export default function AccountChooserAuthentication({
           {content.labels.finished}
           <LumenButton
             type="button"
+            variant="text"
             className="hbar-app-ui-auth-inline-link"
             onClick={() =>
               onAction?.({

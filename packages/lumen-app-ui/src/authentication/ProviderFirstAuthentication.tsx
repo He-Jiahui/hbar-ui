@@ -72,6 +72,7 @@ export default function ProviderFirstAuthentication({
               <span>{isSso ? content.labels.ssoLabel : content.labels.emailLabel}</span>
               <LumenButton
                 type="button"
+                variant="text"
                 onClick={() => {
                   const next = isSso ? content.emailProviderId : content.ssoProviderId;
                   setProviderId(next);
@@ -106,6 +107,7 @@ export default function ProviderFirstAuthentication({
               {content.labels.termsPrefix}
               <LumenButton
                 type="button"
+                variant="text"
                 className="hbar-app-ui-auth-inline-link"
                 onClick={() =>
                   onAction?.({
@@ -119,6 +121,7 @@ export default function ProviderFirstAuthentication({
               {content.labels.privacyPrefix}
               <LumenButton
                 type="button"
+                variant="text"
                 className="hbar-app-ui-auth-inline-link"
                 onClick={() =>
                   onAction?.({

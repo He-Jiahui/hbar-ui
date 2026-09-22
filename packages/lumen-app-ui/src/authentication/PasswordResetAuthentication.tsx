@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { LumenInput } from '../forms';
+import { LumenCheckBox, LumenInput } from '../forms';
 import { Laptop, Smartphone } from './glyphs';
 import type { LumenAuthCompositionProps } from './primitives';
 import { type LumenAuthPasswordResetContent, uniqueLumenAuthItems } from './content';
@@ -82,14 +82,12 @@ export default function PasswordResetAuthentication({
             onChange={setConfirmation}
             helper={content.labels.confirmHelper}
           />
-          <label className="hbar-app-ui-auth-check">
-            <LumenInput
-              type="checkbox"
-              checked={signOutOther}
-              onChange={() => setSignOutOther((current) => !current)}
-            />
-            {content.labels.signOutOther}
-          </label>
+          <LumenCheckBox
+            className="hbar-app-ui-auth-check"
+            label={content.labels.signOutOther}
+            checked={signOutOther}
+            onChange={() => setSignOutOther((current) => !current)}
+          />
           <div
             className={`hbar-app-ui-auth-reset-devices ${content.listStrategy.kind === 'pane-scroll' ? 'hbar-app-ui-auth-list-scroll' : ''}`}
             data-hbar-app-ui-list-strategy={content.listStrategy.kind}

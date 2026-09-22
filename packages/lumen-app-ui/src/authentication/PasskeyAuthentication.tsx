@@ -39,6 +39,7 @@ export default function PasskeyAuthentication({
             {passkeys.map((passkey) => (
               <LumenButton
                 type="button"
+                variant="text"
                 className={`hbar-app-ui-auth-device-row ${passkey.id === selected?.id ? 'is-selected' : ''}`}
                 key={passkey.id}
                 onClick={() => setSelectedId(passkey.id)}

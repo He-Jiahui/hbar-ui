@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { LumenInput } from '../forms';
+import { LumenCheckBox, LumenInput } from '../forms';
 import { LumenButton } from '../primitives';
 import type { LumenAuthCompositionProps } from './primitives';
 import type { LumenAuthSignInContent } from './content';
@@ -45,6 +45,7 @@ export default function SignInAuthentication({
               <span>{content.labels.passwordLabel}</span>
               <LumenButton
                 type="button"
+                variant="text"
                 onClick={() =>
                   onAction?.({
                     variantId: spec.id,
@@ -70,14 +71,12 @@ export default function SignInAuthentication({
               />
             </div>
           </div>
-          <label className="hbar-app-ui-auth-check">
-            <LumenInput
-              type="checkbox"
-              checked={remember}
-              onChange={() => setRemember((current) => !current)}
-            />
-            <span>{content.labels.rememberLabel}</span>
-          </label>
+          <LumenCheckBox
+            className="hbar-app-ui-auth-check"
+            label={content.labels.rememberLabel}
+            checked={remember}
+            onChange={() => setRemember((current) => !current)}
+          />
           <AuthButton
             type="button"
             tone="accent"
@@ -108,6 +107,7 @@ export default function SignInAuthentication({
           {content.labels.noAccount}
           <LumenButton
             type="button"
+            variant="text"
             className="hbar-app-ui-auth-inline-link"
             onClick={() =>
               onAction?.({

@@ -93,6 +93,7 @@ export default function InvitationAuthentication({
           </AuthButton>
           <LumenButton
             type="button"
+            variant="text"
             className="hbar-app-ui-auth-inline-link"
             onClick={() =>
               onAction?.({

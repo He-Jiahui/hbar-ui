@@ -63,6 +63,7 @@ export default function QuoteAuthentication({
                 <span>{content.labels.passwordLabel}</span>
                 <LumenButton
                   type="button"
+                  variant="text"
                   onClick={() =>
                     onAction?.({
                       variantId: spec.id,
@@ -118,6 +119,7 @@ export default function QuoteAuthentication({
             {content.labels.newAccount}
             <LumenButton
               type="button"
+              variant="text"
               className="hbar-app-ui-auth-inline-link"
               onClick={() =>
                 onAction?.({
@@ -156,6 +158,7 @@ export default function QuoteAuthentication({
               <div className="hbar-app-ui-auth-inline-actions">
                 <LumenButton
                   type="button"
+                  variant="text"
                   className="hbar-app-ui-auth-inline-link"
                   aria-label={content.labels.previousQuote}
                   onClick={() => moveQuote(-1)}
@@ -164,6 +167,7 @@ export default function QuoteAuthentication({
                 </LumenButton>
                 <LumenButton
                   type="button"
+                  variant="text"
                   className="hbar-app-ui-auth-inline-link"
                   aria-label={content.labels.nextQuote}
                   onClick={() => moveQuote(1)}

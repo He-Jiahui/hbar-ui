@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { LumenInput } from '../forms';
+import { LumenCheckBoxControl, LumenInput } from '../forms';
 import { LumenButton } from '../primitives';
 import type { LumenAuthCompositionProps } from './primitives';
 import type { LumenAuthSignUpContent } from './content';
@@ -88,17 +88,16 @@ export default function SignUpAuthentication({
             ))}
           </div>
           <div className="hbar-app-ui-auth-check">
-            <label>
-              <LumenInput
-                type="checkbox"
-                checked={agreed}
-                onChange={() => setAgreed((current) => !current)}
-              />
-              <span>{content.labels.agreementPrefix}</span>
-            </label>
+            <LumenCheckBoxControl
+              aria-label={content.labels.agreementPrefix}
+              checked={agreed}
+              onChange={() => setAgreed((current) => !current)}
+            />
             <span>
+              {content.labels.agreementPrefix}
               <LumenButton
                 type="button"
+                variant="text"
                 className="hbar-app-ui-auth-inline-link"
                 onClick={() => onAction?.({ variantId: spec.id, actionId: 'terms' })}
               >
@@ -107,6 +106,7 @@ export default function SignUpAuthentication({
               {content.labels.agreementJoin}
               <LumenButton
                 type="button"
+                variant="text"
                 className="hbar-app-ui-auth-inline-link"
                 onClick={() =>
                   onAction?.({
@@ -138,6 +138,7 @@ export default function SignUpAuthentication({
           {content.labels.existingAccount}
           <LumenButton
             type="button"
+            variant="text"
             className="hbar-app-ui-auth-inline-link"
             onClick={() =>
               onAction?.({

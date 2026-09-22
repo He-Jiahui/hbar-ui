@@ -189,6 +189,7 @@ export function AuthFooterLinks({
       {links.map((link) => (
         <LumenButton
           type="button"
+          variant="text"
           className="hbar-app-ui-auth-inline-link"
           key={link}
           onClick={() => onSelect(link)}
