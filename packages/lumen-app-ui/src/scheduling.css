@@ -209,9 +209,6 @@
   overflow-wrap: anywhere;
 }
 
-.lumen-scheduling-agenda article > span:last-child {
-}
-
 .lumen-scheduling-time-range {
   display: flex;
   min-inline-size: 0;
@@ -454,9 +451,6 @@
   min-inline-size: 0;
 }
 
-.lumen-scheduling-availability article > span:last-child {
-}
-
 .lumen-scheduling-switch {
   inline-size: 2.25rem;
   min-inline-size: 2.25rem;
@@ -597,42 +591,49 @@
   .lumen-scheduling-month-layout,
   .lumen-scheduling-deadline-layout,
   .lumen-scheduling-form-grid {
+    flex-direction: column;
   }
 
-  .lumen-scheduling-form-grid > :nth-child(3),
-  .lumen-scheduling-form-grid > :nth-child(7) {
+  .lumen-scheduling-form-grid > * {
+    flex: 1 1 auto;
+    min-inline-size: 0;
   }
 
   .lumen-scheduling-availability article {
+    flex-wrap: wrap;
   }
 
-  .lumen-scheduling-availability article > :nth-child(3n + 1) {
+  .lumen-scheduling-availability article > :nth-child(1) {
     flex: 0 0 auto;
     min-inline-size: 0;
   }
 
-  .lumen-scheduling-availability article > :nth-child(3n + 2) {
-    flex: 1 1 0;
-    min-inline-size: 0;
+  .lumen-scheduling-availability article > :nth-child(2) {
+    flex: 1 1 8rem;
+    min-inline-size: 8rem;
   }
 
-  .lumen-scheduling-availability article > :nth-child(3n + 3) {
+  .lumen-scheduling-availability article > :nth-child(n + 3) {
+    flex: 1 1 10rem;
+    min-inline-size: min(100%, 10rem);
+  }
+
+  .lumen-scheduling-availability article > :nth-child(4) {
     flex: 0 0 auto;
     min-inline-size: 0;
-  }
-
-  .lumen-scheduling-availability article > input:first-of-type,
-  .lumen-scheduling-availability article > input:first-of-type + span,
-  .lumen-scheduling-availability article > input:last-of-type,
-  .lumen-scheduling-availability article > span:last-child {
   }
 
   .lumen-scheduling-availability article > button:last-child {
+    margin-inline-start: auto;
+    flex: 0 0 auto;
+    min-inline-size: 0;
   }
 }
 
 @media (max-width: 34rem) {
   .lumen-scheduling-time-range {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .lumen-scheduling-time-range > span {

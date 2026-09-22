@@ -1794,6 +1794,76 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getByLabelText('Workspace URL preview').textContent).toContain('northwind-ops');
   });
 
+  it('uses distinct host-owned scheduling scenarios for all seven planning surfaces', () => {
+    const entries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'scheduling',
+    );
+    expect(entries).toHaveLength(7);
+    const expected = [
+      'Team calendar',
+      'Schedule design review',
+      'Create customer workshop',
+      'Set delivery deadline',
+      'Weekly availability',
+      'Release week schedule',
+      'Book a product consultation',
+    ];
+    entries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('scheduling.');
+      expect(view).not.toContain('item-1');
+      expect(view).toContain(expected[index]);
+    });
+  });
+
+  it('selects dates, ranges, attendees, availability, and booking slots', async () => {
+    const entry = (variant: number) =>
+      LUMEN_VARIANT_REGISTRY.find(
+        (candidate) => candidate.category === 'scheduling' && candidate.variant === variant,
+      )!;
+
+    let view = render(
+      <VariantPreviewHost entry={entry(1)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'September 15, 2026' }));
+    expect(screen.getByText('Northstar customer interview')).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(2)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: '45 minutes' }));
+    expect(screen.getByRole('button', { name: 'Confirm 45 minutes' })).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(3)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Add attendee' }));
+    expect(screen.getByText('Jonah Reed')).not.toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Remove Maya Chen' }));
+    expect(screen.queryByText('Maya Chen')).toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(5)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    const friday = screen.getByRole('switch', { name: 'Toggle Friday' });
+    expect(friday.getAttribute('aria-checked')).toBe('false');
+    await view.user.click(friday);
+    expect(friday.getAttribute('aria-checked')).toBe('true');
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(7)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Mon 28' }));
+    await view.user.click(screen.getByRole('button', { name: '09:30' }));
+    expect(screen.getByLabelText('Available times for Mon 28')).not.toBeNull();
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',
