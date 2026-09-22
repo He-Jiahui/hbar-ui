@@ -50,6 +50,15 @@
   padding: 1rem;
 }
 
+.hbar-app-ui-agent-approval-inline-body {
+  display: flex;
+  box-sizing: border-box;
+  inline-size: min(100%, 48rem);
+  flex-direction: column;
+  align-items: stretch;
+  margin-inline: auto;
+}
+
 .hbar-app-ui-agent-approval-centered-body {
   display: flex;
   align-items: center;
@@ -77,6 +86,11 @@
   min-inline-size: 0;
 }
 
+.hbar-app-ui-agent-approval-request-summary {
+  align-items: flex-start;
+  flex-direction: column;
+}
+
 .hbar-app-ui-agent-approval-action-row {
   flex-wrap: wrap;
   padding: 0.75rem 1rem;
@@ -96,6 +110,9 @@
 }
 
 .hbar-app-ui-agent-approval-user-message {
+  align-self: flex-end;
+  inline-size: fit-content;
+  max-inline-size: 100%;
   background: var(--lumen-frost);
 }
 .hbar-app-ui-agent-approval-detail-message {

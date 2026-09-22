@@ -2393,6 +2393,9 @@ describe('Lumen formal variant fixtures', () => {
     let view = render(
       <VariantPreviewHost entry={entries[0]} locale="en" unavailableLabel="Preview unavailable" />,
     );
+    const inlineBody = view.container.querySelector('.hbar-app-ui-agent-approval-inline-body');
+    expect(inlineBody).not.toBeNull();
+    expect(inlineBody?.querySelector('.hbar-app-ui-agent-approval-request-card')).not.toBeNull();
     await view.user.click(screen.getByRole('button', { name: 'Allow' }));
     expect(screen.getAllByText('Waiting for approval').length).toBeGreaterThan(0);
     view.unmount();
