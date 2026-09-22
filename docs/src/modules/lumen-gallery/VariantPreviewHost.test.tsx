@@ -2336,6 +2336,19 @@ describe('Lumen formal variant fixtures', () => {
     expect([...historyRows].slice(1).every((row) => row.children.length === 6)).toBe(true);
     await view.user.click(screen.getByRole('button', { name: /Rerun Q4 interview synthesis/ }));
     expect(screen.getByRole('button', { name: /Rerun Q4 interview synthesis/ })).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[6]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    const failureBody = view.container.querySelector('.hbar-app-ui-agent-activity-failure-body');
+    expect(failureBody).not.toBeNull();
+    expect(failureBody?.children).toHaveLength(5);
+    expect(
+      failureBody?.querySelectorAll('.hbar-app-ui-agent-activity-attempt-list > li'),
+    ).toHaveLength(2);
+    await view.user.click(screen.getByRole('button', { name: 'Retry run' }));
+    view.unmount();
   });
 
   it('uses real agent approval requests and preserves decisions', async () => {

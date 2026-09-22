@@ -381,12 +381,15 @@
 
 .hbar-app-ui-agent-activity-failure-body {
   display: flex;
+  flex-direction: column;
   gap: 1rem;
   min-inline-size: 0;
 }
 
 .hbar-app-ui-agent-activity-failure-body section {
   display: flex;
+  flex-direction: column;
+  inline-size: 100%;
   gap: 0.625rem;
   min-inline-size: 0;
 }
@@ -414,14 +417,13 @@
 
 .lumen-agent-activity-definition-list {
   display: flex;
+  flex-direction: column;
   gap: 0.5rem;
   min-inline-size: 0;
-  flex-wrap: wrap;
 }
 
 .lumen-agent-activity-definition-list > * {
-  flex: 1 1 min(100%, 13rem);
-  min-inline-size: min(100%, 13rem);
+  min-inline-size: 0;
 }
 
 .hbar-app-ui-agent-activity-definition-list > div,
@@ -433,6 +435,11 @@
 
 .lumen-agent-activity-attempt-list > li {
   align-items: flex-start;
+}
+
+.lumen-agent-activity-attempt-list,
+.lumen-agent-activity-output-list {
+  flex-direction: column;
 }
 
 .lumen-agent-activity-attempt-list > li > :nth-child(3n + 1) {
