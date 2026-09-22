@@ -1413,6 +1413,97 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getByRole('button', { name: 'Resume Stripe' })).not.toBeNull();
   });
 
+  it('uses distinct host-owned support scenarios for all five service patterns', () => {
+    const supportEntries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'support',
+    );
+    expect(supportEntries).toHaveLength(5);
+    const expected = [
+      'Northwind help center',
+      'Large exports time out after 10 minutes',
+      'SUP-1842 · Export job times out',
+      'Lumen support assistant',
+      'Your support requests',
+    ];
+
+    supportEntries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('support.');
+      expect(view).not.toContain('item-1');
+      expect(view).toContain(expected[index]);
+    });
+
+    const thread = supportEntries.find((entry) => entry.variant === 3)!;
+    const view = ReactDOMServer.renderToStaticMarkup(
+      <VariantPreviewHost entry={thread} locale="zh" unavailableLabel="无法预览" />,
+    );
+    expect(view).toContain('导出任务超时');
+    expect(view).toContain('重放已完成');
+  });
+
+  it('searches, submits, resolves, hands off, and filters support workflows', async () => {
+    const entry = (variant: number) =>
+      LUMEN_VARIANT_REGISTRY.find(
+        (candidate) => candidate.category === 'support' && candidate.variant === variant,
+      )!;
+
+    let view = render(
+      <VariantPreviewHost entry={entry(1)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.type(screen.getByRole('textbox', { name: 'Search help articles' }), 'webhook');
+    expect(screen.getByText('API and integrations')).not.toBeNull();
+    expect(screen.getByText('Troubleshoot webhook deliveries and retries')).not.toBeNull();
+    expect(screen.queryByText('Agents and automations')).toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(2)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('radio', { name: 'Urgent' }));
+    expect(screen.getByText('Urgent: within 2 hours')).not.toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Remove export-timeout.har' }));
+    expect(screen.queryByText('export-timeout.har')).toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Submit request' }));
+    expect(screen.getByRole('button', { name: 'Submitted' })).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(3)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Mark resolved' }));
+    expect(screen.getByRole('button', { name: 'Reopen request' })).not.toBeNull();
+    await view.user.type(
+      screen.getByPlaceholderText('Reply to support…'),
+      'The export is complete.',
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Send reply' }));
+    expect(screen.getByText('The export is complete.')).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(4)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Talk to a person' }));
+    expect(screen.getByText(/Support has been notified/)).not.toBeNull();
+    await view.user.type(
+      screen.getByPlaceholderText('Describe what you need help with…'),
+      'Please check the replay.',
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Send message' }));
+    expect(screen.getByText('Please check the replay.')).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(5)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('tab', { name: 'Waiting on you' }));
+    await view.user.type(screen.getByRole('textbox', { name: 'Search ID or subject' }), 'SSO');
+    expect(screen.getByText('SSO group did not sync new members')).not.toBeNull();
+    expect(screen.queryByText('Large exports time out after 10 minutes')).toBeNull();
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',

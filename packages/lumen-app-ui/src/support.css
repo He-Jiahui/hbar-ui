@@ -73,6 +73,10 @@
   min-inline-size: 0;
   flex: 1 1 auto;
 }
+.lumen-support > .lumen-support-search {
+  inline-size: 100%;
+  flex: 0 0 auto;
+}
 .lumen-support-topics {
   display: flex;
   min-inline-size: 0;
@@ -551,6 +555,7 @@
 @media (max-width: 48rem) {
   .lumen-support-ticket,
   .lumen-support-thread {
+    flex-direction: column;
   }
   .lumen-support-ticket > aside,
   .lumen-support-thread > aside {
@@ -559,5 +564,6 @@
 }
 @media (max-width: 36rem) {
   .lumen-support-two-column {
+    flex-direction: column;
   }
 }
