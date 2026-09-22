@@ -1909,14 +1909,14 @@ describe('Lumen formal variant fixtures', () => {
     view.unmount();
 
     view = render(
-      <VariantPreviewHost entry={entries[3]} locale="en" unavailableLabel="Preview unavailable" />,
+      <VariantPreviewHost entry={entries[2]} locale="en" unavailableLabel="Preview unavailable" />,
     );
     await view.user.click(screen.getByRole('button', { name: 'Expand navigation sheet' }));
     expect(screen.getByText('New project')).not.toBeNull();
     view.unmount();
 
     view = render(
-      <VariantPreviewHost entry={entries[4]} locale="en" unavailableLabel="Preview unavailable" />,
+      <VariantPreviewHost entry={entries[2]} locale="en" unavailableLabel="Preview unavailable" />,
     );
     await view.user.click(screen.getByRole('button', { name: 'Open full-screen menu' }));
     expect(screen.getByRole('dialog')).not.toBeNull();
@@ -2014,7 +2014,7 @@ describe('Lumen formal variant fixtures', () => {
     view.unmount();
 
     view = render(
-      <VariantPreviewHost entry={entries[4]} locale="en" unavailableLabel="Preview unavailable" />,
+      <VariantPreviewHost entry={entries[3]} locale="en" unavailableLabel="Preview unavailable" />,
     );
     await view.user.click(screen.getByRole('button', { name: /Confirm and create/ }));
     expect(screen.getAllByText('Created').length).toBeGreaterThan(0);
@@ -2411,6 +2411,42 @@ describe('Lumen formal variant fixtures', () => {
     );
     await view.user.click(screen.getByRole('button', { name: 'Collapse sidebar' }));
     expect(screen.getByRole('button', { name: 'Expand sidebar' })).not.toBeNull();
+  });
+
+  it('uses real Northstar commands across grouped, search, invite, and assistant surfaces', async () => {
+    const entries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'command-menu',
+    );
+    expect(entries).toHaveLength(6);
+    entries.forEach((entry) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('command-menu.search.list.items.item.label');
+      expect(view).not.toContain('item-1');
+    });
+
+    let view = render(
+      <VariantPreviewHost entry={entries[0]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Open command palette' }));
+    expect(screen.getByRole('dialog')).not.toBeNull();
+    expect(screen.getAllByText('Open research workspace').length).toBeGreaterThan(0);
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[2]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Search commands' }));
+    expect(screen.getAllByText('Open research workspace').length).toBeGreaterThan(0);
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[3]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Invite collaborator' }));
+    expect(screen.getByRole('dialog')).not.toBeNull();
+    expect((screen.getByLabelText('Role') as HTMLSelectElement).value).toBe('researcher');
   });
 
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {

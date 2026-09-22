@@ -8,6 +8,7 @@ import { createAgentActivityFixtures } from './agentActivityLumenFixtures';
 import { createAgentApprovalFixtures } from './agentApprovalLumenFixtures';
 import { createAppShellFixtures } from './appShellLumenFixtures';
 import { createAppSidebarFixtures } from './appSidebarLumenFixtures';
+import { createCommandMenuFixtures } from './commandMenuLumenFixtures';
 import { createAiChatFixtures } from './aiChatFixtures';
 import { createAppDialogFixtures } from './appDialogFixtures';
 import { createAnalyticsFixtures } from './analyticsFixtures';
@@ -1891,6 +1892,7 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
         onAsk: () => undefined,
         onSuggestion: (_id) => undefined,
       },
+      ...createCommandMenuFixtures(locale),
     } satisfies LumenCommandMenuContent,
     navbar: createNavbarFixtures(locale),
     mobile: createMobileFixtures(locale),
