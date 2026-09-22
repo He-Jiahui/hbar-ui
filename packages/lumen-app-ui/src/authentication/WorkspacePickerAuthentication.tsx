@@ -1,22 +1,29 @@
+'use client';
+
+import * as React from 'react';
 import { LumenInput } from '../forms';
 import { LumenButton } from '../primitives';
 import { Check, LogOut, Search } from './glyphs';
-import { useMemo, useState } from 'react';
 import type { LumenAuthCompositionProps } from './primitives';
 import type { LumenAuthWorkspaceContent } from './content';
 import { selectLumenAuthItem, uniqueLumenAuthItems } from './content';
 import { AuthAvatar, AuthButton, AuthFrame, AuthIcon } from './primitives';
 
+export type WorkspacePickerAuthenticationProps = LumenAuthCompositionProps & {
+  readonly content: LumenAuthWorkspaceContent;
+};
+
 export function WorkspacePickerAuthentication({
   spec,
   onAction,
   content,
-}: LumenAuthCompositionProps & {
-  readonly content: LumenAuthWorkspaceContent;
-}) {
-  const [query, setQuery] = useState('');
-  const [selectedId, setSelectedId] = useState(content.initialWorkspaceId);
-  const workspaces = useMemo(() => uniqueLumenAuthItems(content.workspaces), [content.workspaces]);
+}: WorkspacePickerAuthenticationProps) {
+  const [query, setQuery] = React.useState('');
+  const [selectedId, setSelectedId] = React.useState(content.initialWorkspaceId);
+  const workspaces = React.useMemo(
+    () => uniqueLumenAuthItems(content.workspaces),
+    [content.workspaces],
+  );
   const visible = workspaces.filter((item) =>
     item.name.toLowerCase().includes(query.toLowerCase()),
   );
@@ -53,7 +60,7 @@ export function WorkspacePickerAuthentication({
           <div className="hbar-app-ui-auth-wide-content hbar-app-ui-auth-workspace-content">
             <h1>{content.labels.title}</h1>
             <p>{content.labels.description}</p>
-            <label className="hbar-app-ui-auth-search">
+            <div className="hbar-app-ui-auth-search">
               <span className="hbar-app-ui-auth-search-input">
                 <AuthIcon>
                   <Search />
@@ -65,7 +72,7 @@ export function WorkspacePickerAuthentication({
                   onChange={(event) => setQuery(event.currentTarget.value)}
                 />
               </span>
-            </label>
+            </div>
             <div
               className={`hbar-app-ui-auth-workspace-list ${content.listStrategy.kind === 'pane-scroll' ? 'hbar-app-ui-auth-list-scroll' : ''}`}
               data-hbar-app-ui-list-strategy={content.listStrategy.kind}

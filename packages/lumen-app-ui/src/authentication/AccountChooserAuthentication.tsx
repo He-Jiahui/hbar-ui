@@ -1,20 +1,24 @@
+'use client';
+
+import * as React from 'react';
 import { LumenButton } from '../primitives';
 import { Check, Plus } from './glyphs';
-import { useMemo, useState } from 'react';
 import type { LumenAuthCompositionProps } from './primitives';
 import type { LumenAuthAccountContent } from './content';
 import { selectLumenAuthItem, uniqueLumenAuthItems } from './content';
 import { AuthBrand, AuthButton, AuthCard, AuthFrame, AuthIcon, AuthStatus } from './primitives';
 
+export type AccountChooserAuthenticationProps = LumenAuthCompositionProps & {
+  readonly content: LumenAuthAccountContent;
+};
+
 export function AccountChooserAuthentication({
   spec,
   onAction,
   content,
-}: LumenAuthCompositionProps & {
-  readonly content: LumenAuthAccountContent;
-}) {
-  const accounts = useMemo(() => uniqueLumenAuthItems(content.accounts), [content.accounts]);
-  const [selectedId, setSelectedId] = useState(
+}: AccountChooserAuthenticationProps) {
+  const accounts = React.useMemo(() => uniqueLumenAuthItems(content.accounts), [content.accounts]);
+  const [selectedId, setSelectedId] = React.useState(
     selectLumenAuthItem(accounts, content.initialAccountId)?.id,
   );
   const selected = selectLumenAuthItem(accounts, selectedId);

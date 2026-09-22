@@ -1,5 +1,7 @@
+'use client';
+
+import * as React from 'react';
 import { LumenButton } from '../primitives';
-import { useMemo, useState } from 'react';
 import type { LumenAuthCompositionProps } from './primitives';
 import { type LumenAuthPasskeyContent, selectLumenAuthItem, uniqueLumenAuthItems } from './content';
 import {
@@ -11,15 +13,17 @@ import {
   AuthLeadingIcon,
 } from './primitives';
 
+export type PasskeyAuthenticationProps = LumenAuthCompositionProps & {
+  readonly content: LumenAuthPasskeyContent;
+};
+
 export function PasskeyAuthentication({
   spec,
   onAction,
   content,
-}: LumenAuthCompositionProps & {
-  readonly content: LumenAuthPasskeyContent;
-}) {
-  const [selectedId, setSelectedId] = useState(content.initialPasskeyId);
-  const passkeys = useMemo(() => uniqueLumenAuthItems(content.passkeys), [content.passkeys]);
+}: PasskeyAuthenticationProps) {
+  const [selectedId, setSelectedId] = React.useState(content.initialPasskeyId);
+  const passkeys = React.useMemo(() => uniqueLumenAuthItems(content.passkeys), [content.passkeys]);
   const selected = selectLumenAuthItem(passkeys, selectedId);
   return (
     <AuthFrame spec={spec} onAction={onAction} className="hbar-app-ui-auth-passkey-surface">
