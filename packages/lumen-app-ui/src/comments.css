@@ -272,8 +272,11 @@
   .lumen-comments-annotation,
   .lumen-comments-review,
   .lumen-comments-canvas {
+    min-block-size: 18rem;
   }
   .lumen-comments-inbox article {
+    align-items: flex-start;
+    flex-wrap: wrap;
   }
   .lumen-comments-inbox article > :nth-child(2n + 1) {
     flex: 0 0 auto;
@@ -284,5 +287,6 @@
     min-inline-size: 0;
   }
   .lumen-comments-inbox article > :nth-last-child(-n + 2) {
+    margin-inline-start: auto;
   }
 }

@@ -2469,6 +2469,48 @@ describe('Lumen formal variant fixtures', () => {
     expect((screen.getByLabelText('Role') as HTMLSelectElement).value).toBe('researcher');
   });
 
+  it('uses real research comments across discussion and review surfaces', async () => {
+    const entries = LUMEN_VARIANT_REGISTRY.filter((candidate) => candidate.category === 'comments');
+    expect(entries).toHaveLength(6);
+    const markers = [
+      'Q4 research discussion',
+      'Document annotations',
+      'Roadmap change suggestion',
+      'Add research comment',
+      'Comment inbox',
+      'Northstar roadmap canvas',
+    ];
+    entries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('comments.discussion.messages.item.body');
+      expect(view).not.toContain('item-1');
+      expect(view).toContain(markers[index]);
+    });
+
+    let view = render(
+      <VariantPreviewHost entry={entries[0]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Resolve discussion' }));
+    expect(screen.getAllByText('Resolved').length).toBeGreaterThan(0);
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[4]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Open' }));
+    expect(screen.getByText('Add search citations')).not.toBeNull();
+    expect(screen.getByText('Confirm export evidence')).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[5]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Export theme' }));
+    expect(screen.getByText('Enterprise exports')).not.toBeNull();
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',

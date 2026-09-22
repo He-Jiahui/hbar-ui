@@ -1,14 +1,11 @@
-import type {
-  LumenCommandMenuContent,
-  LumenCommentsContent,
-  LumenEditorContent,
-} from '@lumen/app-ui';
+import type { LumenCommandMenuContent, LumenEditorContent } from '@lumen/app-ui';
 import { createAgentPlanFixtures } from './agentPlanFixtures';
 import { createAgentActivityFixtures } from './agentActivityLumenFixtures';
 import { createAgentApprovalFixtures } from './agentApprovalLumenFixtures';
 import { createAppShellFixtures } from './appShellLumenFixtures';
 import { createAppSidebarFixtures } from './appSidebarLumenFixtures';
 import { createCommandMenuFixtures } from './commandMenuLumenFixtures';
+import { createCommentsFixtures } from './commentsLumenFixtures';
 import { createAiChatFixtures } from './aiChatFixtures';
 import { createAppDialogFixtures } from './appDialogFixtures';
 import { createAnalyticsFixtures } from './analyticsFixtures';
@@ -3547,7 +3544,8 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
         listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
       },
     } satisfies LumenWizardContent, */
-    comments: {
+    comments: createCommentsFixtures(locale),
+    /* legacyComments: {
       discussion: {
         labels: {
           title: previewText(locale, 'comments.discussion.labels.title'),
@@ -3745,7 +3743,7 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
         initialPinId: 'item-1',
         listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
       },
-    } satisfies LumenCommentsContent,
+    } satisfies LumenCommentsContent, */
     scheduling: createSchedulingFixtures(locale),
     integrations: createIntegrationFixtures(locale),
     editor: {
