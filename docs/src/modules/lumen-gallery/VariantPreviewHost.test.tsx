@@ -1504,6 +1504,83 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.queryByText('Large exports time out after 10 minutes')).toBeNull();
   });
 
+  it('uses distinct host-owned tool-call scenarios for all six execution surfaces', () => {
+    const toolEntries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'tool-calls',
+    );
+    expect(toolEntries).toHaveLength(6);
+    const expected = [
+      'Release summary run',
+      'Agent tool activity',
+      'Update usage budget warning',
+      'Where is the usage budget warning rendered?',
+      'Run usage panel tests',
+      'Tool permissions',
+    ];
+
+    toolEntries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('tool-calls.');
+      expect(view).not.toContain('item-1');
+      expect(view).toContain(expected[index]);
+    });
+
+    const permissions = toolEntries.find((entry) => entry.variant === 6)!;
+    const view = ReactDOMServer.renderToStaticMarkup(
+      <VariantPreviewHost entry={permissions} locale="zh" unavailableLabel="无法预览" />,
+    );
+    expect(view).toContain('在生产诊断容器中运行命令');
+    expect(view).toContain('允许一次');
+  });
+
+  it('discloses, filters, switches output, and toggles tool-call state', async () => {
+    const entry = (variant: number) =>
+      LUMEN_VARIANT_REGISTRY.find(
+        (candidate) => candidate.category === 'tool-calls' && candidate.variant === variant,
+      )!;
+
+    let view = render(
+      <VariantPreviewHost entry={entry(1)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: /search_workspace/ }));
+    expect(screen.getByText(/Found 14 relevant commits/)).not.toBeNull();
+    expect(screen.queryByText(/"channel": "preview"/)).toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(2)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('tab', { name: 'Failed' }));
+    expect(screen.getByText('send_webhook_test')).not.toBeNull();
+    expect(screen.queryByText('deploy_preview')).toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(3)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: /BudgetPanel.test.tsx/ }));
+    expect(screen.getByText(/getByText\('Budget warning'\)/)).not.toBeNull();
+    expect(screen.queryByText(/const blocked = ratio/)).toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(5)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('tab', { name: 'stderr' }));
+    expect(screen.getByText(/AssertionError/)).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(6)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    const modify = screen.getByRole('switch', { name: 'Toggle modifying workspace files' });
+    expect(modify.getAttribute('aria-checked')).toBe('false');
+    await view.user.click(modify);
+    expect(modify.getAttribute('aria-checked')).toBe('true');
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',

@@ -526,27 +526,28 @@
   flex-basis: 100%;
 }
 
-.hbar-app-ui-tool-calls-toggle {
+.hbar-app-ui-tool-calls-permissions .hbar-app-ui-tool-calls-toggle {
   inline-size: 2.25rem;
   min-inline-size: 2.25rem;
-  padding: 0.1875rem;
+  block-size: 1.25rem;
+  min-block-size: 1.25rem;
+  justify-content: flex-start;
+  padding: 0.125rem;
   border-radius: 999rem;
 }
 
-.hbar-app-ui-tool-calls-toggle > i {
-  inline-size: 0.875rem;
-  block-size: 0.875rem;
+.hbar-app-ui-tool-calls-permissions .hbar-app-ui-tool-calls-toggle > i {
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
+  flex: 0 0 auto;
   border-radius: 50%;
   background: currentColor;
   transition: translate 120ms ease;
 }
 
-.hbar-app-ui-tool-calls-toggle.is-enabled {
-  color: var(--lumen-success);
-}
-
-.hbar-app-ui-tool-calls-toggle.is-enabled {
+.hbar-app-ui-tool-calls-permissions .hbar-app-ui-tool-calls-toggle.is-enabled {
   justify-content: flex-end;
+  color: var(--lumen-success);
 }
 
 [data-lumen-shape='square'] .hbar-app-ui-tool-calls-trace-pane,
@@ -581,9 +582,11 @@
   }
 
   .hbar-app-ui-tool-calls-trace-details {
+    flex-direction: column;
   }
 
   .hbar-app-ui-tool-calls-permissions li {
+    flex-wrap: wrap;
   }
 
   .hbar-app-ui-tool-calls-permissions li > nav {
