@@ -123,6 +123,7 @@ export interface LumenIntegrationEndpoint {
   readonly address: string;
   readonly detail: string;
   readonly enabled: boolean;
+  readonly topics?: readonly string[] | undefined;
 }
 
 export interface LumenIntegrationDelivery {

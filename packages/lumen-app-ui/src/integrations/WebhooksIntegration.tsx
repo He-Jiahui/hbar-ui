@@ -84,6 +84,7 @@ export default function WebhooksIntegration({
                 <LumenButton
                   className="hbar-app-ui-integration-endpoint-button"
                   type="button"
+                  variant="text"
                   key={item.id}
                   aria-pressed={item.id === endpoint?.id}
                   aria-label={content.labels.endpointAction(item.address)}
@@ -117,7 +118,7 @@ export default function WebhooksIntegration({
                 <div className="hbar-app-ui-integration-webhook-title">
                   <h1>{endpoint.address}</h1>
                   <div className="hbar-app-ui-integration-topic-list">
-                    {content.topics.map((topic) => (
+                    {(endpoint.topics ?? content.topics).map((topic) => (
                       <span key={topic}>{topic}</span>
                     ))}
                   </div>
@@ -169,6 +170,7 @@ export default function WebhooksIntegration({
                       <LumenButton
                         className="hbar-app-ui-integration-delivery-trigger"
                         type="button"
+                        variant="text"
                         aria-expanded={openDeliveryId === delivery.id}
                         aria-label={content.labels.openDelivery(delivery.event)}
                         onClick={() => {

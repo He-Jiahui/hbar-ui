@@ -1306,6 +1306,113 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.queryByText('api.ts')).toBeNull();
   });
 
+  it('uses distinct host-owned integration scenarios for all six connection workflows', () => {
+    const integrationEntries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'integrations',
+    );
+    expect(integrationEntries).toHaveLength(6);
+    const expected = [
+      'Integration marketplace',
+      'Connected to 18 repositories',
+      'Developer API keys',
+      'Webhook endpoints',
+      'Linear requests access to Lumen',
+      'Data sync health',
+    ];
+
+    integrationEntries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('integrations.');
+      expect(view).not.toContain('item-1');
+      expect(view).toContain(expected[index]);
+    });
+
+    const consent = integrationEntries.find((entry) => entry.variant === 5)!;
+    const view = ReactDOMServer.renderToStaticMarkup(
+      <VariantPreviewHost entry={consent} locale="zh" unavailableLabel="无法预览" />,
+    );
+    expect(view).toContain('Linear 请求访问 Lumen');
+    expect(view).toContain('创建和更新问题');
+  });
+
+  it('filters, connects, secures, authorizes, and pauses integration workflows', async () => {
+    const entry = (variant: number) =>
+      LUMEN_VARIANT_REGISTRY.find(
+        (candidate) => candidate.category === 'integrations' && candidate.variant === variant,
+      )!;
+
+    let view = render(
+      <VariantPreviewHost entry={entry(1)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Engineering' }));
+    await view.user.type(screen.getByRole('searchbox', { name: 'Search integrations' }), 'Linear');
+    expect(screen.getByText('Linear')).not.toBeNull();
+    expect(screen.queryByText('Slack')).toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Toggle Linear connection' }));
+    expect(screen.getByRole('button', { name: 'Toggle Linear connection' }).textContent).toContain(
+      'Connected',
+    );
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(2)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    const deployments = screen.getByRole('switch', { name: 'Toggle Deployments' });
+    expect((deployments as HTMLInputElement).checked).toBe(false);
+    await view.user.click(deployments);
+    expect((deployments as HTMLInputElement).checked).toBe(true);
+    await view.user.click(screen.getByRole('button', { name: 'Disconnect' }));
+    expect(screen.getByText('Disconnected')).not.toBeNull();
+    expect((deployments as HTMLInputElement).disabled).toBe(true);
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(3)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Reveal Analytics export' }));
+    expect(screen.getByText('lum_live_nw4d_2JJ8_Q9M4')).not.toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Revoke Analytics export' }));
+    expect(screen.queryByText('Analytics export')).toBeNull();
+    expect(screen.getByText('2 active keys')).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(4)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(
+      screen.getByRole('button', {
+        name: 'Select ops.northwind.example/hooks/deployments',
+      }),
+    );
+    expect(screen.getByText('deployment.started')).not.toBeNull();
+    expect(screen.queryByText('invoice.paid')).toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Expand deployment.completed' }));
+    expect(screen.getByText(/"deployment_id": "dep_184"/)).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(5)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.selectOptions(
+      screen.getByRole('combobox', { name: 'Authorize for workspace' }),
+      'lumen-labs',
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Authorize Linear' }));
+    expect(screen.getByRole('button', { name: 'Authorized' })).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entry(6)} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    expect(screen.getByText('1 sources need attention')).not.toBeNull();
+    await view.user.click(screen.getByRole('button', { name: 'Pause Stripe' }));
+    expect(screen.getByText('0 sources need attention')).not.toBeNull();
+    expect(screen.queryByText(/invoices cursor expired/)).toBeNull();
+    expect(screen.getByRole('button', { name: 'Resume Stripe' })).not.toBeNull();
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',

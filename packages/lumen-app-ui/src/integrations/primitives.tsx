@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { LumenButton } from '../primitives';
+import { LumenButton, LumenIconButton } from '../primitives';
 import type { LumenIntegrationTone } from './content';
 
 export interface LumenIntegrationsCompositionProps {
@@ -118,19 +118,21 @@ export function IntegrationButton({
 export function IntegrationIconButton({
   children,
   label,
+  className,
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
   readonly label: string;
 }) {
   return (
-    <IntegrationButton
+    <LumenIconButton
       {...props}
-      className={`hbar-app-ui-integration-icon-button ${props.className ?? ''}`}
+      label={label}
+      className={`hbar-app-ui-integration-icon-button ${className ?? ''}`}
       aria-label={props['aria-label'] ?? label}
       title={props.title ?? label}
     >
       {children}
-    </IntegrationButton>
+    </LumenIconButton>
   );
 }
 
