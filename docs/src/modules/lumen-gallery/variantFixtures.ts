@@ -11,7 +11,6 @@ import type {
   LumenEditorContent,
   LumenKanbanContent,
   LumenPromptInputContent,
-  LumenWizardContent,
 } from '@lumen/app-ui';
 import { createAgentPlanFixtures } from './agentPlanFixtures';
 import { createAnalyticsFixtures } from './analyticsFixtures';
@@ -37,6 +36,7 @@ import { createSchedulingFixtures } from './schedulingFixtures';
 import { createSupportFixtures } from './supportFixtures';
 import { createToolCallsFixtures } from './toolCallsFixtures';
 import { createUsageFixtures } from './usageFixtures';
+import { createWizardFixtures } from './wizardFixtures';
 
 export type LumenPreviewLocale = 'zh' | 'en';
 
@@ -3256,7 +3256,8 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
       initialCompactColumnId: 'item-1',
       listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
     } satisfies LumenKanbanContent,
-    wizard: {
+    wizard: createWizardFixtures(locale),
+    /* legacyWizard: {
       information: {
         labels: {
           title: previewText(locale, 'wizard.information.labels.title'),
@@ -3538,7 +3539,7 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
         initialOptionId: 'item-1',
         listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
       },
-    } satisfies LumenWizardContent,
+    } satisfies LumenWizardContent, */
     comments: {
       discussion: {
         labels: {

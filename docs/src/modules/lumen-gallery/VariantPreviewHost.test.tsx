@@ -1978,6 +1978,57 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getByLabelText('File preview').textContent).toContain('journey-flows.fig');
   });
 
+  it('uses seven distinct host-owned wizard scenarios and preserves step actions', async () => {
+    const entries = LUMEN_VARIANT_REGISTRY.filter((candidate) => candidate.category === 'wizard');
+    expect(entries).toHaveLength(7);
+    const expected = [
+      'Create your workspace',
+      'Create customer invoice',
+      'Upgrade your workspace',
+      'Configure deployment environments',
+      'Review workspace settings',
+      'Migrate Northstar data',
+      'Choose a delivery method',
+    ];
+    entries.forEach((entry, index) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('wizard.information');
+      expect(view).not.toContain('item-1');
+      expect(view).toContain(expected[index]);
+    });
+
+    let view = render(
+      <VariantPreviewHost entry={entries[0]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: /Continue/ }));
+    expect(screen.getByRole('button', { name: /Workspace details/ })).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[2]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('radio', { name: /Scale/ }));
+    expect(screen.getByText('$1,480')).not.toBeNull();
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[4]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('button', { name: /Confirm and create/ }));
+    expect(screen.getAllByText('Created').length).toBeGreaterThan(0);
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost entry={entries[6]} locale="en" unavailableLabel="Preview unavailable" />,
+    );
+    await view.user.click(screen.getByRole('radio', { name: /Express delivery/ }));
+    expect(
+      screen.getByRole('radio', { name: /Express delivery/ }).getAttribute('aria-checked'),
+    ).toBe('true');
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',

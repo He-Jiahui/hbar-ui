@@ -403,8 +403,10 @@
   }
   .lumen-wizard-form,
   .lumen-wizard-split {
+    flex-direction: column;
   }
   .lumen-wizard-review-sections > section {
+    flex-wrap: wrap;
   }
   .lumen-wizard-review-sections > section > :nth-child(2n + 1) {
     flex: 1 1 0;
