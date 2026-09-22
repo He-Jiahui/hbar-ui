@@ -87,14 +87,17 @@
   align-self: flex-start;
   margin: 0.75rem;
 }
-.lumen-app-sidebar-scrim.hbar-app-ui-dialog-backdrop,
-.lumen-app-sidebar-drawer-scrim.hbar-app-ui-dialog-backdrop {
+.lumen-app-sidebar-stage .lumen-app-sidebar-scrim.hbar-app-ui-dialog-backdrop,
+.lumen-app-sidebar-drawer-demo .lumen-app-sidebar-drawer-scrim.hbar-app-ui-dialog-backdrop {
   position: absolute;
   z-index: 1;
   inset: 0;
   inline-size: 100%;
   block-size: 100%;
+  min-block-size: 0;
+  padding: 0;
   border-radius: 0;
+  border: 0;
   background: color-mix(in srgb, #000 35%, transparent);
 }
 .lumen-app-sidebar-rail-demo {
