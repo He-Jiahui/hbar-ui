@@ -232,6 +232,10 @@
   flex-direction: column;
 }
 
+.lumen-agent-activity-log-list {
+  flex-direction: column;
+}
+
 .lumen-agent-activity-history-header,
 .lumen-agent-activity-history-table li {
   display: flex;

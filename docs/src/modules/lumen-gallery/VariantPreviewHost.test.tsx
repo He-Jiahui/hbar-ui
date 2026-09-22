@@ -2315,6 +2315,14 @@ describe('Lumen formal variant fixtures', () => {
     view = render(
       <VariantPreviewHost entry={entries[4]} locale="en" unavailableLabel="Preview unavailable" />,
     );
+    const log = view.container.querySelector('[role="log"]');
+    expect(log).not.toBeNull();
+    expect(log?.children).toHaveLength(3);
+    expect(
+      [...((log as HTMLOListElement | null)?.children ?? [])].every(
+        (entry) => entry.tagName === 'LI',
+      ),
+    ).toBe(true);
     await view.user.click(screen.getByRole('tab', { name: 'Warnings' }));
     expect(screen.getByText('theme-coding.csv is missing 3 tags')).not.toBeNull();
     expect(screen.queryByText('Loaded 12 interview sources')).toBeNull();
