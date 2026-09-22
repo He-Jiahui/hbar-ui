@@ -63,4 +63,20 @@ describe('Lumen materials', () => {
     expect(container.querySelectorAll('[data-tone="danger"]')).to.have.length(2);
     expect(container.querySelectorAll('[data-tone="warning"]')).to.have.length(2);
   });
+
+  it('composes a semantic surface with a dedicated flow-layout content class', () => {
+    const { container } = render(
+      <LumenSurface as="section" className="approval-surface" contentClassName="approval-flow">
+        <h2>审批请求</h2>
+      </LumenSurface>,
+    );
+
+    const surface = container.querySelector('section');
+    expect(surface).not.to.equal(null);
+    expect(surface?.tagName).to.equal('SECTION');
+    expect(surface).to.have.class('approval-surface');
+    expect(container.querySelector('.approval-flow')).to.contain(
+      screen.getByRole('heading', { name: '审批请求' }),
+    );
+  });
 });

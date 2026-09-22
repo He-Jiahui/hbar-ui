@@ -6,8 +6,12 @@ import type { LumenShape } from './appearance';
 import LumenIndicator, { type LumenState, type LumenTone } from './LumenIndicator';
 import styles from './materials.module.css';
 
-export interface LumenSurfaceProps extends React.HTMLAttributes<HTMLDivElement> {
+export type LumenSurfaceElement = 'article' | 'aside' | 'div' | 'main' | 'nav' | 'section';
+
+export interface LumenSurfaceProps extends React.HTMLAttributes<HTMLElement> {
+  as?: LumenSurfaceElement | undefined;
   boundary?: 'none' | 'horizontal' | 'vertical' | undefined;
+  contentClassName?: string | undefined;
   material?: 'glass' | 'frost' | undefined;
   glassStrength?: number | undefined;
   interactive?: boolean | undefined;
@@ -17,7 +21,9 @@ export interface LumenSurfaceProps extends React.HTMLAttributes<HTMLDivElement> 
 }
 
 export default function LumenSurface({
+  as: element = 'div',
   boundary = 'none',
+  contentClassName,
   material = 'glass',
   glassStrength = 65,
   interactive = false,
@@ -28,7 +34,8 @@ export default function LumenSurface({
   children,
   ...props
 }: LumenSurfaceProps) {
-  const root = React.useRef<HTMLDivElement>(null);
+  const Component: React.ElementType = element;
+  const root = React.useRef<HTMLElement>(null);
   const id = `lumen-lens-${React.useId().replace(/[^a-zA-Z0-9]/g, '')}`;
   const [map, setMap] = React.useState('');
   React.useEffect(() => {
@@ -78,10 +85,12 @@ export default function LumenSurface({
         ? (['left', 'right'] as const)
         : undefined;
   return (
-    <div
+    <Component
       {...props}
-      ref={root}
-      className={`${styles.surface} ${className}`}
+      ref={(node: HTMLElement | null) => {
+        root.current = node;
+      }}
+      className={[styles.surface, className].filter(Boolean).join(' ')}
       data-boundary={boundary}
       data-material={material}
       data-interactive={interactive}
@@ -119,8 +128,10 @@ export default function LumenSurface({
       )}
       <div className={styles.glass} style={lensStyle} aria-hidden="true" />
       {edges ? <LumenIndicator edge={edges[0]} length="area" state={state} tone={tone} /> : null}
-      <div className={styles.surfaceContent}>{children}</div>
+      <div className={[styles.surfaceContent, contentClassName].filter(Boolean).join(' ')}>
+        {children}
+      </div>
       {edges ? <LumenIndicator edge={edges[1]} length="area" state={state} tone={tone} /> : null}
-    </div>
+    </Component>
   );
 }
