@@ -1,6 +1,4 @@
 import type {
-  LumenAppShellContent,
-  LumenAppSidebarContent,
   LumenCommandMenuContent,
   LumenCommentsContent,
   LumenEditorContent,
@@ -8,6 +6,8 @@ import type {
 import { createAgentPlanFixtures } from './agentPlanFixtures';
 import { createAgentActivityFixtures } from './agentActivityLumenFixtures';
 import { createAgentApprovalFixtures } from './agentApprovalLumenFixtures';
+import { createAppShellFixtures } from './appShellLumenFixtures';
+import { createAppSidebarFixtures } from './appSidebarLumenFixtures';
 import { createAiChatFixtures } from './aiChatFixtures';
 import { createAppDialogFixtures } from './appDialogFixtures';
 import { createAnalyticsFixtures } from './analyticsFixtures';
@@ -1111,7 +1111,8 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
     } satisfies LumenAgentApprovalContent, */
     'agent-plan': createAgentPlanFixtures(locale),
     'ai-usage': createUsageFixtures(locale),
-    'app-shell': {
+    'app-shell': createAppShellFixtures(locale),
+    /* legacyAppShell: {
       labels: {
         brand: previewText(locale, 'app-shell.labels.brand'),
         title: previewText(locale, 'app-shell.labels.title'),
@@ -1363,8 +1364,9 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
         },
       ],
       listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
-    } satisfies LumenAppShellContent,
-    'app-sidebar': {
+    } satisfies LumenAppShellContent, */
+    'app-sidebar': createAppSidebarFixtures(locale),
+    /* legacyAppSidebar: {
       labels: {
         brand: previewText(locale, 'app-sidebar.labels.brand'),
         title: previewText(locale, 'app-sidebar.labels.title'),
@@ -1525,7 +1527,7 @@ export function createLumenVariantFixtures(locale: LumenPreviewLocale) {
         avatar: 'LJ',
       },
       listStrategy: { kind: 'content-grown', expectedMaximum: 24 },
-    } satisfies LumenAppSidebarContent,
+    } satisfies LumenAppSidebarContent, */
     'command-menu': {
       grouped: {
         open: false,

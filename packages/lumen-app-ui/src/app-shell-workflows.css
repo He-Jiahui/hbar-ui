@@ -485,6 +485,7 @@
   .lumen-app-shell-document,
   .lumen-app-shell-adaptive,
   .lumen-app-shell-chat {
+    min-inline-size: 0;
   }
   .lumen-app-shell-sidebar-layout > aside,
   .lumen-app-shell-three-pane > nav,

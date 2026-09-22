@@ -328,6 +328,7 @@
     display: block;
   }
   .lumen-app-sidebar-full {
+    min-inline-size: 0;
   }
   .lumen-app-sidebar-full > aside {
     max-block-size: 14rem;

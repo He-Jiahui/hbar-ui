@@ -2356,6 +2356,63 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.queryByText('Read search metrics')).toBeNull();
   });
 
+  it('uses real workbench shell and sidebar data across structural variants', async () => {
+    const shellEntries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'app-shell',
+    );
+    const sidebarEntries = LUMEN_VARIANT_REGISTRY.filter(
+      (candidate) => candidate.category === 'app-sidebar',
+    );
+    expect(shellEntries).toHaveLength(9);
+    expect(sidebarEntries).toHaveLength(7);
+    shellEntries.forEach((entry) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('app-shell.navigation.item.label');
+      expect(view).not.toContain('item-1');
+    });
+    sidebarEntries.forEach((entry) => {
+      const view = ReactDOMServer.renderToStaticMarkup(
+        <VariantPreviewHost entry={entry} locale="en" unavailableLabel="Preview unavailable" />,
+      );
+      expect(view).not.toContain('app-sidebar.groups.item.label');
+      expect(view).not.toContain('item-1');
+    });
+
+    let view = render(
+      <VariantPreviewHost
+        entry={shellEntries[0]}
+        locale="en"
+        unavailableLabel="Preview unavailable"
+      />,
+    );
+    await view.user.click(screen.getByRole('button', { name: /Research tasks/ }));
+    expect(screen.getAllByText('Research tasks').length).toBeGreaterThan(0);
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost
+        entry={shellEntries[8]}
+        locale="en"
+        unavailableLabel="Preview unavailable"
+      />,
+    );
+    await view.user.selectOptions(screen.getByLabelText('Model'), 'luna');
+    expect((screen.getByLabelText('Model') as HTMLSelectElement).value).toBe('luna');
+    view.unmount();
+
+    view = render(
+      <VariantPreviewHost
+        entry={sidebarEntries[0]}
+        locale="en"
+        unavailableLabel="Preview unavailable"
+      />,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Collapse sidebar' }));
+    expect(screen.getByRole('button', { name: 'Expand sidebar' })).not.toBeNull();
+  });
+
   it('uses distinct host-owned dashboard scenarios for all fourteen data views', () => {
     const dashboardEntries = LUMEN_VARIANT_REGISTRY.filter(
       (candidate) => candidate.category === 'dashboard',
