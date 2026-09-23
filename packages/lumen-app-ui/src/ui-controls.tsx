@@ -152,6 +152,7 @@ export function LumenRadioGroup({
 export interface LumenTabItem {
   id: string;
   label: string;
+  badge?: string | number | undefined;
   disabled?: boolean | undefined;
   panelId?: string | undefined;
 }
@@ -224,6 +225,7 @@ export function LumenTabs({
           }}
         >
           {item.label}
+          {item.badge !== undefined ? <LumenBadge value={item.badge} /> : null}
         </LumenButton>
       ))}
     </div>

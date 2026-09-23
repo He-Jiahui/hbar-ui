@@ -161,28 +161,14 @@
   overflow: auto;
 }
 
-.hbar-app-ui-navbar-board-tabs .hbar-app-ui-button {
+.hbar-app-ui-navbar-board-tabs > [role='tab'] {
   min-block-size: 2.5rem;
   flex: 0 0 auto;
-  border-radius: 0;
   padding-inline: 0.5rem;
-  color: var(--lumen-muted);
 }
 
-.hbar-app-ui-navbar-board-tabs .hbar-app-ui-button:hover,
-.hbar-app-ui-navbar-board-tabs .hbar-app-ui-button.is-selected {
-  border-block-end: 0.125rem solid var(--lumen-ink);
-  background: transparent;
-  color: var(--lumen-ink);
-}
-
-.hbar-app-ui-navbar-board-tabs small {
-  border-radius: 0.375rem;
-  padding: 0 0.3125rem;
-  background: color-mix(in srgb, var(--lumen-muted) 8%, transparent);
-  color: var(--lumen-muted);
-  font-size: 0.625rem;
-  line-height: 1.5;
+.hbar-app-ui-navbar-board-tabs .lumen-badge {
+  margin-inline-start: 0.25rem;
 }
 
 .hbar-app-ui-navbar-board-people {

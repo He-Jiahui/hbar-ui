@@ -1049,4 +1049,14 @@ for (const mode of ['dark', 'light'] as const) {
     await tabs.getByRole('tab').first().press('ArrowRight');
     await expect(tabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
   });
+
+  test(`project board navigation uses badged foundation tabs in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-navbar-1', mode));
+    const tabs = page.locator('.hbar-app-ui-navbar-board-tabs.lumen-tabs');
+    await expect(tabs).toBeVisible();
+    await expect(tabs.locator('.lumen-badge')).toHaveCount(1);
+    await tabs.getByRole('tab').first().press('ArrowRight');
+    await expect(tabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
+  });
 }

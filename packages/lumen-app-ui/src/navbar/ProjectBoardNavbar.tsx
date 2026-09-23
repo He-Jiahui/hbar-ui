@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { LumenTabs } from '../ui-controls';
 import { ChevronRight, CirclePlus, Folder, MoreHorizontal, Search, Star } from './glyphs';
 import type { LumenNavbarProjectBoardContent } from './content';
 import {
@@ -71,24 +72,17 @@ export default function ProjectBoardNavbar({
           </nav>
         </div>
         <div className="hbar-app-ui-navbar-board-tabs-row">
-          <div
+          <LumenTabs
             className="hbar-app-ui-navbar-board-tabs"
-            role="tablist"
-            aria-label={content.labels.tasks}
-          >
-            {tabs.map((item) => (
-              <NavbarButton
-                key={item.id}
-                role="tab"
-                aria-selected={tab === item.id}
-                className={tab === item.id ? 'is-selected' : ''}
-                onClick={() => chooseTab(item.id)}
-              >
-                <span>{item.label}</span>
-                {item.count !== undefined && <small>{item.count}</small>}
-              </NavbarButton>
-            ))}
-          </div>
+            label={content.labels.tasks}
+            items={tabs.map((item) => ({
+              id: item.id,
+              label: item.label,
+              badge: item.count,
+            }))}
+            selectedId={tab}
+            onChange={(id) => chooseTab(id as typeof tab)}
+          />
           <div className="hbar-app-ui-navbar-board-people">
             <NavbarButton
               aria-label={content.labels.invitePeople}
