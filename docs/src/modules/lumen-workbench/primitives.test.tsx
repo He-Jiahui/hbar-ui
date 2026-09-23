@@ -84,7 +84,7 @@ describe('Lumen application primitives', () => {
     view.rerender(<LumenButton disabled>Run</LumenButton>);
     expect(strip).to.have.attribute('data-state', 'disabled');
     view.rerender(<LumenButton>Run</LumenButton>);
-    expect(strip).to.have.attribute('data-visible', 'false');
+    expect(strip).to.have.attribute('data-visible', 'true');
     expect(view.container.querySelector('[data-edge]')).to.equal(strip);
     expect(strip?.firstElementChild).to.equal(beam);
     view.rerender(

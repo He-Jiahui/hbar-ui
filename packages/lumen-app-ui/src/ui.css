@@ -72,46 +72,108 @@
   gap: 0.2rem;
 }
 
-.lumen-switch > input {
-  color: var(--lumen-muted);
-  appearance: none;
+.lumen-switch-control {
+  --lumen-switch-lamp-size: 1rem;
+  position: relative;
   display: flex;
-  inline-size: 2.25rem;
-  block-size: 1.25rem;
+  inline-size: 2.5rem;
+  block-size: 1.5rem;
   flex: 0 0 auto;
   align-items: center;
-  padding: 0.125rem;
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: 999rem;
-  background-color: var(--lumen-reading);
-  background-image: radial-gradient(circle, currentColor 0 0.4rem, transparent 0.425rem);
-  background-repeat: no-repeat;
-  background-position: 0.125rem center;
-  transition:
-    color var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease),
-    background-position 180ms ease,
-    border-color 180ms ease,
-    box-shadow 180ms ease;
   cursor: pointer;
 }
 
-.lumen-switch > input:checked {
-  color: var(--lumen-ink);
-  background-position: calc(100% - 0.125rem) center;
-  box-shadow: 0 0 0.75rem color-mix(in srgb, var(--lumen-ink) 50%, transparent);
+.lumen-switch-input {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
 }
 
-.lumen-switch > input:focus-visible {
-  border-color: var(--lumen-ink);
+.lumen-switch-track {
+  display: flex;
+  inline-size: 100%;
+  block-size: var(--lumen-switch-lamp-size);
+  align-items: center;
+}
+
+.lumen-switch-line {
+  min-inline-size: 0;
+  block-size: 0.125rem;
+  flex: 0 1 0;
+  background: color-mix(in srgb, var(--lumen-muted) 56%, transparent);
+  transition:
+    flex-grow var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease),
+    background-color var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease);
+}
+
+.lumen-switch-trailing-line {
+  flex-grow: 1;
+}
+
+.lumen-switch-lamp {
+  inline-size: var(--lumen-switch-lamp-size);
+  block-size: var(--lumen-switch-lamp-size);
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  border: 0.125rem solid var(--lumen-ink);
+  border-radius: 50%;
+  background: transparent;
+  transition:
+    background-color var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease),
+    border-color var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease),
+    box-shadow var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease);
+}
+
+.lumen-switch-control:has(.lumen-switch-input:checked) .lumen-switch-line {
+  background: color-mix(in srgb, var(--lumen-ink) 56%, transparent);
+}
+
+.lumen-switch-control:has(.lumen-switch-input:checked) .lumen-switch-leading-line {
+  flex-grow: 1;
+}
+
+.lumen-switch-control:has(.lumen-switch-input:checked) .lumen-switch-trailing-line {
+  flex-grow: 0;
+}
+
+.lumen-switch-control:has(.lumen-switch-input:checked) .lumen-switch-lamp {
+  background: var(--lumen-ink);
   box-shadow:
-    0 0 0 0.125rem var(--lumen-contrast),
-    0 0 0 0.25rem var(--lumen-ink);
+    0 0 var(--lumen-glow-near, 0.875rem) color-mix(in srgb, var(--lumen-ink) 72%, transparent),
+    0 0 var(--lumen-glow-far, 1.75rem) color-mix(in srgb, var(--lumen-ink) 32%, transparent);
+}
+
+.lumen-switch-control:has(.lumen-switch-input:focus-visible) {
+  outline: 0.0625rem solid var(--lumen-ink);
+  outline-offset: 0.25rem;
+  box-shadow: 0 0 var(--lumen-glow-far, 1.75rem)
+    color-mix(in srgb, var(--lumen-ink) 72%, transparent);
+}
+
+.lumen-switch[data-size='s'] .lumen-switch-control {
+  --lumen-switch-lamp-size: 0.875rem;
+  inline-size: 2.25rem;
+  block-size: 1.25rem;
+}
+
+.lumen-switch[data-size='l'] .lumen-switch-control {
+  --lumen-switch-lamp-size: 1.25rem;
+  inline-size: 3rem;
+  block-size: 1.75rem;
 }
 
 .lumen-switch:has(input:disabled),
 .lumen-radio-option:has(input:disabled) {
   cursor: not-allowed;
   opacity: 0.48;
+}
+
+.lumen-switch:has(input:disabled) .lumen-switch-lamp {
+  box-shadow: none;
 }
 
 .lumen-radio-group {
@@ -1003,7 +1065,8 @@
 @media (prefers-reduced-motion: reduce) {
   .lumen-skeleton,
   .lumen-progress > span,
-  .lumen-switch > input,
+  .lumen-switch-lamp,
+  .lumen-switch-line,
   .hbar-app-ui-dialog-menu.lumen-tooltip > [role='tooltip'] {
     animation: none;
     transition: none;
@@ -1012,7 +1075,6 @@
 
 [data-lumen-motion='off'] .lumen-skeleton,
 [data-lumen-motion='off'] .lumen-progress > span,
-[data-lumen-motion='off'] .lumen-switch > input,
 [data-lumen-motion='off'] .hbar-app-ui-dialog-menu.lumen-tooltip > [role='tooltip'] {
   animation: none;
   transition: none;
@@ -1033,7 +1095,7 @@
 }
 
 @media (forced-colors: active) {
-  .lumen-switch > input,
+  .lumen-switch-control,
   .lumen-badge,
   .lumen-panel,
   .lumen-metric,
@@ -1045,7 +1107,19 @@
 
   .lumen-progress > span,
   .lumen-chart-bars > span > i,
-  .lumen-switch > input {
+  .lumen-switch-line {
     background: CanvasText;
+  }
+
+  .lumen-switch-lamp {
+    background: Canvas;
+    border-color: CanvasText;
+    box-shadow: none;
+  }
+
+  .lumen-switch-control:has(.lumen-switch-input:checked) .lumen-switch-lamp {
+    background: Highlight;
+    border-color: Highlight;
+    box-shadow: none;
   }
 }

@@ -23,6 +23,7 @@ export interface LumenButtonProps extends Omit<
   shape?: LumenShape | undefined;
   loading?: boolean | undefined;
   indicatorState?: LumenState | undefined;
+  indicatorVisible?: boolean | undefined;
   indicatorEdge?: 'top' | 'bottom' | 'left' | 'right' | undefined;
 }
 
@@ -39,6 +40,7 @@ export const LumenButton = React.forwardRef<HTMLButtonElement, LumenButtonProps>
       shape,
       loading = false,
       indicatorState,
+      indicatorVisible = true,
       indicatorEdge = 'bottom',
       className,
       children,
@@ -78,7 +80,7 @@ export const LumenButton = React.forwardRef<HTMLButtonElement, LumenButtonProps>
           <LumenIndicator
             edge={indicatorEdge}
             state={state ?? 'idle'}
-            visible={Boolean(state)}
+            visible={indicatorVisible}
             tone={indicatorTone(tone)}
             length="action"
           />
@@ -154,6 +156,7 @@ export const LumenNavigationButton = React.forwardRef<
       variant={variant}
       indicatorEdge={indicatorEdge}
       indicatorState={selected ? 'selected' : undefined}
+      indicatorVisible={selected}
       aria-current={selected ? 'page' : undefined}
     />
   );

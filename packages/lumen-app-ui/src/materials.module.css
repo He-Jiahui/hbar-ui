@@ -151,8 +151,8 @@
 }
 .indicator[data-length='action'][data-edge='top'] .beam,
 .indicator[data-length='action'][data-edge='bottom'] .beam {
-  width: 34%;
-  opacity: 0.55;
+  width: min(2rem, 80%);
+  opacity: var(--lumen-action-strip-opacity, 0.55);
 }
 .indicator[data-length='area'][data-edge='top'] .beam,
 .indicator[data-length='area'][data-edge='bottom'] .beam {
@@ -214,6 +214,10 @@
 :global(button:focus-visible) > .indicator .beam {
   opacity: 0.65;
 }
+:global(button:hover) > .indicator[data-length='action'] .beam,
+:global(button:focus-visible) > .indicator[data-length='action'] .beam {
+  opacity: min(1, calc(var(--lumen-action-strip-opacity, 0.55) * 1.3));
+}
 :global(button:hover) > .indicator[data-edge='bottom'] .beam,
 :global(button:hover) > .indicator[data-edge='top'] .beam {
   width: 48%;
@@ -223,8 +227,10 @@
   height: 48%;
 }
 :global(button:hover) > .indicator[data-length='action'][data-edge='bottom'] .beam,
-:global(button:focus-visible) > .indicator[data-length='action'][data-edge='bottom'] .beam {
-  width: 70%;
+:global(button:focus-visible) > .indicator[data-length='action'][data-edge='bottom'] .beam,
+:global(button:hover) > .indicator[data-length='action'][data-edge='top'] .beam,
+:global(button:focus-visible) > .indicator[data-length='action'][data-edge='top'] .beam {
+  width: min(3rem, 90%);
 }
 :global(button:hover) > .indicator .halo {
   opacity: calc(var(--lumen-glow, 0.65) * 0.55);
@@ -242,6 +248,12 @@
 .indicator[data-state='running'][data-edge='bottom'] .beam,
 .indicator[data-state='running'][data-edge='top'] .beam {
   width: 80%;
+}
+.indicator[data-length='action'][data-state='selected']:is([data-edge='top'], [data-edge='bottom'])
+  .beam,
+.indicator[data-length='action'][data-state='running']:is([data-edge='top'], [data-edge='bottom'])
+  .beam {
+  width: min(3rem, 90%);
 }
 .indicator[data-state='selected'][data-edge='left'] .beam,
 .indicator[data-state='selected'][data-edge='right'] .beam,

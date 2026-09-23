@@ -49,7 +49,20 @@ export const LumenSwitch = React.forwardRef<HTMLInputElement, LumenSwitchProps>(
   function LumenSwitch({ label, description, size, className, ...other }, ref) {
     return (
       <label className={['lumen-switch', className].filter(Boolean).join(' ')} data-size={size}>
-        <input {...other} ref={ref} type="checkbox" role="switch" />
+        <span className="lumen-switch-control">
+          <span className="lumen-switch-track" aria-hidden="true">
+            <span className="lumen-switch-line lumen-switch-leading-line" />
+            <span className="lumen-switch-lamp" />
+            <span className="lumen-switch-line lumen-switch-trailing-line" />
+          </span>
+          <input
+            {...other}
+            ref={ref}
+            className="lumen-switch-input"
+            type="checkbox"
+            role="switch"
+          />
+        </span>
         <span className="lumen-switch-copy">
           <LumenText as="span" variant="label" size={size}>
             {label}
@@ -175,6 +188,7 @@ export function LumenTabs({
           tabIndex={current?.id === item.id ? 0 : -1}
           indicatorEdge={orientation === 'vertical' ? 'left' : 'bottom'}
           indicatorState={selectedId === item.id ? 'selected' : undefined}
+          indicatorVisible={selectedId === item.id}
           onClick={() => onChange(item.id)}
           onKeyDown={(event) => {
             const nextKey = orientation === 'vertical' ? 'ArrowDown' : 'ArrowRight';

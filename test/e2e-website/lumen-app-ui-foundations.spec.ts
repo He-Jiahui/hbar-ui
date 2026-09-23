@@ -1,6 +1,90 @@
 import { test, expect } from '@playwright/test';
 import axe from 'axe-core';
 
+test('actions remain borderless while the fixed strip communicates interaction', async ({
+  page,
+}) => {
+  await page.goto('/experiments/lumen-app-ui/foundations/?mode=dark&locale=en');
+  const actions = ['Run analysis', 'View details', 'Cancel'];
+  await Promise.all(
+    actions.map(async (name) => {
+      const action = page.getByRole('button', { name, exact: true });
+      await expect(action).toHaveCSS('border-top-style', 'none');
+      await expect(action).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+      await expect(action.locator('[data-edge]')).toHaveAttribute('data-visible', 'true');
+      await expect(action.locator('[data-edge] > span')).toHaveCSS('width', '32px');
+    }),
+  );
+  await expect(
+    page.getByRole('button', { name: 'Run analysis', exact: true }).locator('[data-edge] > span'),
+  ).toHaveCSS('opacity', '0.85');
+  await expect(
+    page.getByRole('button', { name: 'View details', exact: true }).locator('[data-edge] > span'),
+  ).toHaveCSS('opacity', '0.55');
+  await expect(
+    page.getByRole('button', { name: 'Cancel', exact: true }).locator('[data-edge] > span'),
+  ).toHaveCSS('opacity', '0.4');
+  await page.getByRole('button', { name: 'Run analysis', exact: true }).hover();
+  await expect(
+    page.getByRole('button', { name: 'Run analysis', exact: true }).locator('[data-edge] > span'),
+  ).toHaveCSS('width', '48px');
+});
+
+test('switch circle and opposing line lengths interpolate without overshooting', async ({
+  page,
+}) => {
+  await page.goto('/experiments/lumen-app-ui/foundations/?mode=dark&locale=en');
+  await page.getByRole('tab', { name: 'Settings', exact: true }).click();
+  const toggle = page.getByRole('switch', { name: 'Receive research updates' });
+  await toggle.uncheck();
+  await expect(toggle.locator('..').locator('.lumen-switch-leading-line')).toHaveCSS(
+    'width',
+    '0px',
+  );
+  const samples = await toggle.evaluate(async (input: HTMLInputElement) => {
+    const track = input.parentElement!.querySelector<HTMLElement>('.lumen-switch-track')!;
+    const leading = track.querySelector<HTMLElement>('.lumen-switch-leading-line')!;
+    const lamp = track.querySelector<HTMLElement>('.lumen-switch-lamp')!;
+    const trailing = track.querySelector<HTMLElement>('.lumen-switch-trailing-line')!;
+    const read = () => {
+      const bounds = track.getBoundingClientRect();
+      const circle = lamp.getBoundingClientRect();
+      const before = leading.getBoundingClientRect();
+      const after = trailing.getBoundingClientRect();
+      return {
+        x: circle.left - bounds.left,
+        leading: before.width,
+        trailing: after.width,
+        color: getComputedStyle(lamp).backgroundColor,
+        inside:
+          before.left >= bounds.left - 0.5 &&
+          before.right <= circle.left + 0.5 &&
+          circle.right <= after.left + 0.5 &&
+          after.right <= bounds.right + 0.5,
+      };
+    };
+    const start = read();
+    input.click();
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 90);
+    });
+    const middle = read();
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 350);
+    });
+    return { start, middle, end: read() };
+  });
+  expect(samples.middle.x).toBeGreaterThan(samples.start.x);
+  expect(samples.middle.x).toBeLessThan(samples.end.x);
+  expect(samples.middle.leading).toBeGreaterThan(samples.start.leading);
+  expect(samples.middle.leading).toBeLessThan(samples.end.leading);
+  expect(samples.middle.trailing).toBeLessThan(samples.start.trailing);
+  expect(samples.middle.trailing).toBeGreaterThan(samples.end.trailing);
+  expect(samples.middle.color).not.toBe(samples.start.color);
+  expect(samples.middle.color).not.toBe(samples.end.color);
+  expect([samples.start, samples.middle, samples.end].every((sample) => sample.inside)).toBe(true);
+});
+
 test('light strips retain nodes and smoothly reverse selection; progress and range interpolate', async ({
   page,
 }) => {
@@ -189,7 +273,29 @@ test('keyboard controls, custom palette, and adjustable ink diffusion', async ({
     'aria-selected',
     'true',
   );
-  await page.getByRole('switch', { name: 'Animate light' }).uncheck();
+  const motionSwitch = page.getByRole('switch', { name: 'Animate light' });
+  const motionControl = motionSwitch.locator('..');
+  const motionLamp = motionControl.locator('.lumen-switch-lamp');
+  const leadingLine = motionControl.locator('.lumen-switch-leading-line');
+  const trailingLine = motionControl.locator('.lumen-switch-trailing-line');
+  expect(
+    await leadingLine.evaluate((element) => getComputedStyle(element).transitionProperty),
+  ).toContain('flex-grow');
+  await motionSwitch.uncheck();
+  expect(
+    await leadingLine.evaluate((element) => getComputedStyle(element).transitionProperty),
+  ).toContain('flex-grow');
+  await expect(motionLamp).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  await expect(leadingLine).toHaveCSS('width', '0px');
+  await expect(trailingLine).toHaveCSS('width', '24px');
+  await motionSwitch.check();
+  await expect(motionLamp).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  await expect(leadingLine).toHaveCSS('width', '24px');
+  await expect(trailingLine).toHaveCSS('width', '0px');
+  expect(await motionLamp.evaluate((element) => getComputedStyle(element).boxShadow)).not.toBe(
+    'none',
+  );
+  await motionSwitch.uncheck();
   const slider = page.getByRole('slider', { name: 'Glow' });
   await slider.focus();
   await slider.press('Home');
@@ -208,7 +314,7 @@ test('keyboard controls, custom palette, and adjustable ink diffusion', async ({
   await expect(root).toHaveCSS('background-color', 'rgb(16, 27, 32)');
   await expect(page.getByRole('button', { name: 'Run analysis', exact: true })).toHaveCSS(
     'color',
-    'rgb(16, 27, 32)',
+    'rgb(184, 234, 211)',
   );
   const customHalo = page
     .getByRole('tab', { name: 'Light', exact: true })
