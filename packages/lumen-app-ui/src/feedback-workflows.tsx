@@ -4,7 +4,7 @@ import * as React from 'react';
 import { LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { LumenChart } from './ui';
-import { LumenProgress, LumenTabs } from './ui-controls';
+import { LumenChip, LumenProgress, LumenTabs } from './ui-controls';
 
 export type LumenFeedbackListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -373,12 +373,7 @@ function FeedbackHeader({
 
 function FeedbackProgress({ value, label }: { value: number; label: string }) {
   return (
-    <LumenProgress
-      className="lumen-feedback-progress"
-      label={label}
-      value={value}
-      tone="info"
-    />
+    <LumenProgress className="lumen-feedback-progress" label={label} value={value} tone="info" />
   );
 }
 
@@ -886,10 +881,7 @@ function Inbox({
             <p>{detail.body}</p>
             <div className="lumen-feedback-pills">
               {[...detail.tags, ...addedTags].map((tag) => (
-                <span key={tag}>
-                  <FeedbackGlyph name="tag" />
-                  {tag}
-                </span>
+                <LumenChip key={tag} label={tag} startAdornment={<FeedbackGlyph name="tag" />} />
               ))}
             </div>
             <div className="lumen-feedback-tag-editor">

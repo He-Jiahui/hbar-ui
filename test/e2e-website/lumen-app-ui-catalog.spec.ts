@@ -1102,6 +1102,21 @@ for (const mode of ['dark', 'light'] as const) {
     });
   }
 
+  test(`feedback inbox composes passive, editable tags from foundation chips in ${mode}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 568 });
+    await page.goto(preview('hbar-app-ui-feedback-5', mode));
+    const chips = page.locator('.lumen-feedback-pills [data-lumen-component="chip"]');
+    await expect(chips).toHaveCount(2);
+    await expect(chips.first()).toHaveCSS('border-top-width', '0px');
+    await expect(chips.locator('button')).toHaveCount(0);
+    await page.getByRole('textbox', { name: '添加标签' }).fill('紧急');
+    await page.getByRole('button', { name: '添加标签' }).click();
+    await expect(chips).toHaveCount(3);
+    await expect(chips.last()).toContainText('紧急');
+  });
+
   for (const [variant, label] of [
     [3, '分组方式'],
     [6, '列'],

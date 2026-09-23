@@ -283,16 +283,8 @@
   line-height: 1.55;
 }
 
-.lumen-feedback-pills > span {
-  display: inline-flex;
-  min-inline-size: 0;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: 999rem;
+.lumen-feedback-pills .lumen-chip {
   color: var(--lumen-muted);
-  font-size: 0.75rem;
 }
 
 .lumen-feedback-tag-editor > :first-child {
