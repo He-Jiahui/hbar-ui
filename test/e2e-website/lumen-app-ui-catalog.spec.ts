@@ -965,4 +965,25 @@ for (const mode of ['dark', 'light'] as const) {
     await tabs.getByRole('tab').first().press('ArrowRight');
     await expect(tabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
   });
+
+  test(`data table status uses a themed picker in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-data-table-1', mode));
+    const picker = page.getByRole('combobox', { name: '状态' });
+    await picker.click();
+    const last = page.getByRole('listbox').getByRole('option').last();
+    const label = await last.innerText();
+    await last.click();
+    await expect(picker).toContainText(label);
+    await expect(page.locator('.lumen-data-table select')).toHaveCount(0);
+  });
+
+  test(`data table states share keyboard tabs in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-data-table-7', mode));
+    const tabs = page.getByRole('tablist', { name: '状态' });
+    await expect(tabs).toHaveClass(/lumen-tabs/);
+    await tabs.getByRole('tab').first().press('ArrowRight');
+    await expect(tabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
+  });
 }

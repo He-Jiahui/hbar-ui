@@ -1,8 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { LumenCheckBoxControl, LumenInput, LumenSelect } from './forms';
+import { LumenCheckBoxControl, LumenChoiceSelect, LumenInput } from './forms';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
+import { LumenTabs } from './ui-controls';
 
 export interface LumenDataTableListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -403,17 +404,13 @@ function Faceted(
             onChange={(event) => setQuery(event.currentTarget.value)}
           />
         </div>
-        <LumenSelect
-          aria-label={props.content.labels.status}
+        <LumenChoiceSelect
+          id={`${props.variantId}-status`}
+          label={props.content.labels.status}
+          options={filters}
           value={filterId}
-          onChange={(event) => setFilterId(event.currentTarget.value)}
-        >
-          {filters.map((filter) => (
-            <option key={filter.id} value={filter.id} disabled={filter.disabled}>
-              {filter.label}
-            </option>
-          ))}
-        </LumenSelect>
+          onValueChange={setFilterId}
+        />
         <LumenButton variant="outlined" onClick={() => setCompact((value) => !value)}>
           <Glyph name="columns" />
           {compact ? props.content.labels.compactColumns : props.content.labels.fullColumns}
@@ -812,23 +809,13 @@ function States(
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
-      <div
+      <LumenTabs
         className="lumen-data-table-tabs"
-        role="tablist"
-        aria-label={props.content.labels.states}
-      >
-        {states.map((item) => (
-          <LumenButton
-            key={item.id}
-            role="tab"
-            variant="text"
-            aria-selected={selected?.id === item.id}
-            onClick={() => setStateId(item.id)}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+        label={props.content.labels.states}
+        items={states}
+        selectedId={selected?.id ?? null}
+        onChange={setStateId}
+      />
       {selected?.id === props.content.emptyStateId ? (
         <div className="lumen-data-table-state">
           <LumenText as="strong" variant="heading">
