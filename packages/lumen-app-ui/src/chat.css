@@ -332,7 +332,7 @@
 .lumen-chat-live > aside {
   display: flex;
   min-inline-size: 0;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.5rem;
   padding: 0.75rem;
   border: 0.0625rem solid color-mix(in srgb, var(--lumen-warning, #b57900) 35%, var(--lumen-edge));
@@ -353,6 +353,7 @@
 .lumen-chat-live > aside > :nth-child(3n + 3) {
   flex: 1 1 0;
   min-inline-size: 0;
+  overflow-wrap: anywhere;
 }
 
 .lumen-chat-live-messages article {
@@ -419,15 +420,5 @@
   .lumen-chat-nested-replies {
     margin-inline-start: 0.5rem;
     padding-inline-start: 0.5rem;
-  }
-
-  .lumen-chat-live > aside > :nth-child(2n + 1) {
-    flex: 0 0 auto;
-    min-inline-size: 0;
-  }
-
-  .lumen-chat-live > aside > :nth-child(2n + 2) {
-    flex: 1 1 0;
-    min-inline-size: 0;
   }
 }

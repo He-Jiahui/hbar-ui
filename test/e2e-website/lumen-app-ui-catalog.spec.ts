@@ -1738,6 +1738,27 @@ for (const mode of ['dark', 'light'] as const) {
       await expect(rows.nth(1).getByRole('progressbar')).toHaveAttribute('aria-valuenow', '64');
     });
 
+    test(`live chat pinned notice wraps beside its label at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 720 });
+      await page.goto(preview('hbar-app-ui-chat-6', mode, 'en'));
+      const notice = page.locator('.lumen-chat-live > aside');
+      const geometry = await notice.evaluate((element) => {
+        const label = element.querySelector('strong')!.getBoundingClientRect();
+        const copy = element.querySelector('span:last-child')!.getBoundingClientRect();
+        const bounds = element.getBoundingClientRect();
+        return {
+          separated: label.right <= copy.left + 1,
+          contained: copy.right <= bounds.right + 1 && copy.bottom <= bounds.bottom + 1,
+          fits: element.scrollWidth <= element.clientWidth + 1,
+        };
+      });
+      expect(geometry).toEqual({ separated: true, contained: true, fits: true });
+      await page.getByRole('tab', { name: 'Viewers' }).click();
+      await expect(page.locator('.lumen-chat-live > aside')).toHaveCount(0);
+    });
+
     test(`kanban columns retain readable width and scroll at ${width}px in ${mode}`, async ({
       page,
     }) => {
