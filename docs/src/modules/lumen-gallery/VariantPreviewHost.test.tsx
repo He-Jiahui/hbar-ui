@@ -622,7 +622,8 @@ describe('Lumen formal variant fixtures', () => {
     let view = render(
       <VariantPreviewHost entry={entry(8)} locale="en" unavailableLabel="Preview unavailable" />,
     );
-    await view.user.selectOptions(screen.getByRole('combobox', { name: 'Field' }), 'seats');
+    await view.user.click(screen.getByRole('combobox', { name: 'Field' }));
+    await view.user.click(screen.getByRole('option', { name: 'Seat count' }));
     expect(screen.getByText('is greater than')).not.toBeNull();
     expect(screen.getByPlaceholderText('For example: 50')).not.toBeNull();
     view.unmount();
@@ -631,9 +632,9 @@ describe('Lumen formal variant fixtures', () => {
       <VariantPreviewHost entry={entry(9)} locale="en" unavailableLabel="Preview unavailable" />,
     );
     const saturday = screen.getByRole('switch', { name: 'Toggle Saturday' });
-    expect(saturday.getAttribute('aria-checked')).toBe('false');
+    expect((saturday as HTMLInputElement).checked).toBe(false);
     await view.user.click(saturday);
-    expect(saturday.getAttribute('aria-checked')).toBe('true');
+    expect((saturday as HTMLInputElement).checked).toBe(true);
     view.unmount();
 
     view = render(

@@ -1,8 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { LumenFormField, LumenInput, LumenSelect, LumenTextarea } from './forms';
+import { LumenChoiceSelect, LumenFormField, LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
+import { LumenProgress, LumenSwitch, LumenTabs } from './ui-controls';
 
 export interface LumenFormsListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -405,19 +406,13 @@ function Progress({
   readonly label: string;
   readonly tone?: string | undefined;
 }) {
-  const bounded = Math.max(0, Math.min(100, value));
   return (
-    <span
+    <LumenProgress
       className="lumen-forms-progress"
-      data-tone={tone}
-      role="progressbar"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={bounded}
-    >
-      <i style={{ inlineSize: `${bounded}%` }} />
-    </span>
+      value={value}
+      label={label}
+      tone={tone === 'success' ? 'success' : 'info'}
+    />
   );
 }
 function Metrics({ metrics }: { readonly metrics: readonly LumenFormsMetric[] }) {
@@ -444,20 +439,13 @@ function Tabs({
   readonly onChange: (id: string) => void;
 }) {
   return (
-    <div className="lumen-forms-tabs" role="tablist" aria-label={label}>
-      {choices.map((item) => (
-        <LumenButton
-          key={item.id}
-          role="tab"
-          variant="text"
-          disabled={item.disabled}
-          aria-selected={selectedId === item.id}
-          onClick={() => onChange(item.id)}
-        >
-          {item.label}
-        </LumenButton>
-      ))}
-    </div>
+    <LumenTabs
+      className="lumen-forms-tabs"
+      label={label}
+      items={choices}
+      selectedId={selectedId ?? null}
+      onChange={onChange}
+    />
   );
 }
 
@@ -529,16 +517,13 @@ function Submission(
           controlId={`${props.variantId}-priority`}
           label={props.content.labels.priority}
         >
-          <LumenSelect
-            value={selectLumenFormsItem(priorities, priorityId)?.id ?? ''}
-            onChange={(event) => setPriorityId(event.target.value)}
-          >
-            {priorities.map((item) => (
-              <option key={item.id} value={item.id} disabled={item.disabled}>
-                {item.label}
-              </option>
-            ))}
-          </LumenSelect>
+          <LumenChoiceSelect
+            id={`${props.variantId}-priority`}
+            label={props.content.labels.priority}
+            options={priorities}
+            value={selectLumenFormsItem(priorities, priorityId)?.id ?? null}
+            onValueChange={setPriorityId}
+          />
         </LumenFormField>
         <fieldset>
           <legend>{props.content.labels.type}</legend>
@@ -767,16 +752,13 @@ function Checkout(
             controlId={`${props.variantId}-country`}
             label={props.content.labels.country}
           >
-            <LumenSelect
-              value={selectLumenFormsItem(countries, countryId)?.id ?? ''}
-              onChange={(event) => setCountryId(event.target.value)}
-            >
-              {countries.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.label}
-                </option>
-              ))}
-            </LumenSelect>
+            <LumenChoiceSelect
+              id={`${props.variantId}-country`}
+              label={props.content.labels.country}
+              options={countries}
+              value={selectLumenFormsItem(countries, countryId)?.id ?? null}
+              onValueChange={setCountryId}
+            />
           </LumenFormField>
           <LumenFormField controlId={`${props.variantId}-card`} label={props.content.labels.card}>
             <div className="lumen-forms-input-icon">
@@ -865,17 +847,13 @@ function Rule(props: Omit<LumenFormsProps, 'content'> & { content: LumenFormsRul
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
       <div className="lumen-forms-rule">
-        <LumenSelect
-          aria-label={props.content.labels.field}
-          value={field?.id ?? ''}
-          onChange={(event) => setFieldId(event.target.value)}
-        >
-          {fields.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.label}
-            </option>
-          ))}
-        </LumenSelect>
+        <LumenChoiceSelect
+          id={`${props.variantId}-field`}
+          label={props.content.labels.field}
+          options={fields}
+          value={field?.id ?? null}
+          onValueChange={setFieldId}
+        />
         <span>{field?.operator}</span>
         <LumenInput aria-label={props.content.labels.value} placeholder={field?.placeholder} />
       </div>
@@ -916,15 +894,15 @@ function Hours(props: Omit<LumenFormsProps, 'content'> & { content: LumenFormsHo
             const active = enabled[day.id] ?? false;
             return (
               <div key={day.id}>
-                <LumenButton
-                  role="switch"
-                  variant="outlined"
-                  aria-checked={active}
-                  aria-label={props.content.labels.toggle(day.label)}
-                  onClick={() => setEnabled((current) => ({ ...current, [day.id]: !active }))}
-                >
-                  <i />
-                </LumenButton>
+                <LumenSwitch
+                  label={props.content.labels.toggle(day.label)}
+                  visuallyHiddenLabel
+                  checked={active}
+                  onChange={(event) => {
+                    const checked = event.currentTarget.checked;
+                    setEnabled((current) => ({ ...current, [day.id]: checked }));
+                  }}
+                />
                 <strong>{day.label}</strong>
                 {active ? (
                   <React.Fragment>

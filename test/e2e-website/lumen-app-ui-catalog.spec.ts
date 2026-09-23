@@ -662,4 +662,49 @@ for (const mode of ['dark', 'light'] as const) {
     });
     expect(compact).toBe(true);
   });
+
+  for (const [variant, label] of [
+    [2, '优先级'],
+    [6, '国家或地区'],
+    [8, '字段'],
+  ] as const) {
+    test(`form ${variant} uses the shared picker in ${mode}`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 680 });
+      await page.goto(preview(`hbar-app-ui-forms-${variant}`, mode));
+      const picker = page.getByRole('combobox', { name: label });
+      await picker.click();
+      const last = page.getByRole('listbox').getByRole('option').last();
+      const text = await last.innerText();
+      await last.click();
+      await expect(picker).toContainText(text);
+      await expect(page.locator('.lumen-forms-workflow select')).toHaveCount(0);
+    });
+  }
+
+  test(`form hours wrap and the switch uses the shared control in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-forms-9', mode));
+    const rows = page.locator('.lumen-forms-hours > div');
+    await expect(rows).toHaveCount(7);
+    const compact = await rows.evaluateAll((items) =>
+      items.every((item) => item.scrollWidth <= item.clientWidth + 1),
+    );
+    expect(compact).toBe(true);
+    const toggle = page.getByRole('switch', { name: '切换周六' });
+    await toggle.press('Space');
+    await expect(toggle).toBeChecked();
+  });
+
+  test(`form progress and tabs use foundation controls in ${mode}`, async ({ page }) => {
+    await page.goto(preview('hbar-app-ui-forms-1', mode));
+    await expect(page.locator('.lumen-forms-progress.lumen-progress')).toHaveAttribute(
+      'role',
+      'progressbar',
+    );
+    await page.goto(preview('hbar-app-ui-forms-11', mode));
+    const tabs = page.locator('.lumen-forms-tabs.lumen-tabs').getByRole('tab');
+    await expect(tabs.first()).toBeVisible();
+    await tabs.first().press('ArrowRight');
+    await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
+  });
 }

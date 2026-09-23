@@ -29,8 +29,7 @@
   stroke-width: 1.5;
 }
 .lumen-forms-header,
-.lumen-forms-actions,
-.lumen-forms-tabs {
+.lumen-forms-actions {
   display: flex;
   min-inline-size: 0;
   flex-wrap: wrap;
@@ -63,21 +62,8 @@
   justify-content: flex-end;
 }
 .lumen-forms-progress {
-  display: block;
   inline-size: 100%;
   block-size: 0.45rem;
-  overflow: hidden;
-  border-radius: 999rem;
-  background: color-mix(in srgb, var(--lumen-edge) 70%, transparent);
-}
-.lumen-forms-progress > i {
-  display: block;
-  block-size: 100%;
-  border-radius: inherit;
-  background: var(--lumen-accent);
-}
-.lumen-forms-progress[data-tone='success'] > i {
-  background: var(--lumen-success, #29965f);
 }
 .lumen-forms-two-column {
   display: flex;
@@ -303,10 +289,11 @@
 }
 .lumen-forms-hours > div {
   display: flex;
-  min-inline-size: 36rem;
+  min-inline-size: 0;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
+  gap: 0.5rem 0.75rem;
+  padding: 0.75rem 0.5rem;
   border-block-end: 0.0625rem solid var(--lumen-edge);
 }
 .lumen-forms-hours > div > :nth-child(6n + 1) {
@@ -332,24 +319,6 @@
 .lumen-forms-hours > div > :nth-child(6n + 6) {
   flex: 0 0 auto;
   min-inline-size: 0;
-}
-.lumen-forms-hours [role='switch'] {
-  inline-size: 2.25rem;
-  padding: 0.2rem;
-  border-radius: 999rem;
-  justify-content: flex-start;
-}
-.lumen-forms-hours [role='switch'] > i {
-  inline-size: 0.75rem;
-  block-size: 0.75rem;
-  border-radius: 999rem;
-  background: currentColor;
-  transition: transform 120ms ease;
-}
-.lumen-forms-hours [role='switch'][aria-checked='true'] {
-  color: var(--lumen-accent);
-  background: color-mix(in srgb, var(--lumen-accent) 16%, transparent);
-  justify-content: flex-end;
 }
 .lumen-forms-hours em {
   color: var(--lumen-muted);
@@ -437,13 +406,6 @@
 .lumen-forms-rating button[aria-pressed='true'] {
   color: var(--lumen-accent);
   background: color-mix(in srgb, var(--lumen-accent) 12%, transparent);
-}
-.lumen-forms-tabs {
-  border-block-end: 0.0625rem solid var(--lumen-edge);
-}
-.lumen-forms-tabs > button[aria-selected='true'] {
-  color: var(--lumen-accent);
-  box-shadow: inset 0 -0.125rem var(--lumen-accent);
 }
 .lumen-forms-quote {
   display: flex;
