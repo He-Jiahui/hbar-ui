@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
+import { LumenProgress, LumenTabs } from './ui-controls';
 import {
   LumenCandlestickChart,
   LumenChart,
@@ -464,20 +465,13 @@ function Tabs({
   readonly onChange: (id: string) => void;
 }) {
   return (
-    <div className="lumen-analytics-tabs" role="tablist" aria-label={label}>
-      {choices.map((item) => (
-        <LumenButton
-          key={item.id}
-          role="tab"
-          variant="text"
-          disabled={item.disabled}
-          aria-selected={selectedId === item.id}
-          onClick={() => onChange(item.id)}
-        >
-          {item.label}
-        </LumenButton>
-      ))}
-    </div>
+    <LumenTabs
+      className="lumen-analytics-tabs"
+      label={label}
+      items={choices}
+      selectedId={selectedId ?? null}
+      onChange={onChange}
+    />
   );
 }
 function chartPoints(points: readonly LumenAnalyticsPoint[]): readonly LumenChartPoint[] {
@@ -513,19 +507,13 @@ function Progress({
   readonly label: string;
   readonly tone?: string | undefined;
 }) {
-  const bounded = Math.max(0, Math.min(100, value));
   return (
-    <span
+    <LumenProgress
       className="lumen-analytics-progress"
-      data-tone={tone}
-      role="progressbar"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={bounded}
-    >
-      <i style={{ inlineSize: `${bounded}%` }} />
-    </span>
+      label={label}
+      value={value}
+      tone={tone === 'warning' ? 'warning' : 'info'}
+    />
   );
 }
 function Metrics({

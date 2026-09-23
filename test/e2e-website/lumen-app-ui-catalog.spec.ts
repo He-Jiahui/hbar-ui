@@ -318,4 +318,22 @@ for (const mode of ['dark', 'light'] as const) {
     await expect(page.getByRole('combobox')).toBeVisible();
     await expect(page.locator('.lumen-ai-chat select')).toHaveCount(0);
   });
+
+  test(`analytics range uses foundation tabs in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-analytics-1', mode));
+    const tabs = page.getByRole('tablist').getByRole('tab');
+    await expect(tabs.first()).toBeVisible();
+    await tabs.first().press('ArrowRight');
+    await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
+  });
+
+  for (const variant of [6, 8, 12]) {
+    test(`analytics ${variant} uses foundation progress in ${mode}`, async ({ page }) => {
+      await page.goto(preview(`hbar-app-ui-analytics-${variant}`, mode));
+      const bars = page.locator('.lumen-analytics-progress.lumen-progress');
+      await expect(bars.first()).toHaveAttribute('role', 'progressbar');
+      expect(await bars.count()).toBeGreaterThan(0);
+    });
+  }
 }
