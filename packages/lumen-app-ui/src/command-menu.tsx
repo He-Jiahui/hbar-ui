@@ -7,7 +7,7 @@ import {
   type LumenCommandListProps,
 } from './command-list';
 import { LumenDialog } from './dialog';
-import { LumenInput, LumenSelect } from './forms';
+import { LumenChoiceSelect, LumenInput } from './forms';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
 import { LumenPopover } from './ui-controls';
 
@@ -318,25 +318,20 @@ export function LumenInviteCommand(content: LumenInviteCommandProps) {
           onChange={(event) => content.onEmailChange(event.currentTarget.value)}
         />
       </label>
-      <label>
+      <div className="hbar-app-ui-invite-role">
         <LumenText as="span" variant="label">
           {content.labels.role}
         </LumenText>
-        <LumenSelect
-          value={valid ? content.roleId : ''}
+        <LumenChoiceSelect
+          id={`${titleId}-role`}
+          label={content.labels.role}
+          placeholder={content.labels.unavailableRole}
+          options={roles}
+          value={valid ? (content.roleId ?? null) : null}
           disabled={content.busy}
-          onChange={(event) => content.onRoleChange(event.currentTarget.value)}
-        >
-          <option value="" disabled hidden={valid}>
-            {content.labels.unavailableRole}
-          </option>
-          {roles.map((role) => (
-            <option key={role.id} value={role.id}>
-              {role.label}
-            </option>
-          ))}
-        </LumenSelect>
-      </label>
+          onValueChange={content.onRoleChange}
+        />
+      </div>
       {content.error ? <p role="alert">{content.error}</p> : null}
       <footer>
         <LumenButton

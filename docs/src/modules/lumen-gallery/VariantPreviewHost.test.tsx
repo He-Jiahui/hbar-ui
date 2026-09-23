@@ -3,8 +3,10 @@ import * as ReactDOMServer from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import { LUMEN_VARIANT_REGISTRY } from '@lumen/app-ui/catalog';
+import { LumenInviteCommand } from '@lumen/app-ui';
 import VariantPreviewHost from './VariantPreviewHost';
 import PromptInputGallery from './PromptInputGallery';
+import { createCommandMenuFixtures } from './commandMenuLumenFixtures';
 
 describe('Lumen formal variant fixtures', () => {
   const { render } = createRenderer();
@@ -27,6 +29,17 @@ describe('Lumen formal variant fixtures', () => {
     await view.user.click(scopeChoice);
     expect(scope.textContent).toContain(scopeLabel);
     expect(document.querySelectorAll('select')).toHaveLength(0);
+  });
+
+  it('uses the shared role picker in the invite command', async () => {
+    const onRoleChange = vi.fn();
+    const invite = createCommandMenuFixtures('zh').invite!;
+    const view = render(<LumenInviteCommand {...invite} onRoleChange={onRoleChange} />);
+    const picker = screen.getByRole('combobox', { name: '角色' });
+    await view.user.click(picker);
+    await view.user.click(screen.getByRole('option', { name: '只读查看者' }));
+    expect(onRoleChange).toHaveBeenCalledWith('viewer');
+    expect(document.querySelector('.hbar-app-ui-invite-command select')).toBeNull();
   });
 
   it('renders every formal family variant with host-owned content', () => {

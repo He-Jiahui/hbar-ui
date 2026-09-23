@@ -236,7 +236,8 @@
   margin: 0;
 }
 
-.hbar-app-ui-invite-command > label {
+.hbar-app-ui-invite-command > label,
+.hbar-app-ui-invite-role {
   display: flex;
   min-inline-size: 0;
   flex-direction: column;
