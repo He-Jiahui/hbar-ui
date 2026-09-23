@@ -546,6 +546,7 @@ function PlanTree(
                 <li key={group.id}>
                   <LumenButton
                     variant="text"
+                    indicatorEdge="left"
                     aria-expanded={open}
                     aria-label={
                       open

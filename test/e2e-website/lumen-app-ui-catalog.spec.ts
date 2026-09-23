@@ -155,6 +155,10 @@ for (const mode of ['dark', 'light'] as const) {
       await page.goto(preview('hbar-app-ui-agent-plan-3', mode));
       const groups = page.locator('.hbar-app-ui-agent-plan-tree-group');
       await expect(groups).toHaveCount(3);
+      await expect(groups.first().locator(':scope > [data-edge]')).toHaveAttribute(
+        'data-edge',
+        'left',
+      );
       const groupGeometry = await groups.evaluateAll((items) =>
         items.map((item) => {
           const bounds = item.getBoundingClientRect();
@@ -165,6 +169,9 @@ for (const mode of ['dark', 'light'] as const) {
             titleLeft: title.getBoundingClientRect().left < bounds.left + 65,
             progressRight: progress.getBoundingClientRect().right <= bounds.right + 1,
             titleWraps: getComputedStyle(title).whiteSpace === 'normal',
+            stripBeforeCopy:
+              item.querySelector('[data-edge]')!.getBoundingClientRect().right <
+              title.getBoundingClientRect().left,
           };
         }),
       );
@@ -174,6 +181,7 @@ for (const mode of ['dark', 'light'] as const) {
           titleLeft: true,
           progressRight: true,
           titleWraps: true,
+          stripBeforeCopy: true,
         })),
       );
       const steps = page.locator('.hbar-app-ui-agent-plan-tree-children > li');
