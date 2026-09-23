@@ -164,6 +164,8 @@ export interface LumenTabsProps {
   onChange: (id: string) => void;
   orientation?: 'horizontal' | 'vertical' | undefined;
   className?: string | undefined;
+  renderLabel?: ((item: LumenTabItem) => React.ReactNode) | undefined;
+  renderTrailing?: ((item: LumenTabItem) => React.ReactNode) | undefined;
 }
 
 export function LumenTabs({
@@ -173,6 +175,8 @@ export function LumenTabs({
   onChange,
   orientation = 'horizontal',
   className,
+  renderLabel,
+  renderTrailing,
 }: LumenTabsProps) {
   const values = uniqueItems(items);
   const available = values.filter((item) => !item.disabled);
@@ -185,49 +189,56 @@ export function LumenTabs({
       aria-orientation={orientation}
       data-orientation={orientation}
     >
-      {values.map((item) => (
-        <LumenButton
-          key={item.id}
-          id={`${item.id}-tab`}
-          role="tab"
-          variant="text"
-          disabled={item.disabled}
-          aria-selected={selectedId === item.id}
-          aria-controls={item.panelId}
-          tabIndex={current?.id === item.id ? 0 : -1}
-          indicatorEdge={orientation === 'vertical' ? 'left' : 'bottom'}
-          indicatorState={selectedId === item.id ? 'selected' : undefined}
-          indicatorVisible={selectedId === item.id}
-          onClick={() => onChange(item.id)}
-          onKeyDown={(event) => {
-            const nextKey = orientation === 'vertical' ? 'ArrowDown' : 'ArrowRight';
-            const previousKey = orientation === 'vertical' ? 'ArrowUp' : 'ArrowLeft';
-            if (![nextKey, previousKey, 'Home', 'End'].includes(event.key)) {
-              return;
-            }
-            event.preventDefault();
-            const index = available.findIndex((tab) => tab.id === item.id);
-            let target: LumenTabItem | undefined = available[0];
-            if (event.key === 'End') {
-              target = available.at(-1);
-            } else if (event.key !== 'Home') {
-              const direction = event.key === nextKey ? 1 : -1;
-              target = available[(index + direction + available.length) % available.length];
-            }
-            if (target) {
-              const buttons =
-                event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>(
-                  '[role="tab"]',
-                );
-              buttons?.[values.indexOf(target)]?.focus();
-              onChange(target.id);
-            }
-          }}
-        >
-          {item.label}
-          {item.badge !== undefined ? <LumenBadge value={item.badge} /> : null}
-        </LumenButton>
-      ))}
+      {values.map((item) => {
+        const tab = (
+          <LumenButton
+            key={item.id}
+            id={`${item.id}-tab`}
+            role="tab"
+            variant="text"
+            disabled={item.disabled}
+            aria-selected={selectedId === item.id}
+            aria-controls={item.panelId}
+            tabIndex={current?.id === item.id ? 0 : -1}
+            indicatorEdge={orientation === 'vertical' ? 'left' : 'bottom'}
+            indicatorState={selectedId === item.id ? 'selected' : undefined}
+            indicatorVisible={selectedId === item.id}
+            onClick={() => onChange(item.id)}
+            onKeyDown={(event) => {
+              const nextKey = orientation === 'vertical' ? 'ArrowDown' : 'ArrowRight';
+              const previousKey = orientation === 'vertical' ? 'ArrowUp' : 'ArrowLeft';
+              if (![nextKey, previousKey, 'Home', 'End'].includes(event.key)) {
+                return;
+              }
+              event.preventDefault();
+              const index = available.findIndex((candidate) => candidate.id === item.id);
+              let target: LumenTabItem | undefined = available[0];
+              if (event.key === 'End') {
+                target = available.at(-1);
+              } else if (event.key !== 'Home') {
+                const direction = event.key === nextKey ? 1 : -1;
+                target = available[(index + direction + available.length) % available.length];
+              }
+              if (target) {
+                const buttons = event.currentTarget
+                  .closest('[role="tablist"]')
+                  ?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
+                buttons?.[values.indexOf(target)]?.focus();
+                onChange(target.id);
+              }
+            }}
+          >
+            {renderLabel ? renderLabel(item) : item.label}
+            {item.badge !== undefined ? <LumenBadge value={item.badge} /> : null}
+          </LumenButton>
+        );
+        return renderTrailing ? (
+          <span className="lumen-tab-with-action" key={item.id}>
+            {tab}
+            {renderTrailing(item)}
+          </span>
+        ) : tab;
+      })}
     </div>
   );
 }

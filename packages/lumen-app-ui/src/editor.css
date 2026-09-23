@@ -133,27 +133,23 @@
 .hbar-app-ui-editor-markdown-preview > div {
   line-height: 1.7;
 }
-.hbar-app-ui-editor-code-tabs > div:first-child {
+.hbar-app-ui-editor-code-file-list {
   display: flex;
   min-inline-size: 0;
   flex: 1 1 auto;
+  flex-wrap: nowrap;
   overflow-x: auto;
 }
-.hbar-app-ui-editor-code-file {
-  display: flex;
-  align-items: center;
+.hbar-app-ui-editor-code-file-list .lumen-tab-with-action {
   border-inline-end: 0.0625rem solid var(--lumen-edge);
 }
-.hbar-app-ui-editor-code-file > button:first-child {
+.hbar-app-ui-editor-code-file-list .lumen-tab-with-action > button:first-child {
   min-inline-size: 0;
 }
-.hbar-app-ui-editor-code-file > button:first-child > span {
+.hbar-app-ui-editor-code-file-list .lumen-tab-with-action > button:first-child > span:first-child {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.hbar-app-ui-editor-code-file [aria-selected='true'] {
-  background: var(--lumen-frost);
 }
 .hbar-app-ui-editor-code-main {
   display: flex;

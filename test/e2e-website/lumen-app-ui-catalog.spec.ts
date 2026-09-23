@@ -1136,4 +1136,17 @@ for (const mode of ['dark', 'light'] as const) {
       await expect(tabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
     });
   }
+
+  test(`code editor file tabs preserve trailing close actions in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-editor-3', mode));
+    const tabs = page.getByRole('tablist', { name: '打开文件' });
+    await expect(tabs).toHaveClass(/lumen-tabs/);
+    const before = await tabs.getByRole('tab').count();
+    expect(before).toBeGreaterThan(1);
+    await tabs.getByRole('tab').first().press('ArrowRight');
+    await expect(tabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
+    await tabs.getByRole('button', { name: /^关闭 / }).first().click();
+    await expect(tabs.getByRole('tab')).toHaveCount(before - 1);
+  });
 }

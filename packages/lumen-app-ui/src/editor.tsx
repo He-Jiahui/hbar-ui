@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus } from './primitives';
-import { LumenTabs } from './ui-controls';
+import { LumenBadge, LumenTabs } from './ui-controls';
 
 export type LumenEditorFormattingAction =
   'bold' | 'italic' | 'strikethrough' | 'inline-code' | 'link';
@@ -449,36 +449,44 @@ function Code(props: Omit<LumenEditorProps, 'content'> & { content: LumenCodeWor
   };
   return (
     <Root {...props} className="hbar-app-ui-editor-code">
-      <header
-        className="hbar-app-ui-editor-code-tabs"
-        role="tablist"
-        aria-label={content.labels.openFilesLabel}
-      >
-        <div>
-          {open.map((file) => (
-            <div className="hbar-app-ui-editor-code-file" key={file.id}>
-              <LumenButton
-                variant="text"
-                role="tab"
-                aria-selected={active?.id === file.id}
-                onClick={() => {
-                  setActiveId(file.id);
-                  content.onSelectFile?.(file.id);
-                  report(onAction, 'file', file.id);
-                }}
-              >
-                <span>{file.name}</span>
-                {file.dirty ? <i aria-label={content.labels.unsavedLabel} /> : null}
-              </LumenButton>
+      <header className="hbar-app-ui-editor-code-tabs">
+        <LumenTabs
+          className="hbar-app-ui-editor-code-file-list"
+          label={content.labels.openFilesLabel}
+          items={open.map((file) => ({ id: file.id, label: file.name }))}
+          selectedId={active?.id ?? null}
+          onChange={(id) => {
+            setActiveId(id);
+            content.onSelectFile?.(id);
+            report(onAction, 'file', id);
+          }}
+          renderLabel={(item) => {
+            const file = open.find((candidate) => candidate.id === item.id);
+            return (
+              <React.Fragment>
+                <span>{item.label}</span>
+                {file?.dirty ? (
+                  <LumenBadge
+                    variant="dot"
+                    value={content.labels.unsavedLabel}
+                    aria-label={content.labels.unsavedLabel}
+                  />
+                ) : null}
+              </React.Fragment>
+            );
+          }}
+          renderTrailing={(item) => {
+            const file = open.find((candidate) => candidate.id === item.id);
+            return file ? (
               <LumenIconButton
                 label={content.labels.closeFileLabel(file.name)}
                 onClick={() => close(file)}
               >
                 <Glyph name="close" />
               </LumenIconButton>
-            </div>
-          ))}
-        </div>
+            ) : null;
+          }}
+        />
         <LumenButton
           onClick={() =>
             setRunning((current) => {

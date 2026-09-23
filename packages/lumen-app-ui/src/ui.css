@@ -236,6 +236,12 @@
   border-inline-end: 0.0625rem solid var(--lumen-line);
 }
 
+.lumen-tab-with-action {
+  display: inline-flex;
+  min-inline-size: 0;
+  align-items: center;
+}
+
 .lumen-segmented {
   inline-size: max-content;
   max-inline-size: 100%;
