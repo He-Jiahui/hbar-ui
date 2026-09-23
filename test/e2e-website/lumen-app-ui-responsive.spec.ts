@@ -11,10 +11,20 @@ for (const variant of LUMEN_VARIANT_REGISTRY) {
 
     test(`${variant.id} keeps its 390px viewport contained in ${mode}`, async ({ page }) => {
       await page.setViewportSize({ width: 390, height: 720 });
-      await page.goto(
-        `/experiments/lumen-app-ui/?id=${variant.id}&embed=1&locale=zh&mode=${mode}`,
-      );
+      await page.goto(`/experiments/lumen-app-ui/?id=${variant.id}&embed=1&locale=zh&mode=${mode}`);
       await expect(page.locator(`[data-hbar-app-ui-component="${variant.id}"]`)).toBeVisible();
+      const unthemedActions = await page
+        .locator('[data-hbar-app-ui-component] button')
+        .evaluateAll((buttons) =>
+          buttons
+            .filter(
+              (button) =>
+                !button.hasAttribute('data-lumen-variant') &&
+                !button.hasAttribute('data-lumen-component'),
+            )
+            .map((button) => button.outerHTML.slice(0, 160)),
+        );
+      expect(unthemedActions, `${variant.id} has ad-hoc buttons in ${mode}`).toEqual([]);
       const bounds = await page.evaluate(() => {
         const root = document.querySelector<HTMLElement>('[data-hbar-app-ui-component]');
         const rect = root?.getBoundingClientRect();
@@ -27,9 +37,10 @@ for (const variant of LUMEN_VARIANT_REGISTRY) {
       expect(bounds.documentWidth, `${variant.id} expands the page in ${mode}`).toBeLessThanOrEqual(
         bounds.viewportWidth + 1,
       );
-      expect(bounds.rootRight, `${variant.id} extends beyond the viewport in ${mode}`).toBeLessThanOrEqual(
-        bounds.viewportWidth + 1,
-      );
+      expect(
+        bounds.rootRight,
+        `${variant.id} extends beyond the viewport in ${mode}`,
+      ).toBeLessThanOrEqual(bounds.viewportWidth + 1);
     });
   }
   firstOfCategory.add(variant.category);

@@ -9,6 +9,7 @@ import {
   LumenFormField,
   LumenGauge,
   LumenTabs,
+  LumenIconButton,
   type LumenControlOption,
 } from '@lumen/app-ui/ui';
 
@@ -51,6 +52,26 @@ function ComboHarness({
 
 describe('Lumen foundation interactions', () => {
   const { render } = createRenderer();
+
+  it('gives icon actions a compact luminous edge and dims disabled actions', () => {
+    const { container } = render(
+      <div>
+        <LumenIconButton label="关闭" indicatorEdge="left">
+          ×
+        </LumenIconButton>
+        <LumenIconButton label="不可用" disabled>
+          ×
+        </LumenIconButton>
+      </div>,
+    );
+    const actions = container.querySelectorAll<HTMLButtonElement>(
+      '[data-lumen-component="icon-button"]',
+    );
+    expect(actions).toHaveLength(2);
+    expect(actions[0]?.querySelector('[data-edge]')).to.have.attribute('data-edge', 'left');
+    expect(actions[1]).to.have.attribute('disabled');
+    expect(actions[1]?.querySelector('[data-edge]')).to.have.attribute('data-state', 'disabled');
+  });
 
   it('bounds gauge and target meters while retaining host-owned accessible labels', () => {
     const { container } = render(

@@ -306,6 +306,17 @@ for (const mode of ['dark', 'light'] as const) {
     expect(geometry).toEqual(
       Array.from({ length: 3 }, () => ({ fields: 6, fits: true, distinct: true })),
     );
+    const actions = rows.locator('[data-lumen-component="icon-button"]');
+    await expect(actions).toHaveCount(3);
+    await expect(actions.first().locator(':scope > [data-edge="bottom"]')).toBeVisible();
+    const strip = actions.first().locator('[data-edge] > span').first();
+    await expect(strip).toHaveCSS('width', '24px');
+    await actions.first().hover();
+    const lamp = await strip.evaluate((beam) => ({
+      width: beam.getBoundingClientRect().width,
+      buttonWidth: beam.closest('button')!.getBoundingClientRect().width,
+    }));
+    expect(lamp.width).toBeLessThanOrEqual(lamp.buttonWidth);
   });
 
   test(`log entries occupy separate readable lines in ${mode}`, async ({ page }) => {
