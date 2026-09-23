@@ -134,12 +134,14 @@ for (const mode of ['dark', 'light'] as const) {
       const stepGeometry = await steps.evaluateAll((items) =>
         items.map((item) => ({
           titleWraps:
-            getComputedStyle(item.querySelector('.hbar-app-ui-agent-plan-step-title')!).whiteSpace ===
-            'normal',
+            getComputedStyle(item.querySelector('.hbar-app-ui-agent-plan-step-title')!)
+              .whiteSpace === 'normal',
           fits: item.scrollWidth <= item.clientWidth + 1,
         })),
       );
-      expect(stepGeometry).toEqual(Array.from({ length: 4 }, () => ({ titleWraps: true, fits: true })));
+      expect(stepGeometry).toEqual(
+        Array.from({ length: 4 }, () => ({ titleWraps: true, fits: true })),
+      );
     });
   }
 
@@ -192,9 +194,12 @@ for (const mode of ['dark', 'light'] as const) {
           transition: getComputedStyle(bar.firstElementChild!).transitionProperty,
         })),
       );
-      expect(values.every(({ value, maximum, transition }) =>
-        value >= 0 && value <= maximum && transition.includes('inline-size'),
-      )).toBe(true);
+      expect(
+        values.every(
+          ({ value, maximum, transition }) =>
+            value >= 0 && value <= maximum && transition.includes('inline-size'),
+        ),
+      ).toBe(true);
     });
   }
 
@@ -213,9 +218,9 @@ for (const mode of ['dark', 'light'] as const) {
       return {
         shared: label.classList.contains('lumen-switch'),
         trailing: label.getBoundingClientRect().right > row.getBoundingClientRect().right - 30,
-        smooth: getComputedStyle(label.querySelector('.lumen-switch-lamp')!).transitionProperty.includes(
-          'background-color',
-        ),
+        smooth: getComputedStyle(
+          label.querySelector('.lumen-switch-lamp')!,
+        ).transitionProperty.includes('background-color'),
         fits: row.scrollWidth <= row.clientWidth + 1,
       };
     });
@@ -225,5 +230,68 @@ for (const mode of ['dark', 'light'] as const) {
     await expect(first).not.toBeChecked();
     await first.press('Space');
     await expect(first).toBeChecked();
+  });
+
+  test(`run history keeps each six-field record distinct in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-agent-activity-4', mode));
+    const rows = page.locator('.lumen-agent-activity-history-table ol > li');
+    await expect(rows).toHaveCount(3);
+    const geometry = await rows.evaluateAll((items) =>
+      items.map((item, index) => {
+        const bounds = item.getBoundingClientRect();
+        const next = items[index + 1]?.getBoundingClientRect();
+        return {
+          fields: item.children.length,
+          fits: item.scrollWidth <= item.clientWidth + 1,
+          distinct: !next || bounds.bottom <= next.top,
+        };
+      }),
+    );
+    expect(geometry).toEqual(
+      Array.from({ length: 3 }, () => ({ fields: 6, fits: true, distinct: true })),
+    );
+  });
+
+  test(`log entries occupy separate readable lines in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-agent-activity-5', mode));
+    const entries = page.locator('.lumen-agent-activity-log-list > li');
+    await expect(entries).toHaveCount(3);
+    const distinct = await entries.evaluateAll((items) =>
+      items.every(
+        (item, index) =>
+          index === 0 ||
+          items[index - 1].getBoundingClientRect().bottom <= item.getBoundingClientRect().top,
+      ),
+    );
+    expect(distinct).toBe(true);
+  });
+
+  test(`failure sections and approval request stay in their flow in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-agent-activity-7', mode));
+    const failure = page.locator('.hbar-app-ui-agent-activity-failure-body');
+    await expect(failure).toBeVisible();
+    expect(
+      await failure.evaluate((body) =>
+        Array.from(body.children).every(
+          (child, index, items) =>
+            index === 0 ||
+            items[index - 1].getBoundingClientRect().bottom <=
+              child.getBoundingClientRect().top + 1,
+        ),
+      ),
+    ).toBe(true);
+    await page.goto(preview('hbar-app-ui-agent-approval-1', mode));
+    const approval = page.locator('.hbar-app-ui-agent-approval-inline-body');
+    await expect(approval).toBeVisible();
+    const centered = await approval.evaluate((body) => {
+      const container = body.closest('.lumen-agent-approval')!;
+      const outer = container.getBoundingClientRect();
+      const inner = body.getBoundingClientRect();
+      return Math.abs((inner.left + inner.right) / 2 - (outer.left + outer.right) / 2) < 2;
+    });
+    expect(centered).toBe(true);
   });
 }
