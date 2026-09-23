@@ -4,7 +4,7 @@ import * as React from 'react';
 import LumenField from '../LumenField';
 import LumenIndicator, { type LumenTone } from '../LumenIndicator';
 import LumenSurface from '../LumenSurface';
-import { LumenFormField, LumenInput, LumenSelect, LumenTextarea } from '../forms';
+import { LumenChoiceSelect, LumenFormField, LumenInput, LumenTextarea } from '../forms';
 import { LumenButton, type LumenButtonProps } from '../primitives';
 import type {
   AnalyticsDesignProps,
@@ -74,17 +74,14 @@ export function LumenAnalyticsDesign({ copy, content, state, actions }: Analytic
       <div className={styles.designToolbar}>
         <LumenField boundary="vertical" className={styles.compactField}>
           <LumenFormField controlId="lumen-design-analytics-period" label={copy.period} size="s">
-            <LumenSelect
+            <LumenChoiceSelect
+              id="lumen-design-analytics-period"
+              label={copy.period}
+              options={content.periods}
               size="s"
-              value={period}
-              onChange={(event) => actions.onPeriodChange(event.target.value)}
-            >
-              {content.periods.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.label}
-                </option>
-              ))}
-            </LumenSelect>
+              value={period || null}
+              onValueChange={actions.onPeriodChange}
+            />
           </LumenFormField>
         </LumenField>
         <span className={styles.muted}>{copy.series}</span>

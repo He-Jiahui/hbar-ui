@@ -3,7 +3,7 @@ import * as ReactDOMServer from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import { LUMEN_VARIANT_REGISTRY } from '@lumen/app-ui/catalog';
-import { LumenInviteCommand } from '@lumen/app-ui';
+import { LumenAnalyticsDesign, LumenInviteCommand } from '@lumen/app-ui';
 import VariantPreviewHost from './VariantPreviewHost';
 import PromptInputGallery from './PromptInputGallery';
 import { createCommandMenuFixtures } from './commandMenuLumenFixtures';
@@ -40,6 +40,34 @@ describe('Lumen formal variant fixtures', () => {
     await view.user.click(screen.getByRole('option', { name: '只读查看者' }));
     expect(onRoleChange).toHaveBeenCalledWith('viewer');
     expect(document.querySelector('.hbar-app-ui-invite-command select')).toBeNull();
+  });
+
+  it('uses a themed period choice in the legacy analytics design', async () => {
+    const onPeriodChange = vi.fn();
+    const view = render(
+      <LumenAnalyticsDesign
+        copy={{
+          title: 'Analytics',
+          detail: 'Overview',
+          period: 'Period',
+          series: 'Series',
+          value: String,
+        }}
+        content={{
+          periods: [{ id: 'week', label: 'Week' }, { id: 'month', label: 'Month' }],
+          metrics: [],
+          points: [],
+        }}
+        state={{ periodId: 'week' }}
+        actions={{ onPeriodChange }}
+      />,
+    );
+    await view.user.click(screen.getByRole('combobox', { name: 'Period' }));
+    await view.user.click(screen.getByRole('option', { name: 'Month' }));
+    expect(onPeriodChange).toHaveBeenCalledWith('month');
+    expect(document.querySelector('#lumen-design-analytics-period')?.getAttribute('role')).toBe(
+      'combobox',
+    );
   });
 
   it('renders every formal family variant with host-owned content', () => {
