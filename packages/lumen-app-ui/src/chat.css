@@ -201,16 +201,8 @@
 }
 
 .lumen-chat-attachment {
-  display: inline-flex;
-  max-inline-size: 100%;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.375rem 0.5rem;
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: var(--lumen-radius-control);
   color: var(--lumen-muted);
   font-size: 0.75rem;
-  overflow-wrap: anywhere;
 }
 
 .lumen-chat-composer {
@@ -446,5 +438,4 @@
     flex: 1 1 0;
     min-inline-size: 0;
   }
-
 }

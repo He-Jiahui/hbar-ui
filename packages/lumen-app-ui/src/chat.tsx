@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { LumenTextarea } from './forms';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
-import { LumenTabs } from './ui-controls';
+import { LumenChip, LumenTabs } from './ui-controls';
 
 export interface LumenChatListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -398,10 +398,11 @@ function Message({
         </header>
         <LumenText as="p">{message.body}</LumenText>
         {message.attachment ? (
-          <span className="lumen-chat-attachment">
-            <Glyph name="image" />
-            {message.attachment}
-          </span>
+          <LumenChip
+            className="lumen-chat-attachment"
+            startAdornment={<Glyph name="image" />}
+            label={message.attachment}
+          />
         ) : null}
         <footer>
           <LumenText as="small" tone="muted" variant="supporting">

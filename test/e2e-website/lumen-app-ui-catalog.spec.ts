@@ -5,6 +5,39 @@ function preview(id: string, mode: 'dark' | 'light' = 'dark', locale: 'zh' | 'en
 }
 
 for (const mode of ['dark', 'light'] as const) {
+  for (const width of [320, 390, 1280]) {
+    test(`group chat attachments use passive foundation chips at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: width === 320 ? 568 : 820 });
+      await page.goto(preview('hbar-app-ui-chat-5', mode, mode === 'dark' ? 'zh' : 'en'));
+      const attachments = page.locator('.lumen-chat-message .lumen-chat-attachment');
+      await expect(attachments).toHaveCount(2);
+      await expect(attachments.locator('button')).toHaveCount(0);
+      await expect(attachments.first()).toHaveAttribute('data-lumen-component', 'chip');
+      await expect(attachments.first()).toHaveCSS('border-top-width', '0px');
+      const geometry = await attachments.evaluateAll((items) =>
+        items.map((item) => {
+          const parent = item.closest('.lumen-chat-message')!;
+          const footer = parent.querySelector('footer')!;
+          const bounds = item.getBoundingClientRect();
+          return {
+            fits: bounds.right <= parent.getBoundingClientRect().right + 1,
+            footerBelow: footer.getBoundingClientRect().top >= bounds.bottom - 1,
+          };
+        }),
+      );
+      expect(geometry).toEqual(
+        Array.from({ length: 2 }, () => ({ fits: true, footerBelow: true })),
+      );
+      const reaction = page.getByRole('button', {
+        name: mode === 'dark' ? '回应 Owen Wright' : 'React to Owen Wright',
+      });
+      await reaction.click();
+      await expect(reaction).toContainText('13');
+    });
+  }
+
   for (const width of [320, 390, 768, 1280]) {
     test(`document outline stays beside or above reading content at ${width}px in ${mode}`, async ({
       page,
