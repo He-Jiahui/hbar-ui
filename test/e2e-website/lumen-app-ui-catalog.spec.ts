@@ -1377,6 +1377,40 @@ for (const mode of ['dark', 'light'] as const) {
     });
   }
 
+  for (const width of [320, 390, 1280]) {
+    test(`run evidence keeps passive controls within the dialog at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: width === 320 ? 568 : 820 });
+      await page.goto(preview('hbar-app-ui-app-dialog-6', mode, mode === 'dark' ? 'zh' : 'en'));
+      const dialog = page.getByRole('dialog');
+      const chips = dialog.locator('.lumen-app-dialog-section [data-lumen-component="chip"]');
+      await expect(chips).toHaveCount(2);
+      await expect(chips.locator('button')).toHaveCount(0);
+      await expect(chips.first()).toHaveCSS('border-top-width', '0px');
+      const geometry = await dialog.evaluate((element) => {
+        const controls = [...element.querySelectorAll('.lumen-app-dialog-section .lumen-chip')];
+        const section = controls[0].parentElement!;
+        const bounds = section.getBoundingClientRect();
+        return {
+          fits: controls.every((chip) => chip.getBoundingClientRect().right <= bounds.right + 1),
+          noOverlap:
+            controls[0].getBoundingClientRect().right <= controls[1].getBoundingClientRect().left ||
+            controls[0].getBoundingClientRect().bottom <= controls[1].getBoundingClientRect().top,
+        };
+      });
+      expect(geometry).toEqual({ fits: true, noOverlap: true });
+      await dialog
+        .getByRole('button', { name: mode === 'dark' ? '关闭证据' : 'Close evidence' })
+        .click();
+      await expect(dialog).toHaveCount(0);
+      await page
+        .getByRole('button', { name: mode === 'dark' ? '查看运行证据' : 'View run evidence' })
+        .click();
+      await expect(dialog).toBeVisible();
+    });
+  }
+
   for (const label of ['问题领域', '工作区']) {
     test(`support ticket ${label} uses themed choices in ${mode}`, async ({ page }) => {
       await page.setViewportSize({ width: 390, height: 680 });

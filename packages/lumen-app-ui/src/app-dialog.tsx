@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { LumenChoiceSelect, LumenFormField, LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import { LumenSwitch } from './ui-controls';
+import { LumenChip, LumenSwitch } from './ui-controls';
 
 export interface LumenAppDialogListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -824,9 +824,14 @@ function Evidence(
               <div>
                 {controls.length ? (
                   controls.map((item) => (
-                    <span key={item.id}>
-                      <b>{item.code}</b> {item.label}
-                    </span>
+                    <LumenChip
+                      key={item.id}
+                      label={
+                        <React.Fragment>
+                          <b>{item.code}</b> {item.label}
+                        </React.Fragment>
+                      }
+                    />
                   ))
                 ) : (
                   <Empty>{props.content.labels.emptyControls}</Empty>

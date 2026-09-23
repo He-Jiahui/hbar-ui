@@ -252,12 +252,8 @@
   flex-wrap: wrap;
   gap: 0.35rem;
 }
-.lumen-app-dialog-section > div > span {
-  padding: 0.4rem 0.55rem;
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: var(--lumen-radius-control);
-  background: var(--lumen-glass);
-  font-size: 0.75rem;
+.lumen-app-dialog-section > div > .lumen-chip {
+  color: var(--lumen-muted);
 }
 .lumen-app-dialog-section > p {
   display: flex;
