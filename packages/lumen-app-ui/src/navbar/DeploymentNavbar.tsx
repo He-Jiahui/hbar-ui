@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { LumenComboBox, LumenSelect } from '../forms';
+import { LumenChoiceSelect, LumenComboBox } from '../forms';
 import { CircleHelp, Globe2, Settings, Zap } from './glyphs';
 import type { LumenNavbarDeploymentContent } from './content';
 import {
@@ -36,20 +36,16 @@ export default function DeploymentNavbar({
         <div className="hbar-app-ui-navbar-deployment-path">
           <div className="hbar-app-ui-navbar-deployment-selector">
             <span className="hbar-app-ui-navbar-brand-initial">{content.workspaceInitial}</span>
-            <LumenSelect
-              aria-label={content.actions.searchLabel}
+            <LumenChoiceSelect
+              id={`${spec.id}-workspace`}
+              label={content.actions.searchLabel}
+              options={content.workspaceOptions}
               value={workspaceId}
-              onChange={(event) => {
-                setWorkspaceId(event.currentTarget.value);
-                reportNavbarAction(onAction, spec, 'workspace', event.currentTarget.value);
+              onValueChange={(id) => {
+                setWorkspaceId(id);
+                reportNavbarAction(onAction, spec, 'workspace', id);
               }}
-            >
-              {content.workspaceOptions.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.label}
-                </option>
-              ))}
-            </LumenSelect>
+            />
           </div>
           <span className="hbar-app-ui-navbar-separator">
             {content.actions.breadcrumbSeparator}
@@ -81,20 +77,16 @@ export default function DeploymentNavbar({
           </span>
           <div className="hbar-app-ui-navbar-deployment-selector">
             <span className="hbar-app-ui-navbar-environment-dot" />
-            <LumenSelect
-              aria-label={content.environment}
+            <LumenChoiceSelect
+              id={`${spec.id}-environment`}
+              label={content.environment}
+              options={content.environmentOptions}
               value={environmentId}
-              onChange={(event) => {
-                setEnvironmentId(event.currentTarget.value);
-                reportNavbarAction(onAction, spec, 'environment', event.currentTarget.value);
+              onValueChange={(id) => {
+                setEnvironmentId(id);
+                reportNavbarAction(onAction, spec, 'environment', id);
               }}
-            >
-              {content.environmentOptions.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.label}
-                </option>
-              ))}
-            </LumenSelect>
+            />
           </div>
         </div>
         <div className="hbar-app-ui-navbar-deployment-actions">

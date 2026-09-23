@@ -1007,4 +1007,16 @@ for (const mode of ['dark', 'light'] as const) {
     await expect(page.getByRole('listbox').getByRole('option')).toHaveCount(2);
     await expect(page.locator('.lumen-plan-step-fields select')).toHaveCount(0);
   });
+
+  test(`deployment navigation uses themed context choices in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-navbar-3', mode));
+    const picker = page.getByRole('combobox', { name: '生产环境' });
+    await picker.click();
+    const option = page.getByRole('listbox').getByRole('option').last();
+    const label = await option.innerText();
+    await option.click();
+    await expect(picker).toContainText(label);
+    await expect(page.locator('.hbar-app-ui-navbar-deployment-selector select')).toHaveCount(0);
+  });
 }
