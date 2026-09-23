@@ -300,16 +300,10 @@
   margin-inline-start: -0.5rem;
 }
 
-.lumen-card-avatar-stack > span:last-child:not(.lumen-card-avatar) {
-  display: inline-flex;
+.lumen-card-avatar-stack > .lumen-badge {
+  flex: 0 0 auto;
   min-block-size: 2rem;
-  align-items: center;
-  padding-inline: 0.625rem;
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: 999rem;
-  background: var(--lumen-glass);
-  color: var(--lumen-muted);
-  font-size: 0.75rem;
+  white-space: nowrap;
 }
 
 .lumen-card-tabs {
@@ -626,9 +620,8 @@
     min-inline-size: 0;
   }
 
-  .lumen-card-agenda > button {
+  .lumen-card-agenda > :last-child {
     flex-basis: 100%;
-    justify-self: end;
   }
 
   .lumen-card-invoice > header {

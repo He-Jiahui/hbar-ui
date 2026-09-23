@@ -6,6 +6,53 @@ function preview(id: string, mode: 'dark' | 'light' = 'dark', locale: 'zh' | 'en
 
 for (const mode of ['dark', 'light'] as const) {
   for (const width of [320, 390, 1280]) {
+    test(`avatar overflow counts use the foundation badge at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: width === 320 ? 568 : 820 });
+      const locale = mode === 'dark' ? 'zh' : 'en';
+      await page.goto(preview('hbar-app-ui-card-4', mode, locale));
+      const attendees = page.locator('.lumen-card-avatar-stack');
+      const attendeeBadge = attendees.locator('[data-lumen-component="badge"]');
+      await expect(attendeeBadge).toHaveText(mode === 'dark' ? '+1 人' : '+1 more');
+      const attendeeGeometry = await attendees.evaluate((element) => {
+        const badge = element.querySelector('.lumen-badge')!;
+        const avatar = element.querySelector('.lumen-card-avatar')!;
+        const action = element.closest('.lumen-card-agenda')!.querySelector('button')!;
+        return {
+          aligned:
+            Math.abs(badge.getBoundingClientRect().height - avatar.getBoundingClientRect().height) <
+            1,
+          fits: badge.getBoundingClientRect().right <= element.getBoundingClientRect().right + 1,
+          actionBelow:
+            action.getBoundingClientRect().top >= element.getBoundingClientRect().bottom - 1,
+        };
+      });
+      expect(attendeeGeometry).toEqual({ aligned: true, fits: true, actionBelow: width < 640 });
+      await page.getByRole('button', { name: mode === 'dark' ? '参加' : 'RSVP' }).click();
+      await expect(
+        page.getByRole('button', { name: mode === 'dark' ? '已参加' : 'Going' }),
+      ).toBeVisible();
+
+      await page.goto(preview('hbar-app-ui-chat-5', mode, locale));
+      const participants = page.locator('.lumen-chat-participants');
+      const participantBadge = participants.locator('[data-lumen-component="badge"]');
+      await expect(participantBadge).toHaveText('+3');
+      const participantGeometry = await participants.evaluate((element) => {
+        const badge = element.querySelector('.lumen-badge')!;
+        const avatar = element.querySelector('.lumen-chat-avatar')!;
+        return {
+          aligned:
+            Math.abs(badge.getBoundingClientRect().height - avatar.getBoundingClientRect().height) <
+            1,
+          fits: badge.getBoundingClientRect().right <= element.getBoundingClientRect().right + 1,
+        };
+      });
+      expect(participantGeometry).toEqual({ aligned: true, fits: true });
+    });
+  }
+
+  for (const width of [320, 390, 1280]) {
     test(`group chat attachments use passive foundation chips at ${width}px in ${mode}`, async ({
       page,
     }) => {

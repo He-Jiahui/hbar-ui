@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import { LumenChip, LumenSwitch, LumenTabs } from './ui-controls';
+import { LumenBadge, LumenChip, LumenSwitch, LumenTabs } from './ui-controls';
 
 export interface LumenCardListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -558,7 +558,9 @@ function Agenda(props: Omit<LumenCardProps, 'content'> & { content: LumenCardAge
             {visible.map((attendee) => (
               <Avatar key={attendee.id} initials={attendee.initials} />
             ))}
-            {overflow ? <span>{props.content.labels.overflowAttendees(overflow)}</span> : null}
+            {overflow ? (
+              <LumenBadge value={props.content.labels.overflowAttendees(overflow)} />
+            ) : null}
           </div>
         </div>
         <LumenButton

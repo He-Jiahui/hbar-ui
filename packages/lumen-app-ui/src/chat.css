@@ -316,16 +316,8 @@
   margin-inline-start: -0.75rem;
 }
 
-.lumen-chat-participants > span:last-child:not(.lumen-chat-avatar) {
-  display: inline-flex;
+.lumen-chat-participants > .lumen-badge {
   min-block-size: 2rem;
-  align-items: center;
-  padding-inline: 0.625rem;
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: 999rem;
-  background: var(--lumen-glass);
-  color: var(--lumen-muted);
-  font-size: 0.75rem;
 }
 
 .lumen-chat-live {

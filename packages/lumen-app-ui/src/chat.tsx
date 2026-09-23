@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { LumenTextarea } from './forms';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
-import { LumenChip, LumenTabs } from './ui-controls';
+import { LumenBadge, LumenChip, LumenTabs } from './ui-controls';
 
 export interface LumenChatListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -704,7 +704,9 @@ function Group(props: Omit<LumenChatProps, 'content'> & { content: LumenChatGrou
         {visibleParticipants.map((participant) => (
           <Avatar key={participant.id} initials={participant.initials} />
         ))}
-        {overflow ? <span>{props.content.labels.overflowParticipants(overflow)}</span> : null}
+        {overflow ? (
+          <LumenBadge value={props.content.labels.overflowParticipants(overflow)} />
+        ) : null}
       </div>
       <div
         className="lumen-chat-message-list"
