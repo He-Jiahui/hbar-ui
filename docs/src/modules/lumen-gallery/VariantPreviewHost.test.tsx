@@ -1579,7 +1579,7 @@ describe('Lumen formal variant fixtures', () => {
       <VariantPreviewHost entry={entry(6)} locale="en" unavailableLabel="Preview unavailable" />,
     );
     const modify = screen.getByRole('switch', { name: 'Toggle modifying workspace files' });
-    expect(modify.getAttribute('aria-checked')).toBe('false');
+    expect((modify as HTMLInputElement).checked).toBe(false);
     const pendingRequest = view.container.querySelector(
       '.hbar-app-ui-tool-calls-permissions li.is-request',
     );
@@ -1591,7 +1591,7 @@ describe('Lumen formal variant fixtures', () => {
       pendingRequest?.querySelector('.hbar-app-ui-tool-calls-request-decision-actions'),
     ).not.toBeNull();
     await view.user.click(modify);
-    expect(modify.getAttribute('aria-checked')).toBe('true');
+    expect((modify as HTMLInputElement).checked).toBe(true);
   });
 
   it('uses distinct host-owned notification scenarios for all six delivery patterns', () => {

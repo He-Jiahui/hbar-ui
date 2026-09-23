@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import { LumenTabs } from './ui-controls';
+import { LumenSwitch, LumenTabs } from './ui-controls';
 
 export type LumenToolCallsListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -730,20 +730,16 @@ function ToolPermissions(
                       </span>
                     ) : null}
                     {item.kind === 'toggle' && enabled !== undefined && item.toggleLabel ? (
-                      <LumenButton
-                        variant="outlined"
-                        aria-checked={enabled}
-                        aria-label={item.toggleLabel}
+                      <LumenSwitch
                         className={`hbar-app-ui-tool-calls-toggle${enabled ? ' is-enabled' : ''}`}
-                        onClick={() => {
-                          const next = !enabled;
+                        label={item.toggleLabel}
+                        checked={enabled}
+                        onChange={(event) => {
+                          const next = event.currentTarget.checked;
                           setOverrides((current) => new Map(current).set(item.id, next));
                           report(onAction, 'toggle-permission', `${item.id}:${next}`);
                         }}
-                        role="switch"
-                      >
-                        <i aria-hidden="true" />
-                      </LumenButton>
+                      />
                     ) : null}
                   </li>
                 );

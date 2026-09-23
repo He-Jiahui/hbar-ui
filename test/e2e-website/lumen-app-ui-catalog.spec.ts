@@ -197,4 +197,33 @@ for (const mode of ['dark', 'light'] as const) {
       )).toBe(true);
     });
   }
+
+  test(`tool permissions use the foundation switch with a trailing control in ${mode}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-tool-calls-6', mode));
+    const switches = page.getByRole('switch');
+    await expect(switches.first()).toBeVisible();
+    const first = switches.first();
+    await expect(first).toBeChecked();
+    const placement = await first.evaluate((input) => {
+      const label = input.closest('.hbar-app-ui-tool-calls-toggle')!;
+      const row = label.closest('li')!;
+      return {
+        shared: label.classList.contains('lumen-switch'),
+        trailing: label.getBoundingClientRect().right > row.getBoundingClientRect().right - 30,
+        smooth: getComputedStyle(label.querySelector('.lumen-switch-lamp')!).transitionProperty.includes(
+          'background-color',
+        ),
+        fits: row.scrollWidth <= row.clientWidth + 1,
+      };
+    });
+    expect(placement).toEqual({ shared: true, trailing: true, smooth: true, fits: true });
+    await first.focus();
+    await first.press('Space');
+    await expect(first).not.toBeChecked();
+    await first.press('Space');
+    await expect(first).toBeChecked();
+  });
 }
