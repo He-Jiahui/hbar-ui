@@ -74,9 +74,10 @@
 
 .lumen-switch-control {
   --lumen-switch-lamp-size: 1rem;
+  --lumen-switch-line-length: 0.75rem;
   position: relative;
   display: flex;
-  inline-size: 2.5rem;
+  inline-size: calc(var(--lumen-switch-lamp-size) + var(--lumen-switch-line-length));
   block-size: 1.5rem;
   flex: 0 0 auto;
   align-items: center;
@@ -156,13 +157,13 @@
 
 .lumen-switch[data-size='s'] .lumen-switch-control {
   --lumen-switch-lamp-size: 0.875rem;
-  inline-size: 2.25rem;
+  --lumen-switch-line-length: 0.625rem;
   block-size: 1.25rem;
 }
 
 .lumen-switch[data-size='l'] .lumen-switch-control {
   --lumen-switch-lamp-size: 1.25rem;
-  inline-size: 3rem;
+  --lumen-switch-line-length: 0.875rem;
   block-size: 1.75rem;
 }
 

@@ -30,7 +30,7 @@ test('actions remain borderless while the fixed strip communicates interaction',
   ).toHaveCSS('width', '48px');
 });
 
-test('switch circle and opposing line lengths interpolate without overshooting', async ({
+test('switch circle and short opposing lines interpolate without overshooting', async ({
   page,
 }) => {
   await page.goto('/experiments/lumen-app-ui/foundations/?mode=dark&locale=en');
@@ -58,8 +58,8 @@ test('switch circle and opposing line lengths interpolate without overshooting',
         color: getComputedStyle(lamp).backgroundColor,
         inside:
           before.left >= bounds.left - 0.5 &&
-          before.right <= circle.left + 0.5 &&
-          circle.right <= after.left + 0.5 &&
+          Math.abs(before.right - circle.left) <= 0.5 &&
+          Math.abs(circle.right - after.left) <= 0.5 &&
           after.right <= bounds.right + 0.5,
       };
     };
@@ -72,7 +72,18 @@ test('switch circle and opposing line lengths interpolate without overshooting',
     await new Promise<void>((resolve) => {
       setTimeout(resolve, 350);
     });
-    return { start, middle, end: read() };
+    const end = read();
+    input.click();
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 90);
+    });
+    const reverseMiddle = read();
+    input.click();
+    const reversed = read();
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 350);
+    });
+    return { start, middle, end, reverseMiddle, reversed, final: read() };
   });
   expect(samples.middle.x).toBeGreaterThan(samples.start.x);
   expect(samples.middle.x).toBeLessThan(samples.end.x);
@@ -82,7 +93,22 @@ test('switch circle and opposing line lengths interpolate without overshooting',
   expect(samples.middle.trailing).toBeGreaterThan(samples.end.trailing);
   expect(samples.middle.color).not.toBe(samples.start.color);
   expect(samples.middle.color).not.toBe(samples.end.color);
-  expect([samples.start, samples.middle, samples.end].every((sample) => sample.inside)).toBe(true);
+  expect(samples.start.trailing).toBe(12);
+  expect(samples.end.leading).toBe(12);
+  expect(samples.reverseMiddle.x).toBeGreaterThan(samples.start.x);
+  expect(samples.reverseMiddle.x).toBeLessThan(samples.end.x);
+  expect(Math.abs(samples.reversed.x - samples.reverseMiddle.x)).toBeLessThan(0.5);
+  expect(samples.final.x).toBeCloseTo(samples.end.x, 1);
+  expect(
+    [
+      samples.start,
+      samples.middle,
+      samples.end,
+      samples.reverseMiddle,
+      samples.reversed,
+      samples.final,
+    ].every((sample) => sample.inside),
+  ).toBe(true);
 });
 
 test('light strips retain nodes and smoothly reverse selection; progress and range interpolate', async ({
@@ -287,10 +313,10 @@ test('keyboard controls, custom palette, and adjustable ink diffusion', async ({
   ).toContain('flex-grow');
   await expect(motionLamp).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
   await expect(leadingLine).toHaveCSS('width', '0px');
-  await expect(trailingLine).toHaveCSS('width', '24px');
+  await expect(trailingLine).toHaveCSS('width', '12px');
   await motionSwitch.check();
   await expect(motionLamp).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
-  await expect(leadingLine).toHaveCSS('width', '24px');
+  await expect(leadingLine).toHaveCSS('width', '12px');
   await expect(trailingLine).toHaveCSS('width', '0px');
   expect(await motionLamp.evaluate((element) => getComputedStyle(element).boxShadow)).not.toBe(
     'none',
