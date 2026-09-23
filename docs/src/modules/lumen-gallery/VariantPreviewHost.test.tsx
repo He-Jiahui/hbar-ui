@@ -80,7 +80,8 @@ describe('Lumen formal variant fixtures', () => {
     );
     const actions = container.querySelector('.lumen-ai-chat-header-actions');
     expect(actions).not.toBeNull();
-    expect(actions!.querySelectorAll('button, select')).to.have.length(2);
+    expect(actions!.querySelectorAll('button')).to.have.length(2);
+    expect(actions!.querySelector('select')).toBeNull();
     expect(container.querySelector('.lumen-ai-chat-header > div:first-child h1')).not.toBeNull();
   });
 

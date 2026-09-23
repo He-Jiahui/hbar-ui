@@ -129,10 +129,6 @@
   display: flex;
   gap: 0.25rem;
 }
-.lumen-ai-chat-tabs > button[aria-selected='true'] {
-  color: var(--lumen-accent);
-  box-shadow: inset 0 -0.125rem var(--lumen-accent);
-}
 .lumen-ai-chat-artifact {
   display: flex;
   min-inline-size: 0;
@@ -237,16 +233,8 @@
   gap: 1rem;
   margin-block-end: 0.4rem;
 }
-.lumen-ai-chat-context-meter [role='progressbar'] {
+.lumen-ai-chat-context-meter .lumen-progress {
   block-size: 0.4rem;
-  overflow: hidden;
-  border-radius: 999rem;
-  background: var(--lumen-edge);
-}
-.lumen-ai-chat-context-meter [role='progressbar'] > i {
-  display: block;
-  block-size: 100%;
-  background: var(--lumen-accent);
 }
 .lumen-ai-chat-approval {
   display: flex;

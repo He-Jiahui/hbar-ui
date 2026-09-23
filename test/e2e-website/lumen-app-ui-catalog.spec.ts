@@ -294,4 +294,28 @@ for (const mode of ['dark', 'light'] as const) {
     });
     expect(centered).toBe(true);
   });
+
+  test(`AI chat versions and model choices share foundation controls in ${mode}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-ai-chat-2', mode));
+    const tabs = page.getByRole('tablist').first().getByRole('tab');
+    await expect(tabs.first()).toBeVisible();
+    await tabs.first().press('ArrowRight');
+    await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
+    await page.goto(preview('hbar-app-ui-ai-chat-4', mode));
+    const model = page.getByRole('combobox');
+    await expect(model).toBeVisible();
+    await model.click();
+    await expect(page.getByRole('listbox')).toBeVisible();
+    await expect(page.locator('.lumen-ai-chat select')).toHaveCount(0);
+    await expect(page.locator('.lumen-ai-chat-context-meter .lumen-progress')).toHaveAttribute(
+      'role',
+      'progressbar',
+    );
+    await page.goto(preview('hbar-app-ui-ai-chat-9', mode));
+    await expect(page.getByRole('combobox')).toBeVisible();
+    await expect(page.locator('.lumen-ai-chat select')).toHaveCount(0);
+  });
 }

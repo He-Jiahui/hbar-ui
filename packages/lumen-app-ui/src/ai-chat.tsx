@@ -1,8 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { LumenCheckBoxControl, LumenSelect, LumenTextarea } from './forms';
+import { LumenCheckBoxControl, LumenChoiceSelect, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
+import { LumenProgress, LumenTabs } from './ui-controls';
 
 export interface LumenAiChatListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -321,26 +322,16 @@ function Artifact(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAiC
         title={props.content.labels.artifactTitle}
         detail={props.content.labels.artifactDetail}
         actions={
-          <div
+          <LumenTabs
             className="lumen-ai-chat-tabs"
-            role="tablist"
-            aria-label={props.content.labels.artifactVersions}
-          >
-            {versions.map((item) => (
-              <LumenButton
-                key={item.id}
-                variant="text"
-                role="tab"
-                aria-selected={item.id === version?.id}
-                onClick={() => {
-                  setVersionId(item.id);
-                  report(props.onAction, 'version', item.id);
-                }}
-              >
-                {item.label}
-              </LumenButton>
-            ))}
-          </div>
+            label={props.content.labels.artifactVersions}
+            items={versions}
+            selectedId={version?.id ?? null}
+            onChange={(id) => {
+              setVersionId(id);
+              report(props.onAction, 'version', id);
+            }}
+          />
         }
       />
       <div className="lumen-ai-chat-artifact">
@@ -423,20 +414,16 @@ function ContextAware(props: Omit<LumenAiChatProps, 'content'> & { content: Lume
             <LumenButton variant="outlined" onClick={() => setSettings((value) => !value)}>
               {props.content.labels.settings}
             </LumenButton>
-            <LumenSelect
-              aria-label={props.content.labels.model}
-              value={model?.id ?? ''}
-              onChange={(event) => {
-                setModelId(event.target.value);
-                report(props.onAction, 'model', event.target.value);
+            <LumenChoiceSelect
+              id="ai-chat-context-model"
+              label={props.content.labels.model}
+              options={models}
+              value={model?.id ?? null}
+              onValueChange={(id) => {
+                setModelId(id);
+                report(props.onAction, 'model', id);
               }}
-            >
-              {models.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.label}
-                </option>
-              ))}
-            </LumenSelect>
+            />
           </React.Fragment>
         }
       />
@@ -457,15 +444,7 @@ function ContextAware(props: Omit<LumenAiChatProps, 'content'> & { content: Lume
           <span>{props.content.labels.contextWindow}</span>
           <strong>{props.content.labels.contextUsage(used)}</strong>
         </div>
-        <div
-          role="progressbar"
-          aria-label={props.content.labels.contextWindow}
-          aria-valuenow={used}
-          aria-valuemin={0}
-          aria-valuemax={100}
-        >
-          <i style={{ inlineSize: `${used}%` }} />
-        </div>
+        <LumenProgress label={props.content.labels.contextWindow} value={used} tone="info" />
       </div>
       <Transcript content={props.content} />
       <Composer content={props.content} onAction={props.onAction} />
@@ -746,19 +725,16 @@ function Models(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAiCha
             </dl>
             <label>
               {props.content.labels.effort}
-              <LumenSelect
-                value={selectLumenAiChatItem(efforts, effortId)?.id ?? ''}
-                onChange={(event) => {
-                  setEffortId(event.target.value);
-                  report(props.onAction, 'effort', event.target.value);
+              <LumenChoiceSelect
+                id="ai-chat-provider-effort"
+                label={props.content.labels.effort}
+                options={efforts}
+                value={selectLumenAiChatItem(efforts, effortId)?.id ?? null}
+                onValueChange={(id) => {
+                  setEffortId(id);
+                  report(props.onAction, 'effort', id);
                 }}
-              >
-                {efforts.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.label}
-                  </option>
-                ))}
-              </LumenSelect>
+              />
             </label>
           </main>
         ) : null}
