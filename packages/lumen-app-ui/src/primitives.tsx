@@ -229,6 +229,7 @@ export function LumenStatus({ value, tone = 'neutral', className, ...other }: Lu
     <span
       {...other}
       className={[styles.status, className].filter(Boolean).join(' ')}
+      data-lumen-component="status"
       data-tone={tone}
     >
       <i aria-hidden="true" />

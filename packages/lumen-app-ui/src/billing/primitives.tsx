@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { LumenButton } from '../primitives';
+import { LumenButton, LumenStatus } from '../primitives';
 import { LumenProgress } from '../ui-controls';
 import type {
   LumenBillingMetric,
@@ -142,12 +142,13 @@ export function BillingStatus({
   readonly value: string;
   readonly tone?: LumenBillingTone | undefined;
 }) {
-  return (
-    <span className={`hbar-app-ui-billing-status hbar-app-ui-billing-status-${tone}`}>
-      <i aria-hidden="true" />
-      {value}
-    </span>
-  );
+  const tones = {
+    neutral: 'neutral',
+    positive: 'success',
+    warning: 'warning',
+    danger: 'danger',
+  } as const;
+  return <LumenStatus className="hbar-app-ui-billing-status" value={value} tone={tones[tone]} />;
 }
 
 export function BillingProgress({
@@ -159,7 +160,12 @@ export function BillingProgress({
   readonly label: string;
   readonly tone?: LumenBillingTone | undefined;
 }) {
-  const tones = { neutral: 'info', positive: 'success', warning: 'warning', danger: 'danger' } as const;
+  const tones = {
+    neutral: 'info',
+    positive: 'success',
+    warning: 'warning',
+    danger: 'danger',
+  } as const;
   return (
     <LumenProgress
       className="hbar-app-ui-billing-progress"

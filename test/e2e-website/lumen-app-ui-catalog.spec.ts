@@ -1470,6 +1470,35 @@ for (const mode of ['dark', 'light'] as const) {
     await expect(toggle).toHaveJSProperty('checked', !checked);
   });
 
+  for (const id of [
+    'hbar-app-ui-billing-1',
+    'hbar-app-ui-billing-2',
+    'hbar-app-ui-billing-6',
+    'hbar-app-ui-billing-8',
+  ]) {
+    test(`${id} status labels share the foundation glow and semantic tones in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 390, height: 720 });
+      await page.goto(preview(id, mode));
+      const statuses = page.locator('.hbar-app-ui-billing-status');
+      await expect(statuses.first()).toBeVisible();
+      expect(await statuses.count()).toBeGreaterThan(0);
+      const semantics = await statuses.evaluateAll((items) =>
+        items.map((item) => ({
+          foundation: item.getAttribute('data-lumen-component'),
+          tone: item.getAttribute('data-tone'),
+          dotGlow: getComputedStyle(item.querySelector('i')!).boxShadow,
+        })),
+      );
+      for (const status of semantics) {
+        expect(status.foundation).toBe('status');
+        expect(['neutral', 'success', 'warning', 'danger']).toContain(status.tone);
+        expect(status.dotGlow).not.toBe('none');
+      }
+    });
+  }
+
   test(`invoice currency uses a themed picker in ${mode}`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 680 });
     await page.goto(preview('hbar-app-ui-billing-3', mode));

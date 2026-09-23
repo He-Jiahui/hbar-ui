@@ -104,41 +104,16 @@
   flex: 0 0 auto;
 }
 
-.hbar-app-ui-billing-status {
-  display: inline-flex;
-  min-inline-size: 0;
-  align-items: center;
-  gap: 0.375rem;
-  color: var(--hbar-app-ui-billing-muted);
-  font-size: 0.75rem;
-  line-height: 1.35;
-}
-
-.hbar-app-ui-billing-status i {
-  display: inline-flex;
-  inline-size: 0.375rem;
-  block-size: 0.375rem;
-  flex: 0 0 auto;
-  border-radius: 100%;
-  background: currentColor;
-}
-
-.hbar-app-ui-billing-status-positive,
-.hbar-app-ui-billing-tone-positive .hbar-app-ui-billing-status,
 .hbar-app-ui-billing-tone-positive > b,
 .hbar-app-ui-billing-tone-positive > strong {
   color: var(--hbar-app-ui-billing-positive);
 }
 
-.hbar-app-ui-billing-status-warning,
-.hbar-app-ui-billing-tone-warning .hbar-app-ui-billing-status,
 .hbar-app-ui-billing-tone-warning > b,
 .hbar-app-ui-billing-tone-warning > strong {
   color: var(--hbar-app-ui-billing-warning);
 }
 
-.hbar-app-ui-billing-status-danger,
-.hbar-app-ui-billing-tone-danger .hbar-app-ui-billing-status,
 .hbar-app-ui-billing-tone-danger > b,
 .hbar-app-ui-billing-tone-danger > strong {
   color: var(--hbar-app-ui-billing-danger);
