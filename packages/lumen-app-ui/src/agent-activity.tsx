@@ -258,7 +258,9 @@ export function uniqueLumenAgentActivityItems<Item extends { readonly id: string
 ): readonly Item[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -274,10 +276,26 @@ export function selectLumenAgentActivityItem<Item extends { readonly id: string 
 function toneForState(
   state: LumenAgentActivityState,
 ): 'neutral' | 'success' | 'warning' | 'danger' {
-  if (state === 'complete') return 'success';
-  if (state === 'failed') return 'danger';
-  if (state === 'running' || state === 'needs-approval') return 'warning';
+  if (state === 'complete') {
+    return 'success';
+  }
+  if (state === 'failed') {
+    return 'danger';
+  }
+  if (state === 'running' || state === 'needs-approval') {
+    return 'warning';
+  }
   return 'neutral';
+}
+
+function logLevelState(level: LumenAgentActivityLogLevel): LumenAgentActivityState {
+  if (level === 'error') {
+    return 'failed';
+  }
+  if (level === 'warning') {
+    return 'needs-approval';
+  }
+  return 'complete';
 }
 
 function ActivityGlyph({ name }: { readonly name: 'download' | 'retry' | 'stop' }) {
@@ -401,53 +419,21 @@ function reportAction(
 function LiveActivity(
   props: Omit<LumenAgentActivityProps, 'content'> & { content: LumenAgentActivityLiveContent },
 ) {
-  const { content, onAction } = props;
+  const { content } = props;
   const steps = uniqueLumenAgentActivityItems(content.steps);
-  const [activeStepId, setActiveStepId] = React.useState(content.activeStepId);
-  const activeStep = selectLumenAgentActivityItem(steps, activeStepId);
-  React.useEffect(() => setActiveStepId(content.activeStepId), [content.activeStepId]);
+  const activeStep = selectLumenAgentActivityItem(steps, content.activeStepId);
 
   return (
     <ActivityFrame {...props} className="hbar-app-ui-agent-activity-live">
-      <header className="lumen-agent-activity-heading hbar-app-ui-agent-activity-heading">
-        <div>
-          <LumenText as="h2" variant="heading">
-            {content.labels.title}
-          </LumenText>
-          <p>
-            <ActivityStateMark state={activeStep?.state ?? 'queued'} />
-            <span>{content.labels.status}</span>
-            <span aria-hidden="true">{content.labels.separator}</span>
-            <span>{content.labels.elapsed}</span>
-          </p>
-        </div>
-        <LumenButton
-          className="hbar-app-ui-agent-activity-stop"
-          variant="outlined"
-          size="s"
-          aria-label={content.labels.stop}
-          onClick={() => reportAction(onAction, 'stop')}
-        >
-          <ActivityGlyph name="stop" />
-          <span>{content.labels.stop}</span>
-        </LumenButton>
-      </header>
       <ActivityPane strategy={content.listStrategy}>
         <ol className="lumen-agent-activity-list hbar-app-ui-agent-activity-live-list">
           {steps.map((step) => (
             <li className={step.id === activeStep?.id ? 'is-active' : ''} key={step.id}>
               <ActivityStateMark state={step.state} />
-              <LumenButton
-                className="lumen-agent-activity-row hbar-app-ui-agent-activity-live-row"
-                variant="text"
-                onClick={() => {
-                  setActiveStepId(step.id);
-                  reportAction(onAction, 'select-live-step', step.id);
-                }}
-              >
+              <div className="lumen-agent-activity-row hbar-app-ui-agent-activity-live-row">
                 <span>{step.label}</span>
                 <time>{step.duration}</time>
-              </LumenButton>
+              </div>
             </li>
           ))}
         </ol>
@@ -469,7 +455,6 @@ function NestedActivity(
     [groups],
   );
   const [openIds, setOpenIds] = React.useState<readonly string[]>(defaultOpenIds);
-  React.useEffect(() => setOpenIds(defaultOpenIds), [defaultOpenIds]);
   const allOpen = groups.length > 0 && groups.every((group) => openIds.includes(group.id));
   const toggleAll = () => {
     setOpenIds(allOpen ? [] : groups.map((group) => group.id));
@@ -550,7 +535,6 @@ function DeploymentActivity(
   const steps = uniqueLumenAgentActivityItems(content.steps);
   const [activeStepId, setActiveStepId] = React.useState(content.activeStepId);
   const activeStep = selectLumenAgentActivityItem(steps, activeStepId);
-  React.useEffect(() => setActiveStepId(content.activeStepId), [content.activeStepId]);
 
   return (
     <ActivityFrame {...props} className="hbar-app-ui-agent-activity-deployment">
@@ -608,10 +592,8 @@ function HistoryActivity(
 ) {
   const { content, onAction } = props;
   const rows = React.useMemo(() => uniqueLumenAgentActivityItems(content.rows), [content.rows]);
-  const [selectedId, setSelectedId] = React.useState<string | undefined>(rows[0]?.id);
-  React.useEffect(() => {
-    setSelectedId((current) => (rows.some((row) => row.id === current) ? current : rows[0]?.id));
-  }, [rows]);
+  const [requestedId, setSelectedId] = React.useState<string | undefined>(rows[0]?.id);
+  const selectedId = rows.some((row) => row.id === requestedId) ? requestedId : rows[0]?.id;
 
   return (
     <ActivityFrame {...props} className="hbar-app-ui-agent-activity-history">
@@ -650,6 +632,16 @@ function HistoryActivity(
                 key={row.id}
                 role="row"
                 onClick={() => setSelectedId(row.id)}
+                onKeyDown={(event) => {
+                  if (
+                    event.target === event.currentTarget &&
+                    (event.key === 'Enter' || event.key === ' ')
+                  ) {
+                    event.preventDefault();
+                    setSelectedId(row.id);
+                  }
+                }}
+                tabIndex={0}
               >
                 <span className="hbar-app-ui-agent-activity-history-cell hbar-app-ui-agent-activity-history-name">
                   <small>{content.labels.run}</small>
@@ -703,7 +695,6 @@ function LogActivity(
   const visibleEntries = activeFilter?.level
     ? entries.filter((entry) => entry.level === activeFilter.level)
     : entries;
-  React.useEffect(() => setActiveFilterId(content.activeFilterId), [content.activeFilterId]);
 
   return (
     <ActivityFrame {...props} className="hbar-app-ui-agent-activity-log">
@@ -712,7 +703,7 @@ function LogActivity(
           {content.labels.title}
         </LumenText>
         <LumenStatus value={content.labels.lineCount} />
-        <nav
+        <div
           aria-label={content.labels.filters}
           className="lumen-agent-activity-log-filters hbar-app-ui-agent-activity-log-filters"
           role="tablist"
@@ -733,7 +724,7 @@ function LogActivity(
               {filter.label}
             </LumenButton>
           ))}
-        </nav>
+        </div>
         {content.labels.stop ? (
           <LumenButton
             variant="outlined"
@@ -755,15 +746,7 @@ function LogActivity(
           {visibleEntries.map((entry) => (
             <li className={`is-${entry.level}`} key={entry.id}>
               <time>{entry.time}</time>
-              <ActivityStateMark
-                state={
-                  entry.level === 'error'
-                    ? 'failed'
-                    : entry.level === 'warning'
-                      ? 'needs-approval'
-                      : 'complete'
-                }
-              />
+              <ActivityStateMark state={logLevelState(entry.level)} />
               <span>{entry.message}</span>
             </li>
           ))}
@@ -992,13 +975,15 @@ export function LumenAgentActivity(props: LumenAgentActivityProps) {
 }
 
 function createAgentActivityVariant(variant: number) {
-  const Component = (props: LumenAgentActivityVariantProps) => (
-    <LumenAgentActivity
-      {...props}
-      variant={variant}
-      variantId={`hbar-app-ui-agent-activity-${variant}`}
-    />
-  );
+  function Component(props: LumenAgentActivityVariantProps) {
+    return (
+      <LumenAgentActivity
+        {...props}
+        variant={variant}
+        variantId={`hbar-app-ui-agent-activity-${variant}`}
+      />
+    );
+  }
   Component.displayName = `LumenAgentActivity${String(variant).padStart(2, '0')}`;
   return Component;
 }
