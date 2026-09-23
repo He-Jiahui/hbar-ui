@@ -419,29 +419,6 @@
   align-items: center;
   gap: 0.5rem;
 }
-.lumen-analytics-gauge {
-  display: flex;
-  inline-size: 7rem;
-  block-size: 7rem;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999rem;
-  background: conic-gradient(
-    var(--lumen-accent) var(--progress),
-    color-mix(in srgb, var(--lumen-edge) 70%, transparent) 0
-  );
-  min-inline-size: 0;
-}
-.lumen-analytics-gauge::before {
-  inline-size: 5.4rem;
-  block-size: 5.4rem;
-  border-radius: inherit;
-  background: var(--lumen-reading);
-  content: '';
-}
-.lumen-analytics-gauge > strong {
-  z-index: 1;
-}
 .lumen-analytics-cohort {
   display: flex;
   min-inline-size: 0;
@@ -490,41 +467,20 @@
   min-inline-size: 0;
 }
 .lumen-analytics-bullets > article {
-  display: flex;
+  display: grid;
   min-inline-size: 0;
+  grid-template-columns: minmax(7rem, 0.6fr) minmax(10rem, 1fr) auto;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem 1rem;
+  padding-block: 0.5rem;
 }
-.lumen-analytics-bullets > article > :nth-child(3n + 1) {
-  flex: 0.6 1 7rem;
-  min-inline-size: 7rem;
-}
-.lumen-analytics-bullets > article > :nth-child(3n + 2) {
-  flex: 1 1 10rem;
-  min-inline-size: 10rem;
-}
-.lumen-analytics-bullets > article > :nth-child(3n + 3) {
-  flex: 0 0 auto;
+
+.lumen-analytics-bullets > article > * {
   min-inline-size: 0;
 }
-.lumen-analytics-bullet {
-  display: flex;
-  block-size: 0.75rem;
-  align-items: stretch;
-  border-radius: 999rem;
-  background: color-mix(in srgb, var(--lumen-edge) 70%, transparent);
-}
-.lumen-analytics-bullet > i {
-  display: block;
-  block-size: 100%;
-  border-radius: inherit;
-  background: var(--lumen-accent);
-}
-.lumen-analytics-bullet > b {
-  display: block;
-  align-self: stretch;
-  inline-size: 0.125rem;
-  background: var(--lumen-ink);
+
+.lumen-analytics-bullets > article > strong {
+  overflow-wrap: anywhere;
 }
 .lumen-analytics-bullets small {
   color: var(--lumen-muted);
@@ -554,15 +510,11 @@
   .lumen-analytics-funnel .lumen-analytics-progress {
     flex-basis: 100%;
   }
-  .lumen-analytics-bullets > article > :nth-child(2n + 1) {
-    flex: 1 1 0;
-    min-inline-size: 0;
-  }
-  .lumen-analytics-bullets > article > :nth-child(2n + 2) {
-    flex: 0 0 auto;
-    min-inline-size: 0;
+  .lumen-analytics-bullets > article {
+    grid-template-columns: minmax(0, 1fr) auto;
   }
   .lumen-analytics-bullet {
-    flex-basis: 100%;
+    grid-column: 1 / -1;
+    grid-row: 2;
   }
 }

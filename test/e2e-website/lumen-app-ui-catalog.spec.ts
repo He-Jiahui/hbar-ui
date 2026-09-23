@@ -336,4 +336,33 @@ for (const mode of ['dark', 'light'] as const) {
       expect(await bars.count()).toBeGreaterThan(0);
     });
   }
+
+  test(`analytics goals and targets use bounded foundation meters in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-analytics-10', mode));
+    const gauge = page.locator('.lumen-analytics-gauge.lumen-gauge');
+    await expect(gauge.first()).toHaveAttribute('role', 'progressbar');
+    expect(await gauge.count()).toBeGreaterThan(0);
+    await page.goto(preview('hbar-app-ui-analytics-15', mode));
+    const bullet = page.locator('.lumen-analytics-bullet.lumen-bullet-progress');
+    await expect(bullet.first()).toHaveAttribute('role', 'progressbar');
+    const bounded = await bullet.evaluateAll((bars) =>
+      bars.every((bar) => {
+        const value = Number(bar.getAttribute('aria-valuenow'));
+        const maximum = Number(bar.getAttribute('aria-valuemax'));
+        const marker = bar.querySelector('i')!.getBoundingClientRect();
+        const bounds = bar.getBoundingClientRect();
+        const row = bar.closest('article')!;
+        const label = row.querySelector('strong')!.getBoundingClientRect();
+        return (
+          value >= 0 &&
+          value <= maximum &&
+          marker.right <= bounds.right + 1 &&
+          bounds.top >= label.bottom &&
+          row.scrollWidth <= row.clientWidth + 1
+        );
+      }),
+    );
+    expect(bounded).toBe(true);
+  });
 }

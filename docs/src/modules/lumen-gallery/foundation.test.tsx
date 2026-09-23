@@ -3,9 +3,11 @@ import { describe, expect, it, vi } from 'vitest';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import {
   LumenChip,
+  LumenBulletProgress,
   LumenChoiceSelect,
   LumenComboBox,
   LumenFormField,
+  LumenGauge,
   LumenTabs,
   type LumenControlOption,
 } from '@lumen/app-ui/ui';
@@ -49,6 +51,23 @@ function ComboHarness({
 
 describe('Lumen foundation interactions', () => {
   const { render } = createRenderer();
+
+  it('bounds gauge and target meters while retaining host-owned accessible labels', () => {
+    const { container } = render(
+      <div>
+        <LumenGauge label="完成率" value={132} maximum={100} valueLabel="100%" />
+        <LumenBulletProgress label="目标进度" value={-10} target={120} maximum={100} />
+      </div>,
+    );
+    const gauge = screen.getByRole('progressbar', { name: '完成率' });
+    const bullet = screen.getByRole('progressbar', { name: '目标进度' });
+    expect(gauge).to.have.attribute('aria-valuenow', '100');
+    expect(gauge).to.have.attribute('aria-valuetext', '100%');
+    expect(bullet).to.have.attribute('aria-valuenow', '0');
+    expect(
+      (container.querySelector('.lumen-bullet-progress > i') as HTMLElement).style.insetInlineStart,
+    ).toBe('calc(100% - 0.125rem)');
+  });
 
   it('uses a host-owned choice list with keyboard selection, disabled entries, and no duplicate IDs', async () => {
     function ChoiceHarness() {

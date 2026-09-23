@@ -566,6 +566,90 @@ export function LumenProgress({
   );
 }
 
+export interface LumenGaugeProps extends React.HTMLAttributes<HTMLSpanElement> {
+  label: string;
+  value: number;
+  valueLabel: string;
+  maximum?: number | undefined;
+  tone?: LumenActionTone | 'info' | undefined;
+}
+
+export function LumenGauge({
+  label,
+  value,
+  valueLabel,
+  maximum = 100,
+  tone = 'info',
+  className,
+  style,
+  ...other
+}: LumenGaugeProps) {
+  const safeMaximum = Number.isFinite(maximum) && maximum > 0 ? maximum : 100;
+  const bounded = Math.max(0, Math.min(safeMaximum, Number.isFinite(value) ? value : 0));
+  return (
+    <span
+      {...other}
+      className={['lumen-gauge', className].filter(Boolean).join(' ')}
+      data-tone={tone}
+      role="progressbar"
+      aria-label={label}
+      aria-valuemin={0}
+      aria-valuemax={safeMaximum}
+      aria-valuenow={bounded}
+      aria-valuetext={valueLabel}
+      style={
+        {
+          ...style,
+          '--lumen-gauge-angle': `${(bounded / safeMaximum) * 360}deg`,
+        } as React.CSSProperties
+      }
+    >
+      <strong>{valueLabel}</strong>
+    </span>
+  );
+}
+
+export interface LumenBulletProgressProps extends React.HTMLAttributes<HTMLSpanElement> {
+  label: string;
+  value: number;
+  target: number;
+  maximum?: number | undefined;
+  tone?: LumenActionTone | 'info' | undefined;
+}
+
+export function LumenBulletProgress({
+  label,
+  value,
+  target,
+  maximum = 100,
+  tone = 'info',
+  className,
+  ...other
+}: LumenBulletProgressProps) {
+  const safeMaximum = Number.isFinite(maximum) && maximum > 0 ? maximum : 100;
+  const bounded = Math.max(0, Math.min(safeMaximum, Number.isFinite(value) ? value : 0));
+  const boundedTarget = Math.max(0, Math.min(safeMaximum, Number.isFinite(target) ? target : 0));
+  const targetPosition =
+    boundedTarget === safeMaximum
+      ? 'calc(100% - 0.125rem)'
+      : `${(boundedTarget / safeMaximum) * 100}%`;
+  return (
+    <span
+      {...other}
+      className={['lumen-bullet-progress', className].filter(Boolean).join(' ')}
+      data-tone={tone}
+      role="progressbar"
+      aria-label={label}
+      aria-valuemin={0}
+      aria-valuemax={safeMaximum}
+      aria-valuenow={bounded}
+    >
+      <span style={{ inlineSize: `${(bounded / safeMaximum) * 100}%` }} />
+      <i aria-hidden="true" style={{ insetInlineStart: targetPosition }} />
+    </span>
+  );
+}
+
 export interface LumenDividerProps extends React.HTMLAttributes<HTMLDivElement> {
   label?: string | undefined;
   orientation?: 'horizontal' | 'vertical' | undefined;

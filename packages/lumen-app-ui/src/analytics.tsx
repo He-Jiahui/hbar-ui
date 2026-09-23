@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import { LumenProgress, LumenTabs } from './ui-controls';
+import { LumenBulletProgress, LumenGauge, LumenProgress, LumenTabs } from './ui-controls';
 import {
   LumenCandlestickChart,
   LumenChart,
@@ -1034,21 +1034,12 @@ function Goals(
         {goals.length ? (
           goals.map((goal) => (
             <article key={goal.id}>
-              <span
+              <LumenGauge
                 className="lumen-analytics-gauge"
-                style={
-                  {
-                    '--progress': `${Math.max(0, Math.min(100, goal.value)) * 3.6}deg`,
-                  } as React.CSSProperties
-                }
-                role="progressbar"
-                aria-label={props.content.labels.progress(goal.label)}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={goal.value}
-              >
-                <strong>{goal.valueLabel}</strong>
-              </span>
+                label={props.content.labels.progress(goal.label)}
+                value={goal.value}
+                valueLabel={goal.valueLabel}
+              />
               <small>{goal.label}</small>
             </article>
           ))
@@ -1265,17 +1256,12 @@ function Bullets(
           items.map((item) => (
             <article key={item.id}>
               <strong>{item.label}</strong>
-              <span
+              <LumenBulletProgress
                 className="lumen-analytics-bullet"
-                role="progressbar"
-                aria-label={props.content.labels.progress(item.label)}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={item.value}
-              >
-                <i style={{ inlineSize: `${Math.max(0, Math.min(100, item.value))}%` }} />
-                <b style={{ marginInlineStart: `${Math.max(0, Math.min(100, item.target))}%` }} />
-              </span>
+                label={props.content.labels.progress(item.label)}
+                value={item.value}
+                target={item.target}
+              />
               <small>{item.detail}</small>
             </article>
           ))

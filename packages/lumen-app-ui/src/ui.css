@@ -521,6 +521,97 @@
   background: var(--lumen-danger);
 }
 
+@property --lumen-gauge-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.lumen-gauge {
+  display: grid;
+  inline-size: 7rem;
+  block-size: 7rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: conic-gradient(var(--lumen-ink) var(--lumen-gauge-angle), var(--lumen-line) 0);
+  color: var(--lumen-ink);
+  transition: --lumen-gauge-angle var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease);
+}
+
+.lumen-gauge::before {
+  grid-area: 1 / 1;
+  inline-size: 78%;
+  block-size: 78%;
+  border-radius: 50%;
+  background: var(--lumen-reading);
+  content: '';
+}
+
+.lumen-gauge > strong {
+  z-index: 1;
+  grid-area: 1 / 1;
+}
+
+.lumen-gauge[data-tone='info'] {
+  background: conic-gradient(var(--lumen-info) var(--lumen-gauge-angle), var(--lumen-line) 0);
+}
+
+.lumen-gauge[data-tone='success'] {
+  background: conic-gradient(var(--lumen-success) var(--lumen-gauge-angle), var(--lumen-line) 0);
+}
+
+.lumen-gauge[data-tone='warning'] {
+  background: conic-gradient(var(--lumen-warning) var(--lumen-gauge-angle), var(--lumen-line) 0);
+}
+
+.lumen-gauge[data-tone='danger'] {
+  background: conic-gradient(var(--lumen-danger) var(--lumen-gauge-angle), var(--lumen-line) 0);
+}
+
+.lumen-bullet-progress {
+  position: relative;
+  display: block;
+  inline-size: 100%;
+  block-size: 0.75rem;
+  border-radius: 999rem;
+  background: var(--lumen-line);
+}
+
+.lumen-bullet-progress > span {
+  display: block;
+  block-size: 100%;
+  border-radius: inherit;
+  background: var(--lumen-ink);
+  box-shadow: 0 0 0.65rem currentColor;
+  transition: inline-size var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease);
+}
+
+.lumen-bullet-progress[data-tone='info'] > span {
+  background: var(--lumen-info);
+}
+
+.lumen-bullet-progress[data-tone='success'] > span {
+  background: var(--lumen-success);
+}
+
+.lumen-bullet-progress[data-tone='warning'] > span {
+  background: var(--lumen-warning);
+}
+
+.lumen-bullet-progress[data-tone='danger'] > span {
+  background: var(--lumen-danger);
+}
+
+.lumen-bullet-progress > i {
+  position: absolute;
+  inset-block: -0.125rem;
+  inline-size: 0.125rem;
+  background: var(--lumen-ink);
+  box-shadow: 0 0 var(--lumen-glow-near, 0.875rem) currentColor;
+  transition: inset-inline-start var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease);
+}
+
 .lumen-divider {
   display: flex;
   align-items: center;
@@ -1075,6 +1166,9 @@
 @media (prefers-reduced-motion: reduce) {
   .lumen-skeleton,
   .lumen-progress > span,
+  .lumen-gauge,
+  .lumen-bullet-progress > span,
+  .lumen-bullet-progress > i,
   .lumen-switch-lamp,
   .lumen-switch-line,
   .hbar-app-ui-dialog-menu.lumen-tooltip > [role='tooltip'] {
@@ -1085,6 +1179,9 @@
 
 [data-lumen-motion='off'] .lumen-skeleton,
 [data-lumen-motion='off'] .lumen-progress > span,
+[data-lumen-motion='off'] .lumen-gauge,
+[data-lumen-motion='off'] .lumen-bullet-progress > span,
+[data-lumen-motion='off'] .lumen-bullet-progress > i,
 [data-lumen-motion='off'] .hbar-app-ui-dialog-menu.lumen-tooltip > [role='tooltip'] {
   animation: none;
   transition: none;
