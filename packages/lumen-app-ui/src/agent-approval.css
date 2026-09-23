@@ -312,7 +312,7 @@
 .hbar-app-ui-agent-approval-search > :last-child {
   flex: 1 1 auto;
 }
-.hbar-app-ui-agent-approval-history-toolbar nav {
+.hbar-app-ui-agent-approval-history-toolbar .lumen-tabs {
   flex-wrap: wrap;
 }
 .hbar-app-ui-agent-approval-history-copy {

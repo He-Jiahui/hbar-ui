@@ -609,26 +609,15 @@ function ToolCommandOutput(
             <pre className="hbar-app-ui-tool-calls-command-line">{content.command}</pre>
             <LumenStatus value={content.exitLabel} tone="danger" />
           </header>
-          <div aria-label={content.tabsLabel} role="tablist">
-            {tabs.map((tab) => {
-              const selected = tab.id === selectedTab?.id;
-              return (
-                <LumenButton
-                  variant="text"
-                  aria-selected={selected}
-                  className={`hbar-app-ui-tool-calls-button${selected ? ' is-selected' : ''}`}
-                  key={tab.id}
-                  onClick={() => {
-                    setSelectedTabId(tab.id);
-                    report(onAction, 'select-command-output', tab.id);
-                  }}
-                  role="tab"
-                >
-                  {tab.label}
-                </LumenButton>
-              );
-            })}
-          </div>
+          <LumenTabs
+            label={content.tabsLabel}
+            items={tabs}
+            selectedId={selectedTab?.id ?? null}
+            onChange={(id) => {
+              setSelectedTabId(id);
+              report(onAction, 'select-command-output', id);
+            }}
+          />
           {selectedTab ? (
             <pre className="hbar-app-ui-tool-calls-command-output">{selectedTab.output}</pre>
           ) : null}

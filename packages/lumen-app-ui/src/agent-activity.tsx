@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { LumenDisclosure } from './disclosure';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
+import { LumenTabs } from './ui-controls';
 
 export type LumenAgentActivityListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -726,28 +727,16 @@ function LogActivity(
           {content.labels.title}
         </LumenText>
         <LumenStatus value={content.labels.lineCount} />
-        <div
-          aria-label={content.labels.filters}
+        <LumenTabs
           className="lumen-agent-activity-log-filters hbar-app-ui-agent-activity-log-filters"
-          role="tablist"
-        >
-          {filters.map((filter) => (
-            <LumenButton
-              aria-selected={filter.id === activeFilter?.id}
-              className={filter.id === activeFilter?.id ? 'is-selected' : ''}
-              key={filter.id}
-              size="s"
-              variant={filter.id === activeFilter?.id ? 'solid' : 'text'}
-              onClick={() => {
-                setActiveFilterId(filter.id);
-                reportAction(onAction, 'filter-log', filter.id);
-              }}
-              role="tab"
-            >
-              {filter.label}
-            </LumenButton>
-          ))}
-        </div>
+          label={content.labels.filters}
+          items={filters}
+          selectedId={activeFilter?.id ?? null}
+          onChange={(id) => {
+            setActiveFilterId(id);
+            reportAction(onAction, 'filter-log', id);
+          }}
+        />
         {content.labels.stop ? (
           <LumenButton
             variant="outlined"

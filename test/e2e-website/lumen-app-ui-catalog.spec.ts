@@ -153,4 +153,24 @@ for (const mode of ['dark', 'light'] as const) {
     await expect(durationBars.first()).toHaveAttribute('role', 'progressbar');
     expect(await durationBars.count()).toBeGreaterThan(0);
   });
+
+  for (const id of [
+    'hbar-app-ui-agent-activity-5',
+    'hbar-app-ui-agent-approval-6',
+    'hbar-app-ui-tool-calls-5',
+  ]) {
+    test(`${id} uses keyboard-operable foundation tabs in ${mode}`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 680 });
+      await page.goto(preview(id, mode));
+      const tabs = page.getByRole('tablist').first();
+      const items = tabs.getByRole('tab');
+      await expect(items.first()).toBeVisible();
+      expect(await items.count()).toBeGreaterThanOrEqual(2);
+      await items.first().focus();
+      await items.first().press('ArrowRight');
+      await expect(items.nth(1)).toHaveAttribute('aria-selected', 'true');
+      await expect(items.nth(1)).toBeFocused();
+      await expect(tabs.locator('[data-visible="true"]')).toHaveCount(1);
+    });
+  }
 }

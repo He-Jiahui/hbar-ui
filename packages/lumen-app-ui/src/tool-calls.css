@@ -112,11 +112,6 @@
   white-space: normal;
 }
 
-.hbar-app-ui-tool-calls-command [role='tab'][aria-selected='true'] {
-  background: var(--lumen-frost);
-  color: var(--lumen-ink);
-}
-
 .hbar-app-ui-tool-calls-trace-pane,
 .hbar-app-ui-tool-calls-activity-pane,
 .hbar-app-ui-tool-calls-diff > main,
@@ -453,13 +448,14 @@
   color: var(--lumen-ink);
 }
 
-.hbar-app-ui-tool-calls-command nav {
+.hbar-app-ui-tool-calls-command .lumen-tabs {
   display: flex;
   min-inline-size: 0;
   align-items: center;
   gap: 0.25rem;
   padding: 0.25rem 0.5rem;
   border-block-end: 0.0625rem solid var(--lumen-edge);
+  flex-wrap: wrap;
 }
 
 .hbar-app-ui-tool-calls-command-output {

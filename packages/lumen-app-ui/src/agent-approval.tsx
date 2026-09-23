@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { LumenCheckBox, LumenInput } from './forms';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
+import { LumenTabs } from './ui-controls';
 
 export type LumenAgentApprovalListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -822,22 +823,15 @@ function HistoryApproval(
             onChange={(event) => setQuery(event.currentTarget.value)}
           />
         </div>
-        <div aria-label={content.labels.filtersLabel} role="tablist">
-          {filters.map((filter) => (
-            <LumenButton
-              aria-selected={filter.id === activeFilter?.id}
-              variant={filter.id === activeFilter?.id ? 'solid' : 'text'}
-              key={filter.id}
-              onClick={() => {
-                setActiveFilterId(filter.id);
-                report(onAction, 'filter-approval-history', filter.id);
-              }}
-              role="tab"
-            >
-              {filter.label}
-            </LumenButton>
-          ))}
-        </div>
+        <LumenTabs
+          label={content.labels.filtersLabel}
+          items={filters}
+          selectedId={activeFilter?.id ?? null}
+          onChange={(id) => {
+            setActiveFilterId(id);
+            report(onAction, 'filter-approval-history', id);
+          }}
+        />
       </div>
       <Pane strategy={content.listStrategy} className="hbar-app-ui-agent-approval-history-pane">
         <ul>
