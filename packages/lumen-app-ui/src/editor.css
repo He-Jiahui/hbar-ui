@@ -326,9 +326,6 @@
   inline-size: 100%;
   justify-content: flex-start;
 }
-.hbar-app-ui-editor-reader-outline nav > [aria-current] {
-  background: var(--lumen-frost);
-}
 .hbar-app-ui-editor-reader-main {
   display: flex;
   min-inline-size: 0;
@@ -390,15 +387,27 @@
     border-block-start: 0.0625rem solid var(--lumen-edge);
     border-inline-start: 0;
   }
-  .hbar-app-ui-editor-reader-outline.hbar-app-ui-app-sidebar-drawer {
-    position: absolute;
-    z-index: 2;
-    inline-size: min(17rem, 80%);
-    block-size: 100%;
-    box-shadow: 1rem 0 2rem color-mix(in srgb, #000 25%, transparent);
-  }
   .hbar-app-ui-editor-reader {
-    position: relative;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .hbar-app-ui-editor-reader-outline,
+  .hbar-app-ui-editor-reader-main,
+  .hbar-app-ui-editor-reader-content {
+    inline-size: 100%;
+    min-inline-size: 0;
+    min-block-size: auto;
+    flex: 0 0 auto;
+  }
+  .hbar-app-ui-editor-reader-outline {
+    border-inline-end: 0;
+    border-block-end: 0.0625rem solid var(--lumen-edge);
+  }
+  .hbar-app-ui-editor-reader-outline nav {
+    max-block-size: min(14rem, 35vh);
+  }
+  .hbar-app-ui-editor-reader-content {
+    overflow: visible;
   }
   .hbar-app-ui-editor-toolbar-surface {
     flex-wrap: wrap;

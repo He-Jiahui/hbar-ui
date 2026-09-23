@@ -714,12 +714,14 @@ function Reader(
   const [outline, setOutline] = React.useState(content.initialOutlineOpen);
   const [focusId, setFocusId] = React.useState(content.initialFocusSectionId);
   const [focus, setFocus] = React.useState(content.initialFocusMode);
+  const outlineId = React.useId();
   const selected = selectLumenEditorItem(sections, focusId);
   return (
     <Root {...props} className={`hbar-app-ui-editor-reader${focus ? ' is-focus-mode' : ''}`}>
       {outline ? (
         <aside
-          className="hbar-app-ui-editor-reader-outline hbar-app-ui-app-sidebar-drawer"
+          id={outlineId}
+          className="hbar-app-ui-editor-reader-outline"
           data-hbar-app-ui-expected-maximum={content.listStrategy.expectedMaximum}
           data-hbar-app-ui-list-strategy={content.listStrategy.kind}
         >
@@ -730,6 +732,8 @@ function Reader(
                 <LumenButton
                   variant="text"
                   aria-current={selected?.id === section.id ? 'location' : undefined}
+                  indicatorEdge="left"
+                  indicatorState={selected?.id === section.id ? 'selected' : undefined}
                   key={section.id}
                   onClick={() => {
                     setFocusId(section.id);
@@ -751,6 +755,8 @@ function Reader(
         <header className="hbar-app-ui-editor-reader-toolbar">
           <LumenIconButton
             label={content.labels.toggleOutlineLabel}
+            aria-expanded={outline}
+            aria-controls={outline ? outlineId : undefined}
             onClick={() => {
               const next = !outline;
               setOutline(next);

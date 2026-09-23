@@ -6,6 +6,67 @@ function preview(id: string, mode: 'dark' | 'light' = 'dark', locale: 'zh' | 'en
 
 for (const mode of ['dark', 'light'] as const) {
   for (const width of [320, 390, 768, 1280]) {
+    test(`document outline stays beside or above reading content at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: width === 320 ? 568 : 820 });
+      const locale = mode === 'dark' ? 'zh' : 'en';
+      await page.goto(preview('hbar-app-ui-editor-5', mode, locale));
+      const reader = page.locator('.hbar-app-ui-editor-reader');
+      const outline = reader.locator('.hbar-app-ui-editor-reader-outline');
+      const main = reader.locator('.hbar-app-ui-editor-reader-main');
+      const toggle = reader.getByRole('button', {
+        name: locale === 'zh' ? '切换大纲' : 'Toggle outline',
+      });
+      await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+      const geometry = await reader.evaluate((element) => {
+        const outlineArea = element.querySelector<HTMLElement>(
+          '.hbar-app-ui-editor-reader-outline',
+        )!;
+        const mainArea = element.querySelector<HTMLElement>('.hbar-app-ui-editor-reader-main')!;
+        const toolbar = mainArea.querySelector<HTMLElement>('.hbar-app-ui-editor-reader-toolbar')!;
+        const article = mainArea.querySelector<HTMLElement>('article')!;
+        const outlineRect = outlineArea.getBoundingClientRect();
+        const mainRect = mainArea.getBoundingClientRect();
+        return {
+          outlineWidth: outlineRect.width,
+          mainWidth: mainRect.width,
+          outlineFits: outlineArea.scrollWidth <= outlineArea.clientWidth + 1,
+          mainFits: mainArea.scrollWidth <= mainArea.clientWidth + 1,
+          mainBelowOutline: mainRect.top >= outlineRect.bottom - 1,
+          mainBesideOutline: mainRect.left >= outlineRect.right - 1,
+          articleBelowToolbar:
+            article.getBoundingClientRect().top >= toolbar.getBoundingClientRect().bottom - 1,
+        };
+      });
+      expect(geometry.outlineWidth).toBeGreaterThan(180);
+      expect(geometry.mainWidth).toBeGreaterThan(180);
+      expect(geometry.outlineFits).toBe(true);
+      expect(geometry.mainFits).toBe(true);
+      expect(geometry.articleBelowToolbar).toBe(true);
+      if (width <= 768) {
+        expect(geometry.mainBelowOutline).toBe(true);
+      } else {
+        expect(geometry.mainBesideOutline).toBe(true);
+      }
+      await outline.getByRole('button', { name: locale === 'zh' ? '路线图' : 'Roadmap' }).click();
+      await expect(
+        outline.getByRole('button', { name: locale === 'zh' ? '路线图' : 'Roadmap' }),
+      ).toHaveAttribute('aria-current', 'location');
+      await toggle.click();
+      await expect(outline).toHaveCount(0);
+      await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+      await expect(
+        main.getByRole('heading', {
+          name: locale === 'zh' ? 'Q4 路线图建议' : 'Q4 roadmap recommendations',
+        }),
+      ).toBeVisible();
+      await toggle.click();
+      await expect(outline).toBeVisible();
+    });
+  }
+
+  for (const width of [320, 390, 768, 1280]) {
     test(`editing suggestions keep readable document and actions at ${width}px in ${mode}`, async ({
       page,
     }) => {
