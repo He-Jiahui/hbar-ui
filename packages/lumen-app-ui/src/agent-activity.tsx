@@ -502,48 +502,50 @@ function NestedActivity(
           <span className="hbar-app-ui-agent-activity-nested-elapsed">{content.labels.elapsed}</span>
         </div>
       </header>
-      <ActivityPane strategy={content.listStrategy}>
-        <ol className="lumen-agent-activity-nested-list hbar-app-ui-agent-activity-nested-list">
-          {groups.map((group) => {
-            const open = openIds.includes(group.id);
-            const children = uniqueLumenAgentActivityItems(group.children);
-            return (
-              <li key={group.id}>
-                <div className="lumen-agent-activity-group">
-                  <button
-                    type="button"
-                    className="hbar-app-ui-agent-activity-group-row"
-                    aria-expanded={open}
-                    onClick={() => {
-                      setOpenIds((current) =>
-                        current.includes(group.id)
-                          ? current.filter((id) => id !== group.id)
-                          : [...current, group.id],
-                      );
-                      reportAction(onAction, 'toggle-nested-group', group.id);
-                    }}
-                  >
-                    <span className="hbar-app-ui-agent-activity-group-label">{group.label}</span>
-                    <span className="hbar-app-ui-agent-activity-duration">{group.duration}</span>
-                    <span aria-hidden="true" className="hbar-app-ui-agent-activity-chevron" />
-                  </button>
-                  {open ? (
-                    <ol className="hbar-app-ui-agent-activity-child-list">
-                      {children.map((child) => (
-                        <li key={child.id}>
-                          <span>{child.label}</span>
-                          <ActivityProgress decorative label={child.label} value={child.progress} />
-                          <span className="hbar-app-ui-agent-activity-duration">{child.duration}</span>
-                        </li>
-                      ))}
-                    </ol>
-                  ) : null}
-                </div>
-              </li>
-            );
-          })}
-        </ol>
-      </ActivityPane>
+      <div className="hbar-app-ui-agent-activity-nested-panel">
+        <ActivityPane strategy={content.listStrategy}>
+          <ol className="lumen-agent-activity-nested-list hbar-app-ui-agent-activity-nested-list">
+            {groups.map((group) => {
+              const open = openIds.includes(group.id);
+              const children = uniqueLumenAgentActivityItems(group.children);
+              return (
+                <li key={group.id}>
+                  <div className="lumen-agent-activity-group">
+                    <button
+                      type="button"
+                      className="hbar-app-ui-agent-activity-group-row"
+                      aria-expanded={open}
+                      onClick={() => {
+                        setOpenIds((current) =>
+                          current.includes(group.id)
+                            ? current.filter((id) => id !== group.id)
+                            : [...current, group.id],
+                        );
+                        reportAction(onAction, 'toggle-nested-group', group.id);
+                      }}
+                    >
+                      <span className="hbar-app-ui-agent-activity-group-label">{group.label}</span>
+                      <span className="hbar-app-ui-agent-activity-duration">{group.duration}</span>
+                      <span aria-hidden="true" className="hbar-app-ui-agent-activity-chevron" />
+                    </button>
+                    {open ? (
+                      <ol className="hbar-app-ui-agent-activity-child-list">
+                        {children.map((child) => (
+                          <li key={child.id}>
+                            <span>{child.label}</span>
+                            <ActivityProgress decorative label={child.label} value={child.progress} />
+                            <span className="hbar-app-ui-agent-activity-duration">{child.duration}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    ) : null}
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </ActivityPane>
+      </div>
     </ActivityFrame>
   );
 }
