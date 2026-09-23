@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { LumenPlanEditor, type LumenPlanEditorProps } from './plan-editor';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
+import { LumenProgress } from './ui-controls';
 
 export type LumenAgentPlanListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -312,15 +313,7 @@ function AgentPlanProgress({
   const bounded = Math.max(0, Math.min(safeMaximum, Number.isFinite(value) ? value : 0));
   return (
     <div className="hbar-app-ui-agent-plan-progress">
-      <div
-        aria-label={label}
-        aria-valuemax={safeMaximum}
-        aria-valuemin={0}
-        aria-valuenow={bounded}
-        role="progressbar"
-      >
-        <span style={{ inlineSize: `${(bounded / safeMaximum) * 100}%` }} />
-      </div>
+      <LumenProgress label={label} value={bounded} maximum={safeMaximum} />
       <LumenText as="span" tone="muted" variant="supporting">
         {label}
       </LumenText>
@@ -631,17 +624,12 @@ function DurationBar({
 }) {
   const bounded = Math.max(0, Math.min(1, Number.isFinite(value) ? (value ?? 0) : 0));
   return (
-    <div
-      aria-label={label}
-      aria-valuemax={1}
-      aria-valuemin={0}
-      aria-valuenow={bounded}
+    <LumenProgress
       className="hbar-app-ui-agent-plan-duration-bar"
-      data-value={bounded}
-      role="progressbar"
-    >
-      <span style={{ inlineSize: `${bounded * 100}%` }} />
-    </div>
+      label={label}
+      value={bounded}
+      maximum={1}
+    />
   );
 }
 

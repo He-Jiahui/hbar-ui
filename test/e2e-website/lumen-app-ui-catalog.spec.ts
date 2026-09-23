@@ -59,3 +59,98 @@ for (const mode of ['dark', 'light'] as const) {
     await expect(tabs.locator('[data-visible="true"]')).toHaveCount(1);
   });
 }
+
+for (const mode of ['dark', 'light'] as const) {
+  for (const width of [390, 768, 1280]) {
+    test(`tool activity keeps readable columns and trailing actions at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 680 });
+      await page.goto(preview('hbar-app-ui-tool-calls-2', mode));
+      const rows = page.locator('.hbar-app-ui-tool-calls-activity-pane > ol > li');
+      await expect(rows).toHaveCount(4);
+      const geometry = await rows.evaluateAll((items) =>
+        items.map((item) => {
+          const row = item.querySelector('.hbar-app-ui-tool-calls-activity-row')!;
+          const copy = row.children[1] as HTMLElement;
+          const time = row.querySelector('time')!;
+          const status = row.querySelector('.hbar-app-ui-tool-calls-status')!;
+          const retry = item.querySelector('.hbar-app-ui-tool-calls-retry');
+          const bounds = row.getBoundingClientRect();
+          return {
+            leftAligned: getComputedStyle(row).textAlign === 'start',
+            wrapsDetail: getComputedStyle(copy.querySelector('small')!).whiteSpace === 'normal',
+            copyStartsLeft: copy.getBoundingClientRect().left < bounds.left + bounds.width / 3,
+            metadataOnRight:
+              time.getBoundingClientRect().left > bounds.left + bounds.width / 2 &&
+              status.getBoundingClientRect().left > bounds.left + bounds.width / 2,
+            retryAtEnd: !retry || retry.getBoundingClientRect().left >= bounds.right - 1,
+            fits: item.scrollWidth <= item.clientWidth + 1,
+          };
+        }),
+      );
+      expect(geometry).toEqual(
+        Array.from({ length: 4 }, () => ({
+          leftAligned: true,
+          wrapsDetail: true,
+          copyStartsLeft: true,
+          metadataOnRight: true,
+          retryAtEnd: true,
+          fits: true,
+        })),
+      );
+    });
+
+    test(`plan tree aligns group titles and lets step metadata flow at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 680 });
+      await page.goto(preview('hbar-app-ui-agent-plan-3', mode));
+      const groups = page.locator('.hbar-app-ui-agent-plan-tree-group');
+      await expect(groups).toHaveCount(3);
+      const groupGeometry = await groups.evaluateAll((items) =>
+        items.map((item) => {
+          const bounds = item.getBoundingClientRect();
+          const title = item.querySelector('.hbar-app-ui-agent-plan-tree-group-title')!;
+          const progress = item.querySelector('.hbar-app-ui-agent-plan-tree-group-progress')!;
+          return {
+            leftAligned: getComputedStyle(item).textAlign === 'start',
+            titleLeft: title.getBoundingClientRect().left < bounds.left + 65,
+            progressRight: progress.getBoundingClientRect().right <= bounds.right + 1,
+            titleWraps: getComputedStyle(title).whiteSpace === 'normal',
+          };
+        }),
+      );
+      expect(groupGeometry).toEqual(
+        Array.from({ length: 3 }, () => ({
+          leftAligned: true,
+          titleLeft: true,
+          progressRight: true,
+          titleWraps: true,
+        })),
+      );
+      const steps = page.locator('.hbar-app-ui-agent-plan-tree-children > li');
+      await expect(steps).toHaveCount(4);
+      const stepGeometry = await steps.evaluateAll((items) =>
+        items.map((item) => ({
+          titleWraps:
+            getComputedStyle(item.querySelector('.hbar-app-ui-agent-plan-step-title')!).whiteSpace ===
+            'normal',
+          fits: item.scrollWidth <= item.clientWidth + 1,
+        })),
+      );
+      expect(stepGeometry).toEqual(Array.from({ length: 4 }, () => ({ titleWraps: true, fits: true })));
+    });
+  }
+
+  test(`plan completion and duration bars share the foundation progress control in ${mode}`, async ({
+    page,
+  }) => {
+    await page.goto(preview('hbar-app-ui-agent-plan-1', mode));
+    await expect(page.locator('.hbar-app-ui-agent-plan-progress > .lumen-progress')).toHaveCount(1);
+    await page.goto(preview('hbar-app-ui-agent-plan-4', mode));
+    const durationBars = page.locator('.hbar-app-ui-agent-plan-duration-bar.lumen-progress');
+    await expect(durationBars.first()).toHaveAttribute('role', 'progressbar');
+    expect(await durationBars.count()).toBeGreaterThan(0);
+  });
+}

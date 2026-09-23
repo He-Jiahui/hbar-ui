@@ -67,25 +67,8 @@
   gap: 0.5rem;
 }
 
-.hbar-app-ui-agent-plan-progress > div,
-.hbar-app-ui-agent-plan-duration-bar {
-  position: relative;
-  overflow: hidden;
-  border-radius: 999rem;
-  background: var(--lumen-edge);
-}
-
-.hbar-app-ui-agent-plan-progress > div {
+.hbar-app-ui-agent-plan-progress > .lumen-progress {
   inline-size: 5rem;
-  block-size: 0.25rem;
-}
-
-.hbar-app-ui-agent-plan-progress > div > span,
-.hbar-app-ui-agent-plan-duration-bar > span {
-  display: block;
-  block-size: 100%;
-  border-radius: inherit;
-  background: var(--lumen-ink);
 }
 
 .lumen-agent-plan-glyph {
@@ -170,10 +153,16 @@
 }
 
 .hbar-app-ui-agent-plan-checklist-pane li > button,
-.hbar-app-ui-agent-plan-tree-group {
+.hbar-app-ui-agent-plan-tree-pane .hbar-app-ui-agent-plan-tree-group {
   inline-size: 100%;
   justify-content: flex-start;
   text-align: start;
+}
+
+.hbar-app-ui-agent-plan-tree-pane .hbar-app-ui-agent-plan-tree-group {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-block: 0.625rem;
 }
 
 .hbar-app-ui-agent-plan-checklist-pane li.is-active > button {
@@ -246,6 +235,17 @@
 
 .hbar-app-ui-agent-plan-tree-group-progress {
   flex: 0 0 auto;
+  margin-inline-start: auto;
+  text-align: end;
+}
+
+.hbar-app-ui-agent-plan-tree-group-title {
+  flex: 1 1 10rem;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: start;
 }
 
 .hbar-app-ui-agent-plan-tree-children {
@@ -256,9 +256,23 @@
   display: flex;
   min-inline-size: 0;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.375rem;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  padding: 0.625rem;
   border-radius: var(--lumen-radius-control);
+}
+
+.hbar-app-ui-agent-plan-tree-children .hbar-app-ui-agent-plan-step-title {
+  flex: 1 1 14rem;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: start;
+}
+
+.hbar-app-ui-agent-plan-tree-children .hbar-app-ui-agent-plan-status {
+  margin-inline-start: auto;
 }
 
 .hbar-app-ui-agent-plan-tree-children > li:hover {
@@ -268,10 +282,9 @@
 .hbar-app-ui-agent-plan-dependency {
   min-inline-size: 0;
   flex: 0 1 auto;
-  overflow: hidden;
   color: var(--lumen-info);
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .hbar-app-ui-agent-plan-editable-content,
