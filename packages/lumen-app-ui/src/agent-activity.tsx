@@ -382,7 +382,7 @@ function ActivityFrame({
     .join(' ');
   return (
     <LumenSurface
-      as={variant === 1 || variant === 2 ? 'div' : 'section'}
+      as={variant === 1 || variant === 2 || variant === 3 ? 'div' : 'section'}
       boundary={variant === 1 || variant === 2 || variant === 3 || variant === 4 ? 'none' : 'horizontal'}
       className="lumen-agent-activity-root-surface"
       contentClassName={contentClassName}
@@ -560,37 +560,47 @@ function DeploymentActivity(
 
   return (
     <ActivityFrame {...props} className="hbar-app-ui-agent-activity-deployment">
-      <ActivityPane strategy={content.listStrategy} className="hbar-app-ui-agent-activity-deployment-pane">
-        <ol className="lumen-agent-activity-list hbar-app-ui-agent-activity-deployment-list">
-          {steps.map((step) => (
-            <li className={step.id === activeStep?.id && !stopped ? 'is-active' : ''} key={step.id}>
-              <ActivityStateMark state={step.state} />
-              <span className="hbar-app-ui-agent-activity-deployment-label">{step.label}</span>
-              <span className="hbar-app-ui-agent-activity-deployment-state">
-                {stopped && step.id === activeStep?.id ? content.labels.stopped : step.stateLabel}
-              </span>
-            </li>
-          ))}
-        </ol>
-      </ActivityPane>
-      <footer className="lumen-agent-activity-deployment-footer hbar-app-ui-agent-activity-deployment-footer">
-        <ActivityProgress label={content.progressLabel} value={content.progress} decorative />
-        <div className="hbar-app-ui-agent-activity-deployment-footer-row">
-          <span>{content.labels.elapsed}</span>
-          <LumenButton
-            variant="outlined"
-            size="s"
-            aria-label={stopped ? content.labels.runAgain : content.labels.stop}
-            onClick={() => {
-              setStopped(!stopped);
-              reportAction(onAction, stopped ? 'run-again' : 'stop');
-            }}
-          >
-            <ActivityGlyph name={stopped ? 'retry' : 'stop'} />
-            {stopped ? content.labels.runAgain : content.labels.stop}
-          </LumenButton>
+      <header className="lumen-agent-activity-heading hbar-app-ui-agent-activity-deployment-heading">
+        <LumenText as="h2" variant="heading">{content.labels.title}</LumenText>
+        <div className="hbar-app-ui-agent-activity-deployment-summary">
+          <ActivityStateMark state={stopped ? 'cancelled' : 'running'} />
+          <span>{stopped ? content.labels.stopped : content.labels.status}</span>
+          <span className="hbar-app-ui-agent-activity-deployment-step-count">{content.labels.currentStep}</span>
         </div>
-      </footer>
+      </header>
+      <div className="hbar-app-ui-agent-activity-deployment-run">
+        <ActivityPane strategy={content.listStrategy} className="hbar-app-ui-agent-activity-deployment-pane">
+          <ol className="lumen-agent-activity-list hbar-app-ui-agent-activity-deployment-list">
+            {steps.map((step) => (
+              <li className={step.id === activeStep?.id && !stopped ? 'is-active' : ''} key={step.id}>
+                <ActivityStateMark state={step.state} />
+                <span className="hbar-app-ui-agent-activity-deployment-label">{step.label}</span>
+                <span className="hbar-app-ui-agent-activity-deployment-state">
+                  {stopped && step.id === activeStep?.id ? content.labels.stopped : step.stateLabel}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </ActivityPane>
+        <div className="lumen-agent-activity-deployment-footer hbar-app-ui-agent-activity-deployment-footer">
+          <ActivityProgress label={content.progressLabel} value={content.progress} decorative />
+          <div className="hbar-app-ui-agent-activity-deployment-footer-row">
+            <span>{content.labels.elapsed}</span>
+            <LumenButton
+              variant="outlined"
+              size="s"
+              aria-label={stopped ? content.labels.runAgain : content.labels.stop}
+              onClick={() => {
+                setStopped(!stopped);
+                reportAction(onAction, stopped ? 'run-again' : 'stop');
+              }}
+            >
+              <ActivityGlyph name={stopped ? 'retry' : 'stop'} />
+              {stopped ? content.labels.runAgain : content.labels.stop}
+            </LumenButton>
+          </div>
+        </div>
+      </div>
     </ActivityFrame>
   );
 }
