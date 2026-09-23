@@ -711,7 +711,7 @@ describe('Lumen formal variant fixtures', () => {
     expect((light as HTMLInputElement).checked).toBe(true);
     const motion = screen.getByRole('switch', { name: 'Reduce motion' });
     await view.user.click(motion);
-    expect(motion.getAttribute('aria-checked')).toBe('true');
+    expect((motion as HTMLInputElement).checked).toBe(true);
     await view.user.click(screen.getByRole('button', { name: 'Save preferences' }));
     expect(
       (screen.getByRole('button', { name: 'Save preferences' }) as HTMLButtonElement).disabled,
@@ -736,7 +736,7 @@ describe('Lumen formal variant fixtures', () => {
     expect(screen.getByText('lmn_prod_8F3K2Q7J9A')).not.toBeNull();
     const linear = screen.getByRole('switch', { name: 'Toggle Linear' });
     await view.user.click(linear);
-    expect(linear.getAttribute('aria-checked')).toBe('true');
+    expect((linear as HTMLInputElement).checked).toBe(true);
     view.unmount();
 
     view = render(

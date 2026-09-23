@@ -559,4 +559,28 @@ for (const mode of ['dark', 'light'] as const) {
     );
     expect(flow).toBe(true);
   });
+
+  for (const variant of [3, 5]) {
+    test(`settings ${variant} uses the foundational switch in ${mode}`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 680 });
+      await page.goto(preview(`hbar-app-ui-settings-form-${variant}`, mode));
+      const toggle = page.getByRole('switch').first();
+      await expect(toggle).toBeVisible();
+      const initial = await toggle.isChecked();
+      await toggle.press('Space');
+      await expect(toggle).toHaveJSProperty('checked', !initial);
+      await expect(page.locator('.hbar-app-ui-settings-toggle').first()).toHaveAttribute(
+        'data-label-hidden',
+        'true',
+      );
+    });
+  }
+
+  test(`member seats use the foundation progress strip in ${mode}`, async ({ page }) => {
+    await page.goto(preview('hbar-app-ui-settings-form-4', mode));
+    await expect(page.locator('.hbar-app-ui-settings-seat-meter.lumen-progress')).toHaveAttribute(
+      'role',
+      'progressbar',
+    );
+  });
 }

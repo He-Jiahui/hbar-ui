@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { LumenInput, LumenSelect, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus } from './primitives';
+import { LumenProgress, LumenSwitch } from './ui-controls';
 
 export type LumenPreferenceAction =
   | { readonly type: 'theme' | 'density' | 'language'; readonly id: string }
@@ -775,19 +776,20 @@ export function LumenPreferencesSettings(content: LumenSettingsPreferencesConten
                   {item.changed ? <small>{labels.changed}</small> : null}
                   <small>{item.description}</small>
                 </div>
-                <LumenButton
-                  variant="outlined"
-                  role="switch"
-                  aria-label={item.label}
-                  aria-checked={item.enabled}
+                <LumenSwitch
+                  label={item.label}
+                  visuallyHiddenLabel
+                  checked={item.enabled}
                   disabled={busy}
                   className={`hbar-app-ui-settings-toggle ${item.enabled ? 'is-on' : ''}`}
-                  onClick={() =>
-                    content.onChange({ type: 'toggle', id: item.id, enabled: !item.enabled })
+                  onChange={(event) =>
+                    content.onChange({
+                      type: 'toggle',
+                      id: item.id,
+                      enabled: event.currentTarget.checked,
+                    })
                   }
-                >
-                  <i aria-hidden="true" />
-                </LumenButton>
+                />
               </div>
             ))}
             {content.checkbox ? (
@@ -964,16 +966,11 @@ function MembersSettings(
           </div>
           <footer className="hbar-app-ui-settings-seat-footer">
             <span>{content.labels.seats(content.seatsUsed, content.seatsTotal)}</span>
-            <span
+            <LumenProgress
               className="hbar-app-ui-settings-seat-meter"
-              role="progressbar"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={seatProgress}
-              aria-label={content.labels.seats(content.seatsUsed, content.seatsTotal)}
-            >
-              <span style={{ inlineSize: `${seatProgress}%` }} />
-            </span>
+              label={content.labels.seats(content.seatsUsed, content.seatsTotal)}
+              value={seatProgress}
+            />
           </footer>
         </section>
       </div>
@@ -1085,16 +1082,13 @@ function ApiKeysSettings(
                   </div>
                   <small>{integration.description}</small>
                 </div>
-                <LumenButton
-                  variant="outlined"
-                  role="switch"
-                  aria-checked={integration.enabled}
-                  aria-label={content.labels.toggle(integration.name)}
+                <LumenSwitch
+                  label={content.labels.toggle(integration.name)}
+                  visuallyHiddenLabel
+                  checked={integration.enabled}
                   className={`hbar-app-ui-settings-toggle ${integration.enabled ? 'is-on' : ''}`}
-                  onClick={() => toggleIntegration(integration.id)}
-                >
-                  <i aria-hidden="true" />
-                </LumenButton>
+                  onChange={() => toggleIntegration(integration.id)}
+                />
               </article>
             ))}
           </div>
