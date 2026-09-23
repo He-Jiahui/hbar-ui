@@ -304,7 +304,7 @@ function ActivityGlyph({ name }: { readonly name: 'download' | 'retry' | 'stop' 
   return (
     <svg className="lumen-agent-activity-glyph" viewBox="0 0 16 16" aria-hidden="true">
       {name === 'stop' ? <path d="M4.5 4.5h7v7h-7z" /> : null}
-      {name === 'retry' ? <path d="M12.5 6A5 5 0 1 0 13 9m-.5-3V2.5M12.5 6H9" /> : null}
+      {name === 'retry' ? <path d="M3.5 5.5h3.5m-3.5 0V2M3.5 5.5a5 5 0 1 1-.5 3.5" /> : null}
       {name === 'download' ? <path d="M8 2.5v8m-3-3 3 3 3-3M3 13.5h10" /> : null}
     </svg>
   );
@@ -616,7 +616,12 @@ function HistoryActivity(
 
   return (
     <ActivityFrame {...props} className="hbar-app-ui-agent-activity-history">
-      <ActivityPane strategy={content.listStrategy} className="hbar-app-ui-agent-activity-history-pane">
+      <div className="hbar-app-ui-agent-activity-history-heading">
+        <LumenText as="h2" variant="heading">{content.labels.title}</LumenText>
+        <span>{content.labels.count}</span>
+      </div>
+      <div className="hbar-app-ui-agent-activity-history-run">
+        <ActivityPane strategy={content.listStrategy} className="hbar-app-ui-agent-activity-history-pane">
         <ul className="hbar-app-ui-agent-activity-history-cards">
           {rows.map((row) => (
             <li key={row.id}>
@@ -660,7 +665,8 @@ function HistoryActivity(
             </tr>
           ))}</tbody>
         </table>
-      </ActivityPane>
+        </ActivityPane>
+      </div>
     </ActivityFrame>
   );
 }

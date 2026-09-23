@@ -695,9 +695,33 @@
 }
 
 .hbar-app-ui-agent-activity-history {
-  block-size: calc(100dvh - 6.125rem);
-  margin-inline: 0.3125rem;
-  border: 1px solid var(--lumen-line);
+  border: 0;
+  box-shadow: none;
+}
+
+.hbar-app-ui-agent-activity-history-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-block-size: 1.5rem;
+  margin-block-end: 1rem;
+}
+
+.hbar-app-ui-agent-activity-history-heading h2[data-variant='heading'] {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.hbar-app-ui-agent-activity-history-heading > span {
+  color: var(--lumen-muted);
+  font-size: 0.8125rem;
+}
+
+.hbar-app-ui-agent-activity-history-run {
+  block-size: min(34.5rem, calc(100dvh - 3rem));
+  padding: 0.3125rem;
+  border: 0.0625rem solid var(--lumen-line);
   border-radius: 0.75rem;
 }
 
@@ -705,6 +729,8 @@
   block-size: 100%;
   padding: 0;
   overflow: auto;
+  border-radius: 0.625rem;
+  box-shadow: inset 0 0 0 0.0625rem var(--lumen-line);
 }
 
 .hbar-app-ui-agent-activity-history-pane[data-hbar-app-ui-list-strategy='pane-scroll'] {
@@ -736,6 +762,16 @@
   text-align: start;
 }
 
+.hbar-app-ui-agent-activity-history-table th:nth-child(n + 2):nth-child(-n + 5),
+.hbar-app-ui-agent-activity-history-table td:nth-child(n + 2):nth-child(-n + 5) {
+  padding-inline: 0.75rem;
+}
+
+.hbar-app-ui-agent-activity-history-table th:nth-child(n + 3):nth-child(-n + 5),
+.hbar-app-ui-agent-activity-history-table td:nth-child(n + 3):nth-child(-n + 5) {
+  text-align: right;
+}
+
 .hbar-app-ui-agent-activity-history-table th {
   position: sticky;
   inset-block-start: 0;
@@ -754,6 +790,12 @@
 .hbar-app-ui-agent-activity-history-table td {
   block-size: 2.75rem;
   border-block-end: 1px solid var(--lumen-line);
+  color: var(--lumen-ink);
+  font-weight: 400;
+}
+
+.hbar-app-ui-agent-activity-history-table td:nth-child(5) {
+  color: var(--lumen-muted);
 }
 
 [data-hbar-app-ui-theme='light'] .hbar-app-ui-agent-activity-history-table td {
@@ -761,14 +803,14 @@
 }
 
 .hbar-app-ui-agent-activity-history-table th:nth-child(1) { inline-size: 36%; }
-.hbar-app-ui-agent-activity-history-table th:nth-child(2) { inline-size: 21%; }
-.hbar-app-ui-agent-activity-history-table th:nth-child(3) { inline-size: 14%; }
-.hbar-app-ui-agent-activity-history-table th:nth-child(4) { inline-size: 14%; }
-.hbar-app-ui-agent-activity-history-table th:nth-child(5) { inline-size: 11%; }
-.hbar-app-ui-agent-activity-history-table th:nth-child(6) { inline-size: 4%; }
+.hbar-app-ui-agent-activity-history-table th:nth-child(2) { inline-size: 15%; }
+.hbar-app-ui-agent-activity-history-table th:nth-child(3) { inline-size: 13%; }
+.hbar-app-ui-agent-activity-history-table th:nth-child(4) { inline-size: 12%; }
+.hbar-app-ui-agent-activity-history-table th:nth-child(5) { inline-size: 16%; }
+.hbar-app-ui-agent-activity-history-table th:nth-child(6) { inline-size: 8%; }
 
-.hbar-app-ui-agent-activity-history-table td:nth-child(n + 3) {
-  text-align: center;
+.hbar-app-ui-agent-activity-history-table td:nth-child(6) {
+  text-align: right;
 }
 
 .hbar-app-ui-agent-activity-history-table .hbar-app-ui-agent-activity-status {
@@ -778,13 +820,13 @@
 .hbar-app-ui-agent-activity-history .hbar-app-ui-agent-activity-status {
   font-size: 1em;
   font-weight: 400;
-  color: var(--lumen-muted);
+  color: var(--lumen-ink);
 }
 
 .hbar-app-ui-agent-activity-history .hbar-app-ui-agent-activity-status i {
   inline-size: 0.375rem;
   block-size: 0.375rem;
-  color: var(--lumen-subtle);
+  color: color-mix(in srgb, var(--lumen-muted) 50%, transparent);
   box-shadow: none;
 }
 
@@ -842,10 +884,8 @@
 }
 
 @media (max-width: 47.999rem) {
-  .hbar-app-ui-agent-activity-history {
+  .hbar-app-ui-agent-activity-history-run {
     block-size: calc(100dvh - 5.5rem);
-    margin-inline: 0;
-    padding: 0.3125rem;
     background: #0a0a0a;
   }
 
@@ -880,7 +920,7 @@
 
   .hbar-app-ui-agent-activity-history-card-top > span {
     min-width: 0;
-    font-weight: 500;
+    font-weight: 400;
     font-size: 0.875rem;
   }
 
@@ -890,6 +930,7 @@
     inline-size: 1.75rem;
     block-size: 1.75rem;
     background: color-mix(in srgb, var(--lumen-ink) 8%, transparent);
+    color: var(--lumen-muted);
   }
 
   .hbar-app-ui-agent-activity-history-card-top button > [data-edge] {
@@ -929,6 +970,7 @@
 
   .hbar-app-ui-agent-activity-history-cards dd {
     color: var(--lumen-ink);
+    font-weight: 400;
   }
 
   .hbar-app-ui-agent-activity-history-cards dl > div:first-child dd {
@@ -944,7 +986,7 @@
   background: #fafafa;
 }
 
-[data-hbar-app-ui-theme='light'] .hbar-app-ui-agent-activity-history {
+[data-hbar-app-ui-theme='light'] .hbar-app-ui-agent-activity-history-run {
   background: #fff;
 }
 
@@ -955,8 +997,18 @@
 }
 
 @media (max-width: 36rem) {
-  .hbar-app-ui-agent-activity-history {
+  .hbar-app-ui-agent-activity-history-heading {
+    margin-block-end: 0.75rem;
+  }
+
+  .hbar-app-ui-agent-activity-history-run {
     block-size: calc(100dvh - 4.25rem);
+  }
+}
+
+@media (max-width: 20rem) {
+  .hbar-app-ui-agent-activity-history-card-top {
+    gap: 1.375rem;
   }
 }
 
