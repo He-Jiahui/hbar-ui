@@ -4,7 +4,13 @@ import * as React from 'react';
 import LumenField from '../LumenField';
 import LumenIndicator from '../LumenIndicator';
 import LumenSurface from '../LumenSurface';
-import { LumenFileButton, LumenFormField, LumenInput, LumenSelect, LumenTextarea } from '../forms';
+import {
+  LumenChoiceSelect,
+  LumenFileButton,
+  LumenFormField,
+  LumenInput,
+  LumenTextarea,
+} from '../forms';
 import { LumenButton } from '../primitives';
 import { LumenMenu, LumenProgress } from '../ui-controls';
 import type {
@@ -218,18 +224,15 @@ export function HbarAppUiPromptInput02({
       <div className={styles.toolbar}>
         <LumenField boundary="vertical" className={styles.selectField}>
           <LumenFormField controlId={`${content.id}-model`} label={copy.model} size="s">
-            <LumenSelect
+            <LumenChoiceSelect
+              id={`${content.id}-model`}
+              label={copy.model}
+              placeholder={copy.empty}
+              options={models}
               size="s"
-              value={models.some((item) => item.id === state.modelId) ? (state.modelId ?? '') : ''}
-              onChange={(event) => actions.onModel(content.id, event.target.value)}
-            >
-              <option value="">{copy.empty}</option>
-              {models.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.label}
-                </option>
-              ))}
-            </LumenSelect>
+              value={models.some((item) => item.id === state.modelId) ? (state.modelId ?? null) : null}
+              onValueChange={(id) => actions.onModel(content.id, id)}
+            />
           </LumenFormField>
         </LumenField>
         <span className={styles.muted}>{copy.tokens(state.tokenCount)}</span>
@@ -411,18 +414,15 @@ export function HbarAppUiPromptInput06({
         </div>
         <LumenField boundary="vertical" className={styles.selectField}>
           <LumenFormField controlId={`${content.id}-scope`} label={copy.scope} size="s">
-            <LumenSelect
+            <LumenChoiceSelect
+              id={`${content.id}-scope`}
+              label={copy.scope}
+              placeholder={copy.empty}
+              options={scopes}
               size="s"
-              value={scopes.some((item) => item.id === state.scopeId) ? (state.scopeId ?? '') : ''}
-              onChange={(event) => actions.onScope(content.id, event.target.value)}
-            >
-              <option value="">{copy.empty}</option>
-              {scopes.map((scope) => (
-                <option key={scope.id} value={scope.id}>
-                  {scope.label}
-                </option>
-              ))}
-            </LumenSelect>
+              value={scopes.some((item) => item.id === state.scopeId) ? (state.scopeId ?? null) : null}
+              onValueChange={(id) => actions.onScope(content.id, id)}
+            />
           </LumenFormField>
         </LumenField>
       </div>

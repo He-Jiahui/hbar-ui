@@ -4,9 +4,30 @@ import { describe, expect, it, vi } from 'vitest';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import { LUMEN_VARIANT_REGISTRY } from '@lumen/app-ui/catalog';
 import VariantPreviewHost from './VariantPreviewHost';
+import PromptInputGallery from './PromptInputGallery';
 
 describe('Lumen formal variant fixtures', () => {
   const { render } = createRenderer();
+
+  it('uses themed choices in the legacy prompt examples', async () => {
+    let view = render(<PromptInputGallery variant={2} locale="zh" />);
+    const model = screen.getByRole('combobox', { name: '模型' });
+    await view.user.click(model);
+    const modelChoice = screen.getByRole('listbox').querySelectorAll('[role="option"]')[1]!;
+    const modelLabel = modelChoice.textContent;
+    await view.user.click(modelChoice);
+    expect(model.textContent).toContain(modelLabel);
+    view.unmount();
+
+    view = render(<PromptInputGallery variant={6} locale="zh" />);
+    const scope = screen.getByRole('combobox', { name: '范围' });
+    await view.user.click(scope);
+    const scopeChoice = screen.getByRole('listbox').querySelectorAll('[role="option"]')[1]!;
+    const scopeLabel = scopeChoice.textContent;
+    await view.user.click(scopeChoice);
+    expect(scope.textContent).toContain(scopeLabel);
+    expect(document.querySelectorAll('select')).toHaveLength(0);
+  });
 
   it('renders every formal family variant with host-owned content', () => {
     const emptyVariants: string[] = [];
