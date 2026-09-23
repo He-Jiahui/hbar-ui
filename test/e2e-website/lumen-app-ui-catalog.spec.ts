@@ -1581,6 +1581,70 @@ for (const mode of ['dark', 'light'] as const) {
     await expect(scopes.first()).toHaveCSS('border-top-width', '0px');
   });
 
+  for (const width of [320, 390, 1280]) {
+    test(`webhook endpoints and deliveries keep readable flow at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: width === 320 ? 568 : 820 });
+      const locale = mode === 'dark' ? 'zh' : 'en';
+      await page.goto(preview('hbar-app-ui-integrations-4', mode, locale));
+      const endpoints = page.locator('.hbar-app-ui-integration-endpoint-button');
+      await expect(endpoints).toHaveCount(3);
+      await expect(endpoints.first().locator(':scope > [data-edge="left"]')).toHaveCount(1);
+      const endpointLayout = await endpoints.evaluateAll((items) =>
+        items.map((item) => {
+          const address = item.querySelector('.hbar-app-ui-integration-endpoint-address')!;
+          const bounds = item.getBoundingClientRect();
+          return {
+            startsLeft: address.getBoundingClientRect().left < bounds.left + 50,
+            fits: address.getBoundingClientRect().right <= bounds.right + 1,
+            textAlign: getComputedStyle(item).textAlign,
+            breakpoints: address.querySelectorAll('wbr').length,
+          };
+        }),
+      );
+      for (const row of endpointLayout) {
+        expect(row.startsLeft).toBe(true);
+        expect(row.fits).toBe(true);
+        expect(row.textAlign).toBe('start');
+        expect(row.breakpoints).toBeGreaterThan(0);
+      }
+      const topics = page.locator(
+        '.hbar-app-ui-integration-topic-list [data-lumen-component="chip"]',
+      );
+      await expect(topics).toHaveCount(3);
+      await expect(topics.first()).toHaveCSS('border-top-width', '0px');
+      const delivery = page.locator('.hbar-app-ui-integration-delivery-trigger').first();
+      await expect(delivery).toHaveAttribute('aria-expanded', 'true');
+      const deliveryLayout = await delivery.evaluate((element) => {
+        const icon = element.querySelector<HTMLElement>('.hbar-app-ui-integration-icon')!;
+        const status = element.querySelector<HTMLElement>('strong')!;
+        const event = element.querySelector<HTMLElement>(
+          '.hbar-app-ui-integration-delivery-event',
+        )!;
+        return {
+          iconWidth: icon.getBoundingClientRect().width,
+          textAlign: getComputedStyle(element).textAlign,
+          eventBelowStatus:
+            event.getBoundingClientRect().top > status.getBoundingClientRect().top + 1,
+          eventAfterStatus:
+            event.getBoundingClientRect().left >= status.getBoundingClientRect().right,
+        };
+      });
+      expect(deliveryLayout.iconWidth).toBeLessThan(28);
+      expect(deliveryLayout.textAlign).toBe('start');
+      expect(width <= 390 ? deliveryLayout.eventBelowStatus : deliveryLayout.eventAfterStatus).toBe(
+        true,
+      );
+      await delivery.click();
+      await expect(delivery).toHaveAttribute('aria-expanded', 'false');
+      await endpoints.nth(1).click();
+      await expect(page.locator('.hbar-app-ui-integration-webhook-title h1')).toContainText(
+        'deployments',
+      );
+    });
+  }
+
   test(`integration consent uses the themed workspace picker in ${mode}`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 680 });
     await page.goto(preview('hbar-app-ui-integrations-5', mode));

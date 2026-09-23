@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { LumenButton } from '../primitives';
-import { LumenSwitch } from '../ui-controls';
+import { LumenChip, LumenSwitch } from '../ui-controls';
 import { ChevronDown, Plus, RotateCcw, Webhook } from './glyphs';
 import type { LumenIntegrationsCompositionProps } from './primitives';
 import type { LumenIntegrationWebhookContent } from './content';
@@ -14,6 +14,18 @@ import {
   IntegrationIconButton,
   IntegrationStatus,
 } from './primitives';
+
+function BreakableAddress({ value }: { readonly value: string }) {
+  const pathSeparator = '/';
+  const parts = value.split(pathSeparator);
+  return parts.map((segment, index) => (
+    <React.Fragment key={`${index}-${segment}`}>
+      {index > 0 ? pathSeparator : null}
+      {segment}
+      {index < parts.length - 1 ? <wbr /> : null}
+    </React.Fragment>
+  ));
+}
 
 export default function WebhooksIntegration({
   spec,
@@ -85,6 +97,8 @@ export default function WebhooksIntegration({
                   className="hbar-app-ui-integration-endpoint-button"
                   type="button"
                   variant="text"
+                  indicatorEdge="left"
+                  indicatorState={item.id === endpoint?.id ? 'selected' : undefined}
                   key={item.id}
                   aria-pressed={item.id === endpoint?.id}
                   aria-label={content.labels.endpointAction(item.address)}
@@ -96,7 +110,9 @@ export default function WebhooksIntegration({
                       <IntegrationIcon tier="sm">
                         <Webhook />
                       </IntegrationIcon>
-                      {item.address}
+                      <span className="hbar-app-ui-integration-endpoint-address">
+                        <BreakableAddress value={item.address} />
+                      </span>
                     </strong>
                     <i
                       className={`hbar-app-ui-integration-endpoint-dot ${(enabledValues[item.id] ?? item.enabled) ? 'is-enabled' : ''}`}
@@ -116,10 +132,12 @@ export default function WebhooksIntegration({
             <React.Fragment>
               <header className="hbar-app-ui-integration-webhook-head">
                 <div className="hbar-app-ui-integration-webhook-title">
-                  <h1>{endpoint.address}</h1>
+                  <h1>
+                    <BreakableAddress value={endpoint.address} />
+                  </h1>
                   <div className="hbar-app-ui-integration-topic-list">
                     {(endpoint.topics ?? content.topics).map((topic) => (
-                      <span key={topic}>{topic}</span>
+                      <LumenChip key={topic} label={topic} />
                     ))}
                   </div>
                 </div>
@@ -169,6 +187,7 @@ export default function WebhooksIntegration({
                         className="hbar-app-ui-integration-delivery-trigger"
                         type="button"
                         variant="text"
+                        indicatorEdge="left"
                         aria-expanded={openDeliveryId === delivery.id}
                         aria-label={content.labels.openDelivery(delivery.event)}
                         onClick={() => {
@@ -186,7 +205,9 @@ export default function WebhooksIntegration({
                           <ChevronDown />
                         </IntegrationIcon>
                         <strong>{delivery.status}</strong>
-                        <span>{delivery.event}</span>
+                        <span className="hbar-app-ui-integration-delivery-event">
+                          {delivery.event}
+                        </span>
                         <small>{delivery.attempt}</small>
                         <small>{delivery.duration}</small>
                         <small>{delivery.timestamp}</small>
