@@ -382,8 +382,8 @@ function ActivityFrame({
     .join(' ');
   return (
     <LumenSurface
-      as={variant === 1 ? 'div' : 'section'}
-      boundary={variant === 1 || variant === 3 || variant === 4 ? 'none' : 'horizontal'}
+      as={variant === 1 || variant === 2 ? 'div' : 'section'}
+      boundary={variant === 1 || variant === 2 || variant === 3 || variant === 4 ? 'none' : 'horizontal'}
       className="lumen-agent-activity-root-surface"
       contentClassName={contentClassName}
       data-lumen-component="agent-activity"
@@ -494,6 +494,14 @@ function NestedActivity(
   const [openIds, setOpenIds] = React.useState<readonly string[]>(defaultOpenIds);
   return (
     <ActivityFrame {...props} className="hbar-app-ui-agent-activity-nested">
+      <header className="lumen-agent-activity-heading hbar-app-ui-agent-activity-nested-heading">
+        <LumenText as="h2" variant="heading">{content.labels.title}</LumenText>
+        <div className="hbar-app-ui-agent-activity-nested-status">
+          <ActivityStateMark state="complete" />
+          <span>{content.labels.status}</span>
+          <span className="hbar-app-ui-agent-activity-nested-elapsed">{content.labels.elapsed}</span>
+        </div>
+      </header>
       <ActivityPane strategy={content.listStrategy}>
         <ol className="lumen-agent-activity-nested-list hbar-app-ui-agent-activity-nested-list">
           {groups.map((group) => {
