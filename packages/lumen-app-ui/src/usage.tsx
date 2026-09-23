@@ -2,8 +2,9 @@
 
 import * as React from 'react';
 import { LumenDisclosure } from './disclosure';
-import { LumenInput, LumenSelect } from './forms';
+import { LumenChoiceSelect, LumenInput } from './forms';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
+import { LumenProgress, LumenSwitch } from './ui-controls';
 
 export interface LumenUsageMetric {
   readonly id?: string | undefined;
@@ -248,19 +249,14 @@ function UsageProgress({
   readonly label?: string | undefined;
   readonly tone?: LumenUsageMeter['tone'] | undefined;
 }) {
-  const bounded = Math.max(0, Math.min(100, Number.isFinite(value) ? value : 0));
+  const tones = { accent: 'info', positive: 'success', warning: 'warning', danger: 'danger' } as const;
   return (
-    <div
+    <LumenProgress
       className="lumen-usage-progress hbar-app-ui-progress"
-      data-tone={tone}
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={bounded}
-      role="progressbar"
-    >
-      <span style={{ inlineSize: `${bounded}%` }} />
-    </div>
+      label={label ?? ''}
+      value={value}
+      tone={tone ? tones[tone] : 'info'}
+    />
   );
 }
 
@@ -316,27 +312,27 @@ function UsageChoiceControl({
   readonly disabled?: boolean | undefined;
 }) {
   const options = uniqueLumenUsageItems(choice.options);
+  const id = React.useId();
+  const [selection, setSelection] = React.useState({ original: choice.value, current: choice.value });
+  const selected = selection.original === choice.value ? selection.current : choice.value;
   return (
-    <label className="lumen-usage-choice">
+    <div className="lumen-usage-choice">
       <LumenText as="span" variant="label">
         {choice.label}
       </LumenText>
-      <LumenSelect
-        aria-label={choice.label}
-        value={options.some((option) => option.id === choice.value) ? choice.value : ''}
+      <LumenChoiceSelect
+        id={id}
+        label={choice.label}
+        placeholder={choice.label}
+        options={options}
+        value={options.some((option) => option.id === selected) ? selected : null}
         disabled={disabled}
-        onChange={(event) => choice.onChange(event.currentTarget.value)}
-      >
-        <option value="" hidden disabled>
-          {choice.label}
-        </option>
-        {options.map((option) => (
-          <option key={option.id} value={option.id}>
-            {option.label}
-          </option>
-        ))}
-      </LumenSelect>
-    </label>
+        onValueChange={(value) => {
+          setSelection({ original: choice.value, current: value });
+          choice.onChange(value);
+        }}
+      />
+    </div>
   );
 }
 
@@ -530,6 +526,13 @@ export function LumenUsageSeats(content: LumenUsageSeatContent) {
 }
 
 export function LumenUsageBudget(content: LumenUsageBudgetContent) {
+  const hardStopProp = content.hardStop?.checked ?? false;
+  const [hardStopSelection, setHardStopSelection] = React.useState({
+    original: hardStopProp,
+    current: hardStopProp,
+  });
+  const hardStop =
+    hardStopSelection.original === hardStopProp ? hardStopSelection.current : hardStopProp;
   return (
     <UsageFrame content={content} variant={5}>
       {content.status ? (
@@ -569,17 +572,18 @@ export function LumenUsageBudget(content: LumenUsageBudgetContent) {
             <LumenText as="span" variant="label">
               {content.hardStop.label}
             </LumenText>
-            <LumenButton
-              role="switch"
+            <LumenSwitch
               size="s"
-              variant={content.hardStop.checked ? 'solid' : 'outlined'}
-              aria-label={content.hardStop.label}
-              aria-checked={content.hardStop.checked}
+              label={content.hardStop.label}
+              visuallyHiddenLabel
+              checked={hardStop}
               disabled={content.busy}
-              onClick={() => content.hardStop?.onChange(!content.hardStop.checked)}
-            >
-              <i aria-hidden="true" />
-            </LumenButton>
+              onChange={(event) => {
+                const checked = event.currentTarget.checked;
+                setHardStopSelection({ original: hardStopProp, current: checked });
+                content.hardStop?.onChange(checked);
+              }}
+            />
           </div>
         ) : null}
         {content.error ? (

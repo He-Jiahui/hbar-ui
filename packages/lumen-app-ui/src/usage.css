@@ -53,28 +53,8 @@
 }
 
 .lumen-usage-progress {
-  overflow: hidden;
   min-inline-size: 4rem;
   block-size: 0.25rem;
-  background: var(--lumen-line);
-  border-radius: 62.4375rem;
-}
-
-.lumen-usage-progress > span {
-  display: block;
-  block-size: 100%;
-  background: var(--lumen-info);
-  box-shadow: 0 0 var(--lumen-glow-near) color-mix(in srgb, var(--lumen-info) 50%, transparent);
-}
-
-.lumen-usage-progress[data-tone='positive'] > span {
-  background: var(--lumen-success);
-}
-.lumen-usage-progress[data-tone='warning'] > span {
-  background: var(--lumen-warning);
-}
-.lumen-usage-progress[data-tone='danger'] > span {
-  background: var(--lumen-danger);
 }
 
 .lumen-usage-meter-list,
@@ -290,14 +270,6 @@
 
 .lumen-usage-search > :last-child {
   flex: 1 1 auto;
-}
-
-.lumen-usage-toggle-row > button i {
-  display: block;
-  inline-size: 0.75rem;
-  block-size: 0.75rem;
-  background: currentcolor;
-  border-radius: 50%;
 }
 
 .lumen-usage-overage > * {

@@ -834,4 +834,34 @@ for (const mode of ['dark', 'light'] as const) {
     await tabs.getByRole('tab').first().press('ArrowRight');
     await expect(tabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
   });
+
+  test(`usage choices share themed selection across views in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-ai-usage-2', mode));
+    const picker = page.getByRole('combobox').first();
+    await picker.click();
+    const last = page.getByRole('listbox').getByRole('option').last();
+    const label = await last.innerText();
+    await last.click();
+    await expect(picker).toContainText(label);
+    await expect(page.locator('.lumen-usage-content select')).toHaveCount(0);
+    await page.goto(preview('hbar-app-ui-ai-usage-1', mode));
+    await expect(page.locator('.lumen-usage-progress.lumen-progress').first()).toHaveAttribute(
+      'role',
+      'progressbar',
+    );
+  });
+
+  test(`usage budget shares the Lumen switch in ${mode}`, async ({ page }) => {
+    await page.goto(preview('hbar-app-ui-ai-usage-5', mode));
+    const toggle = page.locator('.lumen-usage-toggle-row .lumen-switch-input');
+    await expect(toggle).toBeVisible();
+    await expect(toggle).toBeChecked();
+    await toggle.press('Space');
+    await expect(toggle).not.toBeChecked();
+    await expect(page.locator('.lumen-usage-toggle-row .lumen-switch')).toHaveAttribute(
+      'data-label-hidden',
+      'true',
+    );
+  });
 }
