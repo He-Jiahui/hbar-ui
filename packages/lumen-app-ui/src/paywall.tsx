@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
-import { LumenProgress } from './ui-controls';
+import { LumenBadge, LumenProgress } from './ui-controls';
 
 export type LumenPaywallListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -458,13 +458,9 @@ function Plans(props: Omit<LumenPaywallProps, 'content'> & { content: LumenPaywa
                   <strong className="hbar-app-ui-paywall-plan-name">{plan.name}</strong>
                   <p>{plan.description}</p>
                 </div>
-                {plan.current ? (
-                  <span className="hbar-app-ui-paywall-plan-badge">{content.labels.current}</span>
-                ) : null}
+                {plan.current ? <LumenBadge value={content.labels.current} tone="info" /> : null}
                 {plan.featured ? (
-                  <span className="hbar-app-ui-paywall-plan-badge">
-                    {content.labels.recommended}
-                  </span>
+                  <LumenBadge value={content.labels.recommended} tone="info" />
                 ) : null}
               </header>
               <div className="hbar-app-ui-paywall-plan-price">

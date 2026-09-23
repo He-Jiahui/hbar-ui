@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { LumenInput } from '../forms';
+import { LumenBadge } from '../ui-controls';
 import { ArrowRight } from './glyphs';
 import type { LumenBillingCompositionProps } from './primitives';
 import type { LumenBillingChangePlanContent } from './content';
@@ -104,7 +105,7 @@ export default function ChangePlanBilling({
                   <h2>{content.summary.title}</h2>
                   <p>{content.summary.description}</p>
                 </div>
-                <span className="hbar-app-ui-billing-badge">{content.summary.actionBadge}</span>
+                <LumenBadge value={content.summary.actionBadge} />
               </header>
               <section className="hbar-app-ui-billing-due-card">
                 <span>{content.summary.dueLabel}</span>

@@ -369,16 +369,6 @@
   gap: 0.25rem;
 }
 
-.hbar-app-ui-paywall-plan-badge {
-  display: inline-flex;
-  padding: 0.1875rem 0.5rem;
-  border-radius: 999rem;
-  background: color-mix(in srgb, var(--lumen-accent) 13%, transparent);
-  color: var(--lumen-accent);
-  font-size: 0.6875rem;
-  font-weight: 650;
-}
-
 .hbar-app-ui-paywall-plan-price {
   display: flex;
   align-items: baseline;

@@ -1520,6 +1520,21 @@ for (const mode of ['dark', 'light'] as const) {
     await expect(toggle).toHaveJSProperty('checked', !checked);
   });
 
+  test(`plan labels remain passive, transparent foundation badges in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 568 });
+    await page.goto(preview('hbar-app-ui-paywall-3', mode));
+    const badges = page.locator('.hbar-app-ui-paywall-plan-head [data-lumen-component="badge"]');
+    await expect(badges).toHaveCount(2);
+    await expect(badges.first()).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    await expect(badges.locator('button')).toHaveCount(0);
+    await page.goto(preview('hbar-app-ui-billing-5', mode));
+    const actionBadge = page.locator(
+      '.hbar-app-ui-billing-change-summary [data-lumen-component="badge"]',
+    );
+    await expect(actionBadge).toBeVisible();
+    await expect(actionBadge).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  });
+
   for (const id of [
     'hbar-app-ui-billing-1',
     'hbar-app-ui-billing-2',
