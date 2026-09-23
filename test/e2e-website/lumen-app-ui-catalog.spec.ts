@@ -502,6 +502,36 @@ for (const mode of ['dark', 'light'] as const) {
         Array.from({ length: 4 }, () => ({ titleWraps: true, fits: true })),
       );
     });
+
+    test(`plan summary tools use passive foundation chips at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 680 });
+      await page.goto(preview('hbar-app-ui-agent-plan-6', mode, mode === 'dark' ? 'zh' : 'en'));
+      const tools = page.locator('.hbar-app-ui-agent-plan-chip-list');
+      const chips = tools.locator('[data-lumen-component="chip"]');
+      await expect(chips).toHaveCount(4);
+      await expect(chips.locator('button')).toHaveCount(0);
+      await expect(chips.first()).toHaveCSS('border-top-width', '0px');
+      const geometry = await tools.evaluate((element) => {
+        const bounds = element.getBoundingClientRect();
+        const chips = [...element.querySelectorAll('.lumen-chip')];
+        return {
+          fits: chips.every((chip) => chip.getBoundingClientRect().right <= bounds.right + 1),
+          noOverlap: chips.every((chip, index) =>
+            chips.slice(index + 1).every((next) => {
+              const a = chip.getBoundingClientRect();
+              const b = next.getBoundingClientRect();
+              return (
+                a.bottom <= b.top || b.bottom <= a.top || a.right <= b.left || b.right <= a.left
+              );
+            }),
+          ),
+        };
+      });
+      expect(geometry).toEqual({ fits: true, noOverlap: true });
+      await expect(page.locator('.hbar-app-ui-agent-plan-breakdown-list > li')).toHaveCount(5);
+    });
   }
 
   test(`plan completion and duration bars share the foundation progress control in ${mode}`, async ({

@@ -476,13 +476,8 @@
   gap: 0.375rem;
 }
 
-.hbar-app-ui-agent-plan-chip-list li {
-  padding: 0.25rem 0.5rem;
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: 999rem;
-  background: var(--lumen-reading);
+.hbar-app-ui-agent-plan-chip-list .lumen-chip {
   color: var(--lumen-muted);
-  font-size: 0.75rem;
 }
 
 .hbar-app-ui-agent-plan-breakdown-list {
