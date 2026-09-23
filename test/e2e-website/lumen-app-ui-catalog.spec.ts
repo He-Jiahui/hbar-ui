@@ -1,10 +1,61 @@
 import { expect, test } from '@playwright/test';
 
-function preview(id: string, mode: 'dark' | 'light' = 'dark') {
-  return `/experiments/lumen-app-ui/?id=${id}&embed=1&locale=zh&mode=${mode}`;
+function preview(id: string, mode: 'dark' | 'light' = 'dark', locale: 'zh' | 'en' = 'zh') {
+  return `/experiments/lumen-app-ui/?id=${id}&embed=1&locale=${locale}&mode=${mode}`;
 }
 
 for (const mode of ['dark', 'light'] as const) {
+  for (const width of [320, 390, 768, 1280]) {
+    test(`editing suggestions keep readable document and actions at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: width === 320 ? 568 : 820 });
+      const locale = mode === 'dark' ? 'zh' : 'en';
+      await page.goto(preview('hbar-app-ui-editor-4', mode, locale));
+      const stage = page.locator('.hbar-app-ui-editor-suggestions');
+      const geometry = await stage.evaluate((element) => {
+        const documentArea = element.querySelector<HTMLElement>(
+          '.hbar-app-ui-editor-suggestion-document',
+        )!;
+        const panel = element.querySelector<HTMLElement>('.hbar-app-ui-editor-suggestion-panel')!;
+        const title = documentArea.querySelector<HTMLElement>('h1')!;
+        const copy = documentArea.querySelector<HTMLElement>(
+          '.hbar-app-ui-editor-suggestion-copy',
+        )!;
+        const card = panel.querySelector<HTMLElement>('.hbar-app-ui-editor-suggestion-card')!;
+        const docRect = documentArea.getBoundingClientRect();
+        const panelRect = panel.getBoundingClientRect();
+        return {
+          documentWidth: docRect.width,
+          panelWidth: panelRect.width,
+          documentFits: documentArea.scrollWidth <= documentArea.clientWidth + 1,
+          panelFits: panel.scrollWidth <= panel.clientWidth + 1,
+          cardFits: card.scrollWidth <= card.clientWidth + 1,
+          copyBelowHeader: copy.getBoundingClientRect().top >= title.getBoundingClientRect().bottom,
+          panelBelowDocument: panelRect.top >= docRect.bottom - 1,
+          panelBesideDocument: panelRect.left >= docRect.right - 1,
+        };
+      });
+      expect(geometry.documentWidth).toBeGreaterThan(180);
+      expect(geometry.panelWidth).toBeGreaterThan(180);
+      expect(geometry.documentFits).toBe(true);
+      expect(geometry.panelFits).toBe(true);
+      expect(geometry.cardFits).toBe(true);
+      expect(geometry.copyBelowHeader).toBe(true);
+      if (width <= 768) {
+        expect(geometry.panelBelowDocument).toBe(true);
+      } else {
+        expect(geometry.panelBesideDocument).toBe(true);
+      }
+      const accept = stage.locator('.hbar-app-ui-editor-suggestion-card > footer > button').first();
+      await expect(accept).toHaveAccessibleName(locale === 'zh' ? '接受' : 'Accept');
+      await accept.click();
+      await expect(accept).toBeDisabled();
+      await expect(accept).toHaveAccessibleName(locale === 'zh' ? '已解决' : 'Resolved');
+      await expect(stage).toContainText(locale === 'zh' ? '剩余 0 个' : '0 remaining');
+    });
+  }
+
   for (const width of [320, 390, 768, 1280]) {
     test(`artifact chat keeps transcript, composer and file pane separate at ${width}px in ${mode}`, async ({
       page,

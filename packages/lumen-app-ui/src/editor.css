@@ -212,11 +212,11 @@
   display: flex;
   min-inline-size: 0;
 }
-.hbar-app-ui-editor-suggestions > :nth-child(2n + 1) {
+.hbar-app-ui-editor-suggestions > .hbar-app-ui-editor-suggestion-document {
   flex: 1 1 0;
   min-inline-size: 0;
 }
-.hbar-app-ui-editor-suggestions > :nth-child(2n + 2) {
+.hbar-app-ui-editor-suggestions > .hbar-app-ui-editor-suggestion-panel {
   flex: 0 1 23rem;
   min-inline-size: 17rem;
 }
@@ -369,6 +369,21 @@
   }
   .hbar-app-ui-editor-suggestions {
     min-block-size: 0;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .hbar-app-ui-editor-suggestions > .hbar-app-ui-editor-suggestion-document,
+  .hbar-app-ui-editor-suggestions > .hbar-app-ui-editor-suggestion-panel {
+    min-inline-size: 0;
+    flex: 0 0 auto;
+  }
+  .hbar-app-ui-editor-suggestion-document > header {
+    flex-wrap: wrap;
+  }
+  .hbar-app-ui-editor-suggestion-document > header > div {
+    min-inline-size: 0;
+    flex: 1 1 12rem;
+    overflow-wrap: anywhere;
   }
   .hbar-app-ui-editor-suggestion-panel {
     max-block-size: 24rem;
