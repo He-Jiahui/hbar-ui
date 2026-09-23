@@ -949,10 +949,8 @@ describe('Lumen formal variant fixtures', () => {
     let view = render(
       <VariantPreviewHost entry={entry(2)} locale="en" unavailableLabel="Preview unavailable" />,
     );
-    await view.user.selectOptions(
-      screen.getByRole('combobox', { name: 'Sort models' }),
-      'spend-asc',
-    );
+    await view.user.click(screen.getByRole('combobox', { name: 'Sort models' }));
+    await view.user.click(screen.getByRole('option', { name: 'Spend: low to high' }));
     const modelRows = document.querySelector('.lumen-usage-list');
     expect(modelRows?.textContent?.indexOf('Embed v3')).toBeLessThan(
       modelRows?.textContent?.indexOf('Reasoning Pro') ?? 0,
@@ -962,17 +960,16 @@ describe('Lumen formal variant fixtures', () => {
     view = render(
       <VariantPreviewHost entry={entry(3)} locale="en" unavailableLabel="Preview unavailable" />,
     );
-    await view.user.selectOptions(
-      screen.getByRole('combobox', { name: 'Service tier' }),
-      'starter',
-    );
+    await view.user.click(screen.getByRole('combobox', { name: 'Service tier' }));
+    await view.user.click(screen.getByRole('option', { name: 'Starter' }));
     expect(screen.getByText('340 / 500')).not.toBeNull();
     view.unmount();
 
     view = render(
       <VariantPreviewHost entry={entry(4)} locale="en" unavailableLabel="Preview unavailable" />,
     );
-    await view.user.selectOptions(screen.getByRole('combobox', { name: 'Team filter' }), 'product');
+    await view.user.click(screen.getByRole('combobox', { name: 'Team filter' }));
+    await view.user.click(screen.getByRole('option', { name: 'Product' }));
     await view.user.type(screen.getByRole('textbox', { name: 'Search name or email' }), 'Marcus');
     expect(screen.getByText('Marcus Bell')).not.toBeNull();
     expect(screen.queryByText('Maya Chen')).toBeNull();
@@ -990,10 +987,8 @@ describe('Lumen formal variant fixtures', () => {
     view = render(
       <VariantPreviewHost entry={entry(7)} locale="en" unavailableLabel="Preview unavailable" />,
     );
-    await view.user.selectOptions(
-      screen.getByRole('combobox', { name: 'Model filter' }),
-      'reasoning',
-    );
+    await view.user.click(screen.getByRole('combobox', { name: 'Model filter' }));
+    await view.user.click(screen.getByRole('option', { name: 'Reasoning Pro' }));
     expect(screen.queryByText('req_7J19')).toBeNull();
     await view.user.click(screen.getByText('req_7J2K'));
     expect(
@@ -1070,7 +1065,8 @@ describe('Lumen formal variant fixtures', () => {
       <VariantPreviewHost entry={entry(4)} locale="en" unavailableLabel="Preview unavailable" />,
     );
     await view.user.click(screen.getByRole('button', { name: 'Error' }));
-    await view.user.selectOptions(screen.getByRole('combobox', { name: 'Service' }), 'events');
+    await view.user.click(screen.getByRole('combobox', { name: 'Service' }));
+    await view.user.click(screen.getByRole('option', { name: 'event-worker' }));
     expect(screen.getByText(/consumer deadline exceeded/)).not.toBeNull();
     expect(screen.queryByText(/request completed/)).toBeNull();
     view.unmount();
@@ -1078,7 +1074,8 @@ describe('Lumen formal variant fixtures', () => {
     view = render(
       <VariantPreviewHost entry={entry(6)} locale="en" unavailableLabel="Preview unavailable" />,
     );
-    await view.user.selectOptions(screen.getByRole('combobox', { name: 'Seniority' }), 'staff');
+    await view.user.click(screen.getByRole('combobox', { name: 'Seniority' }));
+    await view.user.click(screen.getByRole('option', { name: 'Staff' }));
     expect(screen.getByText('No candidates match every condition')).not.toBeNull();
     await view.user.click(screen.getByRole('button', { name: 'Remove skill React' }));
     expect(screen.getByText('Amara Okafor')).not.toBeNull();
@@ -1447,10 +1444,8 @@ describe('Lumen formal variant fixtures', () => {
     view = render(
       <VariantPreviewHost entry={entry(5)} locale="en" unavailableLabel="Preview unavailable" />,
     );
-    await view.user.selectOptions(
-      screen.getByRole('combobox', { name: 'Authorize for workspace' }),
-      'lumen-labs',
-    );
+    await view.user.click(screen.getByRole('combobox', { name: 'Authorize for workspace' }));
+    await view.user.click(screen.getByRole('option', { name: 'Lumen Labs · Member' }));
     await view.user.click(screen.getByRole('button', { name: 'Authorize Linear' }));
     expect(screen.getByRole('button', { name: 'Authorized' })).not.toBeNull();
     view.unmount();
@@ -1920,9 +1915,9 @@ describe('Lumen formal variant fixtures', () => {
       <VariantPreviewHost entry={entry(5)} locale="en" unavailableLabel="Preview unavailable" />,
     );
     const friday = screen.getByRole('switch', { name: 'Toggle Friday' });
-    expect(friday.getAttribute('aria-checked')).toBe('false');
+    expect((friday as HTMLInputElement).checked).toBe(false);
     await view.user.click(friday);
-    expect(friday.getAttribute('aria-checked')).toBe('true');
+    expect((friday as HTMLInputElement).checked).toBe(true);
     view.unmount();
 
     view = render(
@@ -2519,8 +2514,9 @@ describe('Lumen formal variant fixtures', () => {
         unavailableLabel="Preview unavailable"
       />,
     );
-    await view.user.selectOptions(screen.getByLabelText('Model'), 'luna');
-    expect((screen.getByLabelText('Model') as HTMLSelectElement).value).toBe('luna');
+    await view.user.click(screen.getByRole('combobox', { name: 'Model' }));
+    await view.user.click(screen.getByRole('option', { name: 'Luna 4 mini' }));
+    expect(screen.getByRole('combobox', { name: 'Model' }).textContent).toContain('Luna 4 mini');
     view.unmount();
 
     view = render(
@@ -2567,7 +2563,7 @@ describe('Lumen formal variant fixtures', () => {
     );
     await view.user.click(screen.getByRole('button', { name: 'Invite collaborator' }));
     expect(screen.getByRole('dialog')).not.toBeNull();
-    expect((screen.getByLabelText('Role') as HTMLSelectElement).value).toBe('researcher');
+    expect(screen.getByRole('combobox', { name: 'Role' }).textContent).toContain('Researcher');
   });
 
   it('uses real research comments across discussion and review surfaces', async () => {
