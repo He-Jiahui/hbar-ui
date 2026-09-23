@@ -998,4 +998,13 @@ for (const mode of ['dark', 'light'] as const) {
     await expect(picker).toContainText(label);
     await expect(page.locator('.lumen-app-sidebar-scoped select')).toHaveCount(0);
   });
+
+  test(`editable plan statuses use foundation choices in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-agent-plan-2', mode));
+    const picker = page.getByRole('combobox', { name: '步骤 1 状态' });
+    await picker.click();
+    await expect(page.getByRole('listbox').getByRole('option')).toHaveCount(2);
+    await expect(page.locator('.lumen-plan-step-fields select')).toHaveCount(0);
+  });
 }

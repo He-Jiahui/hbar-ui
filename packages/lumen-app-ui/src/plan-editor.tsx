@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { LumenInput, LumenSelect } from './forms';
+import { LumenChoiceSelect, LumenInput } from './forms';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
 
 export type LumenPlanState =
@@ -107,6 +107,7 @@ export function LumenPlanEditor({
   onRemove,
   onSubmit,
 }: LumenPlanEditorProps) {
+  const pickerPrefix = React.useId();
   const steps = uniquePlanSteps(sourceSteps);
   const includedCount = steps.filter((step) => step.state !== 'skipped').length;
   const hasDraft = Boolean(draft.trim());
@@ -147,25 +148,21 @@ export function LumenPlanEditor({
                           editing.onTitleChange(step.id, event.currentTarget.value)
                         }
                       />
-                      <LumenSelect
-                        aria-label={editing.statusLabel(index + 1)}
+                      <LumenChoiceSelect
+                        id={`${pickerPrefix}-${step.id}-status`}
+                        label={editing.statusLabel(index + 1)}
+                        options={editing.statuses}
                         value={step.state}
                         disabled={busy}
-                        onChange={(event) => {
+                        onValueChange={(id) => {
                           const status = editing.statuses.find(
-                            (item) => item.id === event.currentTarget.value,
+                            (item) => item.id === id,
                           );
                           if (status) {
                             editing.onStatusChange(step.id, status.id);
                           }
                         }}
-                      >
-                        {editing.statuses.map((status) => (
-                          <option key={status.id} value={status.id}>
-                            {status.label}
-                          </option>
-                        ))}
-                      </LumenSelect>
+                      />
                     </div>
                   ) : (
                     <LumenText as="strong" className="lumen-plan-step-title" variant="label">
