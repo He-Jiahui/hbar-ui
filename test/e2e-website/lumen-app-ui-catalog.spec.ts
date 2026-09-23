@@ -873,4 +873,16 @@ for (const mode of ['dark', 'light'] as const) {
     await tabs.getByRole('tab').first().press('ArrowRight');
     await expect(tabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
   });
+
+  for (const [id, selector] of [
+    ['hbar-app-ui-file-manager-1', '.hbar-app-ui-file-manager-meter'],
+    ['hbar-app-ui-file-manager-4', '.hbar-app-ui-file-manager-meter'],
+    ['hbar-app-ui-paywall-4', '.hbar-app-ui-paywall-meter-track'],
+    ['hbar-app-ui-paywall-6', '.hbar-app-ui-paywall-read-progress'],
+  ] as const) {
+    test(`${id} uses the foundation meter in ${mode}`, async ({ page }) => {
+      await page.goto(preview(id, mode));
+      await expect(page.locator(`${selector}.lumen-progress`).first()).toBeVisible();
+    });
+  }
 }

@@ -459,17 +459,6 @@
 .hbar-app-ui-paywall-meter-track,
 .hbar-app-ui-paywall-read-progress {
   block-size: 0.25rem;
-  overflow: hidden;
-  border-radius: 999rem;
-  background: color-mix(in srgb, var(--lumen-muted) 18%, transparent);
-}
-
-.hbar-app-ui-paywall-meter-track > span,
-.hbar-app-ui-paywall-read-progress > span {
-  display: block;
-  block-size: 100%;
-  border-radius: inherit;
-  background: var(--lumen-accent);
 }
 
 .hbar-app-ui-paywall-limit-card {

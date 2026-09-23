@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { LumenCheckBoxControl, LumenInput } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus } from './primitives';
+import { LumenProgress } from './ui-controls';
 
 export type LumenFileManagerListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -375,18 +376,13 @@ function FileManagerRoot({
 }
 
 function Meter({ value, label }: { readonly value: number; readonly label: string }) {
-  const progress = Math.max(0, Math.min(100, Number.isFinite(value) ? value : 0));
   return (
-    <div
+    <LumenProgress
       className="hbar-app-ui-file-manager-meter"
-      role="progressbar"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={progress}
-    >
-      <span style={{ inlineSize: `${progress}%` }} />
-    </div>
+      label={label}
+      value={value}
+      tone="info"
+    />
   );
 }
 

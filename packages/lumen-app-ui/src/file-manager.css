@@ -194,16 +194,6 @@
 .hbar-app-ui-file-manager-meter {
   inline-size: 100%;
   block-size: 0.375rem;
-  overflow: hidden;
-  border-radius: 999rem;
-  background: var(--lumen-edge);
-}
-
-.hbar-app-ui-file-manager-meter > span {
-  display: block;
-  block-size: 100%;
-  border-radius: inherit;
-  background: var(--lumen-ink);
 }
 
 .hbar-app-ui-file-manager-drive-main {
@@ -595,10 +585,6 @@
 }
 
 @media (max-width: 48rem) {
-  .hbar-app-ui-file-manager-drive-body,
-  .hbar-app-ui-file-manager-detail-layout {
-  }
-
   .hbar-app-ui-file-manager-drive-sidebar,
   .hbar-app-ui-file-manager-detail-left {
     max-block-size: 16rem;

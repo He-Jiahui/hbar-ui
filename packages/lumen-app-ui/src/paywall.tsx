@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
+import { LumenProgress } from './ui-controls';
 
 export type LumenPaywallListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -533,16 +534,12 @@ function Usage(props: Omit<LumenPaywallProps, 'content'> & { content: LumenPaywa
                   <strong>{meter.label}</strong>
                   <span>{meter.value}</span>
                 </div>
-                <div
+                <LumenProgress
                   className="hbar-app-ui-paywall-meter-track"
-                  role="progressbar"
-                  aria-label={meter.label}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-valuenow={progress}
-                >
-                  <span style={{ inlineSize: `${progress}%` }} />
-                </div>
+                  label={meter.label}
+                  value={progress}
+                  tone="info"
+                />
               </div>
             );
           })}
@@ -618,13 +615,16 @@ function Trial(props: Omit<LumenPaywallProps, 'content'> & { content: LumenPaywa
 function Reads(props: Omit<LumenPaywallProps, 'content'> & { content: LumenPaywallReadsContent }) {
   const { content, onAction } = props;
   const [email, setEmail] = React.useState('');
-  const progress = Math.max(0, Math.min(100, content.readProgress));
   return (
     <Root {...props} className="hbar-app-ui-paywall-reads-surface">
       <section className="hbar-app-ui-paywall-reads-card">
-        <div className="hbar-app-ui-paywall-read-progress" aria-hidden="true">
-          <span style={{ inlineSize: `${progress}%` }} />
-        </div>
+        <LumenProgress
+          className="hbar-app-ui-paywall-read-progress"
+          label={content.labels.eyebrow}
+          value={content.readProgress}
+          tone="info"
+          aria-hidden="true"
+        />
         <LumenText as="p" variant="label" tone="muted" className="hbar-app-ui-paywall-eyebrow">
           {content.labels.eyebrow}
         </LumenText>
