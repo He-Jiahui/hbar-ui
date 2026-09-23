@@ -54,6 +54,90 @@ for (const mode of ['dark', 'light'] as const) {
   }
 
   for (const width of [390, 1280]) {
+    test(`sidebar drawer uses the foundation overlay and restores focus at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 820 });
+      await page.goto(preview('hbar-app-ui-app-sidebar-6', mode));
+      const demo = page.locator('.lumen-app-sidebar-drawer-demo');
+      const drawer = demo.getByRole('dialog', { name: 'LUMEN' });
+      await expect(drawer).toBeVisible();
+      await expect(drawer).toHaveAttribute('data-elevation', 'overlay');
+      await expect(
+        drawer.locator('nav button[aria-current="page"] [data-edge="left"]'),
+      ).toHaveCount(1);
+      const material = await drawer.evaluate((panel) => ({
+        background: getComputedStyle(panel).backgroundColor,
+        blur: getComputedStyle(panel).backdropFilter,
+      }));
+      expect(material.background).not.toBe('rgba(0, 0, 0, 0)');
+      expect(material.blur).toContain('blur');
+      const close = drawer.getByRole('button', { name: '关闭侧栏' });
+      await expect(close).toBeFocused();
+      await close.press('Shift+Tab');
+      await expect(drawer.getByRole('button', { name: '成员' })).toBeFocused();
+      await drawer.getByRole('button', { name: '研究任务' }).click();
+      await expect(drawer).toBeHidden();
+      await expect(demo.locator(':scope > header > strong')).toHaveText('研究任务');
+      const menu = demo.getByRole('button', { name: '菜单' });
+      await menu.click();
+      await expect(drawer).toBeVisible();
+      await close.press('Escape');
+      await expect(drawer).toBeHidden();
+      await expect(menu).toBeFocused();
+      await menu.click();
+      const backdrop = demo.locator('.lumen-drawer-backdrop');
+      const outer = await backdrop.boundingBox();
+      const panel = await drawer.boundingBox();
+      expect(outer).not.toBeNull();
+      expect(panel).not.toBeNull();
+      await page.mouse.click(outer!.x + outer!.width - 8, panel!.y + panel!.height / 2);
+      await expect(drawer).toBeHidden();
+    });
+  }
+
+  test(`shared full-screen drawer keeps its mobile navigation operable in ${mode}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 820 });
+    await page.goto(preview('hbar-app-ui-navbar-4', mode));
+    const trigger = page.getByRole('button', { name: '打开导航菜单' });
+    await trigger.click();
+    const drawer = page.getByRole('dialog', { name: '移动导航' });
+    await expect(drawer).toBeVisible();
+    const close = drawer.getByRole('button', { name: '关闭导航' });
+    await expect(close).toBeFocused();
+    await close.press('Escape');
+    await expect(drawer).toBeHidden();
+    await expect(trigger).toBeFocused();
+    await trigger.click();
+    await expect(drawer).toBeVisible();
+  });
+
+  for (const example of [
+    { id: 5, trigger: '浏览全部导航', title: '全部导航', close: '关闭导航' },
+    { id: 9, trigger: '打开商城导航', title: '浏览 Lumen Market', close: '关闭商城导航' },
+    { id: 10, trigger: '打开文档导航', title: '文档导航', close: '关闭文档导航' },
+    { id: 12, trigger: '打开浮动导航', title: '导航', close: '关闭导航' },
+    { id: 13, trigger: '打开全屏菜单', title: '工作室导航', close: '关闭全屏菜单' },
+  ]) {
+    test(`shared drawer stays keyboard-operable in navbar ${example.id} in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 390, height: 820 });
+      await page.goto(preview(`hbar-app-ui-navbar-${example.id}`, mode));
+      const trigger = page.getByRole('button', { name: example.trigger });
+      await trigger.click();
+      const drawer = page.getByRole('dialog', { name: example.title });
+      await expect(drawer).toBeVisible();
+      await expect(drawer.getByRole('button', { name: example.close })).toBeFocused();
+      await page.keyboard.press('Escape');
+      await expect(drawer).toBeHidden();
+      await expect(trigger).toBeFocused();
+    });
+  }
+
+  for (const width of [390, 1280]) {
     test(`comparison dashboard uses a borderless Lumen trend at ${width}px in ${mode}`, async ({
       page,
     }) => {
@@ -98,6 +182,41 @@ for (const mode of ['dark', 'light'] as const) {
     });
   }
 }
+
+test('foundation drawer light strip and overlay fade reverse smoothly', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.setViewportSize({ width: 390, height: 820 });
+  await page.goto(preview('hbar-app-ui-app-sidebar-6'));
+  const demo = page.locator('.lumen-app-sidebar-drawer-demo');
+  const backdrop = demo.locator('.lumen-drawer-backdrop');
+  await demo
+    .getByRole('dialog', { name: 'LUMEN' })
+    .getByRole('button', { name: '关闭侧栏' })
+    .click();
+  await expect(backdrop).toBeHidden();
+  await demo.getByRole('button', { name: '菜单' }).click();
+  const start = Number(await backdrop.evaluate((element) => getComputedStyle(element).opacity));
+  await page.waitForTimeout(100);
+  const middle = Number(await backdrop.evaluate((element) => getComputedStyle(element).opacity));
+  expect(middle).toBeGreaterThan(start);
+  expect(middle).toBeLessThan(1);
+  await page.keyboard.press('Escape');
+  const reversed = Number(await backdrop.evaluate((element) => getComputedStyle(element).opacity));
+  expect(reversed).toBeGreaterThan(0);
+  await page.waitForTimeout(100);
+  const fading = Number(await backdrop.evaluate((element) => getComputedStyle(element).opacity));
+  expect(fading).toBeLessThan(reversed);
+  await expect(backdrop).toBeHidden();
+});
+
+test('foundation drawer honors reduced motion in both layers', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.setViewportSize({ width: 390, height: 820 });
+  await page.goto(preview('hbar-app-ui-app-sidebar-6'));
+  const backdrop = page.locator('.lumen-app-sidebar-drawer-demo .lumen-drawer-backdrop');
+  await expect(backdrop).toHaveCSS('transition-duration', '0s');
+  await expect(backdrop.locator('.lumen-drawer')).toHaveCSS('transition-duration', '0s');
+});
 
 for (const mode of ['dark', 'light'] as const) {
   test(`context scope uses a Lumen choice list in ${mode}`, async ({ page }) => {

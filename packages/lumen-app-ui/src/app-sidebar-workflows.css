@@ -230,25 +230,13 @@
   padding: 0.75rem;
   border-block-end: 0.0625rem solid var(--lumen-edge);
 }
-.lumen-app-sidebar-drawer-demo > aside.hbar-app-ui-app-sidebar-drawer {
-  position: absolute;
-  z-index: 2;
-  inset-block: 0;
-  inset-inline-start: 0;
+.lumen-app-sidebar-demo-drawer .lumen-drawer-body > nav {
   display: flex;
-  inline-size: min(20rem, 85%);
   flex-direction: column;
   gap: 0.25rem;
-  padding: 1rem;
-  background: var(--lumen-reading);
-  box-shadow: 1rem 0 2rem color-mix(in srgb, #000 18%, transparent);
 }
-.lumen-app-sidebar-drawer-demo > aside > button {
+.lumen-app-sidebar-demo-drawer .lumen-drawer-body > nav > button {
   justify-content: flex-start;
-}
-.lumen-app-sidebar-drawer-demo > aside > button[aria-current='page'] {
-  color: var(--lumen-accent);
-  background: color-mix(in srgb, var(--lumen-accent) 10%, transparent);
 }
 .lumen-app-sidebar-full {
   display: flex;

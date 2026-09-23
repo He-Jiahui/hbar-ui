@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { LumenChoiceSelect, LumenInput } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
+import { LumenDrawer } from './ui-controls';
 import { LumenAppSidebar, LumenSidebarAction } from './workbench';
 
 export interface LumenAppSidebarListStrategy {
@@ -510,34 +511,34 @@ function Drawer(
           </LumenIconButton>
           <strong>{selectLumenAppSidebarItem(items, selectedId)?.label}</strong>
         </header>
-        {open ? (
-          <React.Fragment>
-            <LumenButton
-              className="lumen-app-sidebar-drawer-scrim hbar-app-ui-dialog-backdrop"
-              aria-label={props.content.labels.close}
-              onClick={() => setOpen(false)}
-            />
-            <aside className="hbar-app-ui-app-sidebar-drawer">
-              <LumenText as="h2" variant="heading">
-                {props.content.labels.brand}
-              </LumenText>
-              {items.map((item) => (
-                <LumenButton
-                  key={item.id}
-                  variant="text"
-                  aria-current={item.id === selectedId ? 'page' : undefined}
-                  onClick={() => {
-                    setSelectedId(item.id);
-                    setOpen(false);
-                    report(props.onAction, 'open', item.id);
-                  }}
-                >
-                  {item.label}
-                </LumenButton>
-              ))}
-            </aside>
-          </React.Fragment>
-        ) : null}
+        <LumenDrawer
+          contained
+          open={open}
+          side="start"
+          title={props.content.labels.brand}
+          closeLabel={props.content.labels.close}
+          onClose={() => setOpen(false)}
+          className="lumen-app-sidebar-demo-drawer"
+        >
+          <nav aria-label={props.content.labels.title}>
+            {items.map((item) => (
+              <LumenButton
+                key={item.id}
+                variant="text"
+                indicatorEdge="left"
+                aria-current={item.id === selectedId ? 'page' : undefined}
+                indicatorState={item.id === selectedId ? 'selected' : undefined}
+                onClick={() => {
+                  setSelectedId(item.id);
+                  setOpen(false);
+                  report(props.onAction, 'open', item.id);
+                }}
+              >
+                {item.label}
+              </LumenButton>
+            ))}
+          </nav>
+        </LumenDrawer>
       </div>
     </Root>
   );

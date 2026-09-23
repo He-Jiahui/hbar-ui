@@ -337,6 +337,27 @@
   padding: 1rem;
   background: color-mix(in srgb, var(--lumen-contrast) 58%, transparent);
   backdrop-filter: blur(0.35rem);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease),
+    visibility 0s linear var(--lumen-motion-duration, 260ms);
+}
+
+.hbar-app-ui-app-sidebar-drawer.lumen-drawer-backdrop[data-open='true'] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    opacity var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease),
+    visibility 0s;
+}
+
+.hbar-app-ui-app-sidebar-drawer.lumen-drawer-backdrop[data-contained='true'] {
+  position: absolute;
+  z-index: 2;
+  padding: 0;
 }
 
 .lumen-drawer-backdrop[data-side='end'] {
@@ -347,14 +368,50 @@
   align-items: flex-end;
 }
 
-.lumen-drawer {
+.hbar-app-ui-app-sidebar-drawer .lumen-drawer {
   inline-size: min(28rem, 100%);
   max-block-size: 100%;
+  flex: 0 0 auto;
+  background: color-mix(in srgb, var(--lumen-canvas) 94%, transparent);
+  backdrop-filter: blur(1.25rem);
+  opacity: 0.9;
+  transform: translateX(0.75rem);
+  transition:
+    opacity var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease),
+    transform var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease);
 }
 
-.lumen-drawer-backdrop[data-side='bottom'] .lumen-drawer {
+.hbar-app-ui-app-sidebar-drawer.lumen-drawer-backdrop[data-side='start'] .lumen-drawer {
+  transform: translateX(-0.75rem);
+}
+
+.hbar-app-ui-app-sidebar-drawer.lumen-drawer-backdrop[data-side='bottom'] .lumen-drawer {
+  transform: translateY(0.75rem);
   inline-size: 100%;
   max-block-size: min(40rem, 80vh);
+}
+
+.hbar-app-ui-app-sidebar-drawer.lumen-drawer-backdrop[data-open='true'] .lumen-drawer {
+  opacity: 1;
+  transform: none;
+}
+
+.lumen-drawer-backdrop[data-contained='true'] .lumen-drawer {
+  inline-size: min(20rem, 85%);
+  block-size: 100%;
+}
+
+.hbar-app-ui-app-sidebar-drawer.lumen-drawer-backdrop > .lumen-drawer-scrim {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  padding: 0;
+  border-radius: 0;
+}
+
+.lumen-drawer-backdrop .lumen-drawer {
+  z-index: 1;
 }
 
 .lumen-drawer > div {
@@ -376,6 +433,13 @@
   overflow: auto;
   padding: 0.75rem;
   border-block: 0.0625rem solid var(--lumen-line);
+}
+
+[data-lumen-motion='off'] .hbar-app-ui-app-sidebar-drawer.lumen-drawer-backdrop[data-open],
+[data-lumen-motion='off']
+  .hbar-app-ui-app-sidebar-drawer.lumen-drawer-backdrop[data-open]
+  .lumen-drawer {
+  transition: none;
 }
 
 .lumen-avatar {
@@ -551,7 +615,8 @@
   border-radius: 50%;
   background: conic-gradient(var(--lumen-ink) var(--lumen-gauge-angle), var(--lumen-line) 0);
   color: var(--lumen-ink);
-  transition: --lumen-gauge-angle var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease);
+  transition: --lumen-gauge-angle var(--lumen-motion-duration, 260ms)
+    var(--lumen-motion-easing, ease);
 }
 
 .lumen-gauge::before {
@@ -624,7 +689,8 @@
   inline-size: 0.125rem;
   background: var(--lumen-ink);
   box-shadow: 0 0 var(--lumen-glow-near, 0.875rem) currentColor;
-  transition: inset-inline-start var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease);
+  transition: inset-inline-start var(--lumen-motion-duration, 260ms)
+    var(--lumen-motion-easing, ease);
 }
 
 .lumen-divider {
@@ -1179,6 +1245,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .hbar-app-ui-app-sidebar-drawer.lumen-drawer-backdrop[data-open],
+  .hbar-app-ui-app-sidebar-drawer.lumen-drawer-backdrop[data-open] .lumen-drawer {
+    transition: none;
+  }
   .lumen-skeleton,
   .lumen-progress > span,
   .lumen-gauge,
@@ -1217,6 +1287,12 @@
 }
 
 @media (forced-colors: active) {
+  .lumen-drawer {
+    border-color: CanvasText;
+    background: Canvas;
+    backdrop-filter: none;
+  }
+
   .lumen-switch-control,
   .lumen-badge,
   .lumen-panel,

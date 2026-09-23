@@ -237,7 +237,9 @@ export function LumenTabs({
             {tab}
             {renderTrailing(item)}
           </span>
-        ) : tab;
+        ) : (
+          tab
+        );
       })}
     </div>
   );
@@ -386,6 +388,7 @@ export interface LumenDrawerProps {
   children: React.ReactNode;
   footer?: React.ReactNode;
   side?: 'start' | 'end' | 'bottom' | undefined;
+  contained?: boolean | undefined;
   className?: string | undefined;
 }
 
@@ -405,20 +408,68 @@ export function LumenDrawer({
   children,
   footer,
   side = 'end',
+  contained = false,
   className,
 }: LumenDrawerProps) {
-  if (!open) {
-    return null;
-  }
+  const backdropRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    if (!open) {
+      return undefined;
+    }
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    backdropRef.current?.querySelector<HTMLElement>('.lumen-drawer header button')?.focus();
+    return () => previous?.focus();
+  }, [open]);
   return (
-    <div className="lumen-drawer-backdrop hbar-app-ui-app-sidebar-drawer" data-side={side}>
+    <div
+      ref={backdropRef}
+      className="lumen-drawer-backdrop hbar-app-ui-app-sidebar-drawer"
+      data-side={side}
+      data-contained={contained || undefined}
+      data-open={open}
+      aria-hidden={!open}
+      inert={!open}
+    >
+      <LumenButton
+        className="lumen-drawer-scrim"
+        aria-label={closeLabel}
+        tabIndex={-1}
+        indicatorVisible={false}
+        onClick={onClose}
+      />
       <LumenSurface
         material="frost"
         elevation="overlay"
         className={['lumen-drawer', className].filter(Boolean).join(' ')}
-        role="dialog"
-        aria-modal="true"
+        role={open ? 'dialog' : undefined}
+        aria-modal={open || undefined}
         aria-label={title}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') {
+            event.preventDefault();
+            onClose();
+          } else if (event.key === 'Tab') {
+            const controls = Array.from(
+              event.currentTarget.querySelectorAll<HTMLElement>(
+                'a[href], button, input, select, textarea, [tabindex]',
+              ),
+            ).filter(
+              (element) =>
+                element.tabIndex >= 0 &&
+                !element.matches(':disabled') &&
+                element.getClientRects().length > 0,
+            );
+            const first = controls[0];
+            const last = controls.at(-1);
+            if (
+              (event.shiftKey && document.activeElement === first) ||
+              (!event.shiftKey && document.activeElement === last)
+            ) {
+              event.preventDefault();
+              (event.shiftKey ? last : first)?.focus();
+            }
+          }
+        }}
       >
         <header>
           <LumenText as="h2" variant="heading">
