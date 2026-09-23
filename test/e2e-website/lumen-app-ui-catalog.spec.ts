@@ -1759,6 +1759,28 @@ for (const mode of ['dark', 'light'] as const) {
       await expect(page.locator('.lumen-chat-live > aside')).toHaveCount(0);
     });
 
+    test(`calendar agenda keeps event facts on separate lines at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 720 });
+      await page.goto(preview('hbar-app-ui-scheduling-1', mode, mode === 'dark' ? 'zh' : 'en'));
+      const articles = page.locator('.lumen-scheduling-agenda article');
+      await expect(articles).toHaveCount(2);
+      const geometry = await articles.evaluateAll((items) =>
+        items.every((item) => {
+          const title = item.querySelector('strong')!.getBoundingClientRect();
+          const detail = item.querySelector('small')!.getBoundingClientRect();
+          const status = item.querySelector('[data-lumen-component="status"]');
+          return (
+            title.bottom <= detail.top + 1 &&
+            (!status || detail.bottom <= status.getBoundingClientRect().top + 1) &&
+            item.scrollWidth <= item.clientWidth + 1
+          );
+        }),
+      );
+      expect(geometry).toBe(true);
+    });
+
     test(`kanban columns retain readable width and scroll at ${width}px in ${mode}`, async ({
       page,
     }) => {
