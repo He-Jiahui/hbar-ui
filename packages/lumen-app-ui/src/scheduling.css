@@ -110,64 +110,6 @@
   min-inline-size: 0;
 }
 
-.lumen-scheduling-month-grid {
-  display: flex;
-  min-inline-size: 0;
-  gap: 0.25rem;
-  flex-wrap: wrap;
-}
-
-.lumen-scheduling-month-grid > :nth-child(7n + 1) {
-  flex: 1 1 2.25rem;
-  min-inline-size: 2.25rem;
-}
-
-.lumen-scheduling-month-grid > :nth-child(7n + 2) {
-  flex: 1 1 2.25rem;
-  min-inline-size: 2.25rem;
-}
-
-.lumen-scheduling-month-grid > :nth-child(7n + 3) {
-  flex: 1 1 2.25rem;
-  min-inline-size: 2.25rem;
-}
-
-.lumen-scheduling-month-grid > :nth-child(7n + 4) {
-  flex: 1 1 2.25rem;
-  min-inline-size: 2.25rem;
-}
-
-.lumen-scheduling-month-grid > :nth-child(7n + 5) {
-  flex: 1 1 2.25rem;
-  min-inline-size: 2.25rem;
-}
-
-.lumen-scheduling-month-grid > :nth-child(7n + 6) {
-  flex: 1 1 2.25rem;
-  min-inline-size: 2.25rem;
-}
-
-.lumen-scheduling-month-grid > :nth-child(7n + 7) {
-  flex: 1 1 2.25rem;
-  min-inline-size: 2.25rem;
-}
-
-.lumen-scheduling-month-grid > button {
-  display: flex;
-  min-inline-size: 0;
-  aspect-ratio: 1;
-  flex-direction: column;
-  gap: 0.1875rem;
-  padding: 0.25rem;
-}
-
-.lumen-scheduling-month-grid > button i {
-  inline-size: 0.3rem;
-  block-size: 0.3rem;
-  border-radius: 999rem;
-  background: currentColor;
-}
-
 .lumen-scheduling-agenda {
   display: flex;
   flex-direction: column;
@@ -347,54 +289,6 @@
   flex-direction: column;
   gap: 0.75rem;
   padding: 1rem;
-}
-
-.lumen-scheduling-deadline-calendar > div {
-  display: flex;
-  min-inline-size: 0;
-  gap: 0.25rem;
-  flex-wrap: wrap;
-}
-
-.lumen-scheduling-deadline-calendar > div > :nth-child(7n + 1) {
-  flex: 1 1 2.25rem;
-  min-inline-size: 2.25rem;
-}
-
-.lumen-scheduling-deadline-calendar > div > :nth-child(7n + 2) {
-  flex: 1 1 2.25rem;
-  min-inline-size: 2.25rem;
-}
-
-.lumen-scheduling-deadline-calendar > div > :nth-child(7n + 3) {
-  flex: 1 1 2.25rem;
-  min-inline-size: 2.25rem;
-}
-
-.lumen-scheduling-deadline-calendar > div > :nth-child(7n + 4) {
-  flex: 1 1 2.25rem;
-  min-inline-size: 2.25rem;
-}
-
-.lumen-scheduling-deadline-calendar > div > :nth-child(7n + 5) {
-  flex: 1 1 2.25rem;
-  min-inline-size: 2.25rem;
-}
-
-.lumen-scheduling-deadline-calendar > div > :nth-child(7n + 6) {
-  flex: 1 1 2.25rem;
-  min-inline-size: 2.25rem;
-}
-
-.lumen-scheduling-deadline-calendar > div > :nth-child(7n + 7) {
-  flex: 1 1 2.25rem;
-  min-inline-size: 2.25rem;
-}
-
-.lumen-scheduling-deadline-calendar > div > button {
-  aspect-ratio: 1;
-  min-inline-size: 0;
-  padding: 0.25rem;
 }
 
 .lumen-scheduling-slots > button,
@@ -607,10 +501,5 @@
 
   .lumen-scheduling-time-range > span {
     padding: 0;
-  }
-
-  .lumen-scheduling-month-grid,
-  .lumen-scheduling-deadline-calendar > div {
-    overflow-x: auto;
   }
 }

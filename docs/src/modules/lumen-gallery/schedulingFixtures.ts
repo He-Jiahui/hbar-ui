@@ -11,14 +11,16 @@ export function createSchedulingFixtures(locale: SchedulingFixtureLocale): Lumen
     const inMonth = date >= 1 && date <= 30;
     let label = String(date);
     if (!inMonth) {
-      label = date < 1 ? String(30 + date) : String(date - 30);
+      label = date < 1 ? String(31 + date) : String(date - 30);
     }
     return {
       id: `day-${index + 1}`,
       label,
       dateLabel: inMonth
         ? t(`2026 年 9 月 ${date} 日`, `September ${date}, 2026`)
-        : t(`相邻月份 ${label} 日`, `Adjacent month day ${label}`),
+        : date < 1
+          ? t(`2026 年 8 月 ${label} 日`, `August ${label}, 2026`)
+          : t(`2026 年 10 月 ${label} 日`, `October ${label}, 2026`),
       disabled: !inMonth,
       hasEvents: [8, 13, 18, 22, 27].includes(date),
     };
@@ -148,18 +150,23 @@ export function createSchedulingFixtures(locale: SchedulingFixtureLocale): Lumen
         { id: 'week', label: t('本周五', 'This Friday') },
         { id: 'next', label: t('下周', 'Next week') },
       ],
-      days: Array.from({ length: 14 }, (_, index) => ({
-        id: `deadline-${index + 22}`,
-        label: String(index + 22),
-        dateLabel: t(`9 月 ${index + 22} 日`, `September ${index + 22}`),
-      })),
+      days: Array.from({ length: 14 }, (_, index) => {
+        const septemberDay = index + 22;
+        const month = septemberDay <= 30 ? 9 : 10;
+        const day = month === 9 ? septemberDay : septemberDay - 30;
+        return {
+          id: `deadline-${month}-${day}`,
+          label: String(day),
+          dateLabel: t(`${month} 月 ${day} 日`, `${month === 9 ? 'September' : 'October'} ${day}`),
+        };
+      }),
       slots: [
         { id: 'noon', label: '12:00' },
         { id: 'eod', label: t('17:00 · 工作日结束', '17:00 · End of day') },
         { id: 'custom', label: t('23:59 · 当天结束', '23:59 · End of day') },
       ],
       initialPresetId: 'week',
-      initialDayId: 'deadline-25',
+      initialDayId: 'deadline-9-25',
       listStrategy: contentGrown,
     },
     availability: {

@@ -1267,6 +1267,31 @@
   gap: 0.375rem;
 }
 
+.lumen-month-grid {
+  display: flex;
+  min-inline-size: 0;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.lumen-month-grid > button {
+  display: flex;
+  box-sizing: border-box;
+  min-inline-size: 0;
+  flex: 0 0 calc((100% - 1.5rem) / 7);
+  aspect-ratio: 1;
+  flex-direction: column;
+  gap: 0.1875rem;
+  padding: 0.25rem;
+}
+
+.lumen-month-grid > button i {
+  inline-size: 0.3rem;
+  block-size: 0.3rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
 .lumen-calendar > section {
   min-inline-size: 8rem;
   flex: 1 1 8rem;

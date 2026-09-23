@@ -1781,6 +1781,46 @@ for (const mode of ['dark', 'light'] as const) {
       expect(geometry).toBe(true);
     });
 
+    for (const variant of [1, 4]) {
+      test(`scheduling ${variant} uses seven foundation date columns at ${width}px in ${mode}`, async ({
+        page,
+      }) => {
+        await page.setViewportSize({ width, height: 720 });
+        await page.goto(preview(`hbar-app-ui-scheduling-${variant}`, mode, 'en'));
+        const grid = page.locator('[data-lumen-component="month-grid"]');
+        await expect(grid).toHaveCount(1);
+        const days = grid.getByRole('button');
+        await expect(days).toHaveCount(variant === 1 ? 35 : 14);
+        const geometry = await days.evaluateAll((items) => {
+          const first = items[0].getBoundingClientRect();
+          const seventh = items[6].getBoundingClientRect();
+          const eighth = items[7].getBoundingClientRect();
+          const bounds = items[0].parentElement!.getBoundingClientRect();
+          return {
+            sevenAcross: Math.abs(first.top - seventh.top) < 1 && eighth.top > first.bottom,
+            equalWidth: items.every(
+              (item) => Math.abs(item.getBoundingClientRect().width - first.width) < 1,
+            ),
+            fits: seventh.right <= bounds.right + 1,
+          };
+        });
+        expect(geometry).toEqual({ sevenAcross: true, equalWidth: true, fits: true });
+        await expect(grid.locator('button[aria-pressed="true"]')).toHaveCount(1);
+        if (variant === 1) {
+          await expect(grid.getByRole('button', { name: 'August 30, 2026' })).toBeDisabled();
+          await expect(grid.getByRole('button', { name: 'October 3, 2026' })).toBeDisabled();
+        } else {
+          await expect(grid.getByRole('button', { name: 'October 1' })).toBeVisible();
+          await expect(grid.getByRole('button', { name: 'September 31' })).toHaveCount(0);
+          await grid.getByRole('button', { name: 'October 1' }).click();
+          await expect(grid.getByRole('button', { name: 'October 1' })).toHaveAttribute(
+            'aria-pressed',
+            'true',
+          );
+        }
+      });
+    }
+
     test(`kanban columns retain readable width and scroll at ${width}px in ${mode}`, async ({
       page,
     }) => {

@@ -1018,6 +1018,53 @@ export function LumenCalendar({ label, days, onSelect }: LumenCalendarProps) {
   );
 }
 
+export interface LumenMonthGridDay {
+  id: string;
+  label: string;
+  dateLabel: string;
+  disabled?: boolean | undefined;
+  hasEvents?: boolean | undefined;
+}
+
+export interface LumenMonthGridProps {
+  label: string;
+  days: readonly LumenMonthGridDay[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+  className?: string | undefined;
+}
+
+export function LumenMonthGrid({
+  label,
+  days,
+  selectedId,
+  onSelect,
+  className,
+}: LumenMonthGridProps) {
+  return (
+    <div
+      className={['lumen-month-grid', className].filter(Boolean).join(' ')}
+      role="group"
+      aria-label={label}
+      data-lumen-component="month-grid"
+    >
+      {uniqueItems(days).map((day) => (
+        <LumenButton
+          key={day.id}
+          variant={selectedId === day.id ? 'solid' : 'text'}
+          aria-pressed={selectedId === day.id}
+          aria-label={day.dateLabel}
+          disabled={day.disabled}
+          onClick={() => onSelect(day.id)}
+        >
+          <span>{day.label}</span>
+          {day.hasEvents ? <i aria-hidden="true" /> : null}
+        </LumenButton>
+      ))}
+    </div>
+  );
+}
+
 export interface LumenCodeBlockProps {
   label: string;
   code: string;

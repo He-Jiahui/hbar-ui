@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { LumenMonthGrid } from './ui-compositions';
 import { LumenChoiceSelect, LumenFormField, LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { LumenSwitch, LumenTabs } from './ui-controls';
@@ -384,21 +385,13 @@ function Month(
               <Glyph name="right" />
             </LumenIconButton>
           </div>
-          <div className="lumen-scheduling-month-grid">
-            {days.map((day) => (
-              <LumenButton
-                key={day.id}
-                variant={selected?.id === day.id ? 'solid' : 'text'}
-                aria-pressed={selected?.id === day.id}
-                aria-label={day.dateLabel}
-                disabled={day.disabled}
-                onClick={() => setDayId(day.id)}
-              >
-                <span>{day.label}</span>
-                {day.hasEvents ? <i aria-hidden="true" /> : null}
-              </LumenButton>
-            ))}
-          </div>
+          <LumenMonthGrid
+            className="lumen-scheduling-month-grid"
+            label={props.content.monthLabel}
+            days={days}
+            selectedId={selected?.id ?? null}
+            onSelect={setDayId}
+          />
         </div>
         <aside
           className="lumen-scheduling-agenda"
@@ -676,20 +669,12 @@ function Deadline(
           <LumenText as="strong" variant="label">
             {props.content.monthLabel}
           </LumenText>
-          <div>
-            {days.map((day) => (
-              <LumenButton
-                key={day.id}
-                variant={selectedDay?.id === day.id ? 'solid' : 'text'}
-                aria-pressed={selectedDay?.id === day.id}
-                aria-label={day.dateLabel}
-                disabled={day.disabled}
-                onClick={() => setDayId(day.id)}
-              >
-                {day.label}
-              </LumenButton>
-            ))}
-          </div>
+          <LumenMonthGrid
+            label={props.content.labels.calendar}
+            days={days}
+            selectedId={selectedDay?.id ?? null}
+            onSelect={setDayId}
+          />
         </div>
         <div
           className="lumen-scheduling-slots"
