@@ -352,21 +352,14 @@
   flex: 1 1 10rem;
   min-inline-size: 10rem;
 }
-.lumen-app-shell-scope-pickers label {
+.lumen-app-shell-scope-field {
   display: flex;
   min-inline-size: 0;
   flex-direction: column;
   gap: 0.4rem;
 }
 .lumen-app-shell-view-tabs {
-  display: flex;
-  gap: 0.25rem;
   padding: 0.5rem 1rem;
-  border-block-end: 0.0625rem solid var(--lumen-edge);
-}
-.lumen-app-shell-view-tabs > button[aria-selected='true'] {
-  color: var(--lumen-accent);
-  box-shadow: inset 0 -0.125rem var(--lumen-accent);
 }
 .lumen-app-shell-adaptive {
   display: flex;

@@ -1019,4 +1019,34 @@ for (const mode of ['dark', 'light'] as const) {
     await expect(picker).toContainText(label);
     await expect(page.locator('.hbar-app-ui-navbar-deployment-selector select')).toHaveCount(0);
   });
+
+  for (const [variant, label] of [
+    [3, 'Northstar 研究工作台'],
+    [7, 'Northstar 项目'],
+    [9, '模型'],
+  ] as const) {
+    test(`app shell ${variant} uses themed context choices in ${mode}`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 680 });
+      await page.goto(preview(`hbar-app-ui-app-shell-${variant}`, mode));
+      if (variant === 3) {
+        await page.getByRole('button', { name: '关闭导航' }).click();
+      }
+      const picker = page.getByRole('combobox', { name: label });
+      await picker.click();
+      const option = page.getByRole('listbox').getByRole('option').last();
+      const text = await option.innerText();
+      await option.click();
+      await expect(picker).toContainText(text);
+      await expect(page.locator('.lumen-app-shell select')).toHaveCount(0);
+    });
+  }
+
+  test(`adaptive app shell uses keyboard view tabs in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-app-shell-8', mode));
+    const tabs = page.getByRole('tablist', { name: '窗口尺寸' });
+    await expect(tabs).toHaveClass(/lumen-tabs/);
+    await tabs.getByRole('tab').first().press('ArrowRight');
+    await expect(tabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
+  });
 }

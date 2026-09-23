@@ -1,8 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { LumenInput, LumenSelect, LumenTextarea } from './forms';
+import { LumenChoiceSelect, LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
+import { LumenTabs } from './ui-controls';
 import { LumenAppShell } from './workbench';
 
 export interface LumenAppShellListStrategy {
@@ -397,20 +398,16 @@ function Workbench(
               <Glyph name="menu" />
             </LumenIconButton>
             <strong>{props.content.labels.brand}</strong>
-            <LumenSelect
-              aria-label={props.content.labels.title}
-              value={workspace?.id ?? ''}
-              onChange={(event) => {
-                setWorkspaceId(event.target.value);
-                report(props.onAction, 'workspace', event.target.value);
+            <LumenChoiceSelect
+              id={`${props.variantId}-workspace`}
+              label={props.content.labels.title}
+              options={workspaces}
+              value={workspace?.id ?? null}
+              onValueChange={(id) => {
+                setWorkspaceId(id);
+                report(props.onAction, 'workspace', id);
               }}
-            >
-              {workspaces.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.label}
-                </option>
-              ))}
-            </LumenSelect>
+            />
             <LumenButton variant="outlined" onClick={() => report(props.onAction, 'search')}>
               <Glyph name="search" />
               {props.content.labels.search}
@@ -631,22 +628,19 @@ function Scoped(
           {scopes.map((scope) => {
             const options = uniqueLumenAppShellItems(scope.options);
             return (
-              <label key={scope.id}>
+              <div className="lumen-app-shell-scope-field" key={scope.id}>
                 <span>{scope.label}</span>
-                <LumenSelect
-                  value={selectLumenAppShellItem(options, values[scope.id])?.id ?? ''}
-                  onChange={(event) => {
-                    setValues((current) => ({ ...current, [scope.id]: event.target.value }));
-                    report(props.onAction, 'scope', `${scope.id}:${event.target.value}`);
+                <LumenChoiceSelect
+                  id={`${props.variantId}-scope-${scope.id}`}
+                  label={scope.label}
+                  options={options}
+                  value={selectLumenAppShellItem(options, values[scope.id])?.id ?? null}
+                  onValueChange={(id) => {
+                    setValues((current) => ({ ...current, [scope.id]: id }));
+                    report(props.onAction, 'scope', `${scope.id}:${id}`);
                   }}
-                >
-                  {options.map((option) => (
-                    <option key={option.id} value={option.id}>
-                      {option.label}
-                    </option>
-                  ))}
-                </LumenSelect>
-              </label>
+                />
+              </div>
             );
           })}
         </div>
@@ -668,26 +662,16 @@ function Adaptive(
   return (
     <Root {...props}>
       <Header content={props.content} />
-      <div
+      <LumenTabs
         className="lumen-app-shell-view-tabs"
-        role="tablist"
-        aria-label={props.content.labels.frameSize}
-      >
-        {views.map((item) => (
-          <LumenButton
-            key={item.id}
-            variant="text"
-            role="tab"
-            aria-selected={item.id === view?.id}
-            onClick={() => {
-              setViewId(item.id);
-              report(props.onAction, 'view', item.id);
-            }}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+        label={props.content.labels.frameSize}
+        items={views}
+        selectedId={view?.id ?? null}
+        onChange={(id) => {
+          setViewId(id);
+          report(props.onAction, 'view', id);
+        }}
+      />
       <div className="lumen-app-shell-adaptive hbar-app-ui-adaptive-frame" data-view={view?.id}>
         <Navigation
           content={props.content}
@@ -741,20 +725,16 @@ function Chat(
             content={props.content}
             title={selectLumenAppShellItem(threads, threadId)?.label}
           />
-          <LumenSelect
-            aria-label={props.content.labels.model}
-            value={selectLumenAppShellItem(models, modelId)?.id ?? ''}
-            onChange={(event) => {
-              setModelId(event.target.value);
-              report(props.onAction, 'model', event.target.value);
+          <LumenChoiceSelect
+            id={`${props.variantId}-model`}
+            label={props.content.labels.model}
+            options={models}
+            value={selectLumenAppShellItem(models, modelId)?.id ?? null}
+            onValueChange={(id) => {
+              setModelId(id);
+              report(props.onAction, 'model', id);
             }}
-          >
-            {models.map((model) => (
-              <option key={model.id} value={model.id}>
-                {model.label}
-              </option>
-            ))}
-          </LumenSelect>
+          />
           <div
             className="lumen-app-shell-messages"
             data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
