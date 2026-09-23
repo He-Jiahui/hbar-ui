@@ -69,6 +69,26 @@ describe('Lumen foundation interactions', () => {
     ).toBe('calc(100% - 0.125rem)');
   });
 
+  it('keeps choice help text and an unavailable placeholder in the shared picker', () => {
+    render(
+      <div>
+        <p id="choice-help">选择一个可用项目</p>
+        <LumenChoiceSelect
+          id="empty-choice"
+          label="项目"
+          placeholder="暂无可用项目"
+          describedBy="choice-help"
+          options={[]}
+          value={null}
+          onValueChange={() => {}}
+        />
+      </div>,
+    );
+    const trigger = screen.getByRole('combobox', { name: '项目' });
+    expect(trigger).to.have.attribute('aria-describedby', 'choice-help');
+    expect(trigger.textContent).toContain('暂无可用项目');
+  });
+
   it('uses a host-owned choice list with keyboard selection, disabled entries, and no duplicate IDs', async () => {
     function ChoiceHarness() {
       const [value, setValue] = React.useState<string | null>('research');

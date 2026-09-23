@@ -545,7 +545,12 @@
   .hbar-app-ui-settings-invite-fields {
     inline-size: 100%;
     min-inline-size: 0;
+    flex: 0 0 auto;
     flex-direction: column;
+  }
+
+  .hbar-app-ui-settings-invite-fields > :nth-child(2n + 1) {
+    flex: 0 0 auto;
   }
 
   .hbar-app-ui-settings-invite-fields > :nth-child(2n + 2) {

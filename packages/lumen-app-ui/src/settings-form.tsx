@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { LumenInput, LumenSelect, LumenTextarea } from './forms';
+import { LumenChoiceSelect, LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus } from './primitives';
 import { LumenProgress, LumenSwitch } from './ui-controls';
 
@@ -384,19 +384,14 @@ function SettingsFieldControl({
   let control: React.ReactNode;
   if (field.kind === 'select') {
     control = (
-      <LumenSelect
+      <LumenChoiceSelect
         id={controlId}
+        label={field.label}
+        describedBy={describedBy}
+        options={field.options ?? []}
         value={value}
-        onChange={(event) => onChange(event.currentTarget.value)}
-        aria-label={field.label}
-        aria-describedby={describedBy}
-      >
-        {(field.options ?? []).map((option) => (
-          <option key={option.id} value={option.id}>
-            {option.label}
-          </option>
-        ))}
-      </LumenSelect>
+        onValueChange={onChange}
+      />
     );
   } else if (field.kind === 'textarea') {
     control = (
@@ -662,24 +657,19 @@ function Choice({
   readonly unavailable: string;
   readonly onChange: (id: string) => void;
 }) {
+  const controlId = React.useId();
   const items = uniquePreferenceItems(choices);
   const valid = items.some((item) => item.id === value);
   return (
-    <LumenSelect
-      value={valid ? value : ''}
-      aria-label={label}
+    <LumenChoiceSelect
+      id={controlId}
+      label={label}
+      placeholder={unavailable}
+      options={items}
+      value={valid ? value : null}
       disabled={disabled}
-      onChange={(event) => onChange(event.currentTarget.value)}
-    >
-      <option value="" disabled hidden={valid}>
-        {unavailable}
-      </option>
-      {items.map((item) => (
-        <option key={item.id} value={item.id}>
-          {item.label}
-        </option>
-      ))}
-    </LumenSelect>
+      onValueChange={onChange}
+    />
   );
 }
 
@@ -900,17 +890,13 @@ function MembersSettings(
                 aria-label={content.labels.emailLabel}
                 onChange={(event) => setEmail(event.currentTarget.value)}
               />
-              <LumenSelect
+              <LumenChoiceSelect
+                id="settings-invite-role"
+                label={content.labels.roleLabel}
+                options={inviteRoles}
                 value={role}
-                aria-label={content.labels.roleLabel}
-                onChange={(event) => setRole(event.currentTarget.value)}
-              >
-                {inviteRoles.map((choice) => (
-                  <option key={choice.id} value={choice.id}>
-                    {choice.label}
-                  </option>
-                ))}
-              </LumenSelect>
+                onValueChange={setRole}
+              />
             </div>
             <LumenButton tone="primary" onClick={sendInvite}>
               <SettingsGlyph name="plus" />
@@ -947,13 +933,27 @@ function MembersSettings(
                     tone={member.status === 'invited' ? 'warning' : 'success'}
                   />
                   {member.roleChoices.length > 1 ? (
-                    <LumenSelect defaultValue={member.roleId} aria-label={content.labels.roleLabel}>
-                      {uniqueLumenSettingsItems(member.roleChoices).map((choice) => (
-                        <option key={choice.id} value={choice.id}>
-                          {choice.label}
-                        </option>
-                      ))}
-                    </LumenSelect>
+                    <LumenChoiceSelect
+                      id={`settings-member-role-${member.id}`}
+                      label={content.labels.roleLabel}
+                      options={uniqueLumenSettingsItems(member.roleChoices)}
+                      value={member.roleId}
+                      onValueChange={(id) =>
+                        setMembers((current) =>
+                          current.map((item) =>
+                            item.id === member.id
+                              ? {
+                                  ...item,
+                                  roleId: id,
+                                  role:
+                                    item.roleChoices.find((choice) => choice.id === id)?.label ??
+                                    id,
+                                }
+                              : item,
+                          ),
+                        )
+                      }
+                    />
                   ) : (
                     <span className="hbar-app-ui-settings-muted">{member.role}</span>
                   )}

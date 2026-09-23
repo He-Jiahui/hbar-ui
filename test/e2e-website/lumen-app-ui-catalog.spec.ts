@@ -583,4 +583,43 @@ for (const mode of ['dark', 'light'] as const) {
       'progressbar',
     );
   });
+
+  for (const variant of [1, 3, 4]) {
+    test(`settings ${variant} uses themed choices instead of native selects in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 390, height: 680 });
+      await page.goto(preview(`hbar-app-ui-settings-form-${variant}`, mode));
+      const picker = page.getByRole('combobox').first();
+      await expect(picker).toBeVisible();
+      await picker.click();
+      const list = page.getByRole('listbox');
+      await expect(list).toBeVisible();
+      const lastLabel = await list.getByRole('option').last().innerText();
+      await list.getByRole('option').last().click();
+      await expect(picker).toContainText(lastLabel);
+      await expect(page.locator('.lumen-settings-form select')).toHaveCount(0);
+    });
+  }
+
+  test(`member role choice remains controlled after an invitation in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-settings-form-4', mode));
+    const fields = page.locator('.hbar-app-ui-settings-invite-fields');
+    const compact = await fields.evaluate((container) => {
+      const email = container.children[0].getBoundingClientRect();
+      const role = container.children[1].getBoundingClientRect();
+      return email.height < 60 && role.top >= email.bottom && role.height < 60;
+    });
+    expect(compact).toBe(true);
+    const memberRole = page.getByRole('combobox', { name: '角色' }).nth(1);
+    await memberRole.click();
+    const choice = page.getByRole('listbox').getByRole('option').last();
+    const label = await choice.innerText();
+    await choice.click();
+    await expect(memberRole).toContainText(label);
+    await page.getByPlaceholder('name@northwind.example').fill('team@example.test');
+    await page.getByRole('button', { name: '发送邀请' }).click();
+    await expect(memberRole).toContainText(label);
+  });
 }

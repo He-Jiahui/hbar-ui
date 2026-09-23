@@ -252,6 +252,8 @@ export const LumenSelect = React.forwardRef<HTMLSelectElement, LumenSelectProps>
 export interface LumenChoiceSelectProps {
   id: string;
   label: string;
+  placeholder?: string | undefined;
+  describedBy?: string | undefined;
   options: readonly LumenControlOption[];
   value: string | null;
   onValueChange: (id: string) => void;
@@ -263,6 +265,8 @@ export interface LumenChoiceSelectProps {
 export function LumenChoiceSelect({
   id,
   label,
+  placeholder,
+  describedBy,
   options,
   value,
   onValueChange,
@@ -313,6 +317,7 @@ export function LumenChoiceSelect({
         id={id}
         role="combobox"
         aria-label={label}
+        aria-describedby={describedBy}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={open ? listId : undefined}
@@ -343,7 +348,7 @@ export function LumenChoiceSelect({
           }
         }}
       >
-        <span>{current?.label ?? label}</span>
+        <span>{current?.label ?? placeholder ?? label}</span>
         <FormGlyph name="chevron" />
       </LumenButton>
       {open && !disabled ? (
