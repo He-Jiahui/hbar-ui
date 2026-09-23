@@ -1,8 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { LumenFormField, LumenInput, LumenSelect, LumenTextarea } from './forms';
+import { LumenChoiceSelect, LumenFormField, LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
+import { LumenSwitch } from './ui-controls';
 
 export interface LumenAppDialogListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -561,16 +562,13 @@ function Invite(
               label={props.content.labels.role}
               hint={props.content.labels.roleHint}
             >
-              <LumenSelect
-                value={selectLumenAppDialogItem(roles, roleId)?.id ?? ''}
-                onChange={(event) => setRoleId(event.target.value)}
-              >
-                {roles.map((role) => (
-                  <option key={role.id} value={role.id}>
-                    {role.label}
-                  </option>
-                ))}
-              </LumenSelect>
+              <LumenChoiceSelect
+                id={`${props.variantId}-role`}
+                label={props.content.labels.role}
+                options={roles}
+                value={selectLumenAppDialogItem(roles, roleId)?.id ?? null}
+                onValueChange={setRoleId}
+              />
             </LumenFormField>
           </Panel>
         )}
@@ -627,16 +625,13 @@ function Wizard(
           controlId={`${props.variantId}-environment`}
           label={props.content.labels.environment}
         >
-          <LumenSelect
-            value={selectLumenAppDialogItem(environments, environmentId)?.id ?? ''}
-            onChange={(event) => setEnvironmentId(event.target.value)}
-          >
-            {environments.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.label}
-              </option>
-            ))}
-          </LumenSelect>
+          <LumenChoiceSelect
+            id={`${props.variantId}-environment`}
+            label={props.content.labels.environment}
+            options={environments}
+            value={selectLumenAppDialogItem(environments, environmentId)?.id ?? null}
+            onValueChange={setEnvironmentId}
+          />
         </LumenFormField>
         <LumenText as="p" tone="muted">
           {props.content.labels.environmentHint}
@@ -734,16 +729,13 @@ function Alert(
               controlId={`${props.variantId}-deliver`}
               label={props.content.labels.deliver}
             >
-              <LumenSelect
-                value={selectLumenAppDialogItem(channels, channelId)?.id ?? ''}
-                onChange={(event) => setChannelId(event.target.value)}
-              >
-                {channels.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.label}
-                  </option>
-                ))}
-              </LumenSelect>
+              <LumenChoiceSelect
+                id={`${props.variantId}-deliver`}
+                label={props.content.labels.deliver}
+                options={channels}
+                value={selectLumenAppDialogItem(channels, channelId)?.id ?? null}
+                onValueChange={setChannelId}
+              />
             </LumenFormField>
             <LumenFormField
               controlId={`${props.variantId}-threshold`}
@@ -759,18 +751,16 @@ function Alert(
                 <strong>{props.content.labels.enabled}</strong>
                 <small>{props.content.labels.enabledHint}</small>
               </span>
-              <LumenButton
-                role="switch"
-                variant="outlined"
-                aria-label={props.content.labels.toggle}
-                aria-checked={enabled}
-                onClick={() => {
-                  setEnabled((value) => !value);
-                  report(props.onAction, 'toggle', enabled ? 'disabled' : 'enabled');
+              <LumenSwitch
+                label={props.content.labels.toggle}
+                visuallyHiddenLabel
+                checked={enabled}
+                onChange={(event) => {
+                  const checked = event.currentTarget.checked;
+                  setEnabled(checked);
+                  report(props.onAction, 'toggle', checked ? 'enabled' : 'disabled');
                 }}
-              >
-                <i />
-              </LumenButton>
+              />
             </div>
           </Panel>
         )}

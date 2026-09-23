@@ -885,4 +885,32 @@ for (const mode of ['dark', 'light'] as const) {
       await expect(page.locator(`${selector}.lumen-progress`).first()).toBeVisible();
     });
   }
+
+  for (const [variant, pickerLabel] of [
+    [3, '角色'],
+    [4, '默认环境'],
+    [5, '发送到'],
+  ] as const) {
+    test(`dialog ${variant} uses a themed picker in ${mode}`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 680 });
+      await page.goto(preview(`hbar-app-ui-app-dialog-${variant}`, mode));
+      await expect(page.getByRole('dialog')).toBeVisible();
+      if (variant === 4) {
+        await page.getByRole('button', { name: '下一步' }).click();
+      }
+      const picker = page.getByRole('dialog').getByRole('combobox', { name: pickerLabel });
+      await picker.click();
+      const option = page.getByRole('listbox').getByRole('option').last();
+      const label = await option.innerText();
+      await option.click();
+      await expect(picker).toContainText(label);
+      await expect(page.getByRole('dialog').locator('select')).toHaveCount(0);
+      if (variant === 5) {
+        const toggle = page.getByRole('dialog').getByRole('switch');
+        const checked = await toggle.isChecked();
+        await toggle.press('Space');
+        await expect(toggle).toHaveJSProperty('checked', !checked);
+      }
+    });
+  }
 }
