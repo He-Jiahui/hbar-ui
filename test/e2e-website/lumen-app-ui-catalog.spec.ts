@@ -622,4 +622,44 @@ for (const mode of ['dark', 'light'] as const) {
     await page.getByRole('button', { name: '发送邀请' }).click();
     await expect(memberRole).toContainText(label);
   });
+
+  test(`onboarding checklist uses the shared progress strip in ${mode}`, async ({ page }) => {
+    await page.goto(preview('hbar-app-ui-onboarding-3', mode));
+    await expect(page.locator('.lumen-onboarding-progress.lumen-progress')).toHaveAttribute(
+      'role',
+      'progressbar',
+    );
+  });
+
+  for (const variant of [4, 7]) {
+    test(`onboarding ${variant} uses foundation tabs in ${mode}`, async ({ page }) => {
+      await page.goto(preview(`hbar-app-ui-onboarding-${variant}`, mode));
+      const tabs = page.getByRole('tablist').getByRole('tab');
+      await expect(tabs.first()).toBeVisible();
+      await tabs.first().press('ArrowRight');
+      await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
+    });
+  }
+
+  test(`onboarding invite uses the themed role picker in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-onboarding-5', mode));
+    const picker = page.getByRole('combobox');
+    await expect(picker).toBeVisible();
+    await picker.click();
+    await expect(page.getByRole('listbox')).toBeVisible();
+    await expect(page.locator('.lumen-onboarding select')).toHaveCount(0);
+    const compact = await page.locator('.lumen-onboarding-invite-form').evaluate((form) => {
+      const input = form.children[0].getBoundingClientRect();
+      const role = form.children[1].getBoundingClientRect();
+      const action = form.children[2].getBoundingClientRect();
+      return (
+        input.height < 60 &&
+        role.top >= input.bottom &&
+        action.top >= role.bottom &&
+        form.scrollWidth <= form.clientWidth + 1
+      );
+    });
+    expect(compact).toBe(true);
+  });
 }

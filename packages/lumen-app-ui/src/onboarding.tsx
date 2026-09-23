@@ -1,8 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { LumenFormField, LumenInput, LumenSelect } from './forms';
+import { LumenChoiceSelect, LumenFormField, LumenInput } from './forms';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
+import { LumenProgress, LumenTabs } from './ui-controls';
 
 export interface LumenOnboardingListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -425,16 +426,12 @@ function Checklist(
         title={props.content.labels.title}
         detail={props.content.labels.detail(completed, tasks.length)}
       />
-      <span
+      <LumenProgress
         className="lumen-onboarding-progress"
-        role="progressbar"
-        aria-label={props.content.labels.progress}
-        aria-valuenow={progress}
-        aria-valuemin={0}
-        aria-valuemax={100}
-      >
-        <i style={{ inlineSize: `${progress}%` }} />
-      </span>
+        label={props.content.labels.progress}
+        value={progress}
+        tone="info"
+      />
       <div
         className="lumen-onboarding-checklist"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
@@ -511,23 +508,13 @@ function UseCase(
           </LumenText>
         )}
       </div>
-      <div
+      <LumenTabs
         className="lumen-onboarding-tabs"
-        role="tablist"
-        aria-label={props.content.labels.teamSize}
-      >
-        {sizes.map((item) => (
-          <LumenButton
-            key={item.id}
-            role="tab"
-            variant="text"
-            aria-selected={size?.id === item.id}
-            onClick={() => setSizeId(item.id)}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+        label={props.content.labels.teamSize}
+        items={sizes}
+        selectedId={size?.id ?? null}
+        onChange={setSizeId}
+      />
       <LumenButton
         className="lumen-onboarding-primary"
         tone="primary"
@@ -560,17 +547,13 @@ function Invite(
           value={email}
           onChange={(event) => setEmail(event.currentTarget.value)}
         />
-        <LumenSelect
-          aria-label={props.content.labels.role}
+        <LumenChoiceSelect
+          id="onboarding-invite-role"
+          label={props.content.labels.role}
+          options={roles}
           value={roleId}
-          onChange={(event) => setRoleId(event.currentTarget.value)}
-        >
-          {roles.map((role) => (
-            <option key={role.id} value={role.id}>
-              {role.label}
-            </option>
-          ))}
-        </LumenSelect>
+          onValueChange={setRoleId}
+        />
         <LumenButton
           tone="primary"
           disabled={!email.trim()}
@@ -659,20 +642,13 @@ function Slug(
   const step = selectLumenOnboardingItem(steps, stepId);
   return (
     <Root {...props}>
-      <div className="lumen-onboarding-tabs" role="tablist" aria-label={props.content.labels.steps}>
-        {steps.map((item) => (
-          <LumenButton
-            key={item.id}
-            role="tab"
-            variant="text"
-            aria-selected={step?.id === item.id}
-            disabled={item.disabled}
-            onClick={() => setStepId(item.id)}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+      <LumenTabs
+        className="lumen-onboarding-tabs"
+        label={props.content.labels.steps}
+        items={steps}
+        selectedId={step?.id ?? null}
+        onChange={setStepId}
+      />
       <article className="lumen-onboarding-slug">
         <Header title={step?.label ?? ''} detail={step?.detail ?? props.content.labels.detail} />
         <LumenFormField
