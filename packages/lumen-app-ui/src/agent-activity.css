@@ -816,6 +816,12 @@
   background: #fff;
 }
 
+@media (min-width: 20rem) and (max-width: 36rem) {
+  .hbar-app-ui-agent-activity-history-cards > li {
+    padding-block-end: 1.125rem;
+  }
+}
+
 @media (max-width: 36rem) {
   .hbar-app-ui-agent-activity-history {
     block-size: calc(100dvh - 4.25rem);
