@@ -1706,6 +1706,40 @@ for (const mode of ['dark', 'light'] as const) {
       await expect(rows.nth(1).getByRole('progressbar')).toHaveAttribute('aria-valuenow', '64');
     });
 
+    test(`kanban columns retain readable width and scroll at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 720 });
+      await page.goto(preview('hbar-app-ui-kanban-1', mode, 'en'));
+      const board = page.locator('.lumen-kanban-board');
+      const columns = board.locator(':scope > section');
+      await expect(columns).toHaveCount(4);
+      const dimensions = await board.evaluate((element) => ({
+        viewport: element.clientWidth,
+        content: element.scrollWidth,
+        column: element.querySelector('section')!.getBoundingClientRect().width,
+      }));
+      expect(dimensions.column).toBeGreaterThanOrEqual(width < 768 ? width * 0.7 : 200);
+      if (width < 768) {
+        expect(dimensions.content).toBeGreaterThan(dimensions.viewport);
+        await board.evaluate((element) => {
+          element.scrollLeft = element.scrollWidth;
+        });
+        await expect
+          .poll(() =>
+            columns.last().evaluate((element) => {
+              const bounds = element.getBoundingClientRect();
+              const boardBounds = element.parentElement!.getBoundingClientRect();
+              return bounds.left >= boardBounds.left - 2 && bounds.right <= boardBounds.right + 1;
+            }),
+          )
+          .toBe(true);
+      }
+      await expect(
+        columns.first().getByRole('button', { name: /Mobile navigation/ }),
+      ).toBeVisible();
+    });
+
     test(`monitoring endpoints use paired foundation list rows at ${width}px in ${mode}`, async ({
       page,
     }) => {

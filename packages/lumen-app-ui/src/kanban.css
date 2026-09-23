@@ -381,7 +381,7 @@
     flex-wrap: nowrap;
   }
   .lumen-kanban-board > * {
-    flex: 0 1 85vw;
+    flex: 0 0 min(85vw, 22rem);
   }
   .lumen-kanban-detail {
     min-block-size: 0;
