@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { LumenCheckBox, LumenInput } from './forms';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
-import { LumenTabs } from './ui-controls';
+import { LumenProgress, LumenTabs } from './ui-controls';
 
 export type LumenAgentApprovalListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -293,18 +293,13 @@ function ApprovalStatus({
 }
 
 function ApprovalProgress({ value, label }: { readonly value: number; readonly label: string }) {
-  const bounded = Math.max(0, Math.min(100, Number.isFinite(value) ? value : 0));
   return (
-    <div
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={bounded}
+    <LumenProgress
       className="lumen-agent-approval-progress hbar-app-ui-agent-approval-progress"
-      role="progressbar"
-    >
-      <span style={{ inlineSize: `${bounded}%` }} />
-    </div>
+      label={label}
+      value={value}
+      tone="warning"
+    />
   );
 }
 

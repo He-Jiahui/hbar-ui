@@ -173,4 +173,28 @@ for (const mode of ['dark', 'light'] as const) {
       await expect(tabs.locator('[data-visible="true"]')).toHaveCount(1);
     });
   }
+
+  for (const id of [
+    'hbar-app-ui-agent-activity-2',
+    'hbar-app-ui-agent-activity-3',
+    'hbar-app-ui-agent-activity-6',
+    'hbar-app-ui-agent-approval-5',
+    'hbar-app-ui-prompt-input-5',
+  ]) {
+    test(`${id} renders progress with the shared luminous control in ${mode}`, async ({ page }) => {
+      await page.goto(preview(id, mode));
+      const progress = page.locator('.lumen-progress[role="progressbar"]');
+      await expect(progress.first()).toBeVisible();
+      const values = await progress.evaluateAll((bars) =>
+        bars.map((bar) => ({
+          value: Number(bar.getAttribute('aria-valuenow')),
+          maximum: Number(bar.getAttribute('aria-valuemax')),
+          transition: getComputedStyle(bar.firstElementChild!).transitionProperty,
+        })),
+      );
+      expect(values.every(({ value, maximum, transition }) =>
+        value >= 0 && value <= maximum && transition.includes('inline-size'),
+      )).toBe(true);
+    });
+  }
 }

@@ -277,21 +277,6 @@
   gap: 0.25rem;
 }
 
-.lumen-prompt-input-progress {
-  display: flex;
-  block-size: 0.25rem;
-  overflow: hidden;
-  border-radius: 999rem;
-  background: var(--lumen-edge);
-}
-
-.lumen-prompt-input-progress > i {
-  display: block;
-  block-size: 100%;
-  border-radius: inherit;
-  background: var(--lumen-accent);
-}
-
 .lumen-prompt-input-scope-bar {
   justify-content: space-between;
 }

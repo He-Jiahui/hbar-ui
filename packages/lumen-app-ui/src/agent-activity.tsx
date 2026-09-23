@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { LumenDisclosure } from './disclosure';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import { LumenTabs } from './ui-controls';
+import { LumenProgress, LumenTabs } from './ui-controls';
 
 export type LumenAgentActivityListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -312,18 +312,8 @@ function ActivityStateMark({ state }: { readonly state: LumenAgentActivityState 
 }
 
 function ActivityProgress({ value, label }: { readonly value: number; readonly label: string }) {
-  const bounded = Math.max(0, Math.min(100, Number.isFinite(value) ? value : 0));
   return (
-    <div
-      className="lumen-agent-activity-progress"
-      role="progressbar"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={bounded}
-    >
-      <span style={{ inlineSize: `${bounded}%` }} />
-    </div>
+    <LumenProgress className="lumen-agent-activity-progress" label={label} value={value} tone="info" />
   );
 }
 
