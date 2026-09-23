@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { LumenTextarea } from './forms';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
+import { LumenTabs } from './ui-controls';
 
 export interface LumenChatListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -744,20 +745,13 @@ function Live(props: Omit<LumenChatProps, 'content'> & { content: LumenChatLiveC
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
-      <div className="lumen-chat-tabs" role="tablist" aria-label={props.content.labels.tabs}>
-        {tabs.map((tab) => (
-          <LumenButton
-            key={tab.id}
-            role="tab"
-            variant="text"
-            aria-selected={selected?.id === tab.id}
-            disabled={tab.disabled}
-            onClick={() => setTabId(tab.id)}
-          >
-            {tab.label}
-          </LumenButton>
-        ))}
-      </div>
+      <LumenTabs
+        className="lumen-chat-tabs"
+        label={props.content.labels.tabs}
+        items={tabs}
+        selectedId={selected?.id ?? null}
+        onChange={setTabId}
+      />
       {showingChat ? (
         <div className="lumen-chat-live">
           <aside>

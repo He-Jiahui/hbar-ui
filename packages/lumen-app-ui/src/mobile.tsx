@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { LumenInput } from './forms';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
+import { LumenTabs } from './ui-controls';
 
 export interface LumenMobileListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -529,23 +530,13 @@ function Menu(
             </LumenIconButton>
           }
         />
-        <div
+        <LumenTabs
           className="lumen-mobile-segmented"
-          role="tablist"
-          aria-label={props.content.labels.navigation}
-        >
-          {segments.map((segment) => (
-            <LumenButton
-              key={segment.id}
-              role="tab"
-              variant="text"
-              aria-selected={active?.id === segment.id}
-              onClick={() => setSegmentId(segment.id)}
-            >
-              {segment.label}
-            </LumenButton>
-          ))}
-        </div>
+          label={props.content.labels.navigation}
+          items={segments}
+          selectedId={active?.id ?? null}
+          onChange={setSegmentId}
+        />
         <main className="lumen-mobile-content">
           <LumenText as="h2" variant="title">
             {active?.label}

@@ -1122,4 +1122,18 @@ for (const mode of ['dark', 'light'] as const) {
       'progressbar',
     );
   });
+
+  for (const [id, label] of [
+    ['hbar-app-ui-chat-6', '直播面板'],
+    ['hbar-app-ui-mobile-5', '顶部分段导航'],
+  ] as const) {
+    test(`${id} uses keyboard-operable foundation tabs in ${mode}`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 680 });
+      await page.goto(preview(id, mode));
+      const tabs = page.getByRole('tablist', { name: label });
+      await expect(tabs).toHaveClass(/lumen-tabs/);
+      await tabs.getByRole('tab').first().press('ArrowRight');
+      await expect(tabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
+    });
+  }
 }
