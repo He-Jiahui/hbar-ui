@@ -348,6 +348,28 @@ for (const mode of ['dark', 'light'] as const) {
     await expect(trigger).toHaveAttribute('aria-expanded', 'false');
   });
 
+  test(`source and keyboard hint labels reuse passive foundation chips in ${mode}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 568 });
+    await page.goto(preview('hbar-app-ui-prompt-input-6', mode));
+    const source = page.locator('.lumen-prompt-input-sources [data-lumen-component="chip"]');
+    await expect(source).toHaveCount(1);
+    await expect(source.locator('svg')).toHaveCount(1);
+    await expect(source).toHaveCSS('border-top-width', '0px');
+    await expect(source).toContainText('Northstar 访谈摘要');
+    await expect(source.locator('button')).toHaveCount(0);
+    await page.goto(preview('hbar-app-ui-prompt-input-7', mode));
+    const hints = page.locator('.lumen-prompt-input-hints [data-lumen-component="chip"]');
+    await expect(hints).toHaveCount(3);
+    await expect(hints.first()).toHaveCSS('border-top-width', '0px');
+    await expect(hints.locator('button')).toHaveCount(0);
+    const fit = await hints.evaluateAll((items) =>
+      items.every((item) => item.scrollWidth <= item.clientWidth + 1),
+    );
+    expect(fit).toBe(true);
+  });
+
   test(`model picker shares choice behavior in ${mode}`, async ({ page }) => {
     await page.goto(preview('hbar-app-ui-prompt-input-2', mode));
     const trigger = page.getByRole('combobox', { name: '模型' });

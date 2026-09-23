@@ -225,6 +225,24 @@ describe('Lumen foundation interactions', () => {
     expect(screen.getByRole('button', { name: '移除研究' })).to.have.property('disabled', true);
   });
 
+  it('keeps an optional chip adornment inside the interactive target and allows passive labels', async () => {
+    const onSelect = vi.fn();
+    const view = render(
+      <LumenChip
+        label="研究资料"
+        startAdornment={<svg aria-hidden="true" data-testid="source-glyph" />}
+        onSelect={onSelect}
+      />,
+    );
+    const button = screen.getByRole('button', { name: '研究资料' });
+    expect(button.contains(screen.getByTestId('source-glyph'))).toBe(true);
+    await view.user.click(button);
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    view.rerender(<LumenChip label="Enter 发送" />);
+    expect(screen.queryByRole('button')).toBeNull();
+    expect(screen.getByText('Enter 发送').closest('[data-lumen-component="chip"]')).not.toBeNull();
+  });
+
   it('uses one tab stop and supports keyboard navigation across enabled tabs', async () => {
     function TabsHarness() {
       const [selectedId, setSelectedId] = React.useState('research');

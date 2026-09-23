@@ -550,6 +550,7 @@ export function LumenBadge({
 
 export interface LumenChipProps {
   label: string;
+  startAdornment?: React.ReactNode | undefined;
   selected?: boolean | undefined;
   disabled?: boolean | undefined;
   tone?: LumenActionTone | 'info' | undefined;
@@ -560,6 +561,7 @@ export interface LumenChipProps {
 
 export function LumenChip({
   label,
+  startAdornment,
   selected,
   disabled,
   tone = 'neutral',
@@ -570,6 +572,7 @@ export function LumenChip({
   return (
     <span
       className={['lumen-chip', className].filter(Boolean).join(' ')}
+      data-lumen-component="chip"
       data-tone={tone}
       data-selected={selected || undefined}
       data-disabled={disabled || undefined}
@@ -582,10 +585,14 @@ export function LumenChip({
           indicatorState={selected ? 'selected' : undefined}
           onClick={onSelect}
         >
+          {startAdornment ? <span className="lumen-chip-adornment">{startAdornment}</span> : null}
           {label}
         </LumenButton>
       ) : (
-        <span className="lumen-chip-label">{label}</span>
+        <React.Fragment>
+          {startAdornment ? <span className="lumen-chip-adornment">{startAdornment}</span> : null}
+          <span className="lumen-chip-label">{label}</span>
+        </React.Fragment>
       )}
       {removeAction ? (
         <LumenIconButton

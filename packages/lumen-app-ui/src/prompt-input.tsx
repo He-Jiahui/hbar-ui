@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { LumenChoiceSelect, LumenFormField, LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
-import { LumenProgress, LumenTabs } from './ui-controls';
+import { LumenChip, LumenProgress, LumenTabs } from './ui-controls';
 import {
   LumenPromptComposer,
   type LumenPromptComposerProps,
@@ -742,10 +742,7 @@ function Scope(
       ) : null}
       <div className="lumen-prompt-input-sources">
         {selectedSources.map((source) => (
-          <span key={source.id}>
-            <Glyph name="file" />
-            {source.label}
-          </span>
+          <LumenChip key={source.id} label={source.label} startAdornment={<Glyph name="file" />} />
         ))}
         {selectedSources.length ? (
           <LumenButton
@@ -799,7 +796,7 @@ function Modes(
       />
       <div className="lumen-prompt-input-hints">
         {hints.map((hint) => (
-          <span key={hint.id}>{hint.label}</span>
+          <LumenChip key={hint.id} label={hint.label} />
         ))}
       </div>
     </Root>
