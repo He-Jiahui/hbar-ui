@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { LumenChoiceSelect, LumenFormField, LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import { LumenChip, LumenSwitch } from './ui-controls';
+import { LumenChip, LumenMenu, LumenSwitch } from './ui-controls';
 
 export interface LumenAppDialogListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -862,54 +862,82 @@ function Menu(
 ) {
   const items = uniqueLumenAppDialogItems(props.content.items);
   const [open, setOpen] = React.useState(true);
+  const [focusOnOpen, setFocusOnOpen] = React.useState(false);
+  const anchor = React.useRef<HTMLDivElement>(null);
+  const trigger = React.useRef<HTMLButtonElement>(null);
+  const menuId = React.useId();
+  React.useEffect(() => {
+    if (!open) {
+      return undefined;
+    }
+    const dismiss = (event: PointerEvent) => {
+      if (!anchor.current?.contains(event.target as Node)) {
+        setOpen(false);
+        report(props.onAction, 'toggle', 'closed');
+      }
+    };
+    document.addEventListener('pointerdown', dismiss);
+    return () => document.removeEventListener('pointerdown', dismiss);
+  }, [open, props.onAction]);
   return (
     <Root {...props}>
       <div className="lumen-app-dialog-menu-stage">
-        <div className="lumen-app-dialog-menu-anchor">
+        <div className="lumen-app-dialog-menu-anchor" ref={anchor}>
           <LumenButton
+            ref={trigger}
             aria-expanded={open}
             aria-haspopup="menu"
+            aria-controls={open ? menuId : undefined}
             onClick={() => {
               setOpen((value) => !value);
+              setFocusOnOpen(!open);
               report(props.onAction, 'toggle', open ? 'closed' : 'open');
+            }}
+            onKeyDown={(event) => {
+              if (!open || (event.key !== 'ArrowDown' && event.key !== 'ArrowUp')) {
+                return;
+              }
+              event.preventDefault();
+              const enabled = document
+                .getElementById(menuId)
+                ?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not(:disabled)');
+              enabled?.[event.key === 'ArrowDown' ? 0 : enabled.length - 1]?.focus();
             }}
           >
             {props.content.labels.trigger}
             <Glyph name="chevron" />
           </LumenButton>
-          {open ? (
-            <div
-              className="lumen-app-dialog-menu hbar-app-ui-dialog-menu"
-              role="menu"
-              aria-label={props.content.labels.menu}
-              data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
-            >
-              {items.length ? (
-                items.map((item) => (
-                  <React.Fragment key={item.id}>
-                    {item.separatorBefore ? <hr /> : null}
-                    <LumenButton
-                      role="menuitem"
-                      variant="text"
-                      tone={item.danger ? 'danger' : 'neutral'}
-                      onClick={() => report(props.onAction, item.id)}
-                    >
-                      <Glyph name="menu" />
-                      <span>{item.label}</span>
-                      {item.shortcut ? <kbd>{item.shortcut}</kbd> : null}
-                      {item.submenu ? (
-                        <span aria-label={props.content.labels.submenu(item.label)}>
-                          <Glyph name="chevron" />
-                        </span>
-                      ) : null}
-                    </LumenButton>
-                  </React.Fragment>
-                ))
-              ) : (
-                <Empty>{props.content.labels.empty}</Empty>
-              )}
-            </div>
-          ) : null}
+          <LumenMenu
+            id={menuId}
+            className="lumen-app-dialog-menu"
+            label={props.content.labels.menu}
+            open={open}
+            focusOnOpen={focusOnOpen}
+            listStrategyKind={props.content.listStrategy.kind}
+            items={items.map((item) => ({
+              id: item.id,
+              label: item.label,
+              shortcut: item.shortcut,
+              separatorBefore: item.separatorBefore,
+              tone: item.danger ? 'danger' : 'neutral',
+              startAdornment: <Glyph name="menu" />,
+              endAdornment: item.submenu ? <Glyph name="chevron" /> : undefined,
+              endAdornmentLabel: item.submenu
+                ? props.content.labels.submenu(item.label)
+                : undefined,
+            }))}
+            empty={<Empty>{props.content.labels.empty}</Empty>}
+            onSelect={(id) => {
+              setOpen(false);
+              trigger.current?.focus();
+              report(props.onAction, id);
+            }}
+            onClose={() => {
+              setOpen(false);
+              trigger.current?.focus();
+              report(props.onAction, 'toggle', 'closed');
+            }}
+          />
         </div>
       </div>
     </Root>

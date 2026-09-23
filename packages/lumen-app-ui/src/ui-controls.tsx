@@ -265,6 +265,11 @@ export interface LumenMenuItem {
   description?: string | undefined;
   disabled?: boolean | undefined;
   tone?: LumenActionTone | undefined;
+  shortcut?: string | undefined;
+  separatorBefore?: boolean | undefined;
+  startAdornment?: React.ReactNode | undefined;
+  endAdornment?: React.ReactNode | undefined;
+  endAdornmentLabel?: string | undefined;
 }
 
 export interface LumenMenuProps {
@@ -274,6 +279,10 @@ export interface LumenMenuProps {
   empty: React.ReactNode;
   selectedId?: string | null | undefined;
   onSelect: (id: string) => void;
+  onClose?: (() => void) | undefined;
+  focusOnOpen?: boolean | undefined;
+  id?: string | undefined;
+  listStrategyKind?: 'content-grown' | 'pane-scroll' | undefined;
   className?: string | undefined;
 }
 
@@ -284,41 +293,98 @@ export function LumenMenu({
   empty,
   selectedId,
   onSelect,
+  onClose,
+  focusOnOpen = false,
+  id,
+  listStrategyKind,
   className,
 }: LumenMenuProps) {
+  const generatedId = React.useId();
+  const menuId = id ?? generatedId;
+  React.useEffect(() => {
+    if (open && focusOnOpen) {
+      document
+        .getElementById(menuId)
+        ?.querySelector<HTMLButtonElement>('[role="menuitem"]:not(:disabled)')
+        ?.focus();
+    }
+  }, [focusOnOpen, menuId, open]);
   if (!open) {
     return null;
   }
   return (
     <LumenSurface
+      id={menuId}
       material="frost"
       elevation="overlay"
       className={['lumen-menu', 'hbar-app-ui-dialog-menu', className].filter(Boolean).join(' ')}
       role="menu"
       aria-label={label}
+      data-hbar-app-ui-list-strategy={listStrategyKind}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape' && onClose) {
+          event.preventDefault();
+          event.stopPropagation();
+          onClose();
+          return;
+        }
+        if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+          return;
+        }
+        const enabled = Array.from(
+          event.currentTarget.querySelectorAll<HTMLButtonElement>(
+            '[role="menuitem"]:not(:disabled)',
+          ),
+        );
+        if (!enabled.length) {
+          return;
+        }
+        event.preventDefault();
+        const current = enabled.indexOf(document.activeElement as HTMLButtonElement);
+        let next = 0;
+        if (event.key === 'End' || (current < 0 && event.key === 'ArrowUp')) {
+          next = enabled.length - 1;
+        } else if (event.key !== 'Home' && current >= 0) {
+          next = (current + (event.key === 'ArrowDown' ? 1 : -1) + enabled.length) % enabled.length;
+        }
+        enabled[next]?.focus();
+      }}
     >
       {items.length ? (
         uniqueItems(items).map((item) => (
-          <LumenButton
-            key={item.id}
-            role="menuitem"
-            variant="text"
-            tone={item.tone}
-            disabled={item.disabled}
-            aria-current={selectedId === item.id ? 'true' : undefined}
-            onClick={() => onSelect(item.id)}
-          >
-            <span>
-              <LumenText as="span" variant="label">
-                {item.label}
-              </LumenText>
-              {item.description ? (
-                <LumenText as="small" variant="supporting" tone="muted">
-                  {item.description}
-                </LumenText>
+          <React.Fragment key={item.id}>
+            {item.separatorBefore ? <hr /> : null}
+            <LumenButton
+              role="menuitem"
+              variant="text"
+              tone={item.tone}
+              disabled={item.disabled}
+              aria-current={selectedId === item.id ? 'true' : undefined}
+              onClick={() => onSelect(item.id)}
+            >
+              {item.startAdornment ? (
+                <span className="lumen-menu-adornment" aria-hidden="true">
+                  {item.startAdornment}
+                </span>
               ) : null}
-            </span>
-          </LumenButton>
+              <span className="lumen-menu-copy">
+                <LumenText as="span" variant="label">
+                  {item.label}
+                </LumenText>
+                {item.description ? (
+                  <LumenText as="small" variant="supporting" tone="muted">
+                    {item.description}
+                  </LumenText>
+                ) : null}
+              </span>
+              {item.shortcut ? <kbd>{item.shortcut}</kbd> : null}
+              {item.endAdornment ? (
+                <span className="lumen-menu-adornment" aria-label={item.endAdornmentLabel}>
+                  {item.endAdornment}
+                </span>
+              ) : null}
+            </LumenButton>
+          </React.Fragment>
         ))
       ) : (
         <div className="lumen-menu-empty">{empty}</div>

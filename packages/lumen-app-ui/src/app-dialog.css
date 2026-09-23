@@ -288,54 +288,11 @@
   position: relative;
 }
 .lumen-app-dialog-menu.hbar-app-ui-dialog-menu {
-  position: absolute;
   inset-block-start: calc(100% + 0.4rem);
   inset-inline-end: 0;
-  z-index: 2;
-  display: flex;
   inline-size: min(18rem, 80vw);
-  flex-direction: column;
-  gap: 0.125rem;
+  max-block-size: min(22rem, 70vh);
   overflow: auto;
-  padding: 0.35rem;
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: var(--lumen-radius-surface);
-  background: var(--lumen-reading);
-  box-shadow: 0 0.75rem 2rem color-mix(in srgb, var(--lumen-ink) 16%, transparent);
-}
-.lumen-app-dialog-menu > button {
-  display: flex;
-  inline-size: 100%;
-  justify-content: stretch;
-  text-align: start;
-  min-inline-size: 0;
-}
-.lumen-app-dialog-menu > button > :nth-child(4n + 1) {
-  flex: 0 0 auto;
-  min-inline-size: 0;
-}
-.lumen-app-dialog-menu > button > :nth-child(4n + 2) {
-  flex: 1 1 0;
-  min-inline-size: 0;
-}
-.lumen-app-dialog-menu > button > :nth-child(4n + 3) {
-  flex: 0 0 auto;
-  min-inline-size: 0;
-}
-.lumen-app-dialog-menu > button > :nth-child(4n + 4) {
-  flex: 0 0 auto;
-  min-inline-size: 0;
-}
-.lumen-app-dialog-menu hr {
-  inline-size: 100%;
-  margin: 0.25rem 0;
-  border: 0;
-  border-block-start: 0.0625rem solid var(--lumen-edge);
-}
-.lumen-app-dialog-menu kbd {
-  color: var(--lumen-muted);
-  font: inherit;
-  font-size: 0.75rem;
 }
 @media (max-width: 34rem) {
   .lumen-app-dialog-stage {

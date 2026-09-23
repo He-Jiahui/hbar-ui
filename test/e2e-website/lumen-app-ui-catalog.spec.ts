@@ -1690,6 +1690,58 @@ for (const mode of ['dark', 'light'] as const) {
     });
   }
 
+  for (const width of [320, 390, 1280]) {
+    test(`action menu uses foundation overlay and restores trigger focus at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      const locale = mode === 'dark' ? 'zh' : 'en';
+      await page.setViewportSize({ width, height: width === 320 ? 568 : 820 });
+      await page.goto(preview('hbar-app-ui-app-dialog-7', mode, locale));
+      const trigger = page.getByRole('button', {
+        name: locale === 'zh' ? '打开更多操作' : 'Open more actions',
+      });
+      const menu = page.getByRole('menu', {
+        name: locale === 'zh' ? '运行操作' : 'Run actions',
+      });
+      await expect(menu).toBeVisible();
+      await expect(menu).toHaveAttribute('data-material', 'frost');
+      await expect(menu).toHaveAttribute('data-elevation', 'overlay');
+      await expect(menu.getByRole('menuitem')).toHaveCount(3);
+      await expect(menu.getByRole('separator')).toHaveCount(2);
+      const fits = await menu.evaluate((element) =>
+        [...element.querySelectorAll('[role="menuitem"]')].every(
+          (item) => item.getBoundingClientRect().right <= element.getBoundingClientRect().right + 1,
+        ),
+      );
+      expect(fits).toBe(true);
+
+      await trigger.click();
+      await expect(menu).toHaveCount(0);
+      await trigger.click();
+      const items = menu.getByRole('menuitem');
+      await expect(items.first()).toBeFocused();
+      await items.first().press('ArrowDown');
+      await expect(items.nth(1)).toBeFocused();
+      await items.nth(1).press('End');
+      await expect(items.last()).toBeFocused();
+      await items.last().press('Escape');
+      await expect(menu).toHaveCount(0);
+      await expect(trigger).toBeFocused();
+
+      await trigger.click();
+      await menu
+        .getByRole('menuitem', {
+          name: locale === 'zh' ? '复制配置 D' : 'Duplicate configuration D',
+        })
+        .click();
+      await expect(menu).toHaveCount(0);
+      await expect(trigger).toBeFocused();
+      await trigger.click();
+      await page.locator('.lumen-app-dialog-menu-stage').click({ position: { x: 5, y: 5 } });
+      await expect(menu).toHaveCount(0);
+    });
+  }
+
   for (const label of ['问题领域', '工作区']) {
     test(`support ticket ${label} uses themed choices in ${mode}`, async ({ page }) => {
       await page.setViewportSize({ width: 390, height: 680 });
