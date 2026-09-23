@@ -321,7 +321,6 @@
   border-block-end: 0.0625rem solid var(--lumen-edge);
 }
 
-
 .lumen-card-plan-grid {
   flex-wrap: wrap;
 }
@@ -494,13 +493,8 @@
   gap: 0.5rem;
 }
 
-.lumen-card-tags > span {
-  padding: 0.25rem 0.5rem;
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: 999rem;
-  background: var(--lumen-glass);
+.lumen-card-tags .lumen-chip {
   color: var(--lumen-muted);
-  font-size: 0.75rem;
 }
 
 .lumen-card-balance {

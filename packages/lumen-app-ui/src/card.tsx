@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import { LumenSwitch, LumenTabs } from './ui-controls';
+import { LumenChip, LumenSwitch, LumenTabs } from './ui-controls';
 
 export interface LumenCardListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -774,7 +774,7 @@ function Profile(props: Omit<LumenCardProps, 'content'> & { content: LumenCardPr
         </LumenText>
         <div className="lumen-card-tags" aria-label={props.content.labels.tags}>
           {tags.map((tag) => (
-            <span key={tag.id}>{tag.label}</span>
+            <LumenChip key={tag.id} label={tag.label} />
           ))}
         </div>
         <Metrics metrics={props.content.metrics} />

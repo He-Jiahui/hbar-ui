@@ -817,6 +817,27 @@ for (const mode of ['dark', 'light'] as const) {
     await expect(toggle).toHaveJSProperty('checked', !initial);
   });
 
+  test(`profile expertise uses passive foundation chips and wraps in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: mode === 'dark' ? 320 : 390, height: 680 });
+    const locale = mode === 'dark' ? 'zh' : 'en';
+    await page.goto(preview('hbar-app-ui-card-9', mode, locale));
+    const tags = page.locator('.lumen-card-tags');
+    const chips = tags.locator('[data-lumen-component="chip"]');
+    await expect(chips).toHaveCount(3);
+    await expect(chips.locator('button')).toHaveCount(0);
+    await expect(chips.first()).toHaveCSS('border-top-width', '0px');
+    const layout = await tags.evaluate((element) => ({
+      fits: element.scrollWidth <= element.clientWidth + 1,
+      childrenFit: [...element.children].every(
+        (child) => child.getBoundingClientRect().right <= element.getBoundingClientRect().right + 1,
+      ),
+    }));
+    expect(layout).toEqual({ fits: true, childrenFit: true });
+    const follow = page.getByRole('button', { name: locale === 'zh' ? '关注' : 'Follow' });
+    await follow.click();
+    await expect(follow).toHaveAccessibleName(locale === 'zh' ? '已关注' : 'Following');
+  });
+
   for (const variant of [5, 6]) {
     test(`card ${variant} uses foundation tabs in ${mode}`, async ({ page }) => {
       await page.goto(preview(`hbar-app-ui-card-${variant}`, mode));
