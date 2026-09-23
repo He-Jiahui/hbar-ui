@@ -605,15 +605,27 @@
 }
 
 .hbar-app-ui-agent-activity-history-table th {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 1;
   block-size: 2.25rem;
+  background: #121212;
   color: var(--lumen-muted);
   font-weight: 400;
   font-size: 0.75rem;
 }
 
+[data-hbar-app-ui-theme='light'] .hbar-app-ui-agent-activity-history-table th {
+  background: #fff;
+}
+
 .hbar-app-ui-agent-activity-history-table td {
   block-size: 2.75rem;
   border-block-end: 1px solid var(--lumen-line);
+}
+
+[data-hbar-app-ui-theme='light'] .hbar-app-ui-agent-activity-history-table td {
+  border-block-end-color: #f5f5f5;
 }
 
 .hbar-app-ui-agent-activity-history-table th:nth-child(1) { inline-size: 36%; }
@@ -656,6 +668,34 @@
   opacity: 0;
 }
 
+.hbar-app-ui-agent-activity-history-table tr:hover {
+  background: #1e1e1e;
+}
+
+[data-hbar-app-ui-theme='light'] .hbar-app-ui-agent-activity-history-table tr:hover {
+  background: #fafafa;
+}
+
+.hbar-app-ui-agent-activity-history-table .hbar-app-ui-agent-activity-history-action-cell button > [data-edge] {
+  display: none;
+}
+
+.hbar-app-ui-agent-activity-history-table .hbar-app-ui-agent-activity-history-action-cell button {
+  background: #262626;
+}
+
+.hbar-app-ui-agent-activity-history-table .hbar-app-ui-agent-activity-history-action-cell button:hover {
+  background: #404040;
+}
+
+[data-hbar-app-ui-theme='light'] .hbar-app-ui-agent-activity-history-table .hbar-app-ui-agent-activity-history-action-cell button {
+  background: #f5f5f5;
+}
+
+[data-hbar-app-ui-theme='light'] .hbar-app-ui-agent-activity-history-table .hbar-app-ui-agent-activity-history-action-cell button:hover {
+  background: #e5e5e5;
+}
+
 .hbar-app-ui-agent-activity-history-table tr:hover .hbar-app-ui-agent-activity-history-action-cell button,
 .hbar-app-ui-agent-activity-history-table tr:focus-within .hbar-app-ui-agent-activity-history-action-cell button {
   opacity: 1;
@@ -674,7 +714,7 @@
     block-size: calc(100dvh - 5.5rem);
     margin-inline: 0;
     padding: 0.3125rem;
-    background: var(--lumen-frost);
+    background: #0a0a0a;
   }
 
   .hbar-app-ui-agent-activity-history-table {
@@ -692,9 +732,9 @@
 
   .hbar-app-ui-agent-activity-history-cards > li {
     min-width: 0;
-    padding: 0.75rem;
+    padding: 0.6875rem 0.75rem 1.1875rem;
     border-radius: 0.5rem;
-    background: #1e1e1e;
+    background: #171717;
     font-size: 0.8125rem;
   }
 
@@ -709,6 +749,7 @@
   .hbar-app-ui-agent-activity-history-card-top > span {
     min-width: 0;
     font-weight: 500;
+    font-size: 0.875rem;
   }
 
   .hbar-app-ui-agent-activity-history-card-top button {
@@ -732,7 +773,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem 0.75rem;
-    margin: 0.5rem 0 0;
+    margin: 0;
     color: var(--lumen-muted);
   }
 
@@ -769,6 +810,10 @@
 
 [data-hbar-app-ui-theme='light'] .hbar-app-ui-agent-activity-history-cards > li {
   background: #fafafa;
+}
+
+[data-hbar-app-ui-theme='light'] .hbar-app-ui-agent-activity-history {
+  background: #fff;
 }
 
 @media (max-width: 36rem) {
