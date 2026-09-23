@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
+import { LumenProgress, LumenSwitch, LumenTabs } from './ui-controls';
 
 export interface LumenNotificationsListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -351,19 +352,13 @@ function Tabs({
   readonly onChange: (id: string) => void;
 }) {
   return (
-    <div className="lumen-notifications-tabs" role="tablist" aria-label={label}>
-      {choices.map((item) => (
-        <LumenButton
-          key={item.id}
-          role="tab"
-          variant="text"
-          aria-selected={selectedId === item.id}
-          onClick={() => onChange(item.id)}
-        >
-          {item.label}
-        </LumenButton>
-      ))}
-    </div>
+    <LumenTabs
+      className="lumen-notifications-tabs"
+      label={label}
+      items={choices}
+      selectedId={selectedId ?? null}
+      onChange={onChange}
+    />
   );
 }
 
@@ -578,7 +573,10 @@ function Preferences(
         className="lumen-notifications-preferences"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
       >
-        <div role="table">
+        <div
+          role="table"
+          style={{ '--lumen-channel-count': channels.length } as React.CSSProperties}
+        >
           <div role="row">
             <span role="columnheader">{props.content.labels.event}</span>
             {channels.map((channel) => (
@@ -605,19 +603,17 @@ function Preferences(
                         const key = `${item.id}:${channel.id}`;
                         return (
                           <span role="cell" key={channel.id}>
-                            <LumenButton
-                              role="switch"
-                              variant="outlined"
-                              aria-label={props.content.labels.toggle(item.label, channel.label)}
-                              aria-checked={values[key] ?? false}
-                              onClick={() => {
-                                setValues((current) => ({ ...current, [key]: !current[key] }));
+                            <LumenSwitch
+                              label={props.content.labels.toggle(item.label, channel.label)}
+                              visuallyHiddenLabel
+                              checked={values[key] ?? false}
+                              onChange={(event) => {
+                                const next = event.currentTarget.checked;
+                                setValues((current) => ({ ...current, [key]: next }));
                                 setSaved(false);
                                 report(props.onAction, 'delivery', key);
                               }}
-                            >
-                              <i />
-                            </LumenButton>
+                            />
                           </span>
                         );
                       })}
@@ -636,18 +632,15 @@ function Preferences(
               {props.content.labels.quietDetail}
             </LumenText>
           </div>
-          <LumenButton
-            role="switch"
-            variant="outlined"
-            aria-label={props.content.labels.quietToggle}
-            aria-checked={quiet}
-            onClick={() => {
-              setQuiet((value) => !value);
+          <LumenSwitch
+            label={props.content.labels.quietToggle}
+            visuallyHiddenLabel
+            checked={quiet}
+            onChange={(event) => {
+              setQuiet(event.currentTarget.checked);
               setSaved(false);
             }}
-          >
-            <i />
-          </LumenButton>
+          />
           <div className="lumen-notifications-days" aria-label={props.content.labels.days}>
             {props.content.days.map((day) => (
               <LumenButton
@@ -906,16 +899,11 @@ function SystemMessages(
                   ) : null}
                 </div>
                 {message.usage ? (
-                  <span
-                    className="lumen-notifications-progress"
-                    role="progressbar"
-                    aria-label={props.content.labels.progress(message.title)}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                    aria-valuenow={message.usage.value}
-                  >
-                    <i
-                      style={{ inlineSize: `${Math.max(0, Math.min(100, message.usage.value))}%` }}
+                  <span className="lumen-notifications-progress">
+                    <LumenProgress
+                      label={props.content.labels.progress(message.title)}
+                      value={message.usage.value}
+                      tone="info"
                     />
                     <small>{message.usage.label}</small>
                   </span>

@@ -1632,7 +1632,7 @@ describe('Lumen formal variant fixtures', () => {
     const deploymentEmail = screen.getByRole('switch', {
       name: 'Toggle Email for Deployment results',
     });
-    expect(deploymentEmail.getAttribute('aria-checked')).toBe('false');
+    expect((deploymentEmail as HTMLInputElement).checked).toBe(false);
     await view.user.click(deploymentEmail);
     await view.user.click(screen.getByRole('button', { name: 'Save preferences' }));
     expect(screen.getByText('Preferences saved')).not.toBeNull();

@@ -456,4 +456,53 @@ for (const mode of ['dark', 'light'] as const) {
       await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
     });
   }
+
+  for (const variant of [1, 4]) {
+    test(`notifications ${variant} uses keyboard-operable tabs in ${mode}`, async ({ page }) => {
+      await page.goto(preview(`hbar-app-ui-notifications-${variant}`, mode));
+      const tabs = page.getByRole('tablist').getByRole('tab');
+      await expect(tabs.first()).toBeVisible();
+      await tabs.first().press('ArrowRight');
+      await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
+    });
+  }
+
+  test(`notification preferences use foundational switches in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-notifications-3', mode));
+    const toggle = page.getByRole('switch').first();
+    await expect(toggle).toBeVisible();
+    const initial = await toggle.isChecked();
+    await toggle.press('Space');
+    await expect(toggle).toHaveJSProperty('checked', !initial);
+    await expect(page.locator('.lumen-notifications .lumen-switch').first()).toHaveAttribute(
+      'data-label-hidden',
+      'true',
+    );
+    const flow = await page.locator('.lumen-notifications-preferences').evaluate((pane) => {
+      const table = pane.querySelector('[role="table"]')!;
+      const header = table.querySelector('[role="row"]')!;
+      const row = table.querySelector('[role="row"]:not(.is-group):has([role="switch"])')!;
+      const quiet = pane.querySelector('.lumen-notifications-quiet')!;
+      const days = quiet.querySelector('.lumen-notifications-days')!;
+      return {
+        fits: table.scrollWidth <= table.clientWidth + 1,
+        aligned:
+          Math.abs(
+            header.children[1].getBoundingClientRect().left -
+              row.children[1].getBoundingClientRect().left,
+          ) < 1,
+        daysBelow:
+          days.getBoundingClientRect().top >= quiet.children[0].getBoundingClientRect().bottom,
+      };
+    });
+    expect(flow).toEqual({ fits: true, aligned: true, daysBelow: true });
+  });
+
+  test(`system message usage uses foundational progress in ${mode}`, async ({ page }) => {
+    await page.goto(preview('hbar-app-ui-notifications-5', mode));
+    await expect(
+      page.locator('.lumen-notifications-progress .lumen-progress').first(),
+    ).toHaveAttribute('role', 'progressbar');
+  });
 }

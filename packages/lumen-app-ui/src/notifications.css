@@ -66,10 +66,6 @@
 .lumen-notifications-tabs {
   border-block-end: 0.0625rem solid var(--lumen-edge);
 }
-.lumen-notifications-tabs > button[aria-selected='true'] {
-  color: var(--lumen-accent);
-  box-shadow: inset 0 -0.125rem var(--lumen-accent);
-}
 .lumen-notifications-feed,
 .lumen-notifications-feed > section,
 .lumen-notifications-system {
@@ -212,21 +208,17 @@
   border-radius: var(--lumen-radius-control);
 }
 .lumen-notifications-preferences [role='row'] {
-  display: flex;
-  min-inline-size: 34rem;
+  display: grid;
+  min-inline-size: 0;
+  grid-template-columns: minmax(0, 1fr) repeat(var(--lumen-channel-count), minmax(3rem, 4.5rem));
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem;
   border-block-end: 0.0625rem solid var(--lumen-edge);
-  flex-wrap: wrap;
 }
-.lumen-notifications-preferences [role='row'] > :nth-child(2n + 1) {
-  flex: 1.5 1 12rem;
-  min-inline-size: 12rem;
-}
-.lumen-notifications-preferences [role='row'] > :nth-child(2n + 2) {
-  flex: 0.5 1 5rem;
-  min-inline-size: 0;
+
+.lumen-notifications-preferences .is-group > strong {
+  grid-column: 1 / -1;
 }
 .lumen-notifications-preferences [role='row']:first-child,
 .lumen-notifications-preferences .is-group {
@@ -250,42 +242,20 @@
 .lumen-notifications-preferences small {
   color: var(--lumen-muted);
 }
-.lumen-notifications [role='switch'] {
-  inline-size: 2.25rem;
-  padding: 0.2rem;
-  border-radius: 999rem;
-  justify-content: flex-start;
-}
-.lumen-notifications [role='switch'] > i {
-  inline-size: 0.75rem;
-  block-size: 0.75rem;
-  border-radius: 999rem;
-  background: currentColor;
-}
-.lumen-notifications [role='switch'][aria-checked='true'] {
-  color: var(--lumen-accent);
-  background: color-mix(in srgb, var(--lumen-accent) 16%, transparent);
-  justify-content: flex-end;
-}
 .lumen-notifications-quiet {
-  display: flex;
+  display: grid;
   min-inline-size: 0;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
   gap: 0.75rem;
   padding: 0.875rem;
   border: 0.0625rem solid var(--lumen-edge);
   border-radius: var(--lumen-radius-surface);
   background: var(--lumen-glass);
 }
-.lumen-notifications-quiet > :nth-child(2n + 1) {
-  flex: 1 1 0;
-  min-inline-size: 0;
-}
-.lumen-notifications-quiet > :nth-child(2n + 2) {
-  flex: 0 0 auto;
-  min-inline-size: 0;
-}
 .lumen-notifications-days {
-  flex-basis: 100%;
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
 }
 .lumen-notifications-save {
   position: static;
@@ -432,17 +402,8 @@
   flex: 0 0 auto;
   min-inline-size: 0;
 }
-.lumen-notifications-progress::before {
+.lumen-notifications-progress > .lumen-progress {
   block-size: 0.4rem;
-  border-radius: 999rem;
-  background: var(--lumen-edge);
-  content: '';
-}
-.lumen-notifications-progress > i {
-  z-index: 1;
-  block-size: 0.4rem;
-  border-radius: 999rem;
-  background: var(--lumen-accent);
 }
 .lumen-notifications-appbar {
   display: flex;
@@ -524,6 +485,10 @@
   min-inline-size: 0;
 }
 @media (max-width: 44rem) {
+  .lumen-notifications-preferences [role='row'] {
+    grid-template-columns: minmax(0, 1fr) repeat(var(--lumen-channel-count), minmax(0, 3rem));
+  }
+
   .lumen-notifications-feed > section > article {
     flex-wrap: wrap;
   }
