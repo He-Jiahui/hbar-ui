@@ -263,6 +263,23 @@
 }
 
 .hbar-app-ui-agent-activity-nested-list
+  > li:nth-child(n + 4)
+  .hbar-app-ui-agent-activity-group-row:hover {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--lumen-ink) 10%, transparent),
+    transparent
+  );
+}
+
+.hbar-app-ui-agent-activity-nested-list
+  > li:nth-child(n + 4)
+  .hbar-app-ui-agent-activity-group-row:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--lumen-ink) 25%, transparent);
+  outline-offset: -2px;
+}
+
+.hbar-app-ui-agent-activity-nested-list
   > li:first-child
   .hbar-app-ui-agent-activity-group-row:not(:hover) {
   background: color-mix(in srgb, var(--lumen-ink) 5%, transparent);
@@ -313,6 +330,14 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   max-inline-size: calc(100% - 2.5rem);
+}
+
+@media (min-width: 48rem) {
+  .hbar-app-ui-agent-activity-nested,
+  .hbar-app-ui-agent-activity-nested .lumen-agent-activity-pane {
+    min-block-size: min(30rem, calc(100dvh - 7.5rem));
+    max-block-size: min(30rem, calc(100dvh - 7.5rem));
+  }
 }
 
 .hbar-app-ui-agent-activity-child-list {
