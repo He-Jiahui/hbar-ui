@@ -43,12 +43,20 @@ export interface LumenSwitchProps extends Omit<
   label: string;
   description?: string | undefined;
   size?: LumenSize | undefined;
+  visuallyHiddenLabel?: boolean | undefined;
 }
 
 export const LumenSwitch = React.forwardRef<HTMLInputElement, LumenSwitchProps>(
-  function LumenSwitch({ label, description, size, className, ...other }, ref) {
+  function LumenSwitch(
+    { label, description, size, visuallyHiddenLabel = false, className, ...other },
+    ref,
+  ) {
     return (
-      <label className={['lumen-switch', className].filter(Boolean).join(' ')} data-size={size}>
+      <label
+        className={['lumen-switch', className].filter(Boolean).join(' ')}
+        data-size={size}
+        data-label-hidden={visuallyHiddenLabel || undefined}
+      >
         <span className="lumen-switch-control">
           <span className="lumen-switch-track" aria-hidden="true">
             <span className="lumen-switch-line lumen-switch-leading-line" />

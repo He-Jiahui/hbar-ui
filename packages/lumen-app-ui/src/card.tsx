@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
+import { LumenSwitch, LumenTabs } from './ui-controls';
 
 export interface LumenCardListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -445,23 +446,21 @@ function Integrations(
                     {connected ? integration.connectedDetail : integration.disconnectedDetail}
                   </LumenText>
                 </div>
-                <LumenButton
+                <LumenSwitch
                   className="lumen-card-switch"
-                  role="switch"
-                  variant={connected ? 'solid' : 'outlined'}
-                  aria-checked={connected}
-                  aria-label={props.content.labels.toggle(integration.name)}
-                  onClick={() => {
+                  label={props.content.labels.toggle(integration.name)}
+                  visuallyHiddenLabel
+                  checked={connected}
+                  onChange={(event) => {
+                    const next = event.currentTarget.checked;
                     setConnectedIds((current) =>
-                      connected
-                        ? current.filter((id) => id !== integration.id)
-                        : [...current, integration.id],
+                      next
+                        ? [...current, integration.id]
+                        : current.filter((id) => id !== integration.id),
                     );
-                    report(props.onAction, connected ? 'disconnect' : 'connect', integration.id);
+                    report(props.onAction, next ? 'connect' : 'disconnect', integration.id);
                   }}
-                >
-                  <i aria-hidden="true" />
-                </LumenButton>
+                />
               </article>
             );
           })
@@ -585,20 +584,13 @@ function Plans(props: Omit<LumenCardProps, 'content'> & { content: LumenCardPlan
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
-      <div className="lumen-card-tabs" role="tablist" aria-label={props.content.labels.periods}>
-        {periods.map((item) => (
-          <LumenButton
-            key={item.id}
-            role="tab"
-            variant="text"
-            aria-selected={period?.id === item.id}
-            disabled={item.disabled}
-            onClick={() => setPeriodId(item.id)}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+      <LumenTabs
+        className="lumen-card-tabs"
+        label={props.content.labels.periods}
+        items={periods}
+        selectedId={period?.id ?? null}
+        onChange={setPeriodId}
+      />
       <div
         className="lumen-card-plan-grid"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
@@ -652,22 +644,16 @@ function AccountMetrics(
         title={props.content.labels.title}
         detail={range?.label ?? props.content.labels.empty}
       />
-      <div className="lumen-card-tabs" role="tablist" aria-label={props.content.labels.ranges}>
-        {ranges.map((item) => (
-          <LumenButton
-            key={item.id}
-            role="tab"
-            variant="text"
-            aria-selected={range?.id === item.id}
-            onClick={() => {
-              setRangeId(item.id);
-              report(props.onAction, 'range', item.id);
-            }}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+      <LumenTabs
+        className="lumen-card-tabs"
+        label={props.content.labels.ranges}
+        items={ranges}
+        selectedId={range?.id ?? null}
+        onChange={(id) => {
+          setRangeId(id);
+          report(props.onAction, 'range', id);
+        }}
+      />
       <div data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}>
         {props.content.metrics.length ? (
           <Metrics metrics={props.content.metrics} />

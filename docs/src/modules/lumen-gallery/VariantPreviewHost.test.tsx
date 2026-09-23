@@ -1987,9 +1987,9 @@ describe('Lumen formal variant fixtures', () => {
       <VariantPreviewHost entry={entries[1]} locale="en" unavailableLabel="Preview unavailable" />,
     );
     const github = screen.getByRole('switch', { name: 'Toggle GitHub' });
-    expect(github.getAttribute('aria-checked')).toBe('false');
+    expect((github as HTMLInputElement).checked).toBe(false);
     await view.user.click(github);
-    expect(github.getAttribute('aria-checked')).toBe('true');
+    expect((github as HTMLInputElement).checked).toBe(true);
     view.unmount();
 
     view = render(

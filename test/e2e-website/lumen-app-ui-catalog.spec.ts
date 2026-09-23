@@ -432,4 +432,28 @@ for (const mode of ['dark', 'light'] as const) {
       await expect(page.locator('.lumen-list select')).toHaveCount(0);
     });
   }
+
+  test(`card integration uses the shared luminous switch in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-card-2', mode));
+    const toggle = page.getByRole('switch').first();
+    await expect(toggle).toBeVisible();
+    await expect(page.locator('.lumen-card-switch').first()).toHaveAttribute(
+      'data-label-hidden',
+      'true',
+    );
+    const initial = await toggle.isChecked();
+    await toggle.press('Space');
+    await expect(toggle).toHaveJSProperty('checked', !initial);
+  });
+
+  for (const variant of [5, 6]) {
+    test(`card ${variant} uses foundation tabs in ${mode}`, async ({ page }) => {
+      await page.goto(preview(`hbar-app-ui-card-${variant}`, mode));
+      const tabs = page.getByRole('tablist').getByRole('tab');
+      await expect(tabs.first()).toBeVisible();
+      await tabs.first().press('ArrowRight');
+      await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
+    });
+  }
 }

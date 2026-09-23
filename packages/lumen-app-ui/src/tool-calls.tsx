@@ -733,6 +733,7 @@ function ToolPermissions(
                       <LumenSwitch
                         className={`hbar-app-ui-tool-calls-toggle${enabled ? ' is-enabled' : ''}`}
                         label={item.toggleLabel}
+                        visuallyHiddenLabel
                         checked={enabled}
                         onChange={(event) => {
                           const next = event.currentTarget.checked;

@@ -200,24 +200,7 @@
 }
 
 .lumen-card-switch {
-  inline-size: 2.25rem;
-  min-inline-size: 2.25rem;
-  block-size: 1.25rem;
-  justify-content: flex-start;
-  padding: 0.125rem;
-  border-radius: 999rem;
-}
-
-.lumen-card-switch > i {
-  inline-size: 0.875rem;
-  block-size: 0.875rem;
-  border-radius: 999rem;
-  background: currentColor;
-  transition: translate 140ms ease;
-}
-
-.lumen-card-switch[aria-checked='true'] {
-  justify-content: flex-end;
+  align-items: center;
 }
 
 .lumen-card-onboarding-grid {
@@ -338,10 +321,6 @@
   border-block-end: 0.0625rem solid var(--lumen-edge);
 }
 
-.lumen-card-tabs > button[aria-selected='true'] {
-  color: var(--lumen-accent);
-  box-shadow: inset 0 -0.125rem var(--lumen-accent);
-}
 
 .lumen-card-plan-grid {
   flex-wrap: wrap;
