@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { LumenButton } from '../primitives';
+import { LumenProgress } from '../ui-controls';
 import type {
   LumenBillingMetric,
   LumenBillingTone,
@@ -158,21 +159,14 @@ export function BillingProgress({
   readonly label: string;
   readonly tone?: LumenBillingTone | undefined;
 }) {
-  const bounded = Math.max(0, Math.min(100, value));
+  const tones = { neutral: 'info', positive: 'success', warning: 'warning', danger: 'danger' } as const;
   return (
-    <span
+    <LumenProgress
       className="hbar-app-ui-billing-progress"
-      role="progressbar"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={bounded}
-    >
-      <i
-        className={`hbar-app-ui-billing-progress-fill hbar-app-ui-billing-progress-${tone}`}
-        style={{ inlineSize: `${bounded}%` }}
-      />
-    </span>
+      label={label}
+      value={value}
+      tone={tones[tone]}
+    />
   );
 }
 

@@ -11,9 +11,9 @@
   --hbar-app-ui-billing-text: var(--lumen-ink);
   --hbar-app-ui-billing-muted: var(--lumen-muted);
   --hbar-app-ui-billing-subtle: color-mix(in srgb, var(--lumen-muted) 78%, transparent);
-  --hbar-app-ui-billing-positive: var(--lumen-success, oklch(0.58 0.15 153));
-  --hbar-app-ui-billing-warning: var(--lumen-warning, oklch(0.66 0.14 82));
-  --hbar-app-ui-billing-danger: var(--lumen-danger, oklch(0.6 0.18 28));
+  --hbar-app-ui-billing-positive: var(--lumen-success, oklch(58% 0.15 153deg));
+  --hbar-app-ui-billing-warning: var(--lumen-warning, oklch(66% 0.14 82deg));
+  --hbar-app-ui-billing-danger: var(--lumen-danger, oklch(60% 0.18 28deg));
   display: flex;
   min-inline-size: 0;
   min-block-size: 100%;
@@ -59,11 +59,6 @@
 .hbar-app-ui-billing-surface input,
 .hbar-app-ui-billing-surface select {
   font: inherit;
-}
-
-.hbar-app-ui-billing-surface button,
-.hbar-app-ui-billing-surface input,
-.hbar-app-ui-billing-surface select {
   min-inline-size: 0;
 }
 
@@ -150,30 +145,7 @@
 }
 
 .hbar-app-ui-billing-progress {
-  display: flex;
   block-size: 0.3125rem;
-  overflow: hidden;
-  border-radius: 999rem;
-  background: var(--hbar-app-ui-billing-border);
-}
-
-.hbar-app-ui-billing-progress-fill {
-  display: flex;
-  min-inline-size: 0;
-  border-radius: inherit;
-  background: var(--hbar-app-ui-billing-text);
-}
-
-.hbar-app-ui-billing-progress-positive {
-  background: var(--hbar-app-ui-billing-positive);
-}
-
-.hbar-app-ui-billing-progress-warning {
-  background: var(--hbar-app-ui-billing-warning);
-}
-
-.hbar-app-ui-billing-progress-danger {
-  background: var(--hbar-app-ui-billing-danger);
 }
 
 .hbar-app-ui-billing-metric {
@@ -707,22 +679,6 @@
   font-size: 0.8125rem;
 }
 
-.hbar-app-ui-billing-toggle-row input {
-  appearance: none;
-  inline-size: 2.25rem;
-  block-size: 1.25rem;
-  flex: 0 0 auto;
-  border: 0.0625rem solid var(--hbar-app-ui-billing-border-strong);
-  border-radius: 999rem;
-  background: var(--hbar-app-ui-billing-bg);
-  cursor: pointer;
-}
-
-.hbar-app-ui-billing-toggle-row input:checked {
-  border-color: var(--hbar-app-ui-billing-text);
-  background: var(--hbar-app-ui-billing-text);
-}
-
 .hbar-app-ui-billing-unsaved {
   display: flex;
   min-inline-size: 0;
@@ -870,7 +826,7 @@
   font-size: 0.8125rem;
 }
 
-.hbar-app-ui-billing-field > span:first-child {
+.hbar-app-ui-billing-field > label:first-child {
   font-weight: 500;
 }
 
@@ -891,17 +847,13 @@
 }
 
 .hbar-app-ui-billing-field-control input,
-.hbar-app-ui-billing-field-control select {
+.hbar-app-ui-billing-field-control .lumen-choice-select {
   min-inline-size: 0;
   flex: 1 1 auto;
   border: 0;
   outline: 0;
   background: transparent;
   color: var(--hbar-app-ui-billing-text);
-}
-
-.hbar-app-ui-billing-field-control select {
-  cursor: pointer;
 }
 
 .hbar-app-ui-billing-field small {

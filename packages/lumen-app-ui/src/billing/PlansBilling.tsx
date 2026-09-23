@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { LumenInput } from '../forms';
+import { LumenSwitch } from '../ui-controls';
 import { Bolt, Database, Layers3, Pencil, Plus, Shield, Sparkles, Users } from './glyphs';
 import type { LumenBillingCompositionProps } from './primitives';
 import type { LumenBillingPlanFeature, LumenBillingPlansContent } from './content';
@@ -193,19 +193,17 @@ export default function PlansBilling({
                     const key = `${plan.id}:${toggle.id}`;
                     const checked = toggleValues[key] ?? toggle.enabled;
                     return (
-                      <label className="hbar-app-ui-billing-toggle-row" key={toggle.id}>
+                      <div className="hbar-app-ui-billing-toggle-row" key={toggle.id}>
                         <span>{toggle.label}</span>
-                        <LumenInput
-                          type="checkbox"
-                          role="switch"
-                          aria-label={content.labels.togglePlan(plan.name, toggle.label)}
-                          aria-checked={checked}
+                        <LumenSwitch
+                          label={content.labels.togglePlan(plan.name, toggle.label)}
+                          visuallyHiddenLabel
                           checked={checked}
                           onChange={(event) =>
-                            updateToggle(plan.id, toggle.id, event.target.checked)
+                            updateToggle(plan.id, toggle.id, event.currentTarget.checked)
                           }
                         />
-                      </label>
+                      </div>
                     );
                   })}
                 </section>

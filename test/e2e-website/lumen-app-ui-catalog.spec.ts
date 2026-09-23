@@ -1091,4 +1091,35 @@ for (const mode of ['dark', 'light'] as const) {
       'progressbar',
     );
   });
+
+  test(`billing plan switches use the foundation control in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-billing-2', mode));
+    const toggle = page.locator('.hbar-app-ui-billing-toggle-row .lumen-switch-input').first();
+    await expect(toggle).toBeVisible();
+    const checked = await toggle.isChecked();
+    await toggle.press('Space');
+    await expect(toggle).toHaveJSProperty('checked', !checked);
+  });
+
+  test(`invoice currency uses a themed picker in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-billing-3', mode));
+    await page.getByRole('button', { name: '下一步' }).click();
+    const picker = page.getByRole('combobox', { name: '币种' });
+    await picker.click();
+    const last = page.getByRole('listbox').getByRole('option').last();
+    const label = await last.innerText();
+    await last.click();
+    await expect(picker).toContainText(label);
+    await expect(page.locator('.hbar-app-ui-billing-field select')).toHaveCount(0);
+  });
+
+  test(`billing usage shares a foundation progress strip in ${mode}`, async ({ page }) => {
+    await page.goto(preview('hbar-app-ui-billing-7', mode));
+    await expect(page.locator('.hbar-app-ui-billing-progress.lumen-progress').first()).toHaveAttribute(
+      'role',
+      'progressbar',
+    );
+  });
 }

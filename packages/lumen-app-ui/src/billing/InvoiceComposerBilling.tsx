@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { LumenInput, LumenSelect } from '../forms';
+import { LumenChoiceSelect, LumenInput } from '../forms';
 import { ArrowRight, Check, X } from './glyphs';
 import type { LumenBillingCompositionProps } from './primitives';
 import type {
@@ -27,8 +27,8 @@ function InvoiceField({
 }) {
   const update = (next: string) => onChange(next);
   return (
-    <label className="hbar-app-ui-billing-field" htmlFor={`hbar-app-ui-billing-field-${field.id}`}>
-      <span>{field.label}</span>
+    <div className="hbar-app-ui-billing-field">
+      <label htmlFor={`hbar-app-ui-billing-field-${field.id}`}>{field.label}</label>
       <span className="hbar-app-ui-billing-field-control">
         {field.prefix && <span aria-hidden="true">{field.prefix}</span>}
         {renderControl(field, value, update)}
@@ -39,7 +39,7 @@ function InvoiceField({
         )}
       </span>
       {field.description && <small>{field.description}</small>}
-    </label>
+    </div>
   );
 }
 
@@ -53,19 +53,19 @@ function renderControl(
     name: field.id,
     value,
     placeholder: field.placeholder,
-    onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-      onChange(event.target.value),
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => onChange(event.target.value),
   };
   switch (field.kind as LumenBillingFieldKind) {
     case 'select':
       return (
-        <LumenSelect {...common}>
-          {(field.choices ?? []).map((choice) => (
-            <option key={choice.id} value={choice.id}>
-              {choice.label}
-            </option>
-          ))}
-        </LumenSelect>
+        <LumenChoiceSelect
+          id={common.id}
+          label={field.label}
+          placeholder={field.placeholder}
+          options={field.choices ?? []}
+          value={field.choices?.some((choice) => choice.id === value) ? value : null}
+          onValueChange={onChange}
+        />
       );
     case 'date':
     case 'text':
