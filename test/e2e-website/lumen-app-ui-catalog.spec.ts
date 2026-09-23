@@ -1488,6 +1488,53 @@ for (const mode of ['dark', 'light'] as const) {
   });
 
   for (const width of [320, 390, 1280]) {
+    for (const variant of [2, 4]) {
+      test(`approval ${variant} separates status, copy and details at ${width}px in ${mode}`, async ({
+        page,
+      }) => {
+        await page.setViewportSize({ width, height: 720 });
+        await page.goto(preview(`hbar-app-ui-agent-approval-${variant}`, mode, 'en'));
+        const content = page.locator('.hbar-app-ui-agent-approval-card-content');
+        const geometry = await content.evaluate((element) => {
+          const status = element.querySelector('.hbar-app-ui-agent-approval-status')!;
+          const heading = element.querySelector('h2')!;
+          const description = element.querySelector('p')!;
+          const bounds = element.getBoundingClientRect();
+          return {
+            statusBeforeTitle:
+              status.getBoundingClientRect().bottom <= heading.getBoundingClientRect().top + 1,
+            titleBeforeDetail:
+              heading.getBoundingClientRect().bottom <= description.getBoundingClientRect().top + 1,
+            fits: element.scrollWidth <= element.clientWidth + 1,
+            copyLeftAligned: heading.getBoundingClientRect().left < bounds.left + 25,
+          };
+        });
+        expect(geometry).toEqual({
+          statusBeforeTitle: true,
+          titleBeforeDetail: true,
+          fits: true,
+          copyLeftAligned: true,
+        });
+        const details = page.locator(
+          variant === 2
+            ? '.hbar-app-ui-agent-approval-change-list > div'
+            : '.hbar-app-ui-agent-approval-scope-list .lumen-checkbox',
+        );
+        await expect(details).toHaveCount(variant === 2 ? 2 : 3);
+        const separated = await details.evaluateAll((rows) =>
+          rows.every((row, index) =>
+            index === 0
+              ? true
+              : rows[index - 1].getBoundingClientRect().bottom <=
+                row.getBoundingClientRect().top + 1,
+          ),
+        );
+        expect(separated).toBe(true);
+      });
+    }
+  }
+
+  for (const width of [320, 390, 1280]) {
     for (const [variant, groupName] of [
       [3, '可用计划'],
       [7, '交付选项'],

@@ -91,6 +91,16 @@
   flex-direction: column;
 }
 
+.hbar-app-ui-agent-approval-card-content,
+.hbar-app-ui-agent-approval-scope-list {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.hbar-app-ui-agent-approval-card-content > .hbar-app-ui-agent-approval-status {
+  align-self: flex-start;
+}
+
 .hbar-app-ui-agent-approval-action-row {
   flex-wrap: wrap;
   padding: 0.75rem 1rem;
@@ -171,6 +181,25 @@
   min-inline-size: 0;
 }
 
+.hbar-app-ui-agent-approval-change-list {
+  flex-direction: column;
+  inline-size: 100%;
+}
+
+.hbar-app-ui-agent-approval-change-list > div {
+  align-items: flex-start;
+}
+
+.hbar-app-ui-agent-approval-change-list dt {
+  flex: 0 1 10rem;
+  min-inline-size: 0;
+}
+
+.hbar-app-ui-agent-approval-change-list dd {
+  flex: 1 1 12rem;
+  min-inline-size: 0;
+}
+
 .hbar-app-ui-agent-approval-change-list > div,
 .hbar-app-ui-agent-approval-cost-metrics > div {
   display: flex;
@@ -182,13 +211,11 @@
   flex-wrap: wrap;
 }
 
-.hbar-app-ui-agent-approval-change-list > div,
 .hbar-app-ui-agent-approval-cost-metrics > div > :nth-child(2n + 1) {
   flex: 0.75 1 8rem;
   min-inline-size: 8rem;
 }
 
-.hbar-app-ui-agent-approval-change-list > div,
 .hbar-app-ui-agent-approval-cost-metrics > div > :nth-child(2n + 2) {
   flex: 1.25 1 0;
   min-inline-size: 0;
