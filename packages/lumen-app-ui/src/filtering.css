@@ -64,8 +64,7 @@
 .lumen-filtering-amenities,
 .lumen-filtering-rating,
 .lumen-filtering-prices,
-.lumen-filtering-diets,
-.lumen-filtering-tabs {
+.lumen-filtering-diets {
   display: flex;
   min-inline-size: 0;
   flex-wrap: wrap;
@@ -305,13 +304,6 @@
 }
 .lumen-filtering-assets small {
   color: var(--lumen-muted);
-}
-.lumen-filtering-tabs {
-  border-block-end: 0.0625rem solid var(--lumen-edge);
-}
-.lumen-filtering-tabs > button[aria-selected='true'] {
-  color: var(--lumen-accent);
-  box-shadow: inset 0 -0.125rem var(--lumen-accent);
 }
 .lumen-filtering-flight-controls {
   display: flex;

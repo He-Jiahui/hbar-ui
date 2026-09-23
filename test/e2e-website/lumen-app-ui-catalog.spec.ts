@@ -936,4 +936,33 @@ for (const mode of ['dark', 'light'] as const) {
     await tabs.getByRole('tab').first().press('ArrowRight');
     await expect(tabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
   });
+
+  for (const [variant, label] of [
+    [2, '状态'],
+    [2, '负责人'],
+    [4, '服务'],
+    [6, '职级'],
+    [8, '航司'],
+  ] as const) {
+    test(`filter ${variant} ${label} uses themed choices in ${mode}`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 680 });
+      await page.goto(preview(`hbar-app-ui-filtering-${variant}`, mode));
+      const picker = page.getByRole('combobox', { name: label });
+      await picker.click();
+      const option = page.getByRole('listbox').getByRole('option').last();
+      const text = await option.innerText();
+      await option.click();
+      await expect(picker).toContainText(text);
+      await expect(page.locator('.lumen-filtering select')).toHaveCount(0);
+    });
+  }
+
+  test(`flight departure filters share keyboard tabs in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-filtering-8', mode));
+    const tabs = page.getByRole('tablist', { name: '出发时段' });
+    await expect(tabs).toHaveClass(/lumen-tabs/);
+    await tabs.getByRole('tab').first().press('ArrowRight');
+    await expect(tabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
+  });
 }

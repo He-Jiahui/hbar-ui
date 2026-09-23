@@ -1,8 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { LumenCheckBox, LumenFormField, LumenInput, LumenSelect } from './forms';
+import { LumenCheckBox, LumenChoiceSelect, LumenFormField, LumenInput } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
+import { LumenTabs } from './ui-controls';
 
 export interface LumenFilteringListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -498,28 +499,22 @@ function Drawer(
             controlId={`${props.variantId}-status`}
             label={props.content.labels.status}
           >
-            <LumenSelect
+            <LumenChoiceSelect
+              id={`${props.variantId}-status`}
+              label={props.content.labels.status}
+              options={statuses}
               value={statusId}
-              onChange={(event) => setStatusId(event.currentTarget.value)}
-            >
-              {statuses.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.label}
-                </option>
-              ))}
-            </LumenSelect>
+              onValueChange={setStatusId}
+            />
           </LumenFormField>
           <LumenFormField controlId={`${props.variantId}-owner`} label={props.content.labels.owner}>
-            <LumenSelect
+            <LumenChoiceSelect
+              id={`${props.variantId}-owner`}
+              label={props.content.labels.owner}
+              options={owners}
               value={ownerId}
-              onChange={(event) => setOwnerId(event.currentTarget.value)}
-            >
-              {owners.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.label}
-                </option>
-              ))}
-            </LumenSelect>
+              onValueChange={setOwnerId}
+            />
           </LumenFormField>
           <LumenButton
             tone="primary"
@@ -652,17 +647,13 @@ function Log(props: Omit<LumenFilteringProps, 'content'> & { content: LumenFilte
           </LumenButton>
         ))}
       </div>
-      <LumenSelect
-        aria-label={props.content.labels.service}
+      <LumenChoiceSelect
+        id={`${props.variantId}-service`}
+        label={props.content.labels.service}
+        options={services}
         value={serviceId}
-        onChange={(event) => setServiceId(event.currentTarget.value)}
-      >
-        {services.map((item) => (
-          <option key={item.id} value={item.id}>
-            {item.label}
-          </option>
-        ))}
-      </LumenSelect>
+        onValueChange={setServiceId}
+      />
       <div className="lumen-filtering-histogram" aria-label={props.content.labels.volume}>
         {props.content.volume.map((bar) => (
           <i key={bar.id} style={{ blockSize: `${Math.max(0, Math.min(100, bar.value))}%` }} />
@@ -853,17 +844,13 @@ function Candidate(
           }}
         />
       </div>
-      <LumenSelect
-        aria-label={props.content.labels.seniority}
+      <LumenChoiceSelect
+        id={`${props.variantId}-seniority`}
+        label={props.content.labels.seniority}
+        options={seniorities}
         value={seniorityId}
-        onChange={(event) => setSeniorityId(event.currentTarget.value)}
-      >
-        {seniorities.map((item) => (
-          <option key={item.id} value={item.id}>
-            {item.label}
-          </option>
-        ))}
-      </LumenSelect>
+        onValueChange={setSeniorityId}
+      />
       <div
         className="lumen-filtering-results"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
@@ -950,41 +937,28 @@ function Flights(
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
-      <div
+      <LumenTabs
         className="lumen-filtering-tabs"
-        role="tablist"
-        aria-label={props.content.labels.departure}
-      >
-        {times.map((item) => (
-          <LumenButton
-            key={item.id}
-            role="tab"
-            variant="text"
-            aria-selected={time?.id === item.id}
-            onClick={() => {
-              setTimeId(item.id);
-              report(props.onAction, 'time', item.id);
-            }}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+        label={props.content.labels.departure}
+        items={times}
+        selectedId={time?.id ?? null}
+        onChange={(id) => {
+          setTimeId(id);
+          report(props.onAction, 'time', id);
+        }}
+      />
       <div className="lumen-filtering-flight-controls">
         <LumenFormField
           controlId={`${props.variantId}-airline`}
           label={props.content.labels.airline}
         >
-          <LumenSelect
+          <LumenChoiceSelect
+            id={`${props.variantId}-airline`}
+            label={props.content.labels.airline}
+            options={airlines}
             value={airlineId}
-            onChange={(event) => setAirlineId(event.currentTarget.value)}
-          >
-            {airlines.map((airline) => (
-              <option key={airline.id} value={airline.id}>
-                {airline.label}
-              </option>
-            ))}
-          </LumenSelect>
+            onValueChange={setAirlineId}
+          />
         </LumenFormField>
         <LumenFormField
           controlId={`${props.variantId}-duration`}
