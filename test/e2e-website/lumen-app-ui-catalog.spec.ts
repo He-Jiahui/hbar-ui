@@ -864,4 +864,13 @@ for (const mode of ['dark', 'light'] as const) {
       'true',
     );
   });
+
+  test(`markdown editor modes share keyboard tabs in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-editor-2', mode));
+    const tabs = page.getByRole('tablist', { name: '编辑模式' });
+    await expect(tabs).toHaveClass(/lumen-tabs/);
+    await tabs.getByRole('tab').first().press('ArrowRight');
+    await expect(tabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
+  });
 }

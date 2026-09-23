@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus } from './primitives';
+import { LumenTabs } from './ui-controls';
 
 export type LumenEditorFormattingAction =
   'bold' | 'italic' | 'strikethrough' | 'inline-code' | 'link';
@@ -388,23 +389,17 @@ function Markdown(
           <h1>{content.document.fileName}</h1>
           <p>{content.document.summary}</p>
         </div>
-        <div role="tablist" aria-label={content.labels.modeTabsLabel}>
-          {modes.map((item) => (
-            <LumenButton
-              variant="text"
-              role="tab"
-              aria-selected={mode === item}
-              key={item}
-              onClick={() => {
-                setMode(item);
-                content.onModeChange?.(item);
-                report(onAction, 'mode', item);
-              }}
-            >
-              {content.labels.modeLabel(item)}
-            </LumenButton>
-          ))}
-        </div>
+        <LumenTabs
+          label={content.labels.modeTabsLabel}
+          items={modes.map((item) => ({ id: item, label: content.labels.modeLabel(item) }))}
+          selectedId={mode}
+          onChange={(id) => {
+            const next = id as LumenMarkdownMode;
+            setMode(next);
+            content.onModeChange?.(next);
+            report(onAction, 'mode', next);
+          }}
+        />
       </header>
       <main className="hbar-app-ui-editor-markdown-main">
         {mode !== 'preview' ? (
