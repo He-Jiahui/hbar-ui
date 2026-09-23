@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { LumenCheckBox, LumenChoiceSelect, LumenFormField, LumenInput } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import { LumenTabs } from './ui-controls';
+import { LumenChip, LumenTabs } from './ui-controls';
 
 export interface LumenFilteringListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -580,16 +580,19 @@ function Query(
       <div className="lumen-filtering-rules">
         {rules.length ? (
           rules.map((rule) => (
-            <span key={rule.id}>
-              <strong>{rule.field}</strong> {rule.operator} <b>{rule.value}</b>
-              <LumenIconButton
-                size="s"
-                label={props.content.labels.removeRule(rule.field)}
-                onClick={() => setRules((current) => current.filter((item) => item.id !== rule.id))}
-              >
-                <Glyph name="close" />
-              </LumenIconButton>
-            </span>
+            <LumenChip
+              key={rule.id}
+              label={
+                <React.Fragment>
+                  <strong>{rule.field}</strong> {rule.operator} <b>{rule.value}</b>
+                </React.Fragment>
+              }
+              removeAction={{
+                label: props.content.labels.removeRule(rule.field),
+                onRemove: () =>
+                  setRules((current) => current.filter((item) => item.id !== rule.id)),
+              }}
+            />
           ))
         ) : (
           <LumenText as="p" tone="muted">
@@ -812,16 +815,15 @@ function Candidate(
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
       <div className="lumen-filtering-token-input">
         {skills.map((skill) => (
-          <span key={skill.id}>
-            {skill.label}
-            <LumenIconButton
-              size="s"
-              label={props.content.labels.removeSkill(skill.label)}
-              onClick={() => setSkills((current) => current.filter((item) => item.id !== skill.id))}
-            >
-              <Glyph name="close" />
-            </LumenIconButton>
-          </span>
+          <LumenChip
+            key={skill.id}
+            label={skill.label}
+            removeAction={{
+              label: props.content.labels.removeSkill(skill.label),
+              onRemove: () =>
+                setSkills((current) => current.filter((item) => item.id !== skill.id)),
+            }}
+          />
         ))}
         <LumenInput
           aria-label={props.content.labels.skill}

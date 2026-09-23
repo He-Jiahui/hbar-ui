@@ -553,7 +553,7 @@ export function LumenBadge({
 }
 
 export interface LumenChipProps {
-  label: string;
+  label: React.ReactNode;
   startAdornment?: React.ReactNode | undefined;
   selected?: boolean | undefined;
   disabled?: boolean | undefined;

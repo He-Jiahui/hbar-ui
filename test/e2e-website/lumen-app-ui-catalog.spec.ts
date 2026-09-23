@@ -1362,6 +1362,60 @@ for (const mode of ['dark', 'light'] as const) {
     });
   }
 
+  for (const width of [320, 390, 1280]) {
+    test(`filter rule chips keep rich copy and independent removal at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: width === 320 ? 568 : 820 });
+      const locale = mode === 'dark' ? 'zh' : 'en';
+      await page.goto(preview('hbar-app-ui-filtering-3', mode, locale));
+      const rules = page.locator('.lumen-filtering-rules');
+      const chips = rules.locator('[data-lumen-component="chip"]');
+      await expect(chips).toHaveCount(2);
+      await expect(chips.first().locator('strong')).toContainText(
+        locale === 'zh' ? '套餐' : 'Plan',
+      );
+      await expect(chips.first()).toHaveCSS('border-top-width', '0px');
+      const fit = await rules.evaluate((element) =>
+        [...element.children].every(
+          (item) => item.getBoundingClientRect().right <= element.getBoundingClientRect().right + 1,
+        ),
+      );
+      expect(fit).toBe(true);
+      await rules
+        .getByRole('button', { name: locale === 'zh' ? '移除 套餐' : 'Remove Plan' })
+        .click();
+      await expect(chips).toHaveCount(1);
+      await expect(page.locator('.lumen-filtering-results > article')).toHaveCount(3);
+      await page.getByRole('button', { name: locale === 'zh' ? '添加条件' : 'Add rule' }).click();
+      await expect(chips).toHaveCount(2);
+    });
+
+    test(`filter skill chips wrap and recover results at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: width === 320 ? 568 : 820 });
+      const locale = mode === 'dark' ? 'zh' : 'en';
+      await page.goto(preview('hbar-app-ui-filtering-6', mode, locale));
+      const input = page.locator('.lumen-filtering-token-input');
+      const chips = input.locator('[data-lumen-component="chip"]');
+      await expect(chips).toHaveCount(2);
+      await expect(chips.first()).toHaveCSS('border-top-width', '0px');
+      await input.getByRole('textbox').fill('GraphQL');
+      await input.getByRole('textbox').press('Enter');
+      await expect(chips).toHaveCount(3);
+      await expect(page.locator('.lumen-filtering-results > article')).toHaveCount(1);
+      await input
+        .getByRole('button', {
+          name: locale === 'zh' ? '移除技能 GraphQL' : 'Remove skill GraphQL',
+        })
+        .click();
+      await expect(page.locator('.lumen-filtering-results > article')).toHaveCount(2);
+      const fit = await input.evaluate((element) => element.scrollWidth <= element.clientWidth + 1);
+      expect(fit).toBe(true);
+    });
+  }
+
   test(`flight departure filters share keyboard tabs in ${mode}`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 680 });
     await page.goto(preview('hbar-app-ui-filtering-8', mode));
