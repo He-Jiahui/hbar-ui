@@ -928,6 +928,34 @@ for (const mode of ['dark', 'light'] as const) {
     });
   }
 
+  for (const width of [320, 390, 1280]) {
+    test(`incident responders use passive foundation chips at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: width === 320 ? 568 : 820 });
+      await page.goto(preview('hbar-app-ui-monitoring-3', mode, mode === 'dark' ? 'zh' : 'en'));
+      const responders = page.locator('.lumen-monitoring-responders');
+      const chips = responders.locator('[data-lumen-component="chip"]');
+      await expect(chips).toHaveCount(3);
+      await expect(chips.locator('button')).toHaveCount(0);
+      await expect(chips.first()).toHaveCSS('border-top-width', '0px');
+      const fit = await responders.evaluate((element) =>
+        [...element.querySelectorAll('.lumen-chip')].every(
+          (item) => item.getBoundingClientRect().right <= element.getBoundingClientRect().right + 1,
+        ),
+      );
+      expect(fit).toBe(true);
+      const picker = page.getByRole('combobox', {
+        name: mode === 'dark' ? '事件状态' : 'Incident status',
+      });
+      await picker.click();
+      await page.getByRole('listbox').getByRole('option').last().click();
+      await expect(
+        page.locator('.lumen-monitoring-incident [data-lumen-component="status"]'),
+      ).toHaveAttribute('data-tone', 'success');
+    });
+  }
+
   test(`fleet rows expose status and progress without horizontal clipping in ${mode}`, async ({
     page,
   }) => {

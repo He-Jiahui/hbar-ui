@@ -53,12 +53,8 @@
   align-items: center;
   gap: 0.5rem;
 }
-.lumen-monitoring-responders > span {
-  padding: 0.25rem 0.5rem;
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: 999rem;
+.lumen-monitoring-responders .lumen-chip {
   color: var(--lumen-muted);
-  font-size: 0.75rem;
 }
 .lumen-monitoring [data-hbar-app-ui-list-strategy='pane-scroll'] {
   max-block-size: min(38rem, 66vh);

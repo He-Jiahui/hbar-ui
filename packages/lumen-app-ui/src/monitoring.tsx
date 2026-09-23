@@ -4,7 +4,7 @@ import * as React from 'react';
 import { LumenChoiceSelect, LumenTextarea } from './forms';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
 import { LumenChart, type LumenChartPoint } from './ui-compositions';
-import { LumenProgress, LumenTabs } from './ui-controls';
+import { LumenChip, LumenProgress, LumenTabs } from './ui-controls';
 
 export interface LumenMonitoringListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -565,8 +565,8 @@ function Incident(
       </article>
       <div className="lumen-monitoring-responders" aria-label={props.content.labels.responders}>
         <strong>{props.content.labels.responders}</strong>
-        {props.content.responders.map((responder) => (
-          <span key={responder}>{responder}</span>
+        {props.content.responders.map((responder, index) => (
+          <LumenChip key={`${index}-${responder}`} label={responder} />
         ))}
       </div>
       <ol
