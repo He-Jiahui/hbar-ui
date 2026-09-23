@@ -5,6 +5,53 @@ function preview(id: string, mode: 'dark' | 'light' = 'dark') {
 }
 
 for (const mode of ['dark', 'light'] as const) {
+  for (const width of [390, 1280]) {
+    test(`comparison dashboard uses a borderless Lumen trend at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto(preview('hbar-app-ui-dashboard-6', mode));
+      const dashboard = page.locator('.hbar-app-ui-dashboard-variant-6');
+      const chart = dashboard.locator(
+        '.lumen-dashboard-comparison-layer[data-active="true"] .lumen-chart[data-kind="area"]',
+      );
+      await expect(chart).toBeVisible();
+      await expect(dashboard.locator('.lumen-dashboard-comparison-layer')).toHaveCount(3);
+      await expect(dashboard.locator('.lumen-dashboard-bars.is-horizontal')).toHaveCount(0);
+      await expect(dashboard.locator('.lumen-dashboard-metrics > article')).toHaveCount(3);
+      const presentation = await dashboard.evaluate((element) => {
+        const metric = element.querySelector<HTMLElement>('.lumen-dashboard-metrics > article')!;
+        const chart = element.querySelector<HTMLElement>('.lumen-chart')!;
+        return {
+          borderWidth: getComputedStyle(metric).borderTopWidth,
+          background: getComputedStyle(metric).backgroundColor,
+          chartColor: getComputedStyle(chart).color,
+          inkColor: getComputedStyle(element).color,
+          transition: getComputedStyle(chart.parentElement!).transitionDuration,
+        };
+      });
+      expect(presentation.borderWidth).toBe('0px');
+      expect(presentation.background).toBe('rgba(0, 0, 0, 0)');
+      expect(presentation.chartColor).toBe(presentation.inkColor);
+      expect(presentation.transition).toContain('0.32s');
+      const before = await chart.locator('polyline').getAttribute('points');
+      const revenue = dashboard.getByRole('tab', { name: '收入' });
+      await revenue.focus();
+      await revenue.press('ArrowRight');
+      await expect(dashboard.getByRole('tab', { name: '采用' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await expect(chart.locator('polyline')).not.toHaveAttribute('points', before!);
+      await expect(dashboard.getByText('18.4k')).toBeVisible();
+      await expect(
+        dashboard.locator('.lumen-dashboard-comparison-layer[aria-hidden="false"]'),
+      ).toHaveCount(1);
+    });
+  }
+}
+
+for (const mode of ['dark', 'light'] as const) {
   test(`context scope uses a Lumen choice list in ${mode}`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 680 });
     await page.goto(preview('hbar-app-ui-prompt-input-6', mode));
@@ -725,10 +772,9 @@ for (const mode of ['dark', 'light'] as const) {
       });
       expect(contained).toBe(true);
       if (variant === 6) {
-        await expect(page.locator('.lumen-feedback-progress.lumen-progress').first()).toHaveAttribute(
-          'role',
-          'progressbar',
-        );
+        await expect(
+          page.locator('.lumen-feedback-progress.lumen-progress').first(),
+        ).toHaveAttribute('role', 'progressbar');
       }
     });
   }
@@ -1086,10 +1132,9 @@ for (const mode of ['dark', 'light'] as const) {
 
   test(`integration sync shares foundation progress in ${mode}`, async ({ page }) => {
     await page.goto(preview('hbar-app-ui-integrations-6', mode));
-    await expect(page.locator('.hbar-app-ui-integration-progress.lumen-progress').first()).toHaveAttribute(
-      'role',
-      'progressbar',
-    );
+    await expect(
+      page.locator('.hbar-app-ui-integration-progress.lumen-progress').first(),
+    ).toHaveAttribute('role', 'progressbar');
   });
 
   test(`billing plan switches use the foundation control in ${mode}`, async ({ page }) => {
@@ -1117,10 +1162,9 @@ for (const mode of ['dark', 'light'] as const) {
 
   test(`billing usage shares a foundation progress strip in ${mode}`, async ({ page }) => {
     await page.goto(preview('hbar-app-ui-billing-7', mode));
-    await expect(page.locator('.hbar-app-ui-billing-progress.lumen-progress').first()).toHaveAttribute(
-      'role',
-      'progressbar',
-    );
+    await expect(
+      page.locator('.hbar-app-ui-billing-progress.lumen-progress').first(),
+    ).toHaveAttribute('role', 'progressbar');
   });
 
   for (const [id, label] of [
@@ -1146,7 +1190,10 @@ for (const mode of ['dark', 'light'] as const) {
     expect(before).toBeGreaterThan(1);
     await tabs.getByRole('tab').first().press('ArrowRight');
     await expect(tabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
-    await tabs.getByRole('button', { name: /^关闭 / }).first().click();
+    await tabs
+      .getByRole('button', { name: /^关闭 / })
+      .first()
+      .click();
     await expect(tabs.getByRole('tab')).toHaveCount(before - 1);
   });
 }

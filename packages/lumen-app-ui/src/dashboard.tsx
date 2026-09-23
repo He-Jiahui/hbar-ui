@@ -781,7 +781,6 @@ function Comparison(
   const [modeId, setModeId] = React.useState(props.content.initialModeId);
   const mode = selectLumenDashboardItem(modes, modeId);
   const metrics = props.content.metricsByMode[mode?.id ?? ''] ?? [];
-  const points = props.content.seriesByMode[mode?.id ?? ''] ?? [];
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
@@ -795,7 +794,34 @@ function Comparison(
         }}
       />
       <Metrics metrics={metrics} empty={props.content.labels.empty} />
-      <Bars points={points} label={props.content.labels.chart(mode?.label ?? '')} horizontal />
+      <figure className="lumen-dashboard-comparison-figure">
+        <figcaption>{props.content.labels.chart(mode?.label ?? '')}</figcaption>
+        <div className="lumen-dashboard-comparison-layers">
+          {modes.map((choice) => (
+            <div
+              key={choice.id}
+              className="lumen-dashboard-comparison-layer"
+              data-active={choice.id === mode?.id}
+              aria-hidden={choice.id !== mode?.id}
+            >
+              <LumenChart
+                className="lumen-dashboard-comparison-chart"
+                kind="area"
+                label={props.content.labels.chart(choice.label)}
+                series={[
+                  {
+                    id: choice.id,
+                    label: choice.label,
+                    points: chartPoints(props.content.seriesByMode[choice.id] ?? []),
+                    tone: 'neutral',
+                  },
+                ]}
+                empty={props.content.labels.empty}
+              />
+            </div>
+          ))}
+        </div>
+      </figure>
     </Root>
   );
 }
