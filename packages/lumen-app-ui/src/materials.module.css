@@ -298,6 +298,9 @@
   background: var(--lumen-reading);
   backdrop-filter: blur(0.75rem);
 }
+.field:focus-within {
+  z-index: 2;
+}
 .field[data-shape='square'] {
   border-radius: 0;
 }
@@ -317,11 +320,11 @@
 .fieldContent :global(.MuiInputLabel-root.MuiInputLabel-shrink) {
   transform: translate(0.875rem, -0.9375rem) scale(0.75);
 }
-.field .indicator {
+.field > .indicator {
   position: absolute;
   z-index: 1;
 }
-.field .indicator[data-edge='top'] {
+.field > .indicator[data-edge='top'] {
   top: -0.0625rem;
   left: -0.0625rem;
   justify-content: flex-end;
@@ -329,7 +332,7 @@
   box-sizing: border-box;
   width: calc(100% + 0.125rem);
 }
-.field .indicator[data-edge='bottom'] {
+.field > .indicator[data-edge='bottom'] {
   bottom: -0.0625rem;
   left: -0.0625rem;
   align-items: flex-end;
@@ -338,37 +341,37 @@
   box-sizing: border-box;
   width: calc(100% + 0.125rem);
 }
-.field .indicator[data-edge='left'] {
+.field > .indicator[data-edge='left'] {
   left: -0.0625rem;
   top: 0;
   bottom: 0;
 }
-.field .indicator[data-edge='right'] {
+.field > .indicator[data-edge='right'] {
   right: -0.0625rem;
   top: 0;
   bottom: 0;
 }
-.field:hover .beam {
+.field:hover > .indicator .beam {
   opacity: 0.8;
 }
-.field:focus-within .indicator[data-edge='bottom'] .beam {
+.field:focus-within > .indicator[data-edge='bottom'] .beam {
   width: 100%;
   opacity: 1;
 }
-.field:focus-within .indicator[data-edge='top'] .beam {
+.field:focus-within > .indicator[data-edge='top'] .beam {
   width: 100%;
   opacity: 1;
 }
-.field[data-boundary='horizontal'] .indicator[data-edge='top'] .beam,
-.field[data-boundary='horizontal'] .indicator[data-edge='bottom'] .beam {
+.field[data-boundary='horizontal'] > .indicator[data-edge='top'] .beam,
+.field[data-boundary='horizontal'] > .indicator[data-edge='bottom'] .beam {
   width: 100%;
 }
-.field:focus-within .indicator[data-edge='left'] .beam,
-.field:focus-within .indicator[data-edge='right'] .beam {
+.field:focus-within > .indicator[data-edge='left'] .beam,
+.field:focus-within > .indicator[data-edge='right'] .beam {
   height: 80%;
   opacity: 1;
 }
-.field:focus-within .halo {
+.field:focus-within > .indicator .halo {
   opacity: var(--lumen-glow, 0.65);
 }
 :global([data-lumen-dropzone]:hover) .indicator[data-length='area'] .beam,
