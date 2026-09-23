@@ -332,6 +332,43 @@
   max-inline-size: calc(100% - 2.5rem);
 }
 
+.hbar-app-ui-agent-activity-nested .lumen-agent-activity-progress > span {
+  background: var(--lumen-muted);
+  box-shadow: none;
+}
+
+[data-hbar-app-ui-theme='light']
+  .hbar-app-ui-agent-activity-nested
+  .hbar-app-ui-agent-activity-group-row:hover {
+  background: color-mix(in srgb, var(--lumen-ink) 2%, transparent);
+}
+
+[data-hbar-app-ui-theme='light']
+  .hbar-app-ui-agent-activity-nested-list
+  > li:nth-child(n + 4)
+  .hbar-app-ui-agent-activity-group-row:hover {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--lumen-ink) 2%, transparent),
+    transparent
+  );
+}
+
+[data-hbar-app-ui-theme='light']
+  .hbar-app-ui-agent-activity-nested-list
+  > li:first-child
+  .hbar-app-ui-agent-activity-group-row:not(:hover) {
+  background: transparent;
+}
+
+@media (min-width: 36rem) and (max-width: 48rem) {
+  .hbar-app-ui-agent-activity-nested,
+  .hbar-app-ui-agent-activity-nested .lumen-agent-activity-pane {
+    min-block-size: calc(100dvh - 6.75rem);
+    max-block-size: calc(100dvh - 6.75rem);
+  }
+}
+
 @media (min-width: 48rem) {
   .hbar-app-ui-agent-activity-nested,
   .hbar-app-ui-agent-activity-nested .lumen-agent-activity-pane {
@@ -516,16 +553,6 @@
 }
 
 @media (max-width: 48rem) {
-  .hbar-app-ui-agent-activity-nested .hbar-app-ui-agent-activity-child-list > li {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  .hbar-app-ui-agent-activity-nested
-    .hbar-app-ui-agent-activity-child-list
-    .lumen-agent-activity-progress {
-    display: none;
-  }
-
   .lumen-agent-activity-heading {
     align-items: flex-start;
     flex-wrap: wrap;
@@ -552,6 +579,18 @@
   .hbar-app-ui-agent-activity-child-list > li,
   .lumen-agent-activity-attempt-list > li {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 36rem) {
+  .hbar-app-ui-agent-activity-nested .hbar-app-ui-agent-activity-child-list > li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .hbar-app-ui-agent-activity-nested
+    .hbar-app-ui-agent-activity-child-list
+    .lumen-agent-activity-progress {
+    display: none;
   }
 }
 
