@@ -382,7 +382,7 @@ function ActivityFrame({
   return (
     <LumenSurface
       as="section"
-      boundary={variant === 3 ? 'none' : 'horizontal'}
+      boundary={variant === 3 || variant === 4 ? 'none' : 'horizontal'}
       className="lumen-agent-activity-root-surface"
       contentClassName={contentClassName}
       data-lumen-component="agent-activity"
@@ -565,93 +565,54 @@ function HistoryActivity(
 ) {
   const { content, onAction } = props;
   const rows = React.useMemo(() => uniqueLumenAgentActivityItems(content.rows), [content.rows]);
-  const [requestedId, setSelectedId] = React.useState<string | undefined>(rows[0]?.id);
-  const selectedId = rows.some((row) => row.id === requestedId) ? requestedId : rows[0]?.id;
+  const rerun = (id: string) => reportAction(onAction, 'rerun-history', id);
 
   return (
     <ActivityFrame {...props} className="hbar-app-ui-agent-activity-history">
-      <header className="lumen-agent-activity-heading hbar-app-ui-agent-activity-heading hbar-app-ui-agent-activity-history-heading">
-        <div>
-          <LumenText as="h2" variant="heading">
-            {content.labels.title}
-          </LumenText>
-          <LumenStatus value={content.labels.count} />
-        </div>
-        <LumenText as="p" tone="muted">
-          {content.labels.description}
-        </LumenText>
-      </header>
-      <ActivityPane strategy={content.listStrategy}>
-        <div
-          className="lumen-agent-activity-history-table hbar-app-ui-agent-activity-history-table"
-          role="table"
-          aria-label={content.labels.title}
-        >
-          <div
-            className="lumen-agent-activity-history-header hbar-app-ui-agent-activity-history-header"
-            role="row"
-          >
-            <span>{content.labels.run}</span>
-            <span>{content.labels.status}</span>
-            <span>{content.labels.duration}</span>
-            <span>{content.labels.cost}</span>
-            <span>{content.labels.started}</span>
-            <span>{content.labels.actions}</span>
-          </div>
-          <ol>
-            {rows.map((row) => (
-              <li
-                className={row.id === selectedId ? 'is-selected' : ''}
-                key={row.id}
-                role="row"
-                onClick={() => setSelectedId(row.id)}
-                onKeyDown={(event) => {
-                  if (
-                    event.target === event.currentTarget &&
-                    (event.key === 'Enter' || event.key === ' ')
-                  ) {
-                    event.preventDefault();
-                    setSelectedId(row.id);
-                  }
-                }}
-                tabIndex={0}
-              >
-                <span className="hbar-app-ui-agent-activity-history-cell hbar-app-ui-agent-activity-history-name">
-                  <small>{content.labels.run}</small>
-                  <strong>{row.name}</strong>
-                </span>
-                <span className="hbar-app-ui-agent-activity-history-cell">
-                  <small>{content.labels.status}</small>
-                  <ActivityStatus state={row.state} label={row.stateLabel} />
-                </span>
-                <span className="hbar-app-ui-agent-activity-history-cell">
-                  <small>{content.labels.duration}</small>
-                  <span>{row.duration}</span>
-                </span>
-                <span className="hbar-app-ui-agent-activity-history-cell">
-                  <small>{content.labels.cost}</small>
-                  <span>{row.cost}</span>
-                </span>
-                <span className="hbar-app-ui-agent-activity-history-cell">
-                  <small>{content.labels.started}</small>
-                  <span>{row.started}</span>
-                </span>
-                <LumenIconButton
-                  className="hbar-app-ui-agent-activity-history-action"
-                  size="s"
-                  label={`${content.labels.rerun} ${row.name}`}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    setSelectedId(row.id);
-                    reportAction(onAction, 'rerun-history', row.id);
-                  }}
-                >
+      <ActivityPane strategy={content.listStrategy} className="hbar-app-ui-agent-activity-history-pane">
+        <ul className="hbar-app-ui-agent-activity-history-cards">
+          {rows.map((row) => (
+            <li key={row.id}>
+              <div className="hbar-app-ui-agent-activity-history-card-top">
+                <span>{row.name}</span>
+                <LumenIconButton size="s" label={`${content.labels.rerun} ${row.name}`} onClick={() => rerun(row.id)}>
                   <ActivityGlyph name="retry" />
                 </LumenIconButton>
-              </li>
-            ))}
-          </ol>
-        </div>
+              </div>
+              <dl>
+                <div><dt>{content.labels.status}</dt><dd><ActivityStatus state={row.state} label={row.stateLabel} /></dd></div>
+                <div><dt>{content.labels.duration}</dt><dd>{row.duration}</dd></div>
+                <div><dt>{content.labels.cost}</dt><dd>{row.cost}</dd></div>
+                <div><dt>{content.labels.started}</dt><dd>{row.started}</dd></div>
+              </dl>
+            </li>
+          ))}
+        </ul>
+        <table className="hbar-app-ui-agent-activity-history-table">
+          <caption>{content.labels.description}</caption>
+          <thead><tr>
+            <th scope="col">{content.labels.run}</th>
+            <th scope="col">{content.labels.status}</th>
+            <th scope="col">{content.labels.duration}</th>
+            <th scope="col">{content.labels.cost}</th>
+            <th scope="col">{content.labels.started}</th>
+            <th scope="col" className="hbar-app-ui-agent-activity-history-action-label">{content.labels.actions}</th>
+          </tr></thead>
+          <tbody>{rows.map((row) => (
+            <tr key={row.id}>
+              <td>{row.name}</td>
+              <td><ActivityStatus state={row.state} label={row.stateLabel} /></td>
+              <td>{row.duration}</td>
+              <td>{row.cost}</td>
+              <td>{row.started}</td>
+              <td className="hbar-app-ui-agent-activity-history-action-cell">
+                <LumenIconButton size="s" label={`${content.labels.rerun} ${row.name}`} onClick={() => rerun(row.id)}>
+                  <ActivityGlyph name="retry" />
+                </LumenIconButton>
+              </td>
+            </tr>
+          ))}</tbody>
+        </table>
       </ActivityPane>
     </ActivityFrame>
   );
