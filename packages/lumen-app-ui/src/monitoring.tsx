@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { LumenChoiceSelect, LumenTextarea } from './forms';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
-import { LumenChart, type LumenChartPoint } from './ui-compositions';
+import { LumenChart, LumenList, type LumenChartPoint } from './ui-compositions';
 import { LumenChip, LumenProgress, LumenTabs } from './ui-controls';
 
 export interface LumenMonitoringListStrategy {
@@ -913,20 +913,20 @@ function Response(
         ]}
         empty={props.content.labels.empty}
       />
-      <div className="lumen-monitoring-endpoints" aria-label={props.content.labels.endpoints}>
-        {endpoints.length ? (
-          orderedEndpoints.map((item) => (
-            <React.Fragment key={item.id}>
-              <code>{item.path}</code>
-              <span>{item.value}</span>
-            </React.Fragment>
-          ))
-        ) : (
+      <LumenList
+        className="lumen-monitoring-endpoints"
+        label={props.content.labels.endpoints}
+        items={orderedEndpoints.map((item) => ({
+          id: item.id,
+          primary: <code>{item.path}</code>,
+          trailing: <span>{item.value}</span>,
+        }))}
+        empty={
           <LumenText as="p" tone="muted">
             {props.content.labels.empty}
           </LumenText>
-        )}
-      </div>
+        }
+      />
     </Root>
   );
 }

@@ -1705,6 +1705,34 @@ for (const mode of ['dark', 'light'] as const) {
       expect(geometry).toBe(true);
       await expect(rows.nth(1).getByRole('progressbar')).toHaveAttribute('aria-valuenow', '64');
     });
+
+    test(`monitoring endpoints use paired foundation list rows at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 720 });
+      await page.goto(preview('hbar-app-ui-monitoring-8', mode, 'en'));
+      const list = page.getByRole('list', { name: 'Endpoint latency' });
+      await expect(list).toHaveClass(/lumen-list/);
+      const rows = list.getByRole('listitem');
+      await expect(rows).toHaveCount(4);
+      const paired = await rows.evaluateAll((items) =>
+        items.every((item, index) => {
+          const path = item.querySelector('code')!.getBoundingClientRect();
+          const value = item.querySelector(':scope > span:last-child')!.getBoundingClientRect();
+          return (
+            path.right <= value.left + 1 &&
+            (index === 0 ||
+              items[index - 1].getBoundingClientRect().bottom <=
+                item.getBoundingClientRect().top + 1) &&
+            item.scrollWidth <= item.clientWidth + 1
+          );
+        }),
+      );
+      expect(paired).toBe(true);
+      await expect(rows.first()).toContainText('/v1/exports/:id');
+      await page.getByRole('button', { name: 'Sort: Slowest first' }).click();
+      await expect(rows.first()).toContainText('/v1/projects');
+    });
   }
 
   for (const [id, selector] of [

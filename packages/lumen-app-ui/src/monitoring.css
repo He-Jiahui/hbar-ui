@@ -413,19 +413,27 @@
 .lumen-monitoring-endpoints {
   display: flex;
   min-inline-size: 0;
-  gap: 0.5rem 1rem;
-  padding: 0.75rem;
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: var(--lumen-radius-control);
-  background: var(--lumen-glass);
+  flex-direction: column;
+  padding-inline: 0.25rem;
 }
-.lumen-monitoring-endpoints > :nth-child(2n + 1) {
+
+.lumen-monitoring-endpoints > li {
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.lumen-monitoring-endpoints > li > span:first-child {
   flex: 1 1 0;
   min-inline-size: 0;
 }
-.lumen-monitoring-endpoints > :nth-child(2n + 2) {
+
+.lumen-monitoring-endpoints > li code {
+  overflow-wrap: anywhere;
+}
+
+.lumen-monitoring-endpoints > li > span:last-child {
   flex: 0 0 auto;
-  min-inline-size: 0;
 }
 .lumen-monitoring-queue > section {
   display: flex;
