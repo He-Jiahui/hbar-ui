@@ -198,10 +198,16 @@ textarea.lumen-control {
   padding: 0.75rem;
 }
 
-.lumen-combobox-option {
+.lumen-combobox-popup .lumen-combobox-option {
   inline-size: 100%;
   justify-content: space-between;
   text-align: start;
+}
+
+.lumen-combobox-popup .lumen-combobox-option > [data-edge] {
+  box-sizing: border-box;
+  justify-content: flex-start;
+  padding-inline-start: var(--lumen-control-padding-inline, 0.75rem);
 }
 
 .lumen-combobox-option[data-active='true'] {

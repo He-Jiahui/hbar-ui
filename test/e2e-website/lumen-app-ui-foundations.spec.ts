@@ -1,6 +1,41 @@
 import { test, expect } from '@playwright/test';
 import axe from 'axe-core';
 
+for (const mode of ['dark', 'light']) {
+  test(`combo suggestions align copy and strip to the start ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 850 });
+    await page.goto(`/experiments/lumen-app-ui/foundations/?mode=${mode}&locale=zh`);
+    const input = page.getByRole('combobox', { name: '选择工作区' });
+    await input.click();
+    const option = page.getByRole('listbox', { name: '浏览工作区' }).getByRole('option').first();
+    const layout = await option.evaluate((element) => {
+      const content = element.firstElementChild!;
+      const strip = element.querySelector<HTMLElement>('[data-edge] > span')!;
+      const optionRect = element.getBoundingClientRect();
+      const contentRect = content.getBoundingClientRect();
+      const stripRect = strip.getBoundingClientRect();
+      return {
+        textAlign: getComputedStyle(element).textAlign,
+        justifyContent: getComputedStyle(element).justifyContent,
+        padding: Number.parseFloat(getComputedStyle(element).paddingInlineStart),
+        contentOffset: contentRect.left - optionRect.left,
+        stripOffset: stripRect.left - optionRect.left,
+        contentInside: contentRect.right <= optionRect.right,
+      };
+    });
+    expect(layout.textAlign).toBe('start');
+    expect(layout.justifyContent).toBe('space-between');
+    expect(layout.contentOffset).toBeCloseTo(layout.padding, 1);
+    expect(layout.stripOffset).toBeCloseTo(layout.contentOffset, 1);
+    expect(layout.contentInside).toBe(true);
+    await option.click();
+    await page.getByRole('button', { name: '浏览工作区' }).click();
+    await expect(
+      page.getByRole('listbox', { name: '浏览工作区' }).getByRole('option').first().locator('svg'),
+    ).toBeVisible();
+  });
+}
+
 test('actions remain borderless while the fixed strip communicates interaction', async ({
   page,
 }) => {
