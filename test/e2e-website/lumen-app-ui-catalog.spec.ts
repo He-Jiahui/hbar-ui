@@ -707,4 +707,29 @@ for (const mode of ['dark', 'light'] as const) {
     await tabs.first().press('ArrowRight');
     await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
   });
+
+  for (const [variant, label] of [
+    [4, '排序方式'],
+    [6, '统计周期'],
+  ] as const) {
+    test(`feedback ${variant} uses the shared tab strip in ${mode}`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 680 });
+      await page.goto(preview(`hbar-app-ui-feedback-${variant}`, mode));
+      const tabs = page.getByRole('tablist', { name: label });
+      await expect(tabs).toHaveClass(/lumen-tabs/);
+      await tabs.getByRole('tab').first().press('ArrowRight');
+      await expect(tabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
+      const contained = await tabs.evaluate((element) => {
+        const rect = element.getBoundingClientRect();
+        return element.scrollWidth <= element.clientWidth + 1 && rect.right <= innerWidth;
+      });
+      expect(contained).toBe(true);
+      if (variant === 6) {
+        await expect(page.locator('.lumen-feedback-progress.lumen-progress').first()).toHaveAttribute(
+          'role',
+          'progressbar',
+        );
+      }
+    });
+  }
 }

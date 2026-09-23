@@ -4,6 +4,7 @@ import * as React from 'react';
 import { LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { LumenChart } from './ui';
+import { LumenProgress, LumenTabs } from './ui-controls';
 
 export type LumenFeedbackListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -371,18 +372,13 @@ function FeedbackHeader({
 }
 
 function FeedbackProgress({ value, label }: { value: number; label: string }) {
-  const bounded = Math.max(0, Math.min(100, value));
   return (
-    <div
+    <LumenProgress
       className="lumen-feedback-progress"
-      role="progressbar"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={bounded}
-    >
-      <span style={{ inlineSize: `${bounded}%` }} />
-    </div>
+      label={label}
+      value={value}
+      tone="info"
+    />
   );
 }
 
@@ -766,19 +762,13 @@ function FeatureBoard({
           placeholder={content.labels.search}
           onChange={(event) => setQuery(event.currentTarget.value)}
         />
-        <div className="lumen-feedback-tabs" role="tablist" aria-label={content.labels.sortGroup}>
-          {content.sortOptions.map((option) => (
-            <LumenButton
-              key={option.id}
-              role="tab"
-              variant="text"
-              aria-selected={sortId === option.id}
-              onClick={() => setSortId(option.id)}
-            >
-              {option.label}
-            </LumenButton>
-          ))}
-        </div>
+        <LumenTabs
+          className="lumen-feedback-tabs"
+          label={content.labels.sortGroup}
+          items={content.sortOptions}
+          selectedId={sortId}
+          onChange={setSortId}
+        />
       </div>
       <div className="lumen-feedback-requests">
         {requests.length ? (
@@ -990,22 +980,16 @@ function Insights({
   return (
     <CompatibilityMarker className="lumen-feedback-insights" strategy={content.listStrategy}>
       <FeedbackHeader title={content.labels.title} detail={content.labels.description} />
-      <div className="lumen-feedback-tabs" role="tablist" aria-label={content.labels.periodGroup}>
-        {content.periods.map((period) => (
-          <LumenButton
-            key={period.id}
-            role="tab"
-            variant="text"
-            aria-selected={periodId === period.id}
-            onClick={() => {
-              setPeriodId(period.id);
-              report(onAction, 'change-period', period.id);
-            }}
-          >
-            {period.label}
-          </LumenButton>
-        ))}
-      </div>
+      <LumenTabs
+        className="lumen-feedback-tabs"
+        label={content.labels.periodGroup}
+        items={content.periods}
+        selectedId={periodId}
+        onChange={(id) => {
+          setPeriodId(id);
+          report(onAction, 'change-period', id);
+        }}
+      />
       <dl className="lumen-feedback-metrics">
         {content.metrics.map((metric) => (
           <div key={metric.id}>
