@@ -986,4 +986,16 @@ for (const mode of ['dark', 'light'] as const) {
     await tabs.getByRole('tab').first().press('ArrowRight');
     await expect(tabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
   });
+
+  test(`scoped sidebar uses a themed workspace choice in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-app-sidebar-3', mode));
+    const picker = page.getByRole('combobox', { name: '工作区范围' });
+    await picker.click();
+    const last = page.getByRole('listbox').getByRole('option').last();
+    const label = await last.innerText();
+    await last.click();
+    await expect(picker).toContainText(label);
+    await expect(page.locator('.lumen-app-sidebar-scoped select')).toHaveCount(0);
+  });
 }

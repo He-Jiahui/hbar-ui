@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { LumenInput, LumenSelect } from './forms';
+import { LumenChoiceSelect, LumenInput } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { LumenAppSidebar, LumenSidebarAction } from './workbench';
 
@@ -341,20 +341,16 @@ function Scoped(
   return (
     <Root {...props}>
       <aside className="lumen-app-sidebar-scoped">
-        <LumenSelect
-          aria-label={props.content.labels.scope}
-          value={selectLumenAppSidebarItem(scopes, scopeId)?.id ?? ''}
-          onChange={(event) => {
-            setScopeId(event.target.value);
-            report(props.onAction, 'scope', event.target.value);
+        <LumenChoiceSelect
+          id={`${props.variantId}-scope`}
+          label={props.content.labels.scope}
+          options={scopes}
+          value={selectLumenAppSidebarItem(scopes, scopeId)?.id ?? null}
+          onValueChange={(id) => {
+            setScopeId(id);
+            report(props.onAction, 'scope', id);
           }}
-        >
-          {scopes.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.label}
-            </option>
-          ))}
-        </LumenSelect>
+        />
         <label htmlFor="lumen-app-sidebar-search">
           <Glyph name="search" />
           <LumenInput
