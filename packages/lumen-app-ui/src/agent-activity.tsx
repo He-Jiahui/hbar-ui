@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { LumenDisclosure } from './disclosure';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './agent-activity.css';
@@ -312,16 +311,25 @@ function ActivityStateMark({ state }: { readonly state: LumenAgentActivityState 
   return <i className={`lumen-agent-activity-state-mark is-${state}`} aria-hidden="true" />;
 }
 
-function ActivityProgress({ value, label }: { readonly value: number; readonly label: string }) {
+function ActivityProgress({
+  value,
+  label,
+  decorative = false,
+}: {
+  readonly value: number;
+  readonly label: string;
+  readonly decorative?: boolean | undefined;
+}) {
   const bounded = Math.max(0, Math.min(100, Number.isFinite(value) ? value : 0));
   return (
     <div
       className="lumen-agent-activity-progress"
-      role="progressbar"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={bounded}
+      role={decorative ? undefined : 'progressbar'}
+      aria-hidden={decorative ? true : undefined}
+      aria-label={decorative ? undefined : label}
+      aria-valuemin={decorative ? undefined : 0}
+      aria-valuemax={decorative ? undefined : 100}
+      aria-valuenow={decorative ? undefined : bounded}
     >
       <span style={{ inlineSize: `${bounded}%` }} />
     </div>
@@ -455,29 +463,8 @@ function NestedActivity(
     [groups],
   );
   const [openIds, setOpenIds] = React.useState<readonly string[]>(defaultOpenIds);
-  const allOpen = groups.length > 0 && groups.every((group) => openIds.includes(group.id));
-  const toggleAll = () => {
-    setOpenIds(allOpen ? [] : groups.map((group) => group.id));
-    reportAction(onAction, 'toggle-nested-groups', allOpen ? 'collapse' : 'expand');
-  };
-
   return (
     <ActivityFrame {...props} className="hbar-app-ui-agent-activity-nested">
-      <header className="lumen-agent-activity-heading hbar-app-ui-agent-activity-heading">
-        <div>
-          <LumenText as="h2" variant="heading">
-            {content.labels.title}
-          </LumenText>
-          <p>
-            <span>{content.labels.status}</span>
-            <span aria-hidden="true">{content.labels.separator}</span>
-            <span>{content.labels.elapsed}</span>
-          </p>
-        </div>
-        <LumenButton variant="outlined" size="s" onClick={toggleAll}>
-          {allOpen ? content.labels.collapse : content.labels.expand}
-        </LumenButton>
-      </header>
       <ActivityPane strategy={content.listStrategy}>
         <ol className="lumen-agent-activity-nested-list hbar-app-ui-agent-activity-nested-list">
           {groups.map((group) => {
@@ -485,38 +472,36 @@ function NestedActivity(
             const children = uniqueLumenAgentActivityItems(group.children);
             return (
               <li key={group.id}>
-                <LumenDisclosure
-                  open={open}
-                  className="lumen-agent-activity-group"
-                  aria-label={open ? content.labels.collapseGroup : content.labels.expandGroup}
-                  onToggle={(event) => {
-                    const nextOpen = event.currentTarget.open;
-                    setOpenIds((current) =>
-                      nextOpen
-                        ? [...current.filter((id) => id !== group.id), group.id]
-                        : current.filter((id) => id !== group.id),
-                    );
-                    if (nextOpen !== open) {
+                <div className="lumen-agent-activity-group">
+                  <button
+                    type="button"
+                    className="hbar-app-ui-agent-activity-group-row"
+                    aria-expanded={open}
+                    onClick={() => {
+                      setOpenIds((current) =>
+                        current.includes(group.id)
+                          ? current.filter((id) => id !== group.id)
+                          : [...current, group.id],
+                      );
                       reportAction(onAction, 'toggle-nested-group', group.id);
-                    }
-                  }}
-                  summary={
-                    <span className="hbar-app-ui-agent-activity-group-row">
-                      <strong>{group.label}</strong>
-                      <time>{group.duration}</time>
-                    </span>
-                  }
-                >
-                  <ol className="hbar-app-ui-agent-activity-child-list">
-                    {children.map((child) => (
-                      <li key={child.id}>
-                        <span>{child.label}</span>
-                        <ActivityProgress label={child.label} value={child.progress} />
-                        <time>{child.duration}</time>
-                      </li>
-                    ))}
-                  </ol>
-                </LumenDisclosure>
+                    }}
+                  >
+                    <strong>{group.label}</strong>
+                    <time>{group.duration}</time>
+                    <span aria-hidden="true" className="hbar-app-ui-agent-activity-chevron" />
+                  </button>
+                  {open ? (
+                    <ol className="hbar-app-ui-agent-activity-child-list">
+                      {children.map((child) => (
+                        <li key={child.id}>
+                          <span>{child.label}</span>
+                          <ActivityProgress decorative label={child.label} value={child.progress} />
+                          <time>{child.duration}</time>
+                        </li>
+                      ))}
+                    </ol>
+                  ) : null}
+                </div>
               </li>
             );
           })}
