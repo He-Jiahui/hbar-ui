@@ -3,7 +3,9 @@ import type { GalleryLocale } from './emptyStateFixtures';
 
 const copy = (locale: GalleryLocale, zh: string, en: string) => (locale === 'zh' ? zh : en);
 
-export function createAgentActivityFixtures(locale: GalleryLocale): LumenAgentActivityContent {
+export default function createAgentActivityFixtures(
+  locale: GalleryLocale,
+): LumenAgentActivityContent {
   const t = (zh: string, en: string) => copy(locale, zh, en);
   const grown = { kind: 'content-grown' as const, expectedMaximum: 12 };
   return {
@@ -132,6 +134,7 @@ export function createAgentActivityFixtures(locale: GalleryLocale): LumenAgentAc
         started: t('开始时间', 'Started'),
         actions: t('操作', 'Actions'),
         rerun: t('再次运行', 'Rerun'),
+        empty: t('暂无运行记录', 'No runs yet'),
       },
       rows: [
         {

@@ -106,6 +106,7 @@ export interface LumenAgentActivityHistoryContent {
     readonly started: string;
     readonly actions: string;
     readonly rerun: string;
+    readonly empty: string;
   };
   readonly rows: readonly LumenAgentActivityHistoryRow[];
   readonly listStrategy: LumenAgentActivityListStrategy;
@@ -313,7 +314,12 @@ function ActivityStateMark({ state }: { readonly state: LumenAgentActivityState 
 
 function ActivityProgress({ value, label }: { readonly value: number; readonly label: string }) {
   return (
-    <LumenProgress className="lumen-agent-activity-progress" label={label} value={value} tone="info" />
+    <LumenProgress
+      className="lumen-agent-activity-progress"
+      label={label}
+      value={value}
+      tone="info"
+    />
   );
 }
 
@@ -635,62 +641,73 @@ function HistoryActivity(
             className="lumen-agent-activity-history-header hbar-app-ui-agent-activity-history-header"
             role="row"
           >
-            <span>{content.labels.run}</span>
-            <span>{content.labels.status}</span>
-            <span>{content.labels.duration}</span>
-            <span>{content.labels.cost}</span>
-            <span>{content.labels.started}</span>
-            <span>{content.labels.actions}</span>
+            <span role="columnheader">{content.labels.run}</span>
+            <span role="columnheader">{content.labels.status}</span>
+            <span role="columnheader">{content.labels.duration}</span>
+            <span role="columnheader">{content.labels.cost}</span>
+            <span role="columnheader">{content.labels.started}</span>
+            <span role="columnheader">{content.labels.actions}</span>
           </div>
-          <ol>
-            {rows.map((row) => (
-              <li
-                className={row.id === effectiveSelectedId ? 'is-selected' : ''}
-                key={row.id}
-                role="row"
-                tabIndex={0}
-                onClick={() => setSelectedId(row.id)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault();
-                    setSelectedId(row.id);
-                  }
-                }}
-              >
-                <span className="hbar-app-ui-agent-activity-history-cell hbar-app-ui-agent-activity-history-name">
-                  <small>{content.labels.run}</small>
-                  <strong>{row.name}</strong>
-                </span>
-                <span className="hbar-app-ui-agent-activity-history-cell">
-                  <small>{content.labels.status}</small>
-                  <ActivityStatus state={row.state} label={row.stateLabel} />
-                </span>
-                <span className="hbar-app-ui-agent-activity-history-cell">
-                  <small>{content.labels.duration}</small>
-                  <span>{row.duration}</span>
-                </span>
-                <span className="hbar-app-ui-agent-activity-history-cell">
-                  <small>{content.labels.cost}</small>
-                  <span>{row.cost}</span>
-                </span>
-                <span className="hbar-app-ui-agent-activity-history-cell">
-                  <small>{content.labels.started}</small>
-                  <span>{row.started}</span>
-                </span>
-                <LumenIconButton
-                  className="hbar-app-ui-agent-activity-history-action"
-                  size="s"
-                  label={`${content.labels.rerun} ${row.name}`}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    setSelectedId(row.id);
-                    reportAction(onAction, 'rerun-history', row.id);
-                  }}
-                >
-                  <ActivityGlyph name="retry" />
-                </LumenIconButton>
+          <ol role="rowgroup">
+            {rows.length === 0 ? (
+              <li className="is-empty" role="row">
+                <span role="cell">{content.labels.empty}</span>
               </li>
-            ))}
+            ) : (
+              rows.map((row) => (
+                <li
+                  className={row.id === effectiveSelectedId ? 'is-selected' : ''}
+                  key={row.id}
+                  role="row"
+                  aria-selected={row.id === effectiveSelectedId}
+                >
+                  <span
+                    role="cell"
+                    className="hbar-app-ui-agent-activity-history-cell hbar-app-ui-agent-activity-history-name"
+                  >
+                    <small>{content.labels.run}</small>
+                    <LumenButton
+                      className="hbar-app-ui-agent-activity-history-select"
+                      variant="text"
+                      aria-current={row.id === effectiveSelectedId ? 'true' : undefined}
+                      indicatorState={row.id === effectiveSelectedId ? 'selected' : undefined}
+                      onClick={() => setSelectedId(row.id)}
+                    >
+                      <strong>{row.name}</strong>
+                    </LumenButton>
+                  </span>
+                  <span role="cell" className="hbar-app-ui-agent-activity-history-cell">
+                    <small>{content.labels.status}</small>
+                    <ActivityStatus state={row.state} label={row.stateLabel} />
+                  </span>
+                  <span role="cell" className="hbar-app-ui-agent-activity-history-cell">
+                    <small>{content.labels.duration}</small>
+                    <span>{row.duration}</span>
+                  </span>
+                  <span role="cell" className="hbar-app-ui-agent-activity-history-cell">
+                    <small>{content.labels.cost}</small>
+                    <span>{row.cost}</span>
+                  </span>
+                  <span role="cell" className="hbar-app-ui-agent-activity-history-cell">
+                    <small>{content.labels.started}</small>
+                    <span>{row.started}</span>
+                  </span>
+                  <span role="cell" className="hbar-app-ui-agent-activity-history-action-cell">
+                    <LumenIconButton
+                      className="hbar-app-ui-agent-activity-history-action"
+                      size="s"
+                      label={`${content.labels.rerun} ${row.name}`}
+                      onClick={() => {
+                        setSelectedId(row.id);
+                        reportAction(onAction, 'rerun-history', row.id);
+                      }}
+                    >
+                      <ActivityGlyph name="retry" />
+                    </LumenIconButton>
+                  </span>
+                </li>
+              ))
+            )}
           </ol>
         </div>
       </ActivityPane>

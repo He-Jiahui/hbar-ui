@@ -1,5 +1,5 @@
 import { createAgentPlanFixtures } from './agentPlanFixtures';
-import { createAgentActivityFixtures } from './agentActivityLumenFixtures';
+import createAgentActivityFixtures from './agentActivityLumenFixtures';
 import { createAgentApprovalFixtures } from './agentApprovalLumenFixtures';
 import { createAppShellFixtures } from './appShellLumenFixtures';
 import { createAppSidebarFixtures } from './appSidebarLumenFixtures';

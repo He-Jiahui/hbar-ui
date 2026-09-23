@@ -832,6 +832,71 @@ for (const mode of ['dark', 'light'] as const) {
     expect(lamp.width).toBeLessThanOrEqual(lamp.buttonWidth);
   });
 
+  for (const width of [320, 390, 768, 1280]) {
+    test(`run history separates selection and retry controls at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      const locale = mode === 'dark' ? 'zh' : 'en';
+      await page.setViewportSize({ width, height: width === 320 ? 568 : 820 });
+      await page.goto(preview('hbar-app-ui-agent-activity-4', mode, locale));
+      const rows = page.locator('.lumen-agent-activity-history-table ol > li');
+      await expect(rows).toHaveCount(3);
+      await expect(
+        page.locator('.lumen-agent-activity-history-header [role="columnheader"]'),
+      ).toHaveCount(6);
+      await expect(rows.first()).toHaveAttribute('aria-selected', 'true');
+      await expect(rows.locator(':scope > [role="cell"]')).toHaveCount(18);
+      await expect(rows.locator(':scope > button')).toHaveCount(0);
+      const geometry = await rows.evaluateAll((items) =>
+        items.map((row, index) => {
+          const cells = [...row.children];
+          const next = items[index + 1];
+          const bounds = row.getBoundingClientRect();
+          const select = getComputedStyle(
+            row.querySelector('.hbar-app-ui-agent-activity-history-select')!,
+          );
+          return {
+            fits: cells.every((cell) => cell.getBoundingClientRect().right <= bounds.right + 1),
+            distinct: !next || bounds.bottom <= next.getBoundingClientRect().top,
+            textStarts: select.textAlign === 'start' && parseFloat(select.paddingInlineStart) === 0,
+            noOverlap: cells.every((cell, cellIndex) =>
+              cells.slice(cellIndex + 1).every((other) => {
+                const a = cell.getBoundingClientRect();
+                const b = other.getBoundingClientRect();
+                return (
+                  a.bottom <= b.top || b.bottom <= a.top || a.right <= b.left || b.right <= a.left
+                );
+              }),
+            ),
+          };
+        }),
+      );
+      expect(geometry).toEqual(
+        Array.from({ length: 3 }, () => ({
+          fits: true,
+          distinct: true,
+          textStarts: true,
+          noOverlap: true,
+        })),
+      );
+      const second = rows.nth(1).getByRole('button', {
+        name: locale === 'zh' ? '搜索指标摘要' : 'Search metrics summary',
+        exact: true,
+      });
+      await second.focus();
+      await second.press('Enter');
+      await expect(rows.nth(1)).toHaveAttribute('aria-selected', 'true');
+      await rows
+        .first()
+        .getByRole('button', {
+          name: locale === 'zh' ? '再次运行 Q4 访谈综合' : 'Rerun Q4 interview synthesis',
+        })
+        .click();
+      await expect(rows.first()).toHaveAttribute('aria-selected', 'true');
+      await expect(rows.nth(1)).toHaveAttribute('aria-selected', 'false');
+    });
+  }
+
   test(`log entries occupy separate readable lines in ${mode}`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 680 });
     await page.goto(preview('hbar-app-ui-agent-activity-5', mode));

@@ -280,9 +280,14 @@
   border-radius: var(--lumen-radius-control, 0.375rem);
 }
 
-.lumen-agent-activity-history-table li:hover,
 .lumen-agent-activity-history-table li.is-selected {
   background: var(--lumen-glass);
+}
+
+.lumen-agent-activity-history-table li.is-empty > :first-child {
+  flex: 1 1 100%;
+  min-inline-size: 0;
+  color: var(--lumen-muted);
 }
 
 .hbar-app-ui-agent-activity-history-cell {
@@ -290,6 +295,22 @@
   gap: 0.125rem;
   min-width: 0;
   min-inline-size: 0;
+}
+
+.lumen-agent-activity-history-table .hbar-app-ui-agent-activity-history-select {
+  min-inline-size: 0;
+  justify-content: flex-start;
+  padding-inline: 0;
+  text-align: start;
+}
+
+.hbar-app-ui-agent-activity-history-select strong {
+  overflow-wrap: anywhere;
+}
+
+.hbar-app-ui-agent-activity-history-action-cell {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .hbar-app-ui-agent-activity-history-cell small {
@@ -473,35 +494,20 @@
   }
 
   .lumen-agent-activity-history-table li {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    flex-wrap: wrap;
     gap: 0.5rem;
     align-items: start;
   }
 
-  .lumen-agent-activity-history-table li > :nth-child(6n + 1),
-  .lumen-agent-activity-history-table li > :nth-child(6n + 2),
-  .lumen-agent-activity-history-table li > :nth-child(6n + 3),
-  .lumen-agent-activity-history-table li > :nth-child(6n + 4),
-  .lumen-agent-activity-history-table li > :nth-child(6n + 5) {
-    flex: none;
-    min-inline-size: 0;
-  }
-
-  .lumen-agent-activity-history-table li > :nth-child(6n + 6) {
-    justify-self: end;
+  .lumen-agent-activity-history-table li > :nth-child(n) {
+    flex: 1 1 calc(50% - 0.25rem);
     min-inline-size: 0;
   }
 
   .hbar-app-ui-agent-activity-history-cell {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    flex-wrap: wrap;
     align-items: baseline;
     gap: 0.25rem 0.5rem;
-  }
-
-  .lumen-agent-activity-history-table li > :nth-child(2n + 1) {
-    min-inline-size: 0;
   }
 
   .hbar-app-ui-agent-activity-history-cell small {
