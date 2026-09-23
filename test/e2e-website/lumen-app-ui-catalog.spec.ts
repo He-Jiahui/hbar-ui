@@ -798,4 +798,40 @@ for (const mode of ['dark', 'light'] as const) {
       'progressbar',
     );
   });
+
+  test(`scheduling time range shares themed choices in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-scheduling-2', mode));
+    const pickers = page.getByRole('combobox');
+    await expect(pickers).toHaveCount(2);
+    await pickers.first().click();
+    const last = page.getByRole('listbox').getByRole('option').last();
+    const label = await last.innerText();
+    await last.click();
+    await expect(pickers.first()).toContainText(label);
+    await expect(page.locator('.lumen-scheduling select')).toHaveCount(0);
+  });
+
+  test(`scheduling availability uses Lumen switches and wraps in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-scheduling-5', mode));
+    const rows = page.locator('.lumen-scheduling-availability article');
+    await expect(rows.first()).toBeVisible();
+    const contained = await rows.evaluateAll((items) =>
+      items.every((item) => item.scrollWidth <= item.clientWidth + 1),
+    );
+    expect(contained).toBe(true);
+    const toggle = rows.first().getByRole('switch');
+    const checked = await toggle.isChecked();
+    await toggle.press('Space');
+    await expect(toggle).toHaveJSProperty('checked', !checked);
+  });
+
+  test(`scheduling views share keyboard tabs in ${mode}`, async ({ page }) => {
+    await page.goto(preview('hbar-app-ui-scheduling-6', mode));
+    const tabs = page.getByRole('tablist', { name: '日程视图' });
+    await expect(tabs).toHaveClass(/lumen-tabs/);
+    await tabs.getByRole('tab').first().press('ArrowRight');
+    await expect(tabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
+  });
 }

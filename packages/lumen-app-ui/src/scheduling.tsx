@@ -1,8 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { LumenFormField, LumenInput, LumenSelect, LumenTextarea } from './forms';
+import { LumenChoiceSelect, LumenFormField, LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
+import { LumenSwitch, LumenTabs } from './ui-controls';
 
 export interface LumenSchedulingListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -449,25 +450,25 @@ function TimeRange(
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
       <div className="lumen-scheduling-time-range">
         <LumenFormField controlId={`${props.variantId}-start`} label={props.content.labels.start}>
-          <LumenSelect value={start} onChange={(event) => setStart(event.currentTarget.value)}>
-            {starts.map((option) => (
-              <option key={option.id} value={option.id} disabled={option.disabled}>
-                {option.label}
-              </option>
-            ))}
-          </LumenSelect>
+          <LumenChoiceSelect
+            id={`${props.variantId}-start`}
+            label={props.content.labels.start}
+            options={starts}
+            value={start}
+            onValueChange={setStart}
+          />
         </LumenFormField>
         <LumenText as="span" tone="muted">
           {props.content.labels.separator}
         </LumenText>
         <LumenFormField controlId={`${props.variantId}-end`} label={props.content.labels.end}>
-          <LumenSelect value={end} onChange={(event) => setEnd(event.currentTarget.value)}>
-            {ends.map((option) => (
-              <option key={option.id} value={option.id} disabled={option.disabled}>
-                {option.label}
-              </option>
-            ))}
-          </LumenSelect>
+          <LumenChoiceSelect
+            id={`${props.variantId}-end`}
+            label={props.content.labels.end}
+            options={ends}
+            value={end}
+            onValueChange={setEnd}
+          />
         </LumenFormField>
       </div>
       <div
@@ -744,16 +745,16 @@ function Availability(
             const active = enabled[day.id] ?? day.initiallyEnabled;
             return (
               <article key={day.id}>
-                <LumenButton
+                <LumenSwitch
                   className="lumen-scheduling-switch"
-                  role="switch"
-                  aria-checked={active}
-                  aria-label={props.content.labels.enableDay(day.label)}
-                  variant={active ? 'solid' : 'outlined'}
-                  onClick={() => setEnabled((current) => ({ ...current, [day.id]: !active }))}
-                >
-                  <i aria-hidden="true" />
-                </LumenButton>
+                  label={props.content.labels.enableDay(day.label)}
+                  visuallyHiddenLabel
+                  checked={active}
+                  onChange={(event) => {
+                    const checked = event.currentTarget.checked;
+                    setEnabled((current) => ({ ...current, [day.id]: checked }));
+                  }}
+                />
                 <LumenText as="strong" variant="label">
                   {day.label}
                 </LumenText>
@@ -826,24 +827,13 @@ function Timeline(
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
-      <div
+      <LumenTabs
         className="lumen-scheduling-tabs"
-        role="tablist"
-        aria-label={props.content.labels.viewGroup}
-      >
-        {views.map((view) => (
-          <LumenButton
-            key={view.id}
-            role="tab"
-            variant="text"
-            aria-selected={selectedView?.id === view.id}
-            disabled={view.disabled}
-            onClick={() => setViewId(view.id)}
-          >
-            {view.label}
-          </LumenButton>
-        ))}
-      </div>
+        label={props.content.labels.viewGroup}
+        items={views}
+        selectedId={selectedView?.id ?? null}
+        onChange={setViewId}
+      />
       <div
         className="lumen-scheduling-timeline"
         aria-label={props.content.labels.timeline}
