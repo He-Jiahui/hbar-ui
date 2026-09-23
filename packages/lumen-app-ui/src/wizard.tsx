@@ -669,9 +669,11 @@ function Review(props: Omit<LumenWizardProps, 'content'> & { content: LumenWizar
                     <LumenText as="h2" variant="heading">
                       {section.label}
                     </LumenText>
-                    <LumenText as="p" tone="muted">
-                      {section.detail}
-                    </LumenText>
+                    {section.detail ? (
+                      <LumenText as="p" tone="muted">
+                        {section.detail}
+                      </LumenText>
+                    ) : null}
                   </div>
                   <strong>{section.value}</strong>
                   {section.status ? <LumenStatus value={section.status} tone="success" /> : null}

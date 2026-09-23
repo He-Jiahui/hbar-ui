@@ -220,6 +220,7 @@
 .lumen-wizard-review-sections > section {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 1rem;
   padding: 1rem;
   border: 0.0625rem solid var(--lumen-edge);
@@ -232,8 +233,9 @@
   min-inline-size: 0;
 }
 .lumen-wizard-review-sections > section > :nth-child(4n + 2) {
-  flex: 0 0 auto;
+  flex: 1 1 12rem;
   min-inline-size: 0;
+  overflow-wrap: anywhere;
 }
 .lumen-wizard-review-sections > section > :nth-child(4n + 3) {
   flex: 0 0 auto;
@@ -284,6 +286,16 @@
   overscroll-behavior: contain;
 }
 @media (max-width: 46rem) {
+  .lumen-wizard-review-sections > section {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .lumen-wizard-review-sections > section > :nth-child(n) {
+    flex: 0 0 auto;
+  }
+  .lumen-wizard-review-sections > section > :is(.lumen-status, button) {
+    align-self: flex-start;
+  }
   .lumen-wizard-stage {
     padding: 0;
   }
@@ -310,20 +322,5 @@
   .lumen-wizard-form,
   .lumen-wizard-split {
     flex-direction: column;
-  }
-  .lumen-wizard-review-sections > section {
-    flex-wrap: wrap;
-  }
-  .lumen-wizard-review-sections > section > :nth-child(2n + 1) {
-    flex: 1 1 0;
-    min-inline-size: 0;
-  }
-  .lumen-wizard-review-sections > section > :nth-child(2n + 2) {
-    flex: 0 0 auto;
-    min-inline-size: 0;
-  }
-  .lumen-wizard-review-sections > section > button {
-    flex-basis: 100%;
-    justify-self: start;
   }
 }

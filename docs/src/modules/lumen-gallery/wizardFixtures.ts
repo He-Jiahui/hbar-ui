@@ -203,28 +203,25 @@ export function createWizardFixtures(locale: WizardFixtureLocale): LumenWizardCo
         empty: t('暂无设置。', 'No settings to review.'),
       },
       sections: [
-        choice(
-          'identity',
-          '工作区身份',
-          'Workspace identity',
-          'Northwind Cloud · northwind-cloud',
-          'Northwind Cloud · northwind-cloud',
-        ),
-        choice(
-          'timezone',
-          '默认时区',
-          'Default timezone',
-          '太平洋时间 · UTC−07:00',
-          'Pacific Time · UTC−07:00',
-        ),
-        choice(
-          'sync',
-          '数据同步',
-          'Data sync',
-          '从 Northstar 导入 128 条记录',
-          'Import 128 records from Northstar',
-        ),
-      ].map((section) => ({ ...section, value: section.detail, status: t('已验证', 'Verified') })),
+        {
+          id: 'identity',
+          label: t('工作区身份', 'Workspace identity'),
+          value: 'Northwind Cloud · northwind-cloud',
+          status: t('已验证', 'Verified'),
+        },
+        {
+          id: 'timezone',
+          label: t('默认时区', 'Default timezone'),
+          value: t('太平洋时间 · UTC−07:00', 'Pacific Time · UTC−07:00'),
+          status: t('已验证', 'Verified'),
+        },
+        {
+          id: 'sync',
+          label: t('数据同步', 'Data sync'),
+          value: t('从 Northstar 导入 128 条记录', 'Import 128 records from Northstar'),
+          status: t('已验证', 'Verified'),
+        },
+      ],
       listStrategy: grown,
     },
     migration: {

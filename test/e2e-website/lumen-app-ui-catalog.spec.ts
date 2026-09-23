@@ -1532,6 +1532,38 @@ for (const mode of ['dark', 'light'] as const) {
         expect(separated).toBe(true);
       });
     }
+
+    test(`wizard review values appear once and flow at ${width}px in ${mode}`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 720 });
+      await page.goto(preview('hbar-app-ui-wizard-5', mode, 'en'));
+      const rows = page.locator('.lumen-wizard-review-sections > section');
+      await expect(rows).toHaveCount(3);
+      await expect(rows.first()).toContainText('Northwind Cloud · northwind-cloud');
+      const geometry = await rows.evaluateAll((items) =>
+        items.every((item) => {
+          const label = item.querySelector('h2')!;
+          const value = item.querySelector(':scope > strong')!;
+          const status = item.querySelector('[data-lumen-component="status"]')!;
+          const edit = item.querySelector('button')!;
+          const fields = [label, value, status, edit];
+          const noOverlap = fields.every((field, index) =>
+            fields.slice(index + 1).every((next) => {
+              const a = field.getBoundingClientRect();
+              const b = next.getBoundingClientRect();
+              return a.bottom <= b.top + 1 || a.right <= b.left + 1;
+            }),
+          );
+          return noOverlap && item.scrollWidth <= item.clientWidth + 1;
+        }),
+      );
+      expect(geometry).toBe(true);
+      const valueOccurrences = await rows
+        .first()
+        .evaluate(
+          (element) => element.textContent?.match(/Northwind Cloud · northwind-cloud/g)?.length,
+        );
+      expect(valueOccurrences).toBe(1);
+    });
   }
 
   for (const width of [320, 390, 1280]) {
