@@ -732,4 +732,38 @@ for (const mode of ['dark', 'light'] as const) {
       }
     });
   }
+
+  for (const [variant, label] of [
+    [3, '分组方式'],
+    [6, '列'],
+  ] as const) {
+    test(`kanban ${variant} shares keyboard tabs in ${mode}`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 680 });
+      await page.goto(preview(`hbar-app-ui-kanban-${variant}`, mode));
+      const tabs = page.getByRole('tablist', { name: label });
+      await expect(tabs).toHaveClass(/lumen-tabs/);
+      await tabs.getByRole('tab').first().press('ArrowRight');
+      await expect(tabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
+    });
+  }
+
+  test(`kanban detail uses shared controlled choices in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-kanban-4', mode));
+    const picker = page.getByRole('combobox', { name: '优先级' });
+    await picker.click();
+    const last = page.getByRole('listbox').getByRole('option').last();
+    const label = await last.innerText();
+    await last.click();
+    await expect(picker).toContainText(label);
+    await expect(page.locator('.lumen-kanban select')).toHaveCount(0);
+  });
+
+  test(`kanban sprint capacity uses a shared meter in ${mode}`, async ({ page }) => {
+    await page.goto(preview('hbar-app-ui-kanban-5', mode));
+    await expect(page.locator('.lumen-kanban-progress.lumen-progress').first()).toHaveAttribute(
+      'role',
+      'progressbar',
+    );
+  });
 }

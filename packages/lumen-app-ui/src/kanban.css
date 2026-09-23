@@ -186,14 +186,6 @@
   flex-direction: column;
   gap: 0.5rem;
 }
-.lumen-kanban-tabs {
-  display: flex;
-  gap: 0.25rem;
-}
-.lumen-kanban-tabs > button[aria-selected='true'] {
-  color: var(--lumen-accent);
-  box-shadow: inset 0 -0.125rem var(--lumen-accent);
-}
 .lumen-kanban-regroup {
   display: flex;
   min-block-size: 0;
@@ -275,12 +267,12 @@
   border-inline-start: 0.0625rem solid var(--lumen-edge);
   background: var(--lumen-glass);
 }
-.lumen-kanban-detail > aside > label,
+.lumen-kanban-detail > aside > .lumen-kanban-field,
 .lumen-kanban-detail > aside > p,
 .lumen-kanban-detail > aside > button {
   margin: 0.75rem 1rem;
 }
-.lumen-kanban-detail > aside > label {
+.lumen-kanban-field {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
@@ -340,22 +332,12 @@
 }
 .lumen-kanban-progress {
   block-size: 0.4rem;
-  overflow: hidden;
-  border-radius: 999rem;
-  background: var(--lumen-edge);
-}
-.lumen-kanban-progress > i {
-  display: block;
-  block-size: 100%;
-  background: var(--lumen-accent);
 }
 .hbar-app-ui-kanban-variant-6 {
   min-block-size: 0;
 }
 .hbar-app-ui-kanban-variant-6 > .lumen-kanban-tabs {
-  justify-content: center;
   padding: 0.5rem;
-  border-block-end: 0.0625rem solid var(--lumen-edge);
 }
 .lumen-kanban-compact {
   display: flex;

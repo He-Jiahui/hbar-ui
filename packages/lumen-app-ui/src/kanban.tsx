@@ -1,8 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { LumenSelect } from './forms';
+import { LumenChoiceSelect } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
+import { LumenProgress, LumenTabs } from './ui-controls';
 
 export interface LumenKanbanListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -437,26 +438,16 @@ function Regroup(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanb
         title={props.content.labels.regroupTitle}
         detail={props.content.labels.regroupDetail}
         actions={
-          <div
+          <LumenTabs
             className="lumen-kanban-tabs"
-            role="tablist"
-            aria-label={props.content.labels.groupBy}
-          >
-            {groups.map((item) => (
-              <LumenButton
-                key={item.id}
-                variant="text"
-                role="tab"
-                aria-selected={item.id === group?.id}
-                onClick={() => {
-                  setGroupId(item.id);
-                  report(props.onAction, 'group', item.id);
-                }}
-              >
-                {item.label}
-              </LumenButton>
-            ))}
-          </div>
+            label={props.content.labels.groupBy}
+            items={groups}
+            selectedId={group?.id ?? null}
+            onChange={(id) => {
+              setGroupId(id);
+              report(props.onAction, 'group', id);
+            }}
+          />
         }
       />
       <main
@@ -491,6 +482,8 @@ function Detail(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanba
   const assignees = uniqueLumenKanbanItems(props.content.assignees);
   const priorities = uniqueLumenKanbanItems(props.content.priorities);
   const [cardId, setCardId] = React.useState(cards[0]?.id);
+  const [assigneeId, setAssigneeId] = React.useState(assignees[0]?.id ?? null);
+  const [priorityId, setPriorityId] = React.useState(priorities[0]?.id ?? null);
   const card = selectLumenKanbanItem(cards, cardId);
   return (
     <Root {...props}>
@@ -532,26 +525,26 @@ function Detail(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanba
               detail={props.content.labels.properties}
               actions={<LumenStatus value={card.tag} tone="warning" />}
             />
-            <label>
-              {props.content.labels.assignee}
-              <LumenSelect defaultValue={assignees[0]?.id}>
-                {assignees.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.label}
-                  </option>
-                ))}
-              </LumenSelect>
-            </label>
-            <label>
-              {props.content.labels.priority}
-              <LumenSelect defaultValue={priorities[0]?.id}>
-                {priorities.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.label}
-                  </option>
-                ))}
-              </LumenSelect>
-            </label>
+            <div className="lumen-kanban-field">
+              <span>{props.content.labels.assignee}</span>
+              <LumenChoiceSelect
+                id={`${props.variantId}-assignee`}
+                label={props.content.labels.assignee}
+                options={assignees}
+                value={assigneeId}
+                onValueChange={setAssigneeId}
+              />
+            </div>
+            <div className="lumen-kanban-field">
+              <span>{props.content.labels.priority}</span>
+              <LumenChoiceSelect
+                id={`${props.variantId}-priority`}
+                label={props.content.labels.priority}
+                options={priorities}
+                value={priorityId}
+                onValueChange={setPriorityId}
+              />
+            </div>
             <LumenText as="p" tone="muted">
               <span>{props.content.labels.activity}</span>
               <span>{card.detail}</span>
@@ -589,16 +582,12 @@ function Sprint(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanba
                 <strong>{column.label}</strong>
                 <span>{column.points}</span>
               </header>
-              <div
+              <LumenProgress
                 className="lumen-kanban-progress"
-                role="progressbar"
-                aria-label={props.content.labels.capacity(column.label)}
-                aria-valuenow={progress}
-                aria-valuemin={0}
-                aria-valuemax={100}
-              >
-                <i style={{ inlineSize: `${progress}%` }} />
-              </div>
+                label={props.content.labels.capacity(column.label)}
+                value={progress}
+                tone="info"
+              />
               {column.cardIds.map((id) => {
                 const card = cards.find((item) => item.id === id);
                 return card ? (
@@ -635,19 +624,13 @@ function Compact(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanb
         title={props.content.labels.compactTitle}
         detail={props.content.labels.compactDetail}
       />
-      <div className="lumen-kanban-tabs" role="tablist" aria-label={props.content.labels.column}>
-        {columns.map((item) => (
-          <LumenButton
-            key={item.id}
-            variant="text"
-            role="tab"
-            aria-selected={item.id === column?.id}
-            onClick={() => setColumnId(item.id)}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+      <LumenTabs
+        className="lumen-kanban-tabs"
+        label={props.content.labels.column}
+        items={columns}
+        selectedId={column?.id ?? null}
+        onChange={setColumnId}
+      />
       <main className="lumen-kanban-compact">
         {card ? (
           <article>
