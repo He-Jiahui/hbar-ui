@@ -766,4 +766,36 @@ for (const mode of ['dark', 'light'] as const) {
       'progressbar',
     );
   });
+
+  test(`wizard invoice uses two shared choices in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-wizard-2', mode));
+    const pickers = page.getByRole('combobox');
+    await expect(pickers).toHaveCount(2);
+    await pickers.first().click();
+    const choice = page.getByRole('listbox').getByRole('option').last();
+    const label = await choice.innerText();
+    await choice.click();
+    await expect(pickers.first()).toContainText(label);
+    await expect(page.locator('.lumen-wizard select')).toHaveCount(0);
+  });
+
+  test(`wizard services use foundation checkboxes in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-wizard-4', mode));
+    const checkbox = page.locator('.lumen-wizard-service-grid .lumen-checkbox').first();
+    await expect(checkbox).toBeVisible();
+    const input = checkbox.getByRole('checkbox');
+    const checked = await input.isChecked();
+    await input.press('Space');
+    await expect(input).toHaveJSProperty('checked', !checked);
+  });
+
+  test(`wizard migration shares a progress strip in ${mode}`, async ({ page }) => {
+    await page.goto(preview('hbar-app-ui-wizard-6', mode));
+    await expect(page.locator('.lumen-wizard-progress.lumen-progress').first()).toHaveAttribute(
+      'role',
+      'progressbar',
+    );
+  });
 }

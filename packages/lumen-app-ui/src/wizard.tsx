@@ -1,8 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { LumenFormField, LumenInput, LumenSelect } from './forms';
+import { LumenCheckBox, LumenChoiceSelect, LumenFormField, LumenInput } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
+import { LumenProgress } from './ui-controls';
 
 export interface LumenWizardListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -451,34 +452,28 @@ function Invoice(
                 controlId="wizard-invoice-currency"
                 label={props.content.labels.currency}
               >
-                <LumenSelect
-                  value={selectLumenWizardItem(currencies, currencyId)?.id ?? ''}
-                  onChange={(event) => {
-                    setCurrencyId(event.target.value);
-                    report(props.onAction, 'currency', event.target.value);
+                <LumenChoiceSelect
+                  id="wizard-invoice-currency"
+                  label={props.content.labels.currency}
+                  options={currencies}
+                  value={selectLumenWizardItem(currencies, currencyId)?.id ?? null}
+                  onValueChange={(id) => {
+                    setCurrencyId(id);
+                    report(props.onAction, 'currency', id);
                   }}
-                >
-                  {currencies.map((choice) => (
-                    <option key={choice.id} value={choice.id}>
-                      {choice.label}
-                    </option>
-                  ))}
-                </LumenSelect>
+                />
               </LumenFormField>
               <LumenFormField controlId="wizard-invoice-terms" label={props.content.labels.terms}>
-                <LumenSelect
-                  value={selectLumenWizardItem(terms, termsId)?.id ?? ''}
-                  onChange={(event) => {
-                    setTermsId(event.target.value);
-                    report(props.onAction, 'terms', event.target.value);
+                <LumenChoiceSelect
+                  id="wizard-invoice-terms"
+                  label={props.content.labels.terms}
+                  options={terms}
+                  value={selectLumenWizardItem(terms, termsId)?.id ?? null}
+                  onValueChange={(id) => {
+                    setTermsId(id);
+                    report(props.onAction, 'terms', id);
                   }}
-                >
-                  {terms.map((choice) => (
-                    <option key={choice.id} value={choice.id}>
-                      {choice.label}
-                    </option>
-                  ))}
-                </LumenSelect>
+                />
               </LumenFormField>
             </div>
             <LumenText as="p" tone="muted">
@@ -621,19 +616,13 @@ function Environment(
               data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
             >
               {services.map((service) => (
-                <LumenButton
+                <LumenCheckBox
                   key={service.id}
-                  variant="outlined"
-                  role="checkbox"
-                  aria-checked={selected.has(service.id)}
-                  onClick={() => toggle(service.id)}
-                >
-                  <Glyph name={selected.has(service.id) ? 'check' : 'service'} />
-                  <span>
-                    <strong>{service.label}</strong>
-                    <small>{service.detail}</small>
-                  </span>
-                </LumenButton>
+                  label={service.label}
+                  description={service.detail}
+                  checked={selected.has(service.id)}
+                  onChange={() => toggle(service.id)}
+                />
               ))}
             </div>
           ) : (
@@ -752,16 +741,12 @@ function Migration(
                         tone={value === 100 ? 'success' : 'neutral'}
                       />
                     </div>
-                    <div
+                    <LumenProgress
                       className="lumen-wizard-progress"
-                      role="progressbar"
-                      aria-label={item.label}
-                      aria-valuemin={0}
-                      aria-valuemax={100}
-                      aria-valuenow={value}
-                    >
-                      <i style={{ inlineSize: `${value}%` }} />
-                    </div>
+                      label={item.label}
+                      value={value}
+                      tone={value === 100 ? 'success' : 'info'}
+                    />
                     <LumenText as="small" tone="muted">
                       {props.content.labels.progress(value)}
                     </LumenText>

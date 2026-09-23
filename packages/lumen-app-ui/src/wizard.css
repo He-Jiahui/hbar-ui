@@ -240,22 +240,12 @@
   flex: 1 1 13rem;
   min-inline-size: 13rem;
 }
-.lumen-wizard-service-grid > button {
+.lumen-wizard-service-grid > .lumen-checkbox {
   min-block-size: 7rem;
   justify-content: flex-start;
   align-items: flex-start;
+  padding: 1rem;
   text-align: start;
-}
-.lumen-wizard-service-grid > button > span {
-  display: flex;
-  min-inline-size: 0;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.25rem;
-}
-.lumen-wizard-service-grid > button[aria-checked='true'] {
-  border-color: var(--lumen-accent);
-  background: color-mix(in srgb, var(--lumen-accent) 8%, transparent);
 }
 .lumen-wizard-review-sections,
 .lumen-wizard-migration-list,
@@ -319,15 +309,6 @@
 }
 .lumen-wizard-progress {
   block-size: 0.4rem;
-  overflow: hidden;
-  border-radius: 999rem;
-  background: var(--lumen-edge);
-}
-.lumen-wizard-progress > i {
-  display: block;
-  block-size: 100%;
-  border-radius: inherit;
-  background: var(--lumen-accent);
 }
 .lumen-wizard-question-options > button {
   display: flex;
