@@ -1,8 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { LumenInput, LumenSelect } from './forms';
+import { LumenChoiceSelect, LumenInput } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
+import { LumenProgress, LumenTabs } from './ui-controls';
 
 export interface LumenListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -474,19 +475,7 @@ function Empty({ children }: { readonly children: string }) {
 }
 
 function Progress({ value, label }: { readonly value: number; readonly label: string }) {
-  const bounded = Math.max(0, Math.min(100, value));
-  return (
-    <span
-      className="lumen-list-progress"
-      role="progressbar"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={bounded}
-    >
-      <i style={{ inlineSize: `${bounded}%` }} />
-    </span>
-  );
+  return <LumenProgress className="lumen-list-progress" label={label} value={value} tone="info" />;
 }
 
 function Metrics(props: Omit<LumenListProps, 'content'> & { content: LumenListMetricsContent }) {
@@ -552,20 +541,13 @@ function Spend(props: Omit<LumenListProps, 'content'> & { content: LumenListSpen
         title={props.content.labels.title}
         detail={props.content.labels.detail(period?.label ?? '')}
       />
-      <div className="lumen-list-tabs" role="tablist" aria-label={props.content.labels.periods}>
-        {periods.map((item) => (
-          <LumenButton
-            key={item.id}
-            role="tab"
-            variant="text"
-            disabled={item.disabled}
-            aria-selected={period?.id === item.id}
-            onClick={() => setPeriodId(item.id)}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+      <LumenTabs
+        className="lumen-list-tabs"
+        label={props.content.labels.periods}
+        items={periods}
+        selectedId={period?.id ?? null}
+        onChange={setPeriodId}
+      />
       <div
         className="lumen-list-ranked"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
@@ -837,17 +819,13 @@ function Deliveries(
           </LumenButton>
         }
       />
-      <LumenSelect
-        aria-label={props.content.labels.endpoint}
+      <LumenChoiceSelect
+        id="list-deliveries-endpoint"
+        label={props.content.labels.endpoint}
+        options={endpoints}
         value={endpointId}
-        onChange={(event) => setEndpointId(event.currentTarget.value)}
-      >
-        {endpoints.map((endpoint) => (
-          <option key={endpoint.id} value={endpoint.id}>
-            {endpoint.label}
-          </option>
-        ))}
-      </LumenSelect>
+        onValueChange={setEndpointId}
+      />
       <div
         className="lumen-list-deliveries"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
@@ -921,17 +899,13 @@ function Suppliers(
             placeholder={props.content.labels.searchPlaceholder}
           />
         </label>
-        <LumenSelect
-          aria-label={props.content.labels.categoryFilter}
+        <LumenChoiceSelect
+          id="list-suppliers-category"
+          label={props.content.labels.categoryFilter}
+          options={categories}
           value={categoryId}
-          onChange={(event) => setCategoryId(event.currentTarget.value)}
-        >
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.label}
-            </option>
-          ))}
-        </LumenSelect>
+          onValueChange={setCategoryId}
+        />
       </div>
       <div
         className="lumen-list-directory"
@@ -1054,17 +1028,13 @@ function Contacts(props: Omit<LumenListProps, 'content'> & { content: LumenListC
         title={props.content.labels.title}
         detail={props.content.labels.detail}
         actions={
-          <LumenSelect
-            aria-label={props.content.labels.relationship}
+          <LumenChoiceSelect
+            id="list-contacts-relationship"
+            label={props.content.labels.relationship}
+            options={relationships}
             value={relationshipId}
-            onChange={(event) => setRelationshipId(event.currentTarget.value)}
-          >
-            {relationships.map((relationship) => (
-              <option key={relationship.id} value={relationship.id}>
-                {relationship.label}
-              </option>
-            ))}
-          </LumenSelect>
+            onValueChange={setRelationshipId}
+          />
         }
       />
       <div className="lumen-list-contacts">
@@ -1162,19 +1132,13 @@ function Leaderboard(
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
-      <div className="lumen-list-tabs" role="tablist" aria-label={props.content.labels.measures}>
-        {measures.map((item) => (
-          <LumenButton
-            key={item.id}
-            role="tab"
-            variant="text"
-            aria-selected={measure?.id === item.id}
-            onClick={() => setMeasureId(item.id)}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+      <LumenTabs
+        className="lumen-list-tabs"
+        label={props.content.labels.measures}
+        items={measures}
+        selectedId={measure?.id ?? null}
+        onChange={setMeasureId}
+      />
       <div className="lumen-list-pills" role="group" aria-label={props.content.labels.periods}>
         {periods.map((period) => (
           <LumenButton

@@ -1234,10 +1234,8 @@ describe('Lumen formal variant fixtures', () => {
       <VariantPreviewHost entry={entry(6)} locale="en" unavailableLabel="Preview unavailable" />,
     );
     await view.user.click(screen.getByRole('button', { name: 'Failed only' }));
-    await view.user.selectOptions(
-      screen.getByRole('combobox', { name: 'Endpoint filter' }),
-      'deploys',
-    );
+    await view.user.click(screen.getByRole('combobox', { name: 'Endpoint filter' }));
+    await view.user.click(screen.getByRole('option', { name: 'Deployment events' }));
     expect(screen.getByText('evt_9K3P')).not.toBeNull();
     expect(screen.queryByText('evt_9JX8')).toBeNull();
     await view.user.click(screen.getByRole('button', { name: 'Expand delivery evt_9K3P' }));
@@ -1247,10 +1245,8 @@ describe('Lumen formal variant fixtures', () => {
     view = render(
       <VariantPreviewHost entry={entry(7)} locale="en" unavailableLabel="Preview unavailable" />,
     );
-    await view.user.selectOptions(
-      screen.getByRole('combobox', { name: 'Category filter' }),
-      'software',
-    );
+    await view.user.click(screen.getByRole('combobox', { name: 'Category filter' }));
+    await view.user.click(screen.getByRole('option', { name: 'Software' }));
     await view.user.type(screen.getByRole('textbox', { name: 'Search suppliers' }), 'Signal');
     expect(screen.getByText('Signal Works')).not.toBeNull();
     expect(screen.queryByText('Atlas Storage')).toBeNull();
@@ -1260,10 +1256,8 @@ describe('Lumen formal variant fixtures', () => {
       <VariantPreviewHost entry={entry(9)} locale="en" unavailableLabel="Preview unavailable" />,
     );
     await view.user.click(screen.getByRole('button', { name: 'M' }));
-    await view.user.selectOptions(
-      screen.getByRole('combobox', { name: 'Relationship' }),
-      'customer',
-    );
+    await view.user.click(screen.getByRole('combobox', { name: 'Relationship' }));
+    await view.user.click(screen.getByRole('option', { name: 'Customers' }));
     expect(screen.getByText('Maya Chen')).not.toBeNull();
     expect(screen.queryByText('Amara Okafor')).toBeNull();
     view.unmount();

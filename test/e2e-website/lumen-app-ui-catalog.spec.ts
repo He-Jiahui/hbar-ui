@@ -400,4 +400,36 @@ for (const mode of ['dark', 'light'] as const) {
     await expect(page.getByRole('listbox')).toBeVisible();
     await expect(page.locator('.lumen-dashboard select')).toHaveCount(0);
   });
+
+  for (const variant of [2, 11]) {
+    test(`list ${variant} uses keyboard-operable foundation tabs in ${mode}`, async ({ page }) => {
+      await page.goto(preview(`hbar-app-ui-list-${variant}`, mode));
+      const tabs = page.getByRole('tablist').getByRole('tab');
+      await expect(tabs.first()).toBeVisible();
+      await tabs.first().press('ArrowRight');
+      await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
+    });
+  }
+
+  for (const variant of [2, 10]) {
+    test(`list ${variant} uses the luminous progress primitive in ${mode}`, async ({ page }) => {
+      await page.goto(preview(`hbar-app-ui-list-${variant}`, mode));
+      await expect(page.locator('.lumen-list-progress.lumen-progress').first()).toHaveAttribute(
+        'role',
+        'progressbar',
+      );
+    });
+  }
+
+  for (const variant of [6, 7, 9]) {
+    test(`list ${variant} uses the themed choice picker in ${mode}`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 680 });
+      await page.goto(preview(`hbar-app-ui-list-${variant}`, mode));
+      const picker = page.getByRole('combobox').first();
+      await expect(picker).toBeVisible();
+      await picker.click();
+      await expect(page.getByRole('listbox')).toBeVisible();
+      await expect(page.locator('.lumen-list select')).toHaveCount(0);
+    });
+  }
 }
