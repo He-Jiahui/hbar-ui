@@ -5,6 +5,54 @@ function preview(id: string, mode: 'dark' | 'light' = 'dark') {
 }
 
 for (const mode of ['dark', 'light'] as const) {
+  for (const width of [320, 390, 768, 1280]) {
+    test(`artifact chat keeps transcript, composer and file pane separate at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: width === 320 ? 568 : 820 });
+      await page.goto(preview('hbar-app-ui-ai-chat-2', mode));
+      const stage = page.locator('.hbar-app-ui-ai-chat-variant-2');
+      const artifact = stage.locator('.lumen-ai-chat-artifact');
+      const geometry = await artifact.evaluate((element) => {
+        const main = element.querySelector<HTMLElement>(':scope > div')!;
+        const transcript = main.querySelector<HTMLElement>('.lumen-ai-chat-transcript')!;
+        const composer = main.querySelector<HTMLElement>('.lumen-ai-chat-composer')!;
+        const files = element.querySelector<HTMLElement>(':scope > aside')!;
+        const summary = files.querySelector<HTMLElement>('pre')!;
+        const mainRect = main.getBoundingClientRect();
+        const transcriptRect = transcript.getBoundingClientRect();
+        const composerRect = composer.getBoundingClientRect();
+        const filesRect = files.getBoundingClientRect();
+        const summaryRect = summary.getBoundingClientRect();
+        return {
+          mainHasHeight: mainRect.height > 0,
+          composerAfterTranscript: composerRect.top >= transcriptRect.bottom - 1,
+          filesAfterMain: filesRect.top >= composerRect.bottom - 1,
+          filesBesideMain: filesRect.left >= mainRect.right - 1,
+          summaryClearOfComposer:
+            summaryRect.top >= composerRect.bottom - 1 ||
+            summaryRect.left >= composerRect.right - 1,
+          scrollsWhenShort:
+            element.scrollHeight > element.clientHeight ||
+            document.documentElement.scrollHeight > document.documentElement.clientHeight,
+        };
+      });
+      expect(geometry.mainHasHeight).toBe(true);
+      expect(geometry.composerAfterTranscript).toBe(true);
+      expect(geometry.summaryClearOfComposer).toBe(true);
+      if (width <= 768) {
+        expect(geometry.filesAfterMain).toBe(true);
+      } else {
+        expect(geometry.filesBesideMain).toBe(true);
+      }
+      if (width === 320) {
+        expect(geometry.scrollsWhenShort).toBe(true);
+        await artifact.locator('aside pre').scrollIntoViewIfNeeded();
+        await expect(artifact.locator('aside pre')).toBeVisible();
+      }
+    });
+  }
+
   for (const width of [390, 1280]) {
     test(`comparison dashboard uses a borderless Lumen trend at ${width}px in ${mode}`, async ({
       page,

@@ -133,6 +133,7 @@
   display: flex;
   min-inline-size: 0;
   min-block-size: 0;
+  flex: 1 1 auto;
   flex-wrap: wrap;
 }
 .lumen-ai-chat-artifact > :nth-child(2n + 1) {
@@ -148,6 +149,9 @@
   min-block-size: 0;
   min-inline-size: 0;
   flex-direction: column;
+}
+.lumen-ai-chat-artifact > div > .lumen-ai-chat-transcript {
+  flex: 1 1 auto;
 }
 .lumen-ai-chat-artifact > aside {
   min-inline-size: 0;
@@ -457,6 +461,17 @@
   .lumen-ai-chat-agents,
   .lumen-ai-chat-providers {
     flex-direction: column;
+  }
+  .lumen-ai-chat-artifact {
+    overflow-y: auto;
+  }
+  .lumen-ai-chat-artifact > div:first-child,
+  .lumen-ai-chat-artifact > aside:last-child,
+  .lumen-ai-chat-artifact > div > .lumen-ai-chat-transcript {
+    flex: 0 0 auto;
+  }
+  .lumen-ai-chat-artifact > div > .lumen-ai-chat-transcript {
+    overflow: visible;
   }
   .lumen-ai-chat-artifact > aside,
   .lumen-ai-chat-agents > aside,
