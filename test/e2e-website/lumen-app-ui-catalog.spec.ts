@@ -1684,6 +1684,29 @@ for (const mode of ['dark', 'light'] as const) {
     await expect(tabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
   });
 
+  for (const width of [320, 390, 1280]) {
+    test(`upload queue separates state and detail at ${width}px in ${mode}`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 720 });
+      await page.goto(preview('hbar-app-ui-file-manager-4', mode, 'en'));
+      const rows = page.locator('.hbar-app-ui-file-manager-upload-queue li');
+      await expect(rows).toHaveCount(4);
+      const geometry = await rows.evaluateAll((items) =>
+        items.every((item) => {
+          const status = item.querySelector('[data-lumen-component="status"]')!;
+          const detail = item.querySelector('div > span > small')!;
+          const a = status.getBoundingClientRect();
+          const b = detail.getBoundingClientRect();
+          return (
+            (a.right <= b.left + 1 || a.bottom <= b.top + 1) &&
+            item.scrollWidth <= item.clientWidth + 1
+          );
+        }),
+      );
+      expect(geometry).toBe(true);
+      await expect(rows.nth(1).getByRole('progressbar')).toHaveAttribute('aria-valuenow', '64');
+    });
+  }
+
   for (const [id, selector] of [
     ['hbar-app-ui-file-manager-1', '.hbar-app-ui-file-manager-meter'],
     ['hbar-app-ui-file-manager-4', '.hbar-app-ui-file-manager-meter'],

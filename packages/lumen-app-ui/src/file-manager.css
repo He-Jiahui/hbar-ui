@@ -569,8 +569,19 @@
 .hbar-app-ui-file-manager-upload-queue li > div > span {
   display: flex;
   min-inline-size: 0;
-  align-items: center;
-  gap: 0.5rem;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+}
+
+.hbar-app-ui-file-manager-upload-queue li > div > span > small {
+  min-inline-size: 0;
+  flex: 1 1 10rem;
+  overflow-wrap: anywhere;
+}
+
+.hbar-app-ui-file-manager-upload-queue li > div > strong {
+  overflow-wrap: anywhere;
 }
 
 .hbar-app-ui-file-manager-empty {
