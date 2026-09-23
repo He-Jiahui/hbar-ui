@@ -51,6 +51,9 @@ export default function getFoundationFixtures(locale: GalleryLocale) {
       '方向键浏览，Enter 选择，Esc 收起。',
       'Arrow keys to browse, Enter to select, Esc to close.',
     ),
+    relatedWorkspaces: t('关联工作区', 'Related workspaces'),
+    relatedPlaceholder: t('添加工作区…', 'Add a workspace…'),
+    removeWorkspace: (label: string) => t(`移除${label}`, `Remove ${label}`),
     options: [
       {
         id: 'research',

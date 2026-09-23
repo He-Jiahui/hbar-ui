@@ -29,10 +29,43 @@ for (const mode of ['dark', 'light']) {
     expect(layout.stripOffset).toBeCloseTo(layout.contentOffset, 1);
     expect(layout.contentInside).toBe(true);
     await option.click();
-    await page.getByRole('button', { name: '浏览工作区' }).click();
+    await page
+      .locator('.lumen-combobox')
+      .first()
+      .getByRole('button', { name: '浏览工作区' })
+      .click();
     await expect(
       page.getByRole('listbox', { name: '浏览工作区' }).getByRole('option').first().locator('svg'),
     ).toBeVisible();
+  });
+}
+
+for (const mode of ['dark', 'light'] as const) {
+  test(`multi-select uses removable foundation chips and keyboard selection in ${mode}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 720 });
+    const locale = mode === 'dark' ? 'zh' : 'en';
+    await page.goto(`/experiments/lumen-app-ui/foundations/?mode=${mode}&locale=${locale}`);
+    const multi = page.locator('.lumen-multi-select');
+    const chips = multi.locator('[data-lumen-component="chip"]');
+    await expect(chips).toHaveCount(1);
+    await expect(chips.first()).toHaveCSS('border-top-width', '0px');
+    const initial = locale === 'zh' ? '产品研究' : 'Product research';
+    await multi
+      .getByRole('button', { name: locale === 'zh' ? `移除${initial}` : `Remove ${initial}` })
+      .click();
+    await expect(chips).toHaveCount(0);
+    const input = multi.locator('input');
+    await input.click();
+    await input.press('End');
+    await input.press('Enter');
+    await expect(chips).toHaveCount(1);
+    await expect(chips.first()).toContainText(
+      locale === 'zh' ? '平台工程' : 'Platform engineering',
+    );
+    const fits = await multi.evaluate((element) => element.scrollWidth <= element.clientWidth + 1);
+    expect(fits).toBe(true);
   });
 }
 

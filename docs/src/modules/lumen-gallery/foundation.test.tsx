@@ -8,6 +8,7 @@ import {
   LumenComboBox,
   LumenFormField,
   LumenGauge,
+  LumenMultiSelect,
   LumenTabs,
   LumenIconButton,
   type LumenControlOption,
@@ -241,6 +242,90 @@ describe('Lumen foundation interactions', () => {
     view.rerender(<LumenChip label="Enter 发送" />);
     expect(screen.queryByRole('button')).toBeNull();
     expect(screen.getByText('Enter 发送').closest('[data-lumen-component="chip"]')).not.toBeNull();
+  });
+
+  it('uses removable foundation chips and never renders a stale multi-select ID as copy', async () => {
+    const onValuesChange = vi.fn();
+    const multiLabels = { ...labels, remove: (label: string) => `移除${label}` };
+    const view = render(
+      <LumenMultiSelect
+        id="multi-workspace"
+        labels={multiLabels}
+        values={['missing', 'research', 'research', 'build']}
+        options={[choices[0], choices[2], choices[0]]}
+        query=""
+        open={false}
+        onQueryChange={() => {}}
+        onOpenChange={() => {}}
+        onValuesChange={onValuesChange}
+      />,
+    );
+    const chips = view.container.querySelectorAll('.lumen-multi-select-values .lumen-chip');
+    expect(chips).toHaveLength(2);
+    expect(view.container.textContent).not.toContain('missing');
+    await view.user.click(screen.getByRole('button', { name: `移除${choices[0].label}` }));
+    expect(onValuesChange).toHaveBeenCalledExactlyOnceWith(['build']);
+    view.rerender(
+      <LumenMultiSelect
+        id="multi-workspace"
+        labels={multiLabels}
+        values={['missing', 'research', 'build']}
+        options={[choices[2]]}
+        query=""
+        open={false}
+        onQueryChange={() => {}}
+        onOpenChange={() => {}}
+        onValuesChange={onValuesChange}
+      />,
+    );
+    expect(view.container.querySelectorAll('.lumen-multi-select-values .lumen-chip')).toHaveLength(
+      1,
+    );
+    await view.user.click(screen.getByRole('button', { name: `移除${choices[2].label}` }));
+    expect(onValuesChange).toHaveBeenLastCalledWith([]);
+  });
+
+  it('keeps multi-select empty and disabled states distinct from available options', async () => {
+    const onValuesChange = vi.fn();
+    const multiLabels = { ...labels, remove: (label: string) => `移除${label}` };
+    const options = Array.from({ length: 101 }, (_, index) => ({
+      id: String(index),
+      label: `工作区 ${index}`,
+    }));
+    const view = render(
+      <LumenMultiSelect
+        id="multi-capacity"
+        labels={multiLabels}
+        values={[]}
+        options={[]}
+        query=""
+        open
+        onQueryChange={() => {}}
+        onOpenChange={() => {}}
+        onValuesChange={onValuesChange}
+      />,
+    );
+    expect(screen.getByText(labels.empty)).not.toBeNull();
+    expect(view.container.querySelectorAll('.lumen-chip')).toHaveLength(0);
+    view.rerender(
+      <LumenMultiSelect
+        id="multi-capacity"
+        labels={multiLabels}
+        values={['0']}
+        options={[...options, options[0]]}
+        query=""
+        open
+        disabled
+        onQueryChange={() => {}}
+        onOpenChange={() => {}}
+        onValuesChange={onValuesChange}
+      />,
+    );
+    expect(view.container.querySelectorAll('.lumen-chip')).toHaveLength(1);
+    expect(screen.getByRole('button', { name: '移除工作区 0' })).to.have.property('disabled', true);
+    expect(screen.queryAllByRole('option')).toHaveLength(0);
+    await view.user.click(screen.getByRole('button', { name: '移除工作区 0' }));
+    expect(onValuesChange).not.toHaveBeenCalled();
   });
 
   it('uses one tab stop and supports keyboard navigation across enabled tabs', async () => {

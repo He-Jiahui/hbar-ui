@@ -3,6 +3,7 @@
 import * as React from 'react';
 import type { LumenSize } from './appearance';
 import { LumenButton, LumenIconButton, LumenText, type LumenButtonProps } from './primitives';
+import { LumenChip } from './ui-controls';
 
 export type LumenFieldVariant = 'outlined' | 'plain';
 
@@ -473,12 +474,11 @@ function uniqueOptions(options: readonly LumenControlOption[]): readonly LumenCo
   });
 }
 
-function FormGlyph({ name }: { name: 'check' | 'chevron' | 'close' }) {
+function FormGlyph({ name }: { name: 'check' | 'chevron' }) {
   return (
     <svg className="lumen-form-glyph" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       {name === 'check' ? <path d="m3.5 8 3 3 6-6" /> : null}
       {name === 'chevron' ? <path d="m4 6 4 4 4-4" /> : null}
-      {name === 'close' ? <path d="m4 4 8 8m0-8-8 8" /> : null}
     </svg>
   );
 }
@@ -703,11 +703,12 @@ export function LumenMultiSelect({
   ...comboBox
 }: LumenMultiSelectProps) {
   const uniqueOptionItems = uniqueOptions(options);
-  const uniqueValues = [...new Set(values)];
-  const selected = uniqueValues.map(
-    (value) =>
-      uniqueOptionItems.find((option) => option.id === value) ?? { id: value, label: value },
+  const uniqueValues = [...new Set(values)].filter((value) =>
+    uniqueOptionItems.some((option) => option.id === value),
   );
+  const selected = uniqueValues
+    .map((value) => uniqueOptionItems.find((option) => option.id === value))
+    .filter((option): option is LumenControlOption => Boolean(option));
   const available = uniqueOptionItems.filter((option) => !uniqueValues.includes(option.id));
 
   return (
@@ -715,17 +716,15 @@ export function LumenMultiSelect({
       {selected.length > 0 ? (
         <div className="lumen-multi-select-values">
           {selected.map((option) => (
-            <span key={option.id}>
-              <LumenText as="span">{option.label}</LumenText>
-              <LumenIconButton
-                label={labels.remove(option.label)}
-                size={size}
-                disabled={disabled}
-                onClick={() => onValuesChange(uniqueValues.filter((value) => value !== option.id))}
-              >
-                <FormGlyph name="close" />
-              </LumenIconButton>
-            </span>
+            <LumenChip
+              key={option.id}
+              label={option.label}
+              disabled={disabled}
+              removeAction={{
+                label: labels.remove(option.label),
+                onRemove: () => onValuesChange(uniqueValues.filter((value) => value !== option.id)),
+              }}
+            />
           ))}
         </div>
       ) : null}

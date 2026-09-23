@@ -9,6 +9,7 @@ import {
   LumenInput,
   LumenLink,
   LumenList,
+  LumenMultiSelect,
   LumenProvider,
   LumenProgress,
   LumenStatus,
@@ -33,6 +34,9 @@ export default function FoundationGallery() {
   const [query, setQuery] = React.useState('');
   const [workspace, setWorkspace] = React.useState<string | null>(null);
   const [open, setOpen] = React.useState(false);
+  const [relatedQuery, setRelatedQuery] = React.useState('');
+  const [relatedOpen, setRelatedOpen] = React.useState(false);
+  const [relatedValues, setRelatedValues] = React.useState<readonly string[]>(['research']);
   const [hasTag, setHasTag] = React.useState(true);
   const [filtered, setFiltered] = React.useState(false);
   const [selected, setSelected] = React.useState('interviews');
@@ -184,6 +188,23 @@ export default function FoundationGallery() {
                 onQueryChange={setQuery}
                 onOpenChange={setOpen}
                 onValueChange={setWorkspace}
+              />
+            </LumenFormField>
+            <LumenFormField controlId="foundation-related" label={copy.relatedWorkspaces}>
+              <LumenMultiSelect
+                id="foundation-related"
+                values={relatedValues}
+                query={relatedQuery}
+                open={relatedOpen}
+                options={copy.options}
+                labels={{ ...copy.combo, remove: copy.removeWorkspace }}
+                placeholder={copy.relatedPlaceholder}
+                onQueryChange={setRelatedQuery}
+                onOpenChange={setRelatedOpen}
+                onValuesChange={(values) => {
+                  setRelatedValues(values);
+                  setRelatedQuery('');
+                }}
               />
             </LumenFormField>
             <LumenFormField controlId="foundation-name" label={copy.name}>
