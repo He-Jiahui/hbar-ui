@@ -913,4 +913,27 @@ for (const mode of ['dark', 'light'] as const) {
       }
     });
   }
+
+  for (const label of ['问题领域', '工作区']) {
+    test(`support ticket ${label} uses themed choices in ${mode}`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 680 });
+      await page.goto(preview('hbar-app-ui-support-2', mode));
+      const picker = page.getByRole('combobox', { name: label });
+      await picker.click();
+      const option = page.getByRole('listbox').getByRole('option').last();
+      const text = await option.innerText();
+      await option.click();
+      await expect(picker).toContainText(text);
+      await expect(page.locator('.lumen-support select')).toHaveCount(0);
+    });
+  }
+
+  test(`support request filters share keyboard tabs in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-support-5', mode));
+    const tabs = page.getByRole('tablist', { name: '工单状态' });
+    await expect(tabs).toHaveClass(/lumen-tabs/);
+    await tabs.getByRole('tab').first().press('ArrowRight');
+    await expect(tabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
+  });
 }

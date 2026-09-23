@@ -1,8 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { LumenFormField, LumenInput, LumenSelect, LumenTextarea } from './forms';
+import { LumenChoiceSelect, LumenFormField, LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
+import { LumenTabs } from './ui-controls';
 
 export interface LumenSupportListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -343,19 +344,13 @@ function Tabs({
   readonly onChange: (id: string) => void;
 }) {
   return (
-    <div className="lumen-support-tabs" role="tablist" aria-label={label}>
-      {choices.map((item) => (
-        <LumenButton
-          key={item.id}
-          role="tab"
-          variant="text"
-          aria-selected={selectedId === item.id}
-          onClick={() => onChange(item.id)}
-        >
-          {item.label}
-        </LumenButton>
-      ))}
-    </div>
+    <LumenTabs
+      className="lumen-support-tabs"
+      label={label}
+      items={choices}
+      selectedId={selectedId ?? null}
+      onChange={onChange}
+    />
   );
 }
 
@@ -471,31 +466,25 @@ function Ticket(
         >
           <div className="lumen-support-two-column">
             <LumenFormField controlId={`${props.variantId}-area`} label={props.content.labels.area}>
-              <LumenSelect
-                value={selectLumenSupportItem(areas, areaId)?.id ?? ''}
-                onChange={(event) => setAreaId(event.target.value)}
-              >
-                {areas.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.label}
-                  </option>
-                ))}
-              </LumenSelect>
+              <LumenChoiceSelect
+                id={`${props.variantId}-area`}
+                label={props.content.labels.area}
+                options={areas}
+                value={selectLumenSupportItem(areas, areaId)?.id ?? null}
+                onValueChange={setAreaId}
+              />
             </LumenFormField>
             <LumenFormField
               controlId={`${props.variantId}-workspace`}
               label={props.content.labels.workspace}
             >
-              <LumenSelect
-                value={selectLumenSupportItem(workspaces, workspaceId)?.id ?? ''}
-                onChange={(event) => setWorkspaceId(event.target.value)}
-              >
-                {workspaces.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.label}
-                  </option>
-                ))}
-              </LumenSelect>
+              <LumenChoiceSelect
+                id={`${props.variantId}-workspace`}
+                label={props.content.labels.workspace}
+                options={workspaces}
+                value={selectLumenSupportItem(workspaces, workspaceId)?.id ?? null}
+                onValueChange={setWorkspaceId}
+              />
             </LumenFormField>
           </div>
           <LumenFormField
