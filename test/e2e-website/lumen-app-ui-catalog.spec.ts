@@ -1411,6 +1411,41 @@ for (const mode of ['dark', 'light'] as const) {
     });
   }
 
+  for (const variant of [1, 2, 3, 4, 5, 6]) {
+    test(`dialog ${variant} uses a theme-derived translucent overlay in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 390, height: 820 });
+      await page.goto(preview(`hbar-app-ui-app-dialog-${variant}`, mode));
+      const dialog = page.getByRole('dialog');
+      await expect(dialog).toBeVisible();
+      const material = await dialog.evaluate((element) => {
+        const panel = getComputedStyle(element);
+        const backdrop = getComputedStyle(element.parentElement!);
+        const alpha = (value: string) => Number(value.match(/\/ ([\d.]+)\)$/)?.[1] ?? 1);
+        return {
+          panelAlpha: alpha(panel.backgroundColor),
+          backdropAlpha: alpha(backdrop.backgroundColor),
+          panelBlur: panel.backdropFilter,
+          backdropBlur: backdrop.backdropFilter,
+          glow: panel.boxShadow,
+          edgeWidth: Math.max(parseFloat(panel.borderTopWidth), parseFloat(panel.borderLeftWidth)),
+          edgeColor:
+            parseFloat(panel.borderTopWidth) > 0 ? panel.borderTopColor : panel.borderLeftColor,
+        };
+      });
+      expect(material.panelAlpha).toBeGreaterThan(0);
+      expect(material.panelAlpha).toBeLessThan(1);
+      expect(material.backdropAlpha).toBeGreaterThan(0);
+      expect(material.backdropAlpha).toBeLessThan(1);
+      expect(material.panelBlur).toContain('blur(');
+      expect(material.backdropBlur).toContain('blur(');
+      expect(material.glow).not.toBe('none');
+      expect(material.edgeWidth).toBe(1);
+      expect(material.edgeColor).not.toBe('transparent');
+    });
+  }
+
   for (const label of ['问题领域', '工作区']) {
     test(`support ticket ${label} uses themed choices in ${mode}`, async ({ page }) => {
       await page.setViewportSize({ width: 390, height: 680 });
