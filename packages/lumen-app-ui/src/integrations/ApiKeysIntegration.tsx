@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { LumenChip } from '../ui-controls';
 import { Copy, Eye, EyeOff, KeyRound, Plus, RotateCcw, Trash2 } from './glyphs';
 import type { LumenIntegrationsCompositionProps } from './primitives';
 import type { LumenIntegrationApiKeysContent } from './content';
@@ -134,7 +135,7 @@ export default function ApiKeysIntegration({
                     </span>
                   </div>
                   <div className="hbar-app-ui-integration-key-cell" role="cell">
-                    <span className="hbar-app-ui-integration-scope-chip">{key.scope}</span>
+                    <LumenChip label={key.scope} />
                   </div>
                   <div className="hbar-app-ui-integration-key-cell" role="cell">
                     <span>{key.lastUsed}</span>

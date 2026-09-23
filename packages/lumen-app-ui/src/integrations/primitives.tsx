@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { LumenButton, LumenIconButton } from '../primitives';
+import { LumenButton, LumenIconButton, LumenStatus } from '../primitives';
 import { LumenProgress } from '../ui-controls';
 import type { LumenIntegrationTone } from './content';
 
@@ -144,11 +144,14 @@ export function IntegrationStatus({
   readonly value: string;
   readonly tone?: LumenIntegrationTone | undefined;
 }) {
+  const tones = {
+    neutral: 'neutral',
+    positive: 'success',
+    warning: 'warning',
+    danger: 'danger',
+  } as const;
   return (
-    <span className={`hbar-app-ui-integration-status hbar-app-ui-integration-status-${tone}`}>
-      <i aria-hidden="true" />
-      {value}
-    </span>
+    <LumenStatus className="hbar-app-ui-integration-status" value={value} tone={tones[tone]} />
   );
 }
 
@@ -161,7 +164,12 @@ export function IntegrationProgress({
   readonly label: string;
   readonly tone?: LumenIntegrationTone | undefined;
 }) {
-  const tones = { neutral: 'info', positive: 'success', warning: 'warning', danger: 'danger' } as const;
+  const tones = {
+    neutral: 'info',
+    positive: 'success',
+    warning: 'warning',
+    danger: 'danger',
+  } as const;
   return (
     <LumenProgress
       className="hbar-app-ui-integration-progress"

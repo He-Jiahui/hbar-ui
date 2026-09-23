@@ -1461,6 +1461,36 @@ for (const mode of ['dark', 'light'] as const) {
     });
   }
 
+  for (const variant of [2, 4, 6]) {
+    test(`integration ${variant} shares the themed foundation status in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 390, height: 720 });
+      await page.goto(preview(`hbar-app-ui-integrations-${variant}`, mode));
+      const statuses = page.locator('.hbar-app-ui-integration-status');
+      await expect(statuses.first()).toBeVisible();
+      const visual = await statuses.first().evaluate((item) => ({
+        foundation: item.getAttribute('data-lumen-component'),
+        tone: item.getAttribute('data-tone'),
+        dotGlow: getComputedStyle(item.querySelector('i')!).boxShadow,
+      }));
+      expect(visual.foundation).toBe('status');
+      expect(['neutral', 'success', 'warning', 'danger']).toContain(visual.tone);
+      expect(visual.dotGlow).not.toBe('none');
+    });
+  }
+
+  test(`integration labels use foundation badge and passive chip in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 720 });
+    await page.goto(preview('hbar-app-ui-integrations-2', mode));
+    await expect(page.locator('[data-lumen-component="badge"]')).toContainText('必需');
+    await page.goto(preview('hbar-app-ui-integrations-3', mode));
+    const scopes = page.locator('[data-lumen-component="chip"]');
+    await expect(scopes.first()).toBeVisible();
+    await expect(scopes.locator('button')).toHaveCount(0);
+    await expect(scopes.first()).toHaveCSS('border-top-width', '0px');
+  });
+
   test(`integration consent uses the themed workspace picker in ${mode}`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 680 });
     await page.goto(preview('hbar-app-ui-integrations-5', mode));

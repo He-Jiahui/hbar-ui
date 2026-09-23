@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { LumenSwitch } from '../ui-controls';
+import { LumenBadge, LumenSwitch } from '../ui-controls';
 import { ArrowUpRight, RefreshCw, Unplug } from './glyphs';
 import type { LumenIntegrationsCompositionProps } from './primitives';
 import type { LumenIntegrationConnectionContent } from './content';
@@ -99,11 +99,7 @@ export default function ConnectionIntegration({
                     <div>
                       <strong>
                         {scope.label}
-                        {scope.required && (
-                          <span className="hbar-app-ui-integration-badge">
-                            {content.labels.required}
-                          </span>
-                        )}
+                        {scope.required && <LumenBadge value={content.labels.required} />}
                       </strong>
                       <p>{scope.description}</p>
                     </div>

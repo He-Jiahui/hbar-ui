@@ -534,6 +534,7 @@ export function LumenBadge({
     <span
       {...other}
       className={['lumen-badge', className].filter(Boolean).join(' ')}
+      data-lumen-component="badge"
       data-tone={tone}
       data-variant={variant}
       role={other.role ?? (other['aria-label'] ? 'img' : undefined)}
