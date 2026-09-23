@@ -442,7 +442,7 @@ function LiveActivity(
               <ActivityStateMark state={step.state} />
               <div className="lumen-agent-activity-row hbar-app-ui-agent-activity-live-row">
                 <span>{step.label}</span>
-                <time>{step.duration}</time>
+                <span className="hbar-app-ui-agent-activity-duration">{step.duration}</span>
               </div>
             </li>
           ))}
@@ -488,8 +488,8 @@ function NestedActivity(
                       reportAction(onAction, 'toggle-nested-group', group.id);
                     }}
                   >
-                    <strong>{group.label}</strong>
-                    <time>{group.duration}</time>
+                    <span className="hbar-app-ui-agent-activity-group-label">{group.label}</span>
+                    <span className="hbar-app-ui-agent-activity-duration">{group.duration}</span>
                     <span aria-hidden="true" className="hbar-app-ui-agent-activity-chevron" />
                   </button>
                   {open ? (
@@ -498,7 +498,7 @@ function NestedActivity(
                         <li key={child.id}>
                           <span>{child.label}</span>
                           <ActivityProgress decorative label={child.label} value={child.progress} />
-                          <time>{child.duration}</time>
+                          <span className="hbar-app-ui-agent-activity-duration">{child.duration}</span>
                         </li>
                       ))}
                     </ol>

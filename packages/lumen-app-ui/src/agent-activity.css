@@ -133,7 +133,7 @@
   font-size: 0.8125rem;
 }
 
-.hbar-app-ui-agent-activity-live-row > time {
+.hbar-app-ui-agent-activity-live-row > .hbar-app-ui-agent-activity-duration {
   flex: 0 0 auto;
   margin-inline-start: auto;
   color: var(--lumen-muted);
@@ -286,15 +286,16 @@
   border-radius: 0.5rem;
 }
 
-.hbar-app-ui-agent-activity-nested .hbar-app-ui-agent-activity-group-row strong {
+.hbar-app-ui-agent-activity-nested .hbar-app-ui-agent-activity-group-label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 600;
   font-size: 0.8125rem;
 }
 
-.hbar-app-ui-agent-activity-nested .hbar-app-ui-agent-activity-group-row time,
-.hbar-app-ui-agent-activity-child-list time {
+.hbar-app-ui-agent-activity-nested .hbar-app-ui-agent-activity-group-row .hbar-app-ui-agent-activity-duration,
+.hbar-app-ui-agent-activity-child-list .hbar-app-ui-agent-activity-duration {
   color: var(--lumen-muted);
   font-size: 0.75rem;
   font-weight: 400;
