@@ -411,6 +411,105 @@ test('foundation drawer honors reduced motion in both layers', async ({ page }) 
 });
 
 for (const mode of ['dark', 'light'] as const) {
+  for (const width of [320, 390, 1280]) {
+    test(`prompt attachments wrap and remove through foundation chips at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      const locale = mode === 'dark' ? 'zh' : 'en';
+      await page.setViewportSize({ width, height: width === 320 ? 568 : 820 });
+      await page.goto(preview('hbar-app-ui-prompt-input-1', mode, locale));
+      const composer = page.locator('.lumen-prompt-composer');
+      const chips = composer.locator('.lumen-attachment-strip [data-lumen-component="chip"]');
+      await expect(chips).toHaveCount(2);
+      await expect(chips.first()).toHaveCSS('border-top-width', '0px');
+      const toolbar = await composer.locator('.lumen-composer-toolbar').evaluate((element) => {
+        const add = element.querySelector('.lumen-attachment-button')!;
+        const send = element.querySelector('button[type="submit"]')!;
+        const addBounds = add.getBoundingClientRect();
+        const sendBounds = send.getBoundingClientRect();
+        return {
+          aligned: Math.abs(addBounds.top - sendBounds.top) < 1,
+          sendTrailing: sendBounds.left >= addBounds.right,
+        };
+      });
+      expect(toolbar).toEqual({ aligned: true, sendTrailing: true });
+      const fit = await chips.evaluateAll((items) =>
+        items.every((item) => {
+          const label = item.querySelector('.lumen-chip-label')!;
+          const action = item.querySelector('button')!;
+          const bounds = item.getBoundingClientRect();
+          return (
+            bounds.right <=
+              item.closest('.lumen-prompt-composer')!.getBoundingClientRect().right + 1 &&
+            label.getBoundingClientRect().right <= action.getBoundingClientRect().left + 1 &&
+            label.scrollWidth <= label.clientWidth + 1
+          );
+        }),
+      );
+      expect(fit).toBe(true);
+      const longName =
+        locale === 'zh'
+          ? 'Northstar-Q4-访谈研究摘要与路线图评审记录-2026.pdf'
+          : 'Northstar-Q4-interview-research-and-roadmap-review-2026.pdf';
+      await expect(chips.first()).toContainText(longName);
+      const remove = composer.getByRole('button', {
+        name: locale === 'zh' ? `移除 ${longName}` : `Remove ${longName}`,
+      });
+      await remove.focus();
+      await remove.press('Enter');
+      await expect(chips).toHaveCount(1);
+      await expect(chips.first()).toContainText('search-metrics.csv');
+      await composer
+        .getByRole('button', {
+          name: locale === 'zh' ? '移除 search-metrics.csv' : 'Remove search-metrics.csv',
+        })
+        .click();
+      await expect(chips).toHaveCount(0);
+      await expect(composer.getByRole('textbox')).toBeVisible();
+    });
+  }
+
+  test(`prompt composer adds previews up to its host capacity and recovers after removal in ${mode}`, async ({
+    page,
+  }) => {
+    const locale = mode === 'dark' ? 'zh' : 'en';
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-prompt-input-1', mode, locale));
+    const composer = page.locator('.lumen-prompt-composer');
+    const add = composer.getByRole('button', {
+      name: locale === 'zh' ? '添加附件' : 'Add attachment',
+    });
+    await expect(add).toBeEnabled();
+    await expect(add).toHaveAttribute('data-lumen-variant', 'outlined');
+    await expect(add).toHaveCSS('border-top-width', '0px');
+    await composer.locator('input[type="file"]').setInputFiles([
+      {
+        name: 'wireframe.svg',
+        mimeType: 'image/svg+xml',
+        buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"/>'),
+      },
+      { name: 'notes.md', mimeType: 'text/markdown', buffer: Buffer.from('# Notes') },
+      { name: 'metrics.csv', mimeType: 'text/csv', buffer: Buffer.from('date,count') },
+    ]);
+    const chips = composer.locator('.lumen-attachment-strip .lumen-chip');
+    await expect(chips).toHaveCount(5);
+    await expect(add).toBeDisabled();
+    const image = chips.filter({ hasText: 'wireframe.svg' }).locator('img');
+    await expect(image).toHaveAttribute('alt', '');
+    await expect(image).toHaveJSProperty('complete', true);
+    expect(
+      await image.evaluate((element: HTMLImageElement) => element.naturalWidth),
+    ).toBeGreaterThan(0);
+    await composer
+      .getByRole('button', {
+        name: locale === 'zh' ? '移除 wireframe.svg' : 'Remove wireframe.svg',
+      })
+      .click();
+    await expect(chips).toHaveCount(4);
+    await expect(add).toBeEnabled();
+    await expect(chips.filter({ hasText: 'notes.md' })).toHaveCount(1);
+  });
+
   test(`context scope uses a Lumen choice list in ${mode}`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 680 });
     await page.goto(preview('hbar-app-ui-prompt-input-6', mode));

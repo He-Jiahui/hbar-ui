@@ -4,7 +4,7 @@ import * as React from 'react';
 import { LumenDisclosure } from './disclosure';
 import { LumenFileButton, LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import { LumenProgress } from './ui-controls';
+import { LumenChip, LumenProgress } from './ui-controls';
 import { LumenCompactMetrics } from './workspace-components';
 
 function uniqueById<Item extends { id: string }>(items: readonly Item[]): readonly Item[] {
@@ -269,26 +269,23 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
           {attachments.map((attachment) => {
             const originalId = attachment.id.slice(attachment.kind.length + 1);
             return (
-              <div
-                className="lumen-attachment-chip"
-                data-kind={attachment.kind}
+              <LumenChip
                 key={attachment.id}
-              >
-                {attachment.kind === 'image' && attachment.previewUrl ? (
-                  <img src={attachment.previewUrl} alt={attachment.name} />
-                ) : (
-                  <SessionGlyph name="file" />
-                )}
-                <span title={attachment.name}>{attachment.name}</span>
-                <LumenIconButton
-                  label={props.labels.removeAttachment({ ...attachment, id: originalId })}
-                  size="s"
-                  disabled={props.submitting}
-                  onClick={() => props.onRemoveAttachment(originalId, attachment.kind)}
-                >
-                  <SessionGlyph name="remove" />
-                </LumenIconButton>
-              </div>
+                className="lumen-attachment-chip"
+                disabled={props.submitting}
+                startAdornment={
+                  attachment.kind === 'image' && attachment.previewUrl ? (
+                    <img src={attachment.previewUrl} alt="" />
+                  ) : (
+                    <SessionGlyph name="file" />
+                  )
+                }
+                label={attachment.name}
+                removeAction={{
+                  label: props.labels.removeAttachment({ ...attachment, id: originalId }),
+                  onRemove: () => props.onRemoveAttachment(originalId, attachment.kind),
+                }}
+              />
             );
           })}
         </div>

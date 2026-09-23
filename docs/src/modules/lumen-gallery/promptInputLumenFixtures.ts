@@ -1,4 +1,4 @@
-import type { LumenPromptInputContent } from '@lumen/app-ui';
+import type { LumenComposerAttachment, LumenPromptInputContent } from '@lumen/app-ui';
 import type { GalleryLocale } from './emptyStateFixtures';
 
 const copy = (locale: GalleryLocale, zh: string, en: string) => (locale === 'zh' ? zh : en);
@@ -8,6 +8,23 @@ const choice = (id: string, zh: string, en: string, disabled = false) => ({
   label: (locale: GalleryLocale) => copy(locale, zh, en),
   disabled,
 });
+
+export function createPromptComposerAttachments(
+  locale: GalleryLocale,
+): readonly LumenComposerAttachment[] {
+  return [
+    {
+      id: 'interview-brief',
+      kind: 'file',
+      name: copy(
+        locale,
+        'Northstar-Q4-访谈研究摘要与路线图评审记录-2026.pdf',
+        'Northstar-Q4-interview-research-and-roadmap-review-2026.pdf',
+      ),
+    },
+    { id: 'metrics', kind: 'file', name: 'search-metrics.csv' },
+  ];
+}
 
 export function createPromptInputFixtures(locale: GalleryLocale): LumenPromptInputContent {
   const t = (zh: string, en: string) => copy(locale, zh, en);

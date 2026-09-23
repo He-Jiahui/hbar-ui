@@ -1,5 +1,10 @@
 import * as React from 'react';
-import type { LumenAgentPlanStep, LumenPlanState, LumenPreferenceAction } from '@lumen/app-ui';
+import type {
+  LumenAgentPlanStep,
+  LumenComposerAttachment,
+  LumenPlanState,
+  LumenPreferenceAction,
+} from '@lumen/app-ui';
 import type { LumenVariantRegistryEntry } from '@lumen/app-ui/catalog';
 import {
   createLumenVariantFixtures,
@@ -7,6 +12,7 @@ import {
   type LumenVariantFixtures,
 } from './variantFixtures';
 import getEmptyStateFixtures from './emptyStateFixtures';
+import { createPromptComposerAttachments } from './promptInputLumenFixtures';
 import styles from './VariantPreviewHost.module.css';
 
 export interface VariantPreviewHostProps {
@@ -107,6 +113,22 @@ export default function VariantPreviewHost({
 }: VariantPreviewHostProps) {
   const fixtures = React.useMemo(() => createLumenVariantFixtures(locale), [locale]);
   const [promptValue, setPromptValue] = React.useState('');
+  const [removedPromptAttachments, setRemovedPromptAttachments] = React.useState<readonly string[]>(
+    [],
+  );
+  const [uploadedPromptAttachments, setUploadedPromptAttachments] = React.useState<
+    readonly LumenComposerAttachment[]
+  >([]);
+  const promptPreviewUrls = React.useRef(new Set<string>());
+  React.useEffect(
+    () => () => {
+      for (const url of promptPreviewUrls.current) {
+        URL.revokeObjectURL(url);
+      }
+      promptPreviewUrls.current.clear();
+    },
+    [],
+  );
   const [openCommandId, setOpenCommandId] = React.useState<string | null>(null);
   const [nestedCommandPageId, setNestedCommandPageId] = React.useState<string | null>(null);
   const [agentPlanDraft, setAgentPlanDraft] = React.useState('');
@@ -502,6 +524,12 @@ export default function VariantPreviewHost({
         : undefined,
     } as (typeof fixtures)['ai-usage'];
   }
+  const promptAttachments = [
+    ...createPromptComposerAttachments(locale).filter(
+      (attachment) => !removedPromptAttachments.includes(`${attachment.kind}:${attachment.id}`),
+    ),
+    ...uploadedPromptAttachments,
+  ];
   const componentProps =
     entry.id === 'hbar-app-ui-prompt-input-1'
       ? {
@@ -509,14 +537,46 @@ export default function VariantPreviewHost({
           composer: {
             value: promptValue,
             labels: fixtures['prompt-input'].composerLabels,
-            attachments: [],
+            attachments: promptAttachments,
             submitting: false,
             uploading: false,
             canSubmit: Boolean(promptValue.trim()),
             canStop: false,
-            canAddAttachments: true,
+            canAddAttachments: promptAttachments.length < 5,
             onChange: setPromptValue,
-            onRemoveAttachment: () => undefined,
+            onAddAttachments: (files: readonly File[]) => {
+              const available = Math.max(0, 5 - promptAttachments.length);
+              const next = files.slice(0, available).map((file): LumenComposerAttachment => {
+                const image = file.type.startsWith('image/');
+                const previewUrl = image ? URL.createObjectURL(file) : undefined;
+                if (previewUrl) {
+                  promptPreviewUrls.current.add(previewUrl);
+                }
+                return {
+                  id: `upload-${crypto.randomUUID()}`,
+                  kind: image ? 'image' : 'file',
+                  name: file.name,
+                  previewUrl,
+                };
+              });
+              setUploadedPromptAttachments((current) => [...current, ...next]);
+            },
+            onRemoveAttachment: (id: string, kind: 'image' | 'file') => {
+              const uploaded = uploadedPromptAttachments.find(
+                (attachment) => attachment.id === id && attachment.kind === kind,
+              );
+              if (uploaded) {
+                if (uploaded.previewUrl) {
+                  URL.revokeObjectURL(uploaded.previewUrl);
+                  promptPreviewUrls.current.delete(uploaded.previewUrl);
+                }
+                setUploadedPromptAttachments((current) =>
+                  current.filter((attachment) => attachment.id !== id || attachment.kind !== kind),
+                );
+              } else {
+                setRemovedPromptAttachments((current) => [...current, `${kind}:${id}`]);
+              }
+            },
             onSubmit: () => setPromptValue(''),
             onStop: () => undefined,
           },
