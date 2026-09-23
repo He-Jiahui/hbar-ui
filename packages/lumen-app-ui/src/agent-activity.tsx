@@ -406,7 +406,7 @@ function ActivityPane({
   readonly children: React.ReactNode;
 }) {
   return (
-    <main
+    <div
       className={['lumen-agent-activity-pane', 'hbar-app-ui-agent-activity-pane', className]
         .filter(Boolean)
         .join(' ')}
@@ -414,7 +414,7 @@ function ActivityPane({
       data-hbar-app-ui-list-strategy={strategy.kind}
     >
       {children}
-    </main>
+    </div>
   );
 }
 
