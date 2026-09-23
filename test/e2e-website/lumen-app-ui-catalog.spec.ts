@@ -417,6 +417,9 @@ for (const mode of ['dark', 'light'] as const) {
       await page.goto(preview('hbar-app-ui-tool-calls-2', mode));
       const rows = page.locator('.hbar-app-ui-tool-calls-activity-pane > ol > li');
       await expect(rows).toHaveCount(4);
+      await expect(
+        rows.locator('.hbar-app-ui-tool-calls-activity-row > [data-edge="left"]'),
+      ).toHaveCount(4);
       const geometry = await rows.evaluateAll((items) =>
         items.map((item) => {
           const row = item.querySelector('.hbar-app-ui-tool-calls-activity-row')!;

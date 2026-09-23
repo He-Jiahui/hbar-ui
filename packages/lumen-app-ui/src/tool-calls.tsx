@@ -465,6 +465,7 @@ function ToolActivity(
             <li key={item.id}>
               <LumenButton
                 variant="text"
+                indicatorEdge="left"
                 className="hbar-app-ui-tool-calls-button hbar-app-ui-tool-calls-activity-row"
                 onClick={() => report(onAction, 'open-tool-activity', item.id)}
               >
