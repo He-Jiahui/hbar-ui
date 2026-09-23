@@ -1059,4 +1059,36 @@ for (const mode of ['dark', 'light'] as const) {
     await tabs.getByRole('tab').first().press('ArrowRight');
     await expect(tabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
   });
+
+  for (const variant of [2, 4]) {
+    test(`integration ${variant} shares the Lumen switch in ${mode}`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 680 });
+      await page.goto(preview(`hbar-app-ui-integrations-${variant}`, mode));
+      const toggle = page.locator('.hbar-app-ui-integration-switch .lumen-switch-input').last();
+      await expect(toggle).toBeVisible();
+      const checked = await toggle.isChecked();
+      await toggle.press('Space');
+      await expect(toggle).toHaveJSProperty('checked', !checked);
+    });
+  }
+
+  test(`integration consent uses the themed workspace picker in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-integrations-5', mode));
+    const picker = page.getByRole('combobox', { name: '授权工作区' });
+    await picker.click();
+    const option = page.getByRole('listbox').getByRole('option').last();
+    const label = await option.innerText();
+    await option.click();
+    await expect(picker).toContainText(label);
+    await expect(page.locator('.hbar-app-ui-integration-workspace-select select')).toHaveCount(0);
+  });
+
+  test(`integration sync shares foundation progress in ${mode}`, async ({ page }) => {
+    await page.goto(preview('hbar-app-ui-integrations-6', mode));
+    await expect(page.locator('.hbar-app-ui-integration-progress.lumen-progress').first()).toHaveAttribute(
+      'role',
+      'progressbar',
+    );
+  });
 }

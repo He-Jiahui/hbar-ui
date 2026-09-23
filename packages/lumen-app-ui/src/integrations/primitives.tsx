@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { LumenButton, LumenIconButton } from '../primitives';
+import { LumenProgress } from '../ui-controls';
 import type { LumenIntegrationTone } from './content';
 
 export interface LumenIntegrationsCompositionProps {
@@ -160,21 +161,14 @@ export function IntegrationProgress({
   readonly label: string;
   readonly tone?: LumenIntegrationTone | undefined;
 }) {
-  const bounded = Math.max(0, Math.min(100, value));
+  const tones = { neutral: 'info', positive: 'success', warning: 'warning', danger: 'danger' } as const;
   return (
-    <span
+    <LumenProgress
       className="hbar-app-ui-integration-progress"
-      role="progressbar"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={bounded}
-    >
-      <i
-        className={`hbar-app-ui-integration-progress-fill hbar-app-ui-integration-progress-${tone}`}
-        style={{ inlineSize: `${bounded}%` }}
-      />
-    </span>
+      label={label}
+      value={value}
+      tone={tones[tone]}
+    />
   );
 }
 

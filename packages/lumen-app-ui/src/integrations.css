@@ -155,30 +155,7 @@
 }
 
 .hbar-app-ui-integration-progress {
-  display: flex;
   block-size: 0.3125rem;
-  overflow: hidden;
-  border-radius: 999rem;
-  background: var(--hbar-app-ui-integration-border);
-}
-
-.hbar-app-ui-integration-progress-fill {
-  display: flex;
-  min-inline-size: 0;
-  border-radius: inherit;
-  background: var(--hbar-app-ui-integration-text);
-}
-
-.hbar-app-ui-integration-progress-positive {
-  background: var(--hbar-app-ui-integration-positive);
-}
-
-.hbar-app-ui-integration-progress-warning {
-  background: var(--hbar-app-ui-integration-warning);
-}
-
-.hbar-app-ui-integration-progress-danger {
-  background: var(--hbar-app-ui-integration-danger);
 }
 
 .hbar-app-ui-integration-empty {
@@ -508,42 +485,6 @@
   color: var(--hbar-app-ui-integration-muted);
   font-size: 0.6875rem;
   font-weight: 400;
-}
-
-.hbar-app-ui-integration-surface .hbar-app-ui-integration-switch {
-  appearance: none;
-  inline-size: 2.25rem;
-  min-inline-size: 2.25rem;
-  block-size: 1.25rem;
-  min-block-size: 1.25rem;
-  flex: 0 0 auto;
-  padding: 0;
-  border: 0.0625rem solid var(--hbar-app-ui-integration-border-strong);
-  border-radius: 999rem;
-  background:
-    radial-gradient(
-      circle at 0.625rem 50%,
-      var(--hbar-app-ui-integration-subtle) 0 0.375rem,
-      transparent 0.4063rem
-    ),
-    var(--hbar-app-ui-integration-bg);
-  cursor: pointer;
-}
-
-.hbar-app-ui-integration-surface .hbar-app-ui-integration-switch:checked {
-  border-color: var(--lumen-accent);
-  background:
-    radial-gradient(
-      circle at calc(100% - 0.625rem) 50%,
-      var(--lumen-contrast) 0 0.375rem,
-      transparent 0.4063rem
-    ),
-    var(--lumen-accent);
-}
-
-.hbar-app-ui-integration-surface .hbar-app-ui-integration-switch:disabled {
-  cursor: default;
-  opacity: 0.6;
 }
 
 .hbar-app-ui-integration-activity-panel {
@@ -979,13 +920,9 @@
   background: var(--hbar-app-ui-integration-bg);
 }
 
-.hbar-app-ui-integration-workspace-select select {
+.hbar-app-ui-integration-workspace-select .lumen-choice-select {
   min-inline-size: 0;
   flex: 1 1 auto;
-  border: 0;
-  outline: 0;
-  background: transparent;
-  color: var(--hbar-app-ui-integration-text);
 }
 
 .hbar-app-ui-integration-permission-list {

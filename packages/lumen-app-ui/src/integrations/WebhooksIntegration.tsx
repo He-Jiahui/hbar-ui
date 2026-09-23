@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { LumenInput } from '../forms';
 import { LumenButton } from '../primitives';
+import { LumenSwitch } from '../ui-controls';
 import { ChevronDown, Plus, RotateCcw, Webhook } from './glyphs';
 import type { LumenIntegrationsCompositionProps } from './primitives';
 import type { LumenIntegrationWebhookContent } from './content';
@@ -135,14 +135,12 @@ export default function WebhooksIntegration({
                     </IntegrationIcon>
                     {content.labels.sendTest}
                   </IntegrationButton>
-                  <LumenInput
+                  <LumenSwitch
                     className="hbar-app-ui-integration-switch"
-                    type="checkbox"
-                    role="switch"
-                    aria-label={content.labels.toggleEndpoint(endpoint.address)}
-                    aria-checked={enabledValues[endpoint.id] ?? endpoint.enabled}
+                    label={content.labels.toggleEndpoint(endpoint.address)}
+                    visuallyHiddenLabel
                     checked={enabledValues[endpoint.id] ?? endpoint.enabled}
-                    onChange={(event) => toggleEnabled(event.target.checked)}
+                    onChange={(event) => toggleEnabled(event.currentTarget.checked)}
                   />
                   <IntegrationStatus
                     value={

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { LumenSelect } from '../forms';
+import { LumenChoiceSelect } from '../forms';
 import { Check, LockKeyhole, ShieldCheck } from './glyphs';
 import type { LumenIntegrationsCompositionProps } from './primitives';
 import type { LumenIntegrationConsentContent } from './content';
@@ -36,35 +36,30 @@ export default function ConsentIntegration({
             <h1>{content.title}</h1>
             <p>{content.description}</p>
           </header>
-          <label
+          <div
             className="hbar-app-ui-integration-field"
-            htmlFor={`hbar-app-ui-integration-workspace-${spec.id}`}
           >
             <span>{content.labels.workspaceLabel}</span>
             <span className="hbar-app-ui-integration-workspace-select">
               <IntegrationIcon tier="sm">
                 <ShieldCheck />
               </IntegrationIcon>
-              <LumenSelect
+              <LumenChoiceSelect
                 id={`hbar-app-ui-integration-workspace-${spec.id}`}
+                label={content.labels.workspaceLabel}
+                options={workspaces}
                 value={workspaceId}
-                onChange={(event) => {
-                  setWorkspaceId(event.target.value);
+                onValueChange={(id) => {
+                  setWorkspaceId(id);
                   onAction?.({
                     variantId: spec.id,
                     actionId: 'select-workspace',
-                    value: event.target.value,
+                    value: id,
                   });
                 }}
-              >
-                {workspaces.map((workspace) => (
-                  <option key={workspace.id} value={workspace.id}>
-                    {workspace.label}
-                  </option>
-                ))}
-              </LumenSelect>
+              />
             </span>
-          </label>
+          </div>
           <ul
             className="hbar-app-ui-integration-permission-list"
             data-hbar-app-ui-list-strategy={content.listStrategy.kind}

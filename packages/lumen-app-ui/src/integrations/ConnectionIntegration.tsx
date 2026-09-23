@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { LumenInput } from '../forms';
+import { LumenSwitch } from '../ui-controls';
 import { ArrowUpRight, RefreshCw, Unplug } from './glyphs';
 import type { LumenIntegrationsCompositionProps } from './primitives';
 import type { LumenIntegrationConnectionContent } from './content';
@@ -107,15 +107,13 @@ export default function ConnectionIntegration({
                       </strong>
                       <p>{scope.description}</p>
                     </div>
-                    <LumenInput
+                    <LumenSwitch
                       className="hbar-app-ui-integration-switch"
-                      type="checkbox"
-                      role="switch"
-                      aria-label={content.labels.toggleScope(scope.label)}
-                      aria-checked={scopeValues[scope.id] ?? scope.enabled}
+                      label={content.labels.toggleScope(scope.label)}
+                      visuallyHiddenLabel
                       checked={scopeValues[scope.id] ?? scope.enabled}
                       disabled={scope.required || !connected}
-                      onChange={(event) => updateScope(scope.id, event.target.checked)}
+                      onChange={(event) => updateScope(scope.id, event.currentTarget.checked)}
                     />
                   </div>
                 ))}
