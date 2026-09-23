@@ -26,6 +26,7 @@ export interface LumenAgentActivityLiveContent {
     readonly elapsed: string;
     readonly separator: string;
     readonly stop: string;
+    readonly stopped: string;
   };
   readonly steps: readonly LumenAgentActivityLiveStep[];
   readonly activeStepId?: string | undefined;
@@ -381,8 +382,8 @@ function ActivityFrame({
     .join(' ');
   return (
     <LumenSurface
-      as="section"
-      boundary={variant === 3 || variant === 4 ? 'none' : 'horizontal'}
+      as={variant === 1 ? 'div' : 'section'}
+      boundary={variant === 1 || variant === 3 || variant === 4 ? 'none' : 'horizontal'}
       className="lumen-agent-activity-root-surface"
       contentClassName={contentClassName}
       data-lumen-component="agent-activity"
@@ -429,20 +430,46 @@ function reportAction(
 function LiveActivity(
   props: Omit<LumenAgentActivityProps, 'content'> & { content: LumenAgentActivityLiveContent },
 ) {
-  const { content } = props;
+  const { content, onAction } = props;
   const steps = uniqueLumenAgentActivityItems(content.steps);
   const activeStep = selectLumenAgentActivityItem(steps, content.activeStepId);
+  const [stopped, setStopped] = React.useState(false);
 
   return (
     <ActivityFrame {...props} className="hbar-app-ui-agent-activity-live">
+      <header className="lumen-agent-activity-heading hbar-app-ui-agent-activity-live-heading">
+        <div>
+          <LumenText as="h2" variant="heading">{content.labels.title}</LumenText>
+          <div className="hbar-app-ui-agent-activity-live-status">
+            <ActivityStateMark state={stopped ? 'cancelled' : 'running'} />
+            <span>{stopped ? content.labels.stopped : content.labels.status}</span>
+            <span aria-hidden="true">{content.labels.separator}</span>
+            <span>{content.labels.elapsed}</span>
+          </div>
+        </div>
+        <LumenButton
+          variant="outlined"
+          size="s"
+          disabled={stopped}
+          onClick={() => {
+            setStopped(true);
+            reportAction(onAction, 'stop-live');
+          }}
+        >
+          <ActivityGlyph name="stop" />
+          {content.labels.stop}
+        </LumenButton>
+      </header>
       <ActivityPane strategy={content.listStrategy}>
         <ol className="lumen-agent-activity-list hbar-app-ui-agent-activity-live-list">
           {steps.map((step) => (
-            <li className={step.id === activeStep?.id ? 'is-active' : ''} key={step.id}>
+            <li className={step.id === activeStep?.id && !stopped ? 'is-active' : ''} key={step.id}>
               <ActivityStateMark state={step.state} />
               <div className="lumen-agent-activity-row hbar-app-ui-agent-activity-live-row">
                 <span>{step.label}</span>
-                <span className="hbar-app-ui-agent-activity-duration">{step.duration}</span>
+                <span className="hbar-app-ui-agent-activity-duration">
+                  {stopped && step.id === activeStep?.id ? content.labels.stopped : step.duration}
+                </span>
               </div>
             </li>
           ))}
