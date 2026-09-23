@@ -9,6 +9,7 @@ import {
   LumenStatus,
   LumenText,
 } from './primitives';
+import { LumenMenu } from './ui-controls';
 
 export type LumenIconTier = 'sm' | 'md' | 'lg';
 
@@ -335,56 +336,56 @@ export function LumenActionMenu<ActionId extends string = string>({
   items,
   onAction,
 }: LumenActionMenuProps<ActionId>) {
+  const [open, setOpen] = React.useState(false);
+  const rootRef = React.useRef<HTMLDivElement>(null);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  React.useEffect(() => {
+    if (!open) {
+      return undefined;
+    }
+    const closeOutside = (event: PointerEvent) => {
+      if (event.target instanceof Node && !rootRef.current?.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('pointerdown', closeOutside);
+    return () => document.removeEventListener('pointerdown', closeOutside);
+  }, [open]);
+  const close = () => {
+    setOpen(false);
+    triggerRef.current?.focus();
+  };
   return (
-    // Native details owns the toggle and Escape interaction for this disclosed menu.
-    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
-    <details
-      className="lumen-action-menu hbar-app-ui-action-menu"
-      onToggle={(event) => {
-        if (event.currentTarget.open) {
-          event.currentTarget.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
-        }
-      }}
-      onKeyDown={(event) => {
-        if (event.key !== 'Escape') {
-          return;
-        }
-        event.preventDefault();
-        event.currentTarget.removeAttribute('open');
-        event.currentTarget.querySelector('summary')?.focus();
-      }}
-    >
-      <summary aria-label={label} title={label} aria-haspopup="menu">
+    <div ref={rootRef} className="lumen-action-menu hbar-app-ui-action-menu">
+      <LumenIconButton
+        ref={triggerRef}
+        label={label}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+      >
         <span className="lumen-action-menu-dots" aria-hidden="true">
           <i />
           <i />
           <i />
         </span>
-      </summary>
-      <div
-        className="lumen-action-menu-popup hbar-app-ui-dialog-menu"
-        role="menu"
-        aria-label={label}
-      >
-        {items.map((item) => (
-          <LumenButton
-            key={item.id}
-            type="button"
-            role="menuitem"
-            size="s"
-            variant="text"
-            tone={item.tone === 'danger' ? 'danger' : 'neutral'}
-            disabled={item.disabled}
-            onClick={(event) => {
-              event.currentTarget.closest('details')?.removeAttribute('open');
-              onAction(item.id);
-            }}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
-    </details>
+      </LumenIconButton>
+      <LumenMenu
+        open={open}
+        focusOnOpen
+        label={label}
+        empty={label}
+        items={items}
+        onSelect={(id) => {
+          const item = items.find((candidate) => candidate.id === id);
+          if (item && !item.disabled) {
+            onAction(item.id);
+            close();
+          }
+        }}
+        onClose={close}
+      />
+    </div>
   );
 }
 
