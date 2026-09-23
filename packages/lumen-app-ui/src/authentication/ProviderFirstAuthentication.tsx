@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { LumenButton } from '../primitives';
+import { LumenButton, LumenStatus } from '../primitives';
 import type { LumenAuthCompositionProps } from './primitives';
 import type { LumenAuthProviderFirstContent } from './content';
 import {
@@ -137,10 +137,7 @@ export default function ProviderFirstAuthentication({
         </main>
         <footer className="hbar-app-ui-auth-help-row hbar-app-ui-auth-header-bar">
           <span>{content.labels.trouble}</span>
-          <span className="hbar-app-ui-auth-status">
-            <i aria-hidden="true" />
-            {content.labels.systemNormal}
-          </span>
+          <LumenStatus className="hbar-app-ui-auth-status" value={content.labels.systemNormal} />
         </footer>
       </div>
     </AuthFrame>

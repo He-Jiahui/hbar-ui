@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { LumenInput } from '../forms';
-import { LumenButton } from '../primitives';
+import { LumenButton, LumenStatus } from '../primitives';
 import {
   Apple,
   ArrowLeft,
@@ -364,12 +364,13 @@ export function AuthStatus({
   readonly label: string;
   readonly tone?: 'neutral' | 'positive' | 'warning' | 'danger' | undefined;
 }) {
-  return (
-    <span className={`hbar-app-ui-auth-status hbar-app-ui-auth-status-${tone}`}>
-      <i aria-hidden="true" />
-      {label}
-    </span>
-  );
+  const tones = {
+    neutral: 'neutral',
+    positive: 'success',
+    warning: 'warning',
+    danger: 'danger',
+  } as const;
+  return <LumenStatus className="hbar-app-ui-auth-status" value={label} tone={tones[tone]} />;
 }
 
 export function AuthMetaRows({

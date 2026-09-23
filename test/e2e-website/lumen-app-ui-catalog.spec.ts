@@ -1429,6 +1429,26 @@ for (const mode of ['dark', 'light'] as const) {
     await expect(tabs.getByRole('tab').nth(1)).toHaveAttribute('aria-selected', 'true');
   });
 
+  for (const variant of [2, 10]) {
+    test(`authentication ${variant} renders host status with foundation glow in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 390, height: 720 });
+      await page.goto(preview(`hbar-app-ui-authentication-${variant}`, mode));
+      const status = page.locator('.hbar-app-ui-auth-status').first();
+      await expect(status).toBeVisible();
+      await expect(status).toHaveAttribute('data-lumen-component', 'status');
+      const visual = await status.evaluate((item) => ({
+        text: item.textContent?.trim(),
+        dotGlow: getComputedStyle(item.querySelector('i')!).boxShadow,
+        tone: item.getAttribute('data-tone'),
+      }));
+      expect(visual.text?.length).toBeGreaterThan(0);
+      expect(visual.dotGlow).not.toBe('none');
+      expect(['neutral', 'success', 'warning', 'danger']).toContain(visual.tone);
+    });
+  }
+
   for (const variant of [2, 4]) {
     test(`integration ${variant} shares the Lumen switch in ${mode}`, async ({ page }) => {
       await page.setViewportSize({ width: 390, height: 680 });
