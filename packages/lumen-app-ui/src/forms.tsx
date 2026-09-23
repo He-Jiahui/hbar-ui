@@ -249,6 +249,130 @@ export const LumenSelect = React.forwardRef<HTMLSelectElement, LumenSelectProps>
   },
 );
 
+export interface LumenChoiceSelectProps {
+  id: string;
+  label: string;
+  options: readonly LumenControlOption[];
+  value: string | null;
+  onValueChange: (id: string) => void;
+  size?: LumenSize | undefined;
+  disabled?: boolean | undefined;
+  className?: string | undefined;
+}
+
+export function LumenChoiceSelect({
+  id,
+  label,
+  options,
+  value,
+  onValueChange,
+  size,
+  disabled = false,
+  className,
+}: LumenChoiceSelectProps) {
+  const [open, setOpen] = React.useState(false);
+  const [activeId, setActiveId] = React.useState<string | null>(null);
+  const rootRef = React.useRef<HTMLDivElement>(null);
+  const items = uniqueOptions(options);
+  const available = items.filter((item) => !item.disabled);
+  const current = items.find((item) => item.id === value);
+  const active = available.find((item) => item.id === activeId);
+  const listId = `${id}-choices`;
+  const optionId = (itemId: string) => `${id}-choice-${encodeURIComponent(itemId)}`;
+  const select = (item: LumenControlOption) => {
+    if (item.disabled) {
+      return;
+    }
+    onValueChange(item.id);
+    setOpen(false);
+    setActiveId(null);
+  };
+  const move = (direction: 1 | -1) => {
+    if (!available.length) {
+      return;
+    }
+    const index = available.findIndex((item) => item.id === (active?.id ?? value));
+    let next = (index + direction + available.length) % available.length;
+    if (index < 0) {
+      next = direction > 0 ? 0 : available.length - 1;
+    }
+    setActiveId(available[next]?.id ?? null);
+  };
+  return (
+    <div
+      ref={rootRef}
+      className={['lumen-choice-select', className].filter(Boolean).join(' ')}
+      onBlur={(event) => {
+        if (!rootRef.current?.contains(event.relatedTarget)) {
+          setOpen(false);
+          setActiveId(null);
+        }
+      }}
+    >
+      <LumenButton
+        id={id}
+        role="combobox"
+        aria-label={label}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls={open ? listId : undefined}
+        aria-activedescendant={open && active ? optionId(active.id) : undefined}
+        disabled={disabled}
+        size={size}
+        variant="outlined"
+        className="lumen-choice-select-trigger"
+        onClick={() => {
+          setOpen((wasOpen) => !wasOpen);
+          setActiveId(current && !current.disabled ? current.id : (available[0]?.id ?? null));
+        }}
+        onKeyDown={(event) => {
+          if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            setOpen(true);
+            move(event.key === 'ArrowDown' ? 1 : -1);
+          } else if (open && (event.key === 'Home' || event.key === 'End')) {
+            event.preventDefault();
+            setActiveId((event.key === 'Home' ? available[0] : available.at(-1))?.id ?? null);
+          } else if (open && event.key === 'Enter' && active) {
+            event.preventDefault();
+            select(active);
+          } else if (event.key === 'Escape') {
+            event.preventDefault();
+            setOpen(false);
+            setActiveId(null);
+          }
+        }}
+      >
+        <span>{current?.label ?? label}</span>
+        <FormGlyph name="chevron" />
+      </LumenButton>
+      {open && !disabled ? (
+        <div id={listId} role="listbox" aria-label={label} className="lumen-choice-select-list">
+          {items.map((item) => (
+            <LumenButton
+              key={item.id}
+              id={optionId(item.id)}
+              role="option"
+              tabIndex={-1}
+              aria-selected={item.id === value}
+              data-active={item.id === activeId || undefined}
+              disabled={item.disabled}
+              size={size}
+              variant="text"
+              onMouseDown={(event) => event.preventDefault()}
+              onMouseEnter={() => !item.disabled && setActiveId(item.id)}
+              onClick={() => select(item)}
+            >
+              <span>{item.label}</span>
+              {item.id === value ? <FormGlyph name="check" /> : null}
+            </LumenButton>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export interface LumenCheckBoxControlProps extends Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
   'type' | 'size'

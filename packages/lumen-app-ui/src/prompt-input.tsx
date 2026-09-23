@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { LumenFormField, LumenInput, LumenSelect, LumenTextarea } from './forms';
+import { LumenChoiceSelect, LumenFormField, LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
 import {
   LumenPromptComposer,
@@ -377,19 +377,16 @@ function Tools(
       />
       <div className="lumen-prompt-input-tools-bar">
         <LumenFormField controlId={`${props.variantId}-model`} label={props.content.labels.model}>
-          <LumenSelect
+          <LumenChoiceSelect
+            id={`${props.variantId}-model`}
+            label={props.content.labels.model}
             value={modelId}
-            onChange={(event) => {
-              setModelId(event.currentTarget.value);
-              report(props.onAction, 'model', event.currentTarget.value);
+            options={models}
+            onValueChange={(id) => {
+              setModelId(id);
+              report(props.onAction, 'model', id);
             }}
-          >
-            {models.map((model) => (
-              <option key={model.id} value={model.id} disabled={model.disabled}>
-                {model.label}
-              </option>
-            ))}
-          </LumenSelect>
+          />
         </LumenFormField>
         <LumenStatus
           value={props.content.labels.tokenUsage(
@@ -696,19 +693,16 @@ function Scope(
           {props.content.labels.mention}
         </LumenButton>
         <LumenFormField controlId={`${props.variantId}-scope`} label={props.content.labels.scope}>
-          <LumenSelect
+          <LumenChoiceSelect
+            id={`${props.variantId}-scope`}
+            label={props.content.labels.scope}
             value={scopeId}
-            onChange={(event) => {
-              setScopeId(event.currentTarget.value);
-              report(props.onAction, 'scope', event.currentTarget.value);
+            options={scopes}
+            onValueChange={(id) => {
+              setScopeId(id);
+              report(props.onAction, 'scope', id);
             }}
-          >
-            {scopes.map((scope) => (
-              <option key={scope.id} value={scope.id} disabled={scope.disabled}>
-                {scope.label}
-              </option>
-            ))}
-          </LumenSelect>
+          />
         </LumenFormField>
       </div>
       {open ? (

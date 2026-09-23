@@ -2275,8 +2275,9 @@ describe('Lumen formal variant fixtures', () => {
     view = render(
       <VariantPreviewHost entry={entries[1]} locale="en" unavailableLabel="Preview unavailable" />,
     );
-    await view.user.selectOptions(screen.getByLabelText('Model'), 'luna');
-    expect((screen.getByLabelText('Model') as HTMLSelectElement).value).toBe('luna');
+    await view.user.click(screen.getByRole('combobox', { name: 'Model' }));
+    await view.user.click(screen.getByRole('option', { name: 'Luna 4 mini' }));
+    expect(screen.getByRole('combobox', { name: 'Model' }).textContent).toContain('Luna 4 mini');
     await view.user.click(screen.getByRole('button', { name: /Browse roadmap pages/ }));
     expect(
       screen.getByRole('button', { name: /Browse roadmap pages/ }).getAttribute('aria-pressed'),

@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import {
   LumenChip,
+  LumenChoiceSelect,
   LumenComboBox,
   LumenFormField,
   LumenTabs,
@@ -48,6 +49,31 @@ function ComboHarness({
 
 describe('Lumen foundation interactions', () => {
   const { render } = createRenderer();
+
+  it('uses a host-owned choice list with keyboard selection, disabled entries, and no duplicate IDs', async () => {
+    function ChoiceHarness() {
+      const [value, setValue] = React.useState<string | null>('research');
+      return (
+        <LumenChoiceSelect
+          id="scope-choice"
+          label="范围"
+          value={value}
+          options={[choices[0], choices[1], choices[2], choices[0]]}
+          onValueChange={setValue}
+        />
+      );
+    }
+    const { user } = render(<ChoiceHarness />);
+    const trigger = screen.getByRole('combobox', { name: '范围' });
+    await user.click(trigger);
+    expect(screen.getAllByRole('option')).toHaveLength(3);
+    await user.keyboard('{ArrowDown}{Enter}');
+    expect(trigger).to.have.attribute('aria-expanded', 'false');
+    expect(trigger.textContent).toContain('构建工作区');
+    await user.keyboard('{ArrowDown}{Escape}');
+    expect(trigger).to.have.attribute('aria-expanded', 'false');
+    expect(trigger.textContent).toContain('构建工作区');
+  });
 
   it('navigates suggestions without committing, skips disabled items, and selects with Enter', async () => {
     const onSelect = vi.fn();

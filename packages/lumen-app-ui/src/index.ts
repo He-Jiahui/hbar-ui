@@ -1428,6 +1428,7 @@ export type { LumenDisclosureProps } from './disclosure';
 export {
   LumenCheckBox,
   LumenCheckBoxControl,
+  LumenChoiceSelect,
   LumenComboBox,
   LumenFileButton,
   LumenFormField,
@@ -1439,6 +1440,7 @@ export {
 export type {
   LumenCheckBoxControlProps,
   LumenCheckBoxProps,
+  LumenChoiceSelectProps,
   LumenComboBoxLabels,
   LumenComboBoxProps,
   LumenControlOption,

@@ -31,6 +31,7 @@ export type {
 export {
   LumenCheckBox,
   LumenCheckBoxControl,
+  LumenChoiceSelect,
   LumenComboBox,
   LumenFileButton,
   LumenFormField,
@@ -42,6 +43,7 @@ export {
 export type {
   LumenCheckBoxControlProps,
   LumenCheckBoxProps,
+  LumenChoiceSelectProps,
   LumenComboBoxLabels,
   LumenComboBoxProps,
   LumenControlOption,
