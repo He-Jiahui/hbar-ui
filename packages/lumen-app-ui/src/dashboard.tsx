@@ -1,9 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import { LumenSelect } from './forms';
+import { LumenChoiceSelect } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { LumenChart, type LumenChartPoint } from './ui-compositions';
+import { LumenGauge, LumenProgress, LumenTabs } from './ui-controls';
 
 export interface LumenDashboardListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -479,19 +480,13 @@ function Progress({
   readonly label: string;
   readonly tone?: string | undefined;
 }) {
-  const bounded = Math.max(0, Math.min(100, value));
   return (
-    <span
+    <LumenProgress
       className="lumen-dashboard-progress"
-      data-tone={tone}
-      role="progressbar"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={bounded}
-    >
-      <i style={{ inlineSize: `${bounded}%` }} />
-    </span>
+      label={label}
+      value={value}
+      tone={tone === 'warning' || tone === 'success' ? tone : 'info'}
+    />
   );
 }
 function Metrics({
@@ -537,20 +532,13 @@ function Tabs({
   readonly onChange: (id: string) => void;
 }) {
   return (
-    <div className="lumen-dashboard-tabs" role="tablist" aria-label={label}>
-      {choices.map((item) => (
-        <LumenButton
-          key={item.id}
-          role="tab"
-          variant="text"
-          disabled={item.disabled}
-          aria-selected={selectedId === item.id}
-          onClick={() => onChange(item.id)}
-        >
-          {item.label}
-        </LumenButton>
-      ))}
-    </div>
+    <LumenTabs
+      className="lumen-dashboard-tabs"
+      label={label}
+      items={choices}
+      selectedId={selectedId ?? null}
+      onChange={onChange}
+    />
   );
 }
 
@@ -880,21 +868,12 @@ function Delivery(
           modules.map((item) => (
             <article key={item.id}>
               <strong>{item.name}</strong>
-              <span
+              <LumenGauge
                 className="lumen-dashboard-ring"
-                style={
-                  {
-                    '--progress': `${Math.max(0, Math.min(100, item.progress)) * 3.6}deg`,
-                  } as React.CSSProperties
-                }
-                role="progressbar"
-                aria-label={props.content.labels.progress(item.name)}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={item.progress}
-              >
-                <b>{props.content.labels.percent(item.progress)}</b>
-              </span>
+                label={props.content.labels.progress(item.name)}
+                value={item.progress}
+                valueLabel={props.content.labels.percent(item.progress)}
+              />
               <small>{item.detail}</small>
             </article>
           ))
@@ -1114,20 +1093,16 @@ function Scorecard(
         title={props.content.labels.title}
         detail={props.content.labels.detail}
         actions={
-          <LumenSelect
-            aria-label={props.content.labels.quarter}
-            value={quarter?.id ?? ''}
-            onChange={(event) => {
-              setQuarterId(event.target.value);
-              report(props.onAction, 'quarter', event.target.value);
+          <LumenChoiceSelect
+            id="dashboard-scorecard-quarter"
+            label={props.content.labels.quarter}
+            options={quarters}
+            value={quarter?.id ?? null}
+            onValueChange={(id) => {
+              setQuarterId(id);
+              report(props.onAction, 'quarter', id);
             }}
-          >
-            {quarters.map((item) => (
-              <option key={item.id} value={item.id} disabled={item.disabled}>
-                {item.label}
-              </option>
-            ))}
-          </LumenSelect>
+          />
         }
       />
       <div

@@ -365,4 +365,39 @@ for (const mode of ['dark', 'light'] as const) {
     );
     expect(bounded).toBe(true);
   });
+
+  for (const variant of [2, 6, 10]) {
+    test(`dashboard ${variant} uses foundation tabs in ${mode}`, async ({ page }) => {
+      await page.goto(preview(`hbar-app-ui-dashboard-${variant}`, mode));
+      const tabs = page.getByRole('tablist').getByRole('tab');
+      await expect(tabs.first()).toBeVisible();
+      await tabs.first().press('ArrowRight');
+      await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
+    });
+  }
+
+  for (const variant of [5, 11, 13]) {
+    test(`dashboard ${variant} uses foundation progress in ${mode}`, async ({ page }) => {
+      await page.goto(preview(`hbar-app-ui-dashboard-${variant}`, mode));
+      await expect(
+        page.locator('.lumen-dashboard-progress.lumen-progress').first(),
+      ).toHaveAttribute('role', 'progressbar');
+    });
+  }
+
+  test(`dashboard delivery and quarter picker share themed primitives in ${mode}`, async ({
+    page,
+  }) => {
+    await page.goto(preview('hbar-app-ui-dashboard-8', mode));
+    await expect(page.locator('.lumen-dashboard-ring.lumen-gauge').first()).toHaveAttribute(
+      'role',
+      'progressbar',
+    );
+    await page.goto(preview('hbar-app-ui-dashboard-13', mode));
+    const picker = page.getByRole('combobox');
+    await expect(picker).toBeVisible();
+    await picker.click();
+    await expect(page.getByRole('listbox')).toBeVisible();
+    await expect(page.locator('.lumen-dashboard select')).toHaveCount(0);
+  });
 }
