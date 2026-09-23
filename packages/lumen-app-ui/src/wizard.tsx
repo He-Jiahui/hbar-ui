@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { LumenCheckBox, LumenChoiceSelect, LumenFormField, LumenInput } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import { LumenProgress } from './ui-controls';
+import { LumenProgress, LumenRadioGroup } from './ui-controls';
 
 export interface LumenWizardListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -511,34 +511,30 @@ function Upgrade(
               {props.content.labels.plans}
             </LumenText>
             {plans.length ? (
-              <div
+              <LumenRadioGroup
                 className="lumen-wizard-choice-list hbar-app-ui-wizard-plan-list"
-                role="radiogroup"
-                aria-label={props.content.labels.plans}
-                data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
-              >
-                {plans.map((item) => (
-                  <LumenButton
-                    key={item.id}
-                    variant="outlined"
-                    role="radio"
-                    aria-checked={item.id === plan?.id}
-                    onClick={() => {
-                      setPlanId(item.id);
-                      report(props.onAction, 'plan', item.id);
-                    }}
-                  >
-                    <span>
-                      <strong>{item.label}</strong>
-                      <small>{item.detail}</small>
-                    </span>
-                    <span>
+                name={`${props.variantId}-plan`}
+                label={props.content.labels.plans}
+                hideLabel
+                appearance="card"
+                value={plan?.id ?? null}
+                listStrategyKind={props.content.listStrategy.kind}
+                options={plans.map((item) => ({
+                  id: item.id,
+                  label: item.label,
+                  description: item.detail,
+                  endAdornment: (
+                    <React.Fragment>
                       {item.badge ? <LumenStatus value={item.badge} tone="success" /> : null}
                       <b>{item.price}</b>
-                    </span>
-                  </LumenButton>
-                ))}
-              </div>
+                    </React.Fragment>
+                  ),
+                }))}
+                onValueChange={(id) => {
+                  setPlanId(id);
+                  report(props.onAction, 'plan', id);
+                }}
+              />
             ) : (
               <Empty>{props.content.labels.empty}</Empty>
             )}
@@ -787,33 +783,24 @@ function Shipping(
         <Header title={props.content.labels.title} detail={props.content.labels.detail} />
         <main className="lumen-wizard-main">
           {options.length ? (
-            <div
+            <LumenRadioGroup
               className="lumen-wizard-question-options hbar-app-ui-wizard-question-options"
-              role="radiogroup"
-              aria-label={props.content.labels.options}
-              data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
-            >
-              {options.map((option) => (
-                <LumenButton
-                  key={option.id}
-                  variant="outlined"
-                  role="radio"
-                  aria-checked={option.id === selected?.id}
-                  onClick={() => {
-                    setOptionId(option.id);
-                    report(props.onAction, 'option', option.id);
-                  }}
-                >
-                  <span aria-hidden="true">
-                    {option.id === selected?.id ? <Glyph name="check" /> : null}
-                  </span>
-                  <span>
-                    <strong>{option.label}</strong>
-                    <small>{option.detail}</small>
-                  </span>
-                </LumenButton>
-              ))}
-            </div>
+              name={`${props.variantId}-option`}
+              label={props.content.labels.options}
+              hideLabel
+              appearance="card"
+              value={selected?.id ?? null}
+              listStrategyKind={props.content.listStrategy.kind}
+              options={options.map((option) => ({
+                id: option.id,
+                label: option.label,
+                description: option.detail,
+              }))}
+              onValueChange={(id) => {
+                setOptionId(id);
+                report(props.onAction, 'option', id);
+              }}
+            />
           ) : (
             <Empty>{props.content.labels.empty}</Empty>
           )}

@@ -92,6 +92,7 @@ export interface LumenRadioOption {
   id: string;
   label: string;
   description?: string | undefined;
+  endAdornment?: React.ReactNode | undefined;
   disabled?: boolean | undefined;
 }
 
@@ -102,6 +103,9 @@ export interface LumenRadioGroupProps {
   options: readonly LumenRadioOption[];
   onValueChange: (id: string) => void;
   orientation?: 'horizontal' | 'vertical' | undefined;
+  appearance?: 'plain' | 'card' | 'segmented' | undefined;
+  hideLabel?: boolean | undefined;
+  listStrategyKind?: string | undefined;
   disabled?: boolean | undefined;
   className?: string | undefined;
 }
@@ -113,6 +117,9 @@ export function LumenRadioGroup({
   options,
   onValueChange,
   orientation = 'vertical',
+  appearance = 'plain',
+  hideLabel = false,
+  listStrategyKind,
   disabled = false,
   className,
 }: LumenRadioGroupProps) {
@@ -120,9 +127,11 @@ export function LumenRadioGroup({
     <fieldset
       className={['lumen-radio-group', className].filter(Boolean).join(' ')}
       data-orientation={orientation}
+      data-appearance={appearance}
+      data-hbar-app-ui-list-strategy={listStrategyKind}
       disabled={disabled}
     >
-      <legend>{label}</legend>
+      <legend className={hideLabel ? 'lumen-radio-visually-hidden' : undefined}>{label}</legend>
       <div>
         {uniqueItems(options).map((option) => (
           <label key={option.id} className="lumen-radio-option">
@@ -135,7 +144,7 @@ export function LumenRadioGroup({
               disabled={option.disabled}
               onChange={() => onValueChange(option.id)}
             />
-            <span>
+            <span className="lumen-radio-option-copy">
               <LumenText as="span" variant="label">
                 {option.label}
               </LumenText>
@@ -145,6 +154,9 @@ export function LumenRadioGroup({
                 </LumenText>
               ) : null}
             </span>
+            {option.endAdornment ? (
+              <span className="lumen-radio-option-end">{option.endAdornment}</span>
+            ) : null}
           </label>
         ))}
       </div>

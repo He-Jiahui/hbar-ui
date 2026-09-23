@@ -225,16 +225,6 @@
   justify-content: flex-start;
   text-align: start;
 }
-.lumen-support fieldset {
-  padding: 0.75rem;
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: var(--lumen-radius-control);
-}
-.lumen-support fieldset > div {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
 .lumen-support-attachments > span {
   display: flex;
   align-items: center;

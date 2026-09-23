@@ -198,6 +198,15 @@
   font-weight: 600;
 }
 
+.lumen-radio-group > .lumen-radio-visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .lumen-radio-group > div {
   display: flex;
   min-inline-size: 0;
@@ -215,6 +224,81 @@
   flex: 0 0 auto;
   margin: 0.25rem 0 0;
   accent-color: var(--lumen-ink);
+}
+
+.lumen-radio-option {
+  position: relative;
+  min-inline-size: 0;
+}
+
+.lumen-radio-option-copy {
+  flex: 1 1 0;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+.lumen-radio-option-end {
+  display: flex;
+  flex: 0 1 auto;
+  min-inline-size: 0;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  text-align: end;
+  overflow-wrap: anywhere;
+}
+
+.lumen-radio-group[data-appearance='card'] .lumen-radio-option {
+  inline-size: 100%;
+  box-sizing: border-box;
+  padding: 0.875rem 0.75rem 1rem;
+  background: transparent;
+  transition: background-color var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease);
+}
+
+.lumen-radio-group[data-appearance='card'] .lumen-radio-option::after,
+.lumen-radio-group[data-appearance='segmented'] .lumen-radio-option::after {
+  position: absolute;
+  inset-inline: 0.75rem;
+  inset-block-end: 0;
+  block-size: 0.0625rem;
+  background: color-mix(in srgb, var(--lumen-ink) 16%, transparent);
+  content: '';
+  transition:
+    background-color var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease),
+    box-shadow var(--lumen-motion-duration, 260ms) var(--lumen-motion-easing, ease);
+}
+
+.lumen-radio-group[data-appearance='card'] .lumen-radio-option:has(input:checked) {
+  background: color-mix(in srgb, var(--lumen-ink) 5%, transparent);
+}
+
+.lumen-radio-group[data-appearance='card'] .lumen-radio-option:has(input:checked)::after,
+.lumen-radio-group[data-appearance='segmented'] .lumen-radio-option:has(input:checked)::after {
+  background: var(--lumen-ink);
+  box-shadow: 0 0 var(--lumen-glow-near, 0.875rem) var(--lumen-ink);
+}
+
+.lumen-radio-group .lumen-radio-option:has(input:focus-visible) {
+  outline: 0.0625rem solid var(--lumen-ink);
+  outline-offset: 0.125rem;
+}
+
+.lumen-radio-group[data-appearance='segmented'] .lumen-radio-option {
+  padding: 0.5rem 0.75rem 0.75rem;
+}
+
+.lumen-radio-group[data-appearance='segmented'] .lumen-radio-option > input {
+  position: absolute;
+  inline-size: 100%;
+  block-size: 100%;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+}
+
+.lumen-radio-group[data-appearance='segmented'] .lumen-radio-option-copy {
+  white-space: nowrap;
 }
 
 .lumen-tabs,

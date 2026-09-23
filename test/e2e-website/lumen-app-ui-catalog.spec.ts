@@ -1487,6 +1487,62 @@ for (const mode of ['dark', 'light'] as const) {
     await expect(page.locator('.lumen-wizard select')).toHaveCount(0);
   });
 
+  for (const width of [320, 390, 1280]) {
+    for (const [variant, groupName] of [
+      [3, '可用计划'],
+      [7, '交付选项'],
+    ] as const) {
+      test(`wizard ${variant} card choices wrap and retain native radio selection at ${width}px in ${mode}`, async ({
+        page,
+      }) => {
+        await page.setViewportSize({ width, height: 720 });
+        await page.goto(preview(`hbar-app-ui-wizard-${variant}`, mode));
+        const group = page.getByRole('group', { name: groupName });
+        const choices = group.getByRole('radio');
+        await expect(choices).toHaveCount(3);
+        await expect(choices.first()).toBeChecked();
+        await expect(group.locator('button[role="radio"]')).toHaveCount(0);
+        await expect(group.locator('[data-lumen-component="radio"]')).toHaveCount(3);
+        const layout = await group.locator('.lumen-radio-option').evaluateAll((rows) =>
+          rows.every((row) => {
+            const title = row.querySelector('.lumen-radio-option-copy > span')!;
+            const detail = row.querySelector('.lumen-radio-option-copy > small')!;
+            const end = row.querySelector('.lumen-radio-option-end');
+            return (
+              detail.getBoundingClientRect().top >= title.getBoundingClientRect().bottom - 1 &&
+              (!end ||
+                end.getBoundingClientRect().left >=
+                  row.querySelector('.lumen-radio-option-copy')!.getBoundingClientRect().right -
+                    1) &&
+              row.scrollWidth <= row.clientWidth + 1
+            );
+          }),
+        );
+        expect(layout).toBe(true);
+        await choices.first().focus();
+        await choices.first().press('ArrowDown');
+        await expect(choices.nth(1)).toBeChecked();
+        await expect(choices.first()).not.toBeChecked();
+      });
+    }
+
+    test(`support priority uses one foundation radio group at ${width}px in ${mode}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 720 });
+      await page.goto(preview('hbar-app-ui-support-2', mode));
+      const group = page.getByRole('group', { name: '优先级' });
+      const radios = group.getByRole('radio');
+      await expect(radios).toHaveCount(3);
+      await expect(group.locator('[data-lumen-component="radio"]')).toHaveCount(3);
+      await expect(group.locator('button[role="radio"]')).toHaveCount(0);
+      await radios.first().check();
+      await expect(radios.first()).toBeChecked();
+      await radios.first().press('ArrowRight');
+      await expect(radios.nth(1)).toBeChecked();
+    });
+  }
+
   test(`wizard services use foundation checkboxes in ${mode}`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 680 });
     await page.goto(preview('hbar-app-ui-wizard-4', mode));

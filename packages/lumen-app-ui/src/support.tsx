@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { LumenChoiceSelect, LumenFormField, LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import { LumenTabs } from './ui-controls';
+import { LumenRadioGroup, LumenTabs } from './ui-controls';
 
 export interface LumenSupportListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -510,25 +510,18 @@ function Ticket(
               <Empty>{props.content.labels.emptySuggestions}</Empty>
             )}
           </section>
-          <fieldset>
-            <legend>{props.content.labels.priority}</legend>
-            <div role="radiogroup" aria-label={props.content.labels.priority}>
-              {priorities.map((item) => (
-                <LumenButton
-                  key={item.id}
-                  role="radio"
-                  variant={priority?.id === item.id ? 'solid' : 'outlined'}
-                  aria-checked={priority?.id === item.id}
-                  onClick={() => {
-                    setPriorityId(item.id);
-                    report(props.onAction, 'priority', item.id);
-                  }}
-                >
-                  {item.label}
-                </LumenButton>
-              ))}
-            </div>
-          </fieldset>
+          <LumenRadioGroup
+            name={`${props.variantId}-priority`}
+            label={props.content.labels.priority}
+            value={priority?.id ?? null}
+            options={priorities}
+            orientation="horizontal"
+            appearance="segmented"
+            onValueChange={(id) => {
+              setPriorityId(id);
+              report(props.onAction, 'priority', id);
+            }}
+          />
           <LumenFormField
             controlId={`${props.variantId}-details`}
             label={props.content.labels.happened}
