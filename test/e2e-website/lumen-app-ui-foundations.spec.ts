@@ -263,9 +263,21 @@ for (const mode of ['dark', 'light']) {
         .evaluateAll((rows) =>
           rows.map((row) => {
             const rect = row.getBoundingClientRect();
-            return { top: rect.top, bottom: rect.bottom };
+            const button = row.querySelector('button')!;
+            const supporting = button.querySelector('small')!;
+            return {
+              top: rect.top,
+              bottom: rect.bottom,
+              height: rect.height,
+              padding: Number.parseFloat(getComputedStyle(button).paddingBlockStart),
+              bottomInset:
+                button.getBoundingClientRect().bottom - supporting.getBoundingClientRect().bottom,
+            };
           }),
         );
+      expect(
+        listRows.every((row) => row.height >= 50 && row.padding >= 8 && row.bottomInset >= 7),
+      ).toBe(true);
       for (let index = 1; index < listRows.length; index += 1) {
         expect(listRows[index].top).toBeGreaterThanOrEqual(listRows[index - 1].bottom - 1);
       }
