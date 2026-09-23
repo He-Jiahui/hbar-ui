@@ -223,10 +223,6 @@
 .lumen-monitoring-tabs {
   border-block-end: 0.0625rem solid var(--lumen-edge);
 }
-.lumen-monitoring-tabs > button[aria-selected='true'] {
-  color: var(--lumen-accent);
-  box-shadow: inset 0 -0.125rem var(--lumen-accent);
-}
 .lumen-monitoring-alerts > article {
   display: flex;
   min-inline-size: 0;
@@ -340,25 +336,7 @@
   background: var(--lumen-danger, #c64242);
 }
 .lumen-monitoring-progress {
-  display: flex;
   block-size: 0.35rem;
-  overflow: hidden;
-  border-radius: 999rem;
-  background: var(--lumen-edge);
-}
-.lumen-monitoring-progress > i {
-  block-size: 100%;
-  border-radius: inherit;
-  background: var(--lumen-accent);
-}
-.lumen-monitoring-progress[data-tone='success'] > i {
-  background: var(--lumen-success, #29965f);
-}
-.lumen-monitoring-progress[data-tone='warning'] > i {
-  background: var(--lumen-warning, #b57900);
-}
-.lumen-monitoring-progress[data-tone='danger'] > i {
-  background: var(--lumen-danger, #c64242);
 }
 .lumen-monitoring-fleet {
   min-inline-size: 0;
@@ -401,6 +379,40 @@
   background: var(--lumen-reading);
   color: var(--lumen-muted);
   font-size: 0.75rem;
+}
+
+@media (max-width: 44rem) {
+  .lumen-monitoring-fleet > header {
+    display: none;
+  }
+
+  .lumen-monitoring-fleet > article {
+    display: grid;
+    min-inline-size: 0;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.375rem 0.75rem;
+  }
+
+  .lumen-monitoring-fleet > article > strong {
+    grid-column: 1;
+    grid-row: 1;
+    overflow-wrap: anywhere;
+  }
+
+  .lumen-monitoring-fleet > article > :nth-child(2) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .lumen-monitoring-fleet > article > .lumen-monitoring-progress {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+
+  .lumen-monitoring-fleet > article > :last-child {
+    grid-column: 2;
+    grid-row: 1;
+  }
 }
 .lumen-monitoring-endpoints {
   display: flex;

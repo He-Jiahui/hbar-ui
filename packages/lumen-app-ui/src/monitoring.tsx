@@ -1,9 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import { LumenSelect, LumenTextarea } from './forms';
+import { LumenChoiceSelect, LumenTextarea } from './forms';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
 import { LumenChart, type LumenChartPoint } from './ui-compositions';
+import { LumenProgress, LumenTabs } from './ui-controls';
 
 export interface LumenMonitoringListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -541,20 +542,16 @@ function Incident(
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
-      <LumenSelect
-        aria-label={props.content.labels.status}
-        value={status?.id ?? ''}
-        onChange={(event) => {
-          setStatusId(event.currentTarget.value);
-          report(props.onAction, 'status', event.currentTarget.value);
+      <LumenChoiceSelect
+        id="monitoring-incident-status"
+        label={props.content.labels.status}
+        options={statuses}
+        value={status?.id ?? null}
+        onValueChange={(id) => {
+          setStatusId(id);
+          report(props.onAction, 'status', id);
         }}
-      >
-        {statuses.map((item) => (
-          <option key={item.id} value={item.id}>
-            {item.label}
-          </option>
-        ))}
-      </LumenSelect>
+      />
       <article className="lumen-monitoring-incident">
         <Glyph name="alert" />
         <div>
@@ -612,23 +609,13 @@ function Alerts(
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
-      <div
+      <LumenTabs
         className="lumen-monitoring-tabs"
-        role="tablist"
-        aria-label={props.content.labels.states}
-      >
-        {states.map((item) => (
-          <LumenButton
-            key={item.id}
-            role="tab"
-            variant="text"
-            aria-selected={state?.id === item.id}
-            onClick={() => setStateId(item.id)}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+        label={props.content.labels.states}
+        items={states}
+        selectedId={state?.id ?? null}
+        onChange={setStateId}
+      />
       <div
         className="lumen-monitoring-alerts"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
@@ -760,23 +747,13 @@ function Uptime(
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
-      <div
+      <LumenTabs
         className="lumen-monitoring-tabs"
-        role="tablist"
-        aria-label={props.content.labels.windows}
-      >
-        {windows.map((item) => (
-          <LumenButton
-            key={item.id}
-            role="tab"
-            variant="text"
-            aria-selected={window?.id === item.id}
-            onClick={() => setWindowId(item.id)}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+        label={props.content.labels.windows}
+        items={windows}
+        selectedId={window?.id ?? null}
+        onChange={setWindowId}
+      />
       <div
         className="lumen-monitoring-uptime"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
@@ -814,19 +791,13 @@ function Progress({
   label: string;
   tone?: string | undefined;
 }) {
-  const normalized = Math.max(0, Math.min(100, value));
   return (
-    <span
+    <LumenProgress
       className="lumen-monitoring-progress"
-      data-tone={tone}
-      role="progressbar"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={normalized}
-    >
-      <i style={{ inlineSize: `${normalized}%` }} />
-    </span>
+      label={label}
+      value={value}
+      tone={tone === 'success' || tone === 'warning' || tone === 'danger' ? tone : 'info'}
+    />
   );
 }
 function Fleet(
@@ -843,20 +814,16 @@ function Fleet(
         title={props.content.labels.title}
         detail={props.content.labels.detail}
         actions={
-          <LumenSelect
-            aria-label={props.content.labels.regions}
-            value={region?.id ?? ''}
-            onChange={(event) => {
-              setRegionId(event.currentTarget.value);
-              report(props.onAction, 'region', event.currentTarget.value);
+          <LumenChoiceSelect
+            id="monitoring-fleet-region"
+            label={props.content.labels.regions}
+            options={regions}
+            value={region?.id ?? null}
+            onValueChange={(id) => {
+              setRegionId(id);
+              report(props.onAction, 'region', id);
             }}
-          >
-            {regions.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.label}
-              </option>
-            ))}
-          </LumenSelect>
+          />
         }
       />
       <div
@@ -1049,23 +1016,13 @@ function Slo(
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
-      <div
+      <LumenTabs
         className="lumen-monitoring-tabs"
-        role="tablist"
-        aria-label={props.content.labels.windows}
-      >
-        {windows.map((item) => (
-          <LumenButton
-            key={item.id}
-            role="tab"
-            variant="text"
-            aria-selected={window?.id === item.id}
-            onClick={() => setWindowId(item.id)}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+        label={props.content.labels.windows}
+        items={windows}
+        selectedId={window?.id ?? null}
+        onChange={setWindowId}
+      />
       <LumenChart
         kind="line"
         label={props.content.labels.chart}

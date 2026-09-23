@@ -505,4 +505,58 @@ for (const mode of ['dark', 'light'] as const) {
       page.locator('.lumen-notifications-progress .lumen-progress').first(),
     ).toHaveAttribute('role', 'progressbar');
   });
+
+  for (const variant of [4, 6, 10]) {
+    test(`monitoring ${variant} uses foundation tabs in ${mode}`, async ({ page }) => {
+      await page.goto(preview(`hbar-app-ui-monitoring-${variant}`, mode));
+      const tabs = page.getByRole('tablist').getByRole('tab');
+      await expect(tabs.first()).toBeVisible();
+      await tabs.first().press('ArrowRight');
+      await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
+    });
+  }
+
+  for (const variant of [7, 10]) {
+    test(`monitoring ${variant} uses foundation progress in ${mode}`, async ({ page }) => {
+      await page.goto(preview(`hbar-app-ui-monitoring-${variant}`, mode));
+      await expect(
+        page.locator('.lumen-monitoring-progress.lumen-progress').first(),
+      ).toHaveAttribute('role', 'progressbar');
+    });
+  }
+
+  for (const variant of [3, 7]) {
+    test(`monitoring ${variant} uses themed choices in ${mode}`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 680 });
+      await page.goto(preview(`hbar-app-ui-monitoring-${variant}`, mode));
+      const picker = page.getByRole('combobox').first();
+      await expect(picker).toBeVisible();
+      await picker.click();
+      await expect(page.getByRole('listbox')).toBeVisible();
+      await expect(page.locator('.lumen-monitoring select')).toHaveCount(0);
+    });
+  }
+
+  test(`fleet rows expose status and progress without horizontal clipping in ${mode}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-monitoring-7', mode));
+    const rows = page.locator('.lumen-monitoring-fleet > article');
+    await expect(rows).toHaveCount(5);
+    const flow = await rows.evaluateAll((items) =>
+      items.every((item) => {
+        const name = item.querySelector('strong')!.getBoundingClientRect();
+        const bar = item.querySelector('.lumen-progress')!.getBoundingClientRect();
+        const status = item.lastElementChild!.getBoundingClientRect();
+        return (
+          item.scrollWidth <= item.clientWidth + 1 &&
+          bar.top >= name.bottom &&
+          status.left > name.left &&
+          status.right <= item.getBoundingClientRect().right
+        );
+      }),
+    );
+    expect(flow).toBe(true);
+  });
 }

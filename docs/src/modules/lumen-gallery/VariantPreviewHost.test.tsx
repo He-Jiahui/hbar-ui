@@ -822,10 +822,8 @@ describe('Lumen formal variant fixtures', () => {
     view = render(
       <VariantPreviewHost entry={entry(7)} locale="en" unavailableLabel="Preview unavailable" />,
     );
-    await view.user.selectOptions(
-      screen.getByRole('combobox', { name: 'Region filter' }),
-      'eu-central',
-    );
+    await view.user.click(screen.getByRole('combobox', { name: 'Region filter' }));
+    await view.user.click(screen.getByRole('option', { name: 'eu-central' }));
     expect(screen.getByText('compute-eu-01')).not.toBeNull();
     expect(screen.queryByText('compute-west-01')).toBeNull();
     view.unmount();
