@@ -25,6 +25,16 @@ for (const variant of LUMEN_VARIANT_REGISTRY) {
             .map((button) => button.outerHTML.slice(0, 160)),
         );
       expect(unthemedActions, `${variant.id} has ad-hoc buttons in ${mode}`).toEqual([]);
+      const unthemedControls = await page
+        .locator(
+          '[data-hbar-app-ui-component] input, [data-hbar-app-ui-component] textarea, [data-hbar-app-ui-component] select, [data-hbar-app-ui-component] a',
+        )
+        .evaluateAll((controls) =>
+          controls
+            .filter((control) => !control.hasAttribute('data-lumen-component'))
+            .map((control) => control.outerHTML.slice(0, 160)),
+        );
+      expect(unthemedControls, `${variant.id} has ad-hoc fields or links in ${mode}`).toEqual([]);
       const bounds = await page.evaluate(() => {
         const root = document.querySelector<HTMLElement>('[data-hbar-app-ui-component]');
         const rect = root?.getBoundingClientRect();

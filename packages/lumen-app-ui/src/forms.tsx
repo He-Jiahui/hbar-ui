@@ -45,6 +45,7 @@ export function LumenFileButton({
       </LumenButton>
       <input
         ref={inputRef}
+        data-lumen-component="file-input"
         hidden
         tabIndex={-1}
         type="file"
@@ -188,6 +189,7 @@ export const LumenInput = React.forwardRef<HTMLInputElement, LumenInputProps>(fu
     <input
       {...other}
       ref={ref}
+      data-lumen-component="input"
       className={controlClass(className)}
       data-size={size ?? (typeof compatibilitySize === 'string' ? compatibilitySize : undefined)}
       data-lumen-variant={variant}
@@ -212,6 +214,7 @@ export const LumenTextarea = React.forwardRef<HTMLTextAreaElement, LumenTextarea
       <textarea
         {...other}
         ref={ref}
+        data-lumen-component="textarea"
         className={controlClass(className)}
         data-size={size ?? (typeof compatibilitySize === 'string' ? compatibilitySize : undefined)}
         data-lumen-variant={variant}
@@ -238,6 +241,7 @@ export const LumenSelect = React.forwardRef<HTMLSelectElement, LumenSelectProps>
       <select
         {...other}
         ref={ref}
+        data-lumen-component="select"
         className={controlClass(className)}
         data-size={size ?? (typeof compatibilitySize === 'string' ? compatibilitySize : undefined)}
         data-lumen-variant={variant}
@@ -392,6 +396,7 @@ export const LumenCheckBoxControl = React.forwardRef<HTMLInputElement, LumenChec
       <input
         {...other}
         ref={ref}
+        data-lumen-component="checkbox"
         type="checkbox"
         className={['lumen-checkbox-control', className].filter(Boolean).join(' ')}
         data-size={size ?? (typeof compatibilitySize === 'string' ? compatibilitySize : undefined)}

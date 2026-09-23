@@ -28,6 +28,7 @@ export const LumenLink = React.forwardRef<HTMLAnchorElement, LumenLinkProps>(fun
     <a
       {...other}
       ref={ref}
+      data-lumen-component="link"
       className={['lumen-link', className].filter(Boolean).join(' ')}
       data-tone={tone}
     >
@@ -66,6 +67,7 @@ export const LumenSwitch = React.forwardRef<HTMLInputElement, LumenSwitchProps>(
           <input
             {...other}
             ref={ref}
+            data-lumen-component="switch"
             className="lumen-switch-input"
             type="checkbox"
             role="switch"
@@ -125,6 +127,7 @@ export function LumenRadioGroup({
         {uniqueItems(options).map((option) => (
           <label key={option.id} className="lumen-radio-option">
             <input
+              data-lumen-component="radio"
               type="radio"
               name={name}
               value={option.id}
