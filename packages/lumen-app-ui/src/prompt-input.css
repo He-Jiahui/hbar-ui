@@ -358,15 +358,6 @@
   overflow-wrap: anywhere;
 }
 
-.lumen-prompt-input-tabs {
-  border-block-end: 0.0625rem solid var(--lumen-edge);
-}
-
-.lumen-prompt-input-tabs > button[aria-selected='true'] {
-  color: var(--lumen-accent);
-  box-shadow: inset 0 -0.125rem var(--lumen-accent);
-}
-
 .lumen-prompt-input-hints {
   color: var(--lumen-muted);
   font-size: 0.75rem;

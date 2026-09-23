@@ -101,19 +101,10 @@
   flex-wrap: wrap;
 }
 
-.hbar-app-ui-tool-calls-activity-heading > nav,
-.hbar-app-ui-tool-calls-command nav {
-  display: flex;
-  min-inline-size: 0;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.hbar-app-ui-tool-calls-activity-heading > nav {
+.hbar-app-ui-tool-calls-activity-heading > .hbar-app-ui-tool-calls-activity-filters {
   margin-inline-start: auto;
 }
 
-.hbar-app-ui-tool-calls-activity-heading [role='tab'][aria-selected='true'],
 .hbar-app-ui-tool-calls-command [role='tab'][aria-selected='true'] {
   background: var(--lumen-frost);
   color: var(--lumen-ink);
@@ -448,6 +439,10 @@
 }
 
 .hbar-app-ui-tool-calls-command nav {
+  display: flex;
+  min-inline-size: 0;
+  align-items: center;
+  gap: 0.25rem;
   padding: 0.25rem 0.5rem;
   border-block-end: 0.0625rem solid var(--lumen-edge);
 }

@@ -31,4 +31,31 @@ for (const mode of ['dark', 'light'] as const) {
     await expect(trigger).toContainText('Luna 4 mini');
     await expect(trigger).toHaveAttribute('aria-expanded', 'false');
   });
+
+  test(`research modes use shared tabs and preserve the draft in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-prompt-input-7', mode));
+    const tabs = page.getByRole('tablist', { name: '提示词模式' });
+    const first = tabs.getByRole('tab', { name: '提问' });
+    await expect(first).toHaveAttribute('aria-selected', 'true');
+    await page.getByRole('textbox', { name: '消息输入' }).fill('比较近期访谈');
+    await first.focus();
+    await first.press('ArrowRight');
+    await expect(tabs.getByRole('tab', { name: '代理' })).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByRole('textbox', { name: '消息输入' })).toHaveValue('比较近期访谈');
+  });
+
+  test(`tool activity filters use shared tabs in ${mode}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 680 });
+    await page.goto(preview('hbar-app-ui-tool-calls-2', mode));
+    const tabs = page.getByRole('tablist', { name: '工具状态' });
+    const all = tabs.getByRole('tab', { name: '全部' });
+    await all.focus();
+    await all.press('ArrowRight');
+    await expect(tabs.getByRole('tab', { name: '活动中' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    await expect(tabs.locator('[data-visible="true"]')).toHaveCount(1);
+  });
 }

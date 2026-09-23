@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { LumenChoiceSelect, LumenFormField, LumenInput, LumenTextarea } from './forms';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
+import { LumenTabs } from './ui-controls';
 import {
   LumenPromptComposer,
   type LumenPromptComposerProps,
@@ -785,27 +786,16 @@ function Modes(
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
-      <div
+      <LumenTabs
         className="lumen-prompt-input-tabs"
-        role="tablist"
-        aria-label={props.content.labels.modes}
-      >
-        {modes.map((item) => (
-          <LumenButton
-            key={item.id}
-            role="tab"
-            variant="text"
-            aria-selected={mode?.id === item.id}
-            disabled={item.disabled}
-            onClick={() => {
-              setModeId(item.id);
-              report(props.onAction, 'mode', item.id);
-            }}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+        label={props.content.labels.modes}
+        items={modes}
+        selectedId={mode?.id ?? null}
+        onChange={(id) => {
+          setModeId(id);
+          report(props.onAction, 'mode', id);
+        }}
+      />
       <LocalComposer
         labels={props.composerLabels}
         placeholder={props.content.labels.placeholder(mode?.label ?? '')}

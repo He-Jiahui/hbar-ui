@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
+import { LumenTabs } from './ui-controls';
 
 export type LumenToolCallsListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -447,26 +448,16 @@ function ToolActivity(
           {content.labels.title}
         </LumenText>
         <StopButton label={content.labels.stop} onClick={() => report(onAction, 'stop')} />
-        <div aria-label={content.labels.filtersLabel} role="tablist">
-          {filters.map((filter) => {
-            const selected = filter.id === activeFilter?.id;
-            return (
-              <LumenButton
-                variant="text"
-                aria-selected={selected}
-                className={`hbar-app-ui-tool-calls-button${selected ? ' is-selected' : ''}`}
-                key={filter.id}
-                onClick={() => {
-                  setActiveFilterId(filter.id);
-                  report(onAction, 'filter-tool-activity', filter.id);
-                }}
-                role="tab"
-              >
-                {filter.label}
-              </LumenButton>
-            );
-          })}
-        </div>
+        <LumenTabs
+          className="hbar-app-ui-tool-calls-activity-filters"
+          label={content.labels.filtersLabel}
+          items={filters}
+          selectedId={activeFilter?.id ?? null}
+          onChange={(id) => {
+            setActiveFilterId(id);
+            report(onAction, 'filter-tool-activity', id);
+          }}
+        />
       </header>
       <Pane strategy={content.listStrategy} className="hbar-app-ui-tool-calls-activity-pane">
         <ol>
