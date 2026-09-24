@@ -20,6 +20,8 @@ export interface LumenButtonProps extends Omit<
   size?: LumenSize | undefined;
   shape?: LumenShape | undefined;
   loading?: boolean | undefined;
+  /** Use none when a disclosure arrow already conveys the action. Focus remains visible. */
+  indicator?: 'lamp' | 'none' | undefined;
   indicatorState?: LumenState | undefined;
   indicatorEdge?: 'top' | 'bottom' | 'left' | 'right' | undefined;
 }
@@ -36,6 +38,7 @@ export const LumenButton = React.forwardRef<HTMLButtonElement, LumenButtonProps>
       size = 'm',
       shape = 'rounded',
       loading = false,
+      indicator = 'lamp',
       indicatorState,
       indicatorEdge = 'bottom',
       className,
@@ -61,6 +64,7 @@ export const LumenButton = React.forwardRef<HTMLButtonElement, LumenButtonProps>
         type={type}
         className={[styles.button, className].filter(Boolean).join(' ')}
         data-lumen-variant={variant}
+        data-lumen-indicator={indicator}
         data-tone={typeof compatibilityTone === 'string' ? compatibilityTone : tone}
         data-size={size}
         data-shape={shape}
@@ -69,12 +73,14 @@ export const LumenButton = React.forwardRef<HTMLButtonElement, LumenButtonProps>
         disabled={disabled || loading}
       >
         {children}
-        <LumenIndicator
-          edge={indicatorEdge}
-          state={state ?? 'idle'}
-          tone={indicatorTone(tone)}
-          length="action"
-        />
+        {indicator === 'lamp' ? (
+          <LumenIndicator
+            edge={indicatorEdge}
+            state={state ?? 'idle'}
+            tone={indicatorTone(tone)}
+            length="action"
+          />
+        ) : null}
       </button>
     );
   },

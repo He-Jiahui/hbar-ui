@@ -81,7 +81,7 @@ export function LumenMessage({
   return (
     <LumenSurface
       as="article"
-      boundary="horizontal"
+      boundary="none"
       className="lumen-message-surface"
       contentClassName="lumen-message"
       data-role={role}
