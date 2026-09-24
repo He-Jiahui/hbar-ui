@@ -119,6 +119,7 @@ export type LumenAgentActivityLogLevel = 'info' | 'warning' | 'error';
 export interface LumenAgentActivityLogFilter {
   readonly id: string;
   readonly label: string;
+  readonly compactLabel: string;
   readonly level?: LumenAgentActivityLogLevel | undefined;
 }
 
@@ -135,6 +136,8 @@ export interface LumenAgentActivityLogContent {
     readonly lineCount: string;
     readonly filters: string;
     readonly stop: string;
+    readonly jumpToLatest: string;
+    readonly lineCountTemplate: string;
   };
   readonly filters: readonly LumenAgentActivityLogFilter[];
   readonly activeFilterId: string;
@@ -300,12 +303,13 @@ function logLevelState(level: LumenAgentActivityLogLevel): LumenAgentActivitySta
   return 'complete';
 }
 
-function ActivityGlyph({ name }: { readonly name: 'download' | 'retry' | 'stop' }) {
+function ActivityGlyph({ name }: { readonly name: 'download' | 'down' | 'retry' | 'stop' }) {
   return (
     <svg className="lumen-agent-activity-glyph" viewBox="0 0 16 16" aria-hidden="true">
       {name === 'stop' ? <path d="M4.5 4.5h7v7h-7z" /> : null}
       {name === 'retry' ? <path d="M3.5 5.5h3.5m-3.5 0V2M3.5 5.5a5 5 0 1 1-.5 3.5" /> : null}
       {name === 'download' ? <path d="M8 2.5v8m-3-3 3 3 3-3M3 13.5h10" /> : null}
+      {name === 'down' ? <path d="M8 2.5v10m-3-3 3 3 3-3" /> : null}
     </svg>
   );
 }
@@ -383,7 +387,7 @@ function ActivityFrame({
   return (
     <LumenSurface
       as={variant === 1 || variant === 2 || variant === 3 ? 'div' : 'section'}
-      boundary={variant === 1 || variant === 2 || variant === 3 || variant === 4 ? 'none' : 'horizontal'}
+      boundary={variant <= 5 ? 'none' : 'horizontal'}
       className="lumen-agent-activity-root-surface"
       contentClassName={contentClassName}
       data-lumen-component="agent-activity"
@@ -678,67 +682,162 @@ function LogActivity(
   const filters = uniqueLumenAgentActivityItems(content.filters);
   const entries = uniqueLumenAgentActivityItems(content.entries);
   const [activeFilterId, setActiveFilterId] = React.useState(content.activeFilterId);
+  const [visibleCount, setVisibleCount] = React.useState(Math.max(0, entries.length - 2));
+  const [running, setRunning] = React.useState(entries.length > 0);
+  const [following, setFollowing] = React.useState(true);
+  const [jumpVisible, setJumpVisible] = React.useState(false);
+  const [scrolled, setScrolled] = React.useState(false);
+  const paneRef = React.useRef<HTMLDivElement>(null);
+  const stopScrollAnchor = React.useRef<{ element: HTMLElement; top: number; scrollTop: number } | null>(null);
+  const programmaticScrollTarget = React.useRef<number | null>(null);
   const activeFilter = selectLumenAgentActivityItem(filters, activeFilterId);
   const visibleEntries = activeFilter?.level
-    ? entries.filter((entry) => entry.level === activeFilter.level)
-    : entries;
+    ? entries.slice(0, visibleCount).filter((entry) => entry.level === activeFilter.level)
+    : entries.slice(0, visibleCount);
+
+  React.useEffect(() => {
+    if (!running) {
+      return undefined;
+    }
+    const timer = setTimeout(() => {
+      const next = Math.min(visibleCount + 1, entries.length);
+      setVisibleCount(next);
+      if (next >= entries.length) {
+        setRunning(false);
+      }
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, [entries.length, running, visibleCount]);
+
+  React.useLayoutEffect(() => {
+    if (following && paneRef.current) {
+      programmaticScrollTarget.current = Math.max(0, paneRef.current.scrollHeight - paneRef.current.clientHeight);
+      paneRef.current.scrollTop = paneRef.current.scrollHeight;
+      setScrolled(paneRef.current.scrollTop > 0);
+    }
+  }, [activeFilterId, following, visibleCount]);
+
+  React.useLayoutEffect(() => {
+    const anchor = stopScrollAnchor.current;
+    if (!running && anchor && paneRef.current) {
+      const shift = anchor.element.getBoundingClientRect().top - anchor.top;
+      const target = Math.max(0, anchor.scrollTop + shift);
+      programmaticScrollTarget.current = target;
+      paneRef.current.scrollTop = target;
+      stopScrollAnchor.current = null;
+    }
+  }, [running]);
+
+  const onScroll = () => {
+    const pane = paneRef.current;
+    if (!pane) {
+      return;
+    }
+    setScrolled(pane.scrollTop > 0);
+    if (programmaticScrollTarget.current !== null) {
+      const programmatic = Math.abs(pane.scrollTop - programmaticScrollTarget.current) <= 1;
+      programmaticScrollTarget.current = null;
+      if (programmatic) {
+        return;
+      }
+    }
+    const awayFromLatest = pane.scrollHeight - pane.clientHeight - pane.scrollTop > 16;
+    setFollowing(!awayFromLatest);
+    setJumpVisible(awayFromLatest);
+  };
 
   return (
     <ActivityFrame {...props} className="hbar-app-ui-agent-activity-log">
       <header className="lumen-agent-activity-heading hbar-app-ui-agent-activity-heading">
-        <LumenText as="h2" variant="heading">
-          {content.labels.title}
-        </LumenText>
-        <LumenStatus value={content.labels.lineCount} />
+        <div className="hbar-app-ui-agent-activity-log-title">
+          <ActivityStateMark state={running ? 'running' : 'queued'} />
+          <LumenText as="h2" variant="heading">{content.labels.title}</LumenText>
+        </div>
         <div
           aria-label={content.labels.filters}
           className="lumen-agent-activity-log-filters hbar-app-ui-agent-activity-log-filters"
-          role="tablist"
+          role="radiogroup"
         >
           {filters.map((filter) => (
-            <LumenButton
-              aria-selected={filter.id === activeFilter?.id}
+            <button
+              aria-checked={filter.id === activeFilter?.id}
               className={filter.id === activeFilter?.id ? 'is-selected' : ''}
               key={filter.id}
-              size="s"
-              variant={filter.id === activeFilter?.id ? 'solid' : 'text'}
               onClick={() => {
                 setActiveFilterId(filter.id);
                 reportAction(onAction, 'filter-log', filter.id);
               }}
-              role="tab"
+              role="radio"
+              type="button"
             >
-              {filter.label}
-            </LumenButton>
+              <span className="is-compact">{filter.compactLabel}</span>
+              <span className="is-full">{filter.label}</span>
+            </button>
           ))}
         </div>
-        {content.labels.stop ? (
+        {running ? (
           <LumenButton
             variant="outlined"
             size="s"
             aria-label={content.labels.stop}
-            onClick={() => reportAction(onAction, 'stop')}
+            onClick={() => {
+              const pane = paneRef.current;
+              if (pane) {
+                const paneTop = pane.getBoundingClientRect().top;
+                const anchor = Array.from(pane.querySelectorAll<HTMLElement>('li'))
+                  .find((entry) => entry.getBoundingClientRect().bottom > paneTop);
+                if (anchor) {
+                  stopScrollAnchor.current = {
+                    element: anchor,
+                    top: anchor.getBoundingClientRect().top,
+                    scrollTop: pane.scrollTop,
+                  };
+                }
+              }
+              setRunning(false);
+              setJumpVisible(false);
+              reportAction(onAction, 'stop');
+            }}
           >
             <ActivityGlyph name="stop" />
             {content.labels.stop}
           </LumenButton>
-        ) : null}
+        ) : <span className="hbar-app-ui-agent-activity-log-count">
+          {visibleCount === entries.length
+            ? content.labels.lineCount
+            : content.labels.lineCountTemplate.replace('{count}', String(visibleCount))}
+        </span>}
       </header>
-      <ActivityPane strategy={content.listStrategy}>
+      <div className="hbar-app-ui-agent-activity-log-frame" data-hbar-app-ui-log-phase={running ? 'running' : 'complete'}>
+        <ActivityPane strategy={content.listStrategy} className="hbar-app-ui-agent-activity-log-pane">
+          <div className={`hbar-app-ui-agent-activity-log-scroll${scrolled ? ' is-scrolled' : ''}`} ref={paneRef} onScroll={onScroll}>
         <ol
           className="lumen-agent-activity-log-list hbar-app-ui-agent-activity-log-list"
-          role="log"
-          aria-live="polite"
         >
           {visibleEntries.map((entry) => (
             <li className={`is-${entry.level}`} key={entry.id}>
-              <time>{entry.time}</time>
+              <span className="hbar-app-ui-agent-activity-log-time">{entry.time}</span>
               <ActivityStateMark state={logLevelState(entry.level)} />
               <span>{entry.message}</span>
             </li>
           ))}
         </ol>
-      </ActivityPane>
+          </div>
+          {jumpVisible && !running ? <button
+            className="hbar-app-ui-agent-activity-log-jump"
+            type="button"
+            onClick={() => {
+              paneRef.current?.scrollTo({ top: paneRef.current.scrollHeight, behavior: 'smooth' });
+              setFollowing(true);
+              setJumpVisible(false);
+              reportAction(onAction, 'jump-to-latest');
+            }}
+          >
+            <ActivityGlyph name="down" />
+            {content.labels.jumpToLatest}
+          </button> : null}
+        </ActivityPane>
+      </div>
     </ActivityFrame>
   );
 }
