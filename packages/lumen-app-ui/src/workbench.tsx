@@ -376,7 +376,10 @@ export function LumenActionMenu<ActionId extends string = string>({
             tone={item.tone === 'danger' ? 'danger' : 'neutral'}
             disabled={item.disabled}
             onClick={(event) => {
-              event.currentTarget.closest('details')?.removeAttribute('open');
+              const menu = event.currentTarget.closest('details');
+              menu?.removeAttribute('open');
+              // A following dialog must restore focus to the visible trigger, not a hidden item.
+              menu?.querySelector('summary')?.focus();
               onAction(item.id);
             }}
           >
