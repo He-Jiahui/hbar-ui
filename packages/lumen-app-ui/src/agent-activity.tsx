@@ -198,10 +198,14 @@ export interface LumenAgentActivityFailureContent {
     readonly attempts: string;
     readonly output: string;
     readonly retry: string;
+    readonly cancelRetry: string;
     readonly download: string;
   };
   readonly summaryTitle: string;
   readonly summaryDescription: string;
+  readonly retryQueuedTitle: string;
+  readonly retryQueuedDescription: string;
+  readonly attemptsNote: string;
   readonly inputs: readonly LumenAgentActivityInput[];
   readonly attempts: readonly LumenAgentActivityAttempt[];
   readonly outputs: readonly LumenAgentActivityOutput[];
@@ -303,10 +307,11 @@ function logLevelState(level: LumenAgentActivityLogLevel): LumenAgentActivitySta
   return 'complete';
 }
 
-function ActivityGlyph({ name }: { readonly name: 'download' | 'down' | 'retry' | 'stop' }) {
+function ActivityGlyph({ name }: { readonly name: 'close' | 'download' | 'down' | 'retry' | 'stop' }) {
   return (
     <svg className="lumen-agent-activity-glyph" viewBox="0 0 16 16" aria-hidden="true">
       {name === 'stop' ? <path d="M4.5 4.5h7v7h-7z" /> : null}
+      {name === 'close' ? <path d="M4 4l8 8m0-8-8 8" /> : null}
       {name === 'retry' ? <path d="M3.5 5.5h3.5m-3.5 0V2M3.5 5.5a5 5 0 1 1-.5 3.5" /> : null}
       {name === 'download' ? <path d="M8 2.5v8m-3-3 3 3 3-3M3 13.5h10" /> : null}
       {name === 'down' ? <path d="M8 2.5v10m-3-3 3 3 3-3" /> : null}
@@ -387,7 +392,7 @@ function ActivityFrame({
   return (
     <LumenSurface
       as={variant === 1 || variant === 2 || variant === 3 ? 'div' : 'section'}
-      boundary={variant <= 6 ? 'none' : 'horizontal'}
+      boundary={variant <= 7 ? 'none' : 'horizontal'}
       className="lumen-agent-activity-root-surface"
       contentClassName={contentClassName}
       data-lumen-component="agent-activity"
@@ -891,19 +896,24 @@ function FailureActivity(
   const inputs = uniqueLumenAgentActivityItems(content.inputs);
   const attempts = uniqueLumenAgentActivityItems(content.attempts);
   const outputs = uniqueLumenAgentActivityItems(content.outputs);
+  const [retryQueued, setRetryQueued] = React.useState(false);
+  const toggleRetry = () => {
+    setRetryQueued(!retryQueued);
+    reportAction(onAction, retryQueued ? 'cancel-failure-retry' : 'retry-failure');
+  };
   return (
     <ActivityFrame {...props} className="hbar-app-ui-agent-activity-failure">
-      <header className="lumen-agent-activity-heading hbar-app-ui-agent-activity-heading">
+      <header className="lumen-agent-activity-heading hbar-app-ui-agent-activity-heading" role="banner">
         <div>
           <LumenText as="h2" variant="heading">
             {content.labels.title}
           </LumenText>
-          <p>
+          <div className="hbar-app-ui-agent-activity-failure-status">
             <ActivityStateMark state="failed" />
             <span>{content.labels.status}</span>
             <span aria-hidden="true">{content.labels.separator}</span>
             <span>{content.labels.duration}</span>
-          </p>
+          </div>
         </div>
         <LumenButton
           variant="outlined"
@@ -917,23 +927,20 @@ function FailureActivity(
         strategy={content.listStrategy}
         className="hbar-app-ui-agent-activity-failure-body"
       >
-        <section
-          aria-label={content.labels.errorTitle}
-          className="lumen-agent-activity-error-card hbar-app-ui-agent-activity-error-card"
-        >
-          <LumenText as="h3" variant="heading">
-            <ActivityStateMark state="failed" />
-            <span>{content.summaryTitle}</span>
-          </LumenText>
-          <LumenText as="p" tone="muted">
-            {content.summaryDescription}
-          </LumenText>
-        </section>
-        <div className="lumen-agent-activity-action-row hbar-app-ui-agent-activity-action-row">
-          <LumenButton tone="danger" onClick={() => reportAction(onAction, 'retry-failure')}>
-            <ActivityGlyph name="retry" />
-            {content.labels.retry}
-          </LumenButton>
+        <div className={`hbar-app-ui-agent-activity-failure-summary-frame${retryQueued ? ' is-retry-queued' : ''}`} role="alert">
+          <section className="lumen-agent-activity-error-card hbar-app-ui-agent-activity-error-card">
+            <div className="hbar-app-ui-agent-activity-error-title">
+              <ActivityStateMark state={retryQueued ? 'queued' : 'failed'} />
+              <span>{retryQueued ? content.retryQueuedTitle : content.summaryTitle}</span>
+            </div>
+            <p>{retryQueued ? content.retryQueuedDescription : content.summaryDescription}</p>
+          </section>
+          <div className="lumen-agent-activity-action-row hbar-app-ui-agent-activity-action-row">
+            <LumenButton onClick={toggleRetry}>
+              <ActivityGlyph name={retryQueued ? 'close' : 'retry'} />
+              {retryQueued ? content.labels.cancelRetry : content.labels.retry}
+            </LumenButton>
+          </div>
         </div>
         <section>
           <LumenText as="h3" variant="heading">
@@ -954,15 +961,16 @@ function FailureActivity(
           <LumenText as="h3" variant="heading">
             {content.labels.attempts}
           </LumenText>
-          <ol className="lumen-agent-activity-attempt-list hbar-app-ui-agent-activity-attempt-list">
+          <div className="lumen-agent-activity-attempt-list hbar-app-ui-agent-activity-attempt-list">
             {attempts.map((attempt) => (
-              <li key={attempt.id}>
-                <strong>{attempt.label}</strong>
+              <div key={attempt.id}>
+                <span>{attempt.label}</span>
                 <span>{attempt.description}</span>
-                <time>{attempt.duration}</time>
-              </li>
+                <span>{attempt.duration}</span>
+              </div>
             ))}
-          </ol>
+          </div>
+          <p className="hbar-app-ui-agent-activity-attempt-note">{content.attemptsNote}</p>
         </section>
         <section>
           <LumenText as="h3" variant="heading">
@@ -972,8 +980,8 @@ function FailureActivity(
             {outputs.map((output) => (
               <li key={output.id}>
                 <div>
-                  <strong>{output.name}</strong>
-                  <span>{output.detail}</span>
+                  <p>{output.name}</p>
+                  <p>{output.detail}</p>
                 </div>
                 <LumenButton
                   variant="outlined"

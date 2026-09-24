@@ -1563,6 +1563,293 @@
   color: var(--lumen-muted);
 }
 
+.hbar-app-ui-agent-activity-failure {
+  border: 0;
+  box-shadow: none;
+}
+
+.hbar-app-ui-agent-activity-failure > .hbar-app-ui-agent-activity-heading {
+  align-items: center;
+  flex-wrap: nowrap;
+  min-block-size: 2.5rem;
+  margin-block-end: 1.375rem;
+  padding: 0;
+  border: 0;
+}
+
+.hbar-app-ui-agent-activity-failure > .hbar-app-ui-agent-activity-heading > div {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+}
+
+.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-heading h2 {
+  overflow: hidden;
+  font-size: 1rem;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-failure-status {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-block-start: 0.25rem;
+  font-size: 0.8125rem;
+}
+
+.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-heading .lumen-agent-activity-state-mark,
+.hbar-app-ui-agent-activity-error-title .lumen-agent-activity-state-mark {
+  inline-size: 0.375rem;
+  block-size: 0.375rem;
+  box-shadow: none;
+}
+
+.hbar-app-ui-agent-activity-failure > .hbar-app-ui-agent-activity-heading > button {
+  flex: 0 0 auto;
+  min-inline-size: 4.75rem;
+  min-block-size: 2rem;
+  padding-inline: 0.625rem;
+  border: 0.0625rem solid var(--lumen-line);
+  background: var(--lumen-frost);
+  font-size: 0.8125rem;
+}
+
+.hbar-app-ui-agent-activity-failure button [data-edge] {
+  display: none;
+}
+
+.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-failure-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-block-size: calc(100dvh - 6.8125rem);
+  padding: 0;
+  padding-block-end: 0.625rem;
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+.hbar-app-ui-agent-activity-failure-summary-frame {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.1875rem;
+  border: 0.0625rem solid var(--lumen-line);
+  border-radius: 0.875rem;
+}
+
+.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-error-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  border: 0.0625rem solid var(--lumen-line);
+  border-radius: 0.625rem;
+  background: transparent;
+}
+
+.hbar-app-ui-agent-activity-error-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.hbar-app-ui-agent-activity-error-title .lumen-agent-activity-state-mark.is-queued {
+  color: var(--lumen-muted);
+}
+
+.hbar-app-ui-agent-activity-error-card p {
+  color: var(--lumen-muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-action-row {
+  min-block-size: 2.5rem;
+  padding: 0.25rem;
+  border: 0.0625rem solid var(--lumen-line);
+  border-radius: 0.625rem;
+}
+
+.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-action-row > button {
+  min-block-size: 2rem;
+  padding-inline: 0.625rem;
+  background: var(--lumen-ink);
+  color: var(--lumen-contrast);
+  font-size: 0.8125rem;
+}
+
+.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-action-row > button:hover {
+  background: color-mix(in srgb, var(--lumen-ink) 90%, var(--lumen-contrast));
+  color: var(--lumen-contrast);
+}
+
+.hbar-app-ui-agent-activity-failure .is-retry-queued .hbar-app-ui-agent-activity-action-row > button {
+  background: var(--lumen-line);
+  color: var(--lumen-ink);
+}
+
+.hbar-app-ui-agent-activity-failure .is-retry-queued .hbar-app-ui-agent-activity-action-row > button:hover {
+  background: color-mix(in srgb, var(--lumen-line) 90%, var(--lumen-ink));
+  color: var(--lumen-ink);
+}
+
+.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-action-row .lumen-agent-activity-glyph path {
+  fill: none;
+  stroke: currentColor;
+}
+
+.hbar-app-ui-agent-activity-failure-body > section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hbar-app-ui-agent-activity-failure-body > section > h3[data-variant='heading'] {
+  padding-inline: 0.125rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-definition-list,
+.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-attempt-list,
+.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-output-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+  border: 0.0625rem solid var(--lumen-line);
+  border-radius: 0.875rem;
+}
+
+.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-definition-list > div {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-block-size: 2.5625rem;
+  padding-inline: 0.75rem;
+  padding-block: 0;
+  border: 0;
+  border-block-end: 0.0625rem solid var(--lumen-line);
+  border-radius: 0;
+  background: transparent;
+  font-size: 0.8125rem;
+}
+
+.hbar-app-ui-agent-activity-definition-list > div:last-child {
+  border-block-end: 0;
+}
+
+.hbar-app-ui-agent-activity-definition-list dt {
+  flex: 0 0 8rem;
+}
+
+.hbar-app-ui-agent-activity-definition-list dd {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  overflow: hidden;
+  margin: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-attempt-list > div {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-block-size: 2.5625rem;
+  padding-inline: 0.75rem;
+  padding-block: 0;
+  border: 0;
+  border-block-end: 0.0625rem solid var(--lumen-line);
+  border-radius: 0;
+  background: transparent;
+  font-size: 0.8125rem;
+}
+
+.hbar-app-ui-agent-activity-attempt-list > div > span:first-child,
+.hbar-app-ui-agent-activity-attempt-list > div > span:last-child {
+  flex: 0 0 auto;
+}
+
+.hbar-app-ui-agent-activity-attempt-list > div > span:not(:first-child) {
+  color: var(--lumen-muted);
+}
+
+.hbar-app-ui-agent-activity-attempt-list > div > span:nth-child(2) {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hbar-app-ui-agent-activity-failure-body .hbar-app-ui-agent-activity-attempt-note {
+  margin-block-start: -0.5rem;
+  padding: 0.75rem;
+  border: 0.0625rem solid var(--lumen-line);
+  border-block-start: 0;
+  border-radius: 0 0 0.875rem 0.875rem;
+  color: var(--lumen-muted);
+  font-size: 0.8125rem;
+}
+
+.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-attempt-list {
+  border-end-start-radius: 0;
+  border-end-end-radius: 0;
+}
+
+.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-output-list > li {
+  min-block-size: 3.4375rem;
+  border: 0;
+  border-block-end: 0.0625rem solid var(--lumen-line);
+  border-radius: 0;
+  background: transparent;
+  padding-block: 0.375rem;
+}
+
+.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-output-list > li > div {
+  gap: 0.125rem;
+}
+
+.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-output-list > li > div > p {
+  margin: 0;
+  font-size: 0.8125rem;
+}
+
+.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-output-list > li > div > p:last-child {
+  color: var(--lumen-muted);
+}
+
+.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-output-list > li > button {
+  gap: 0.375rem;
+  min-block-size: 2rem;
+  padding-inline: 0.625rem;
+}
+
+@media (max-width: 36rem) {
+  .hbar-app-ui-agent-activity-failure > .hbar-app-ui-agent-activity-heading {
+    margin-block-end: 1.0625rem;
+  }
+
+  .hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-error-card {
+    padding-block: 0.6875rem;
+  }
+
+  .hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-failure-body {
+    max-block-size: calc(100dvh - 5.75rem);
+  }
+}
+
+@media (max-width: 20rem) {
+  .hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-heading h2 {
+    max-inline-size: 9.75rem;
+  }
+}
+
 @media (max-width: 48rem) {
   .lumen-agent-activity-heading.hbar-app-ui-agent-activity-live-heading {
     align-items: center;
