@@ -196,7 +196,6 @@
   gap: 0.25rem;
 }
 
-.lumen-attachment-button,
 .lumen-uploading {
   display: inline-flex;
   min-inline-size: var(--lumen-control-size);
@@ -206,17 +205,6 @@
   border: 0.0625rem solid var(--lumen-edge);
   border-radius: var(--lumen-radius-control);
   cursor: pointer;
-}
-
-.lumen-attachment-button[data-disabled='true'] {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.lumen-attachment-button > input {
-  inline-size: 0;
-  block-size: 0;
-  opacity: 0;
 }
 
 .lumen-session-glyph {

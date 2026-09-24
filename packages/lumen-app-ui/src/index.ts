@@ -12,6 +12,8 @@ export { default as LumenSlider } from './LumenSlider';
 export type { LumenSliderProps } from './LumenSlider';
 export { LumenDialog } from './dialog';
 export type { LumenDialogProps } from './dialog';
+export { LumenFilePicker } from './file-picker';
+export type { LumenFilePickerProps } from './file-picker';
 export {
   LumenAgentActivity,
   LumenAgentActivity01,

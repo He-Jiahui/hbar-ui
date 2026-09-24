@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useConversationViewport } from './conversation-viewport';
 import { LumenDisclosure } from './disclosure';
 import { LumenInput, LumenTextarea } from './forms';
+import { LumenFilePicker } from './file-picker';
 import LumenDivider from './LumenDivider';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
@@ -351,28 +352,14 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
       <div className="lumen-composer-toolbar">
         <div>
           {props.onAddAttachments ? (
-            <label
-              className="lumen-attachment-button"
-              title={props.labels.addAttachment}
-              aria-label={props.labels.addAttachment}
-              data-disabled={!props.canAddAttachments || undefined}
+            <LumenFilePicker
+              label={props.labels.addAttachment}
+              disabled={!props.canAddAttachments}
+              multiple
+              onFiles={props.onAddAttachments}
             >
-              <input
-                type="file"
-                multiple
-                disabled={!props.canAddAttachments}
-                onChange={(event) => {
-                  const files = event.currentTarget.files
-                    ? Array.from(event.currentTarget.files)
-                    : [];
-                  event.currentTarget.value = '';
-                  if (files.length > 0) {
-                    props.onAddAttachments?.(files);
-                  }
-                }}
-              />
               <SessionGlyph name="add" />
-            </label>
+            </LumenFilePicker>
           ) : null}
           {props.controls}
           {props.uploading ? (
