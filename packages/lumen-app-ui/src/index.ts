@@ -1362,6 +1362,7 @@ export {
 } from './usage';
 export type { LumenUsageChartPoint, LumenUsageOverviewChart } from './usage-overview';
 export type { LumenUsageModelTableRow, LumenUsageModelTableContent } from './usage-model-table';
+export type { LumenUsageRatePanelMeter, LumenUsageRatePanelContent } from './usage-rate-panel';
 export type {
   LumenUsageAction,
   LumenUsageBudgetContent,

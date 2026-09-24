@@ -7,6 +7,7 @@ import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
 import { UsageOverviewChartContent, type LumenUsageOverviewChart } from './usage-overview';
 import { UsageModelTable, type LumenUsageModelTableContent } from './usage-model-table';
+import { UsageRatePanel, type LumenUsageRatePanelContent } from './usage-rate-panel';
 import './usage.css';
 
 export interface LumenUsageMetric {
@@ -88,6 +89,8 @@ export interface LumenUsageModelSpendContent extends LumenUsageHeading, LumenUsa
 }
 
 export interface LumenUsageRateLimitsContent extends LumenUsageHeading {
+  /** Detailed rate-limit panel; omission preserves the compact meter API. */
+  readonly panel?: LumenUsageRatePanelContent | undefined;
   readonly tier?: LumenUsageChoice | undefined;
   readonly meters: readonly LumenUsageMeter[];
   readonly emptyLabel: string;
@@ -486,6 +489,7 @@ export function LumenUsageModelSpend(content: LumenUsageModelSpendContent) {
 }
 
 export function LumenUsageRateLimits(content: LumenUsageRateLimitsContent) {
+  if (content.panel) return <UsageRatePanel heading={content} panel={content.panel} />;
   return (
     <UsageFrame content={content} variant={3}>
       {content.tier ? <UsageChoiceControl choice={content.tier} /> : null}
@@ -722,6 +726,7 @@ export interface UsageRootProps extends Omit<LumenUsageProps, 'content'> {
   readonly children: React.ReactNode;
   readonly chartOverview: boolean;
   readonly modelTable: boolean;
+  readonly ratePanel: boolean;
 }
 
 function UsageRoot({
@@ -735,12 +740,16 @@ function UsageRoot({
   children,
   chartOverview,
   modelTable,
+  ratePanel,
 }: UsageRootProps) {
   const contentClassName = [
     'lumen-usage',
     'hbar-app-ui-usage-catalog',
     chartOverview ? 'lumen-usage-chart-stage hbar-app-ui-stage-padding-owner' : '',
     modelTable ? 'lumen-usage-model-stage hbar-app-ui-stage-padding-owner' : '',
+    ratePanel
+      ? 'lumen-usage-rate-stage hbar-app-ui-stage-padding-owner hbar-app-ui-full-canvas-owner'
+      : '',
     `hbar-app-ui-usage-variant-${variant}`,
     density ? `hbar-app-ui-density-${density}` : '',
     surface ? `hbar-app-ui-surface-${surface}` : '',
@@ -752,9 +761,9 @@ function UsageRoot({
     .join(' ');
   return (
     <LumenSurface
-      as={chartOverview || modelTable ? 'div' : 'section'}
-      boundary={chartOverview || modelTable ? 'none' : 'horizontal'}
-      className={`lumen-usage-root-surface${chartOverview ? ' lumen-usage-chart-surface' : ''}${modelTable ? ' lumen-usage-model-surface' : ''}`}
+      as={chartOverview || modelTable || ratePanel ? 'div' : 'section'}
+      boundary={chartOverview || modelTable || ratePanel ? 'none' : 'horizontal'}
+      className={`lumen-usage-root-surface${chartOverview ? ' lumen-usage-chart-surface' : ''}${modelTable ? ' lumen-usage-model-surface' : ''}${ratePanel ? ' lumen-usage-rate-surface' : ''}`}
       contentClassName={contentClassName}
       data-lumen-component="usage"
       data-lumen-variant={variant}
@@ -787,6 +796,7 @@ export function LumenUsage(props: LumenUsageProps) {
       {...props}
       chartOverview={props.variant === 1 && Boolean(content.overview?.chart)}
       modelTable={props.variant === 2 && Boolean(content.modelSpend?.table)}
+      ratePanel={props.variant === 3 && Boolean(content.rateLimits?.panel)}
     >
       {view}
     </UsageRoot>
