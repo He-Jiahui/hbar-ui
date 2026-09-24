@@ -6,6 +6,7 @@ import { LumenInput, LumenSelect, LumenToggleControl } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
 import { UsageOverviewChartContent, type LumenUsageOverviewChart } from './usage-overview';
+import { UsageModelTable, type LumenUsageModelTableContent } from './usage-model-table';
 import './usage.css';
 
 export interface LumenUsageMetric {
@@ -74,6 +75,8 @@ export interface LumenUsageModelSpendRow {
 }
 
 export interface LumenUsageModelSpendContent extends LumenUsageHeading, LumenUsageCollection {
+  /** Detailed responsive model table; omission preserves the original compact-list API. */
+  readonly table?: LumenUsageModelTableContent | undefined;
   readonly rows: readonly LumenUsageModelSpendRow[];
   readonly columns: {
     readonly model: string;
@@ -447,6 +450,7 @@ export function LumenUsageOverview(content: LumenUsageOverviewContent) {
 }
 
 export function LumenUsageModelSpend(content: LumenUsageModelSpendContent) {
+  if (content.table) return <UsageModelTable heading={content} table={content.table} />;
   return (
     <UsageFrame content={content} variant={2}>
       {content.sort ? (
@@ -714,6 +718,12 @@ export function LumenUsageCompact(content: LumenUsageCompactContent) {
   );
 }
 
+export interface UsageRootProps extends Omit<LumenUsageProps, 'content'> {
+  readonly children: React.ReactNode;
+  readonly chartOverview: boolean;
+  readonly modelTable: boolean;
+}
+
 function UsageRoot({
   variant,
   variantId,
@@ -724,14 +734,13 @@ function UsageRoot({
   className,
   children,
   chartOverview,
-}: Omit<LumenUsageProps, 'content'> & {
-  readonly children: React.ReactNode;
-  readonly chartOverview: boolean;
-}) {
+  modelTable,
+}: UsageRootProps) {
   const contentClassName = [
     'lumen-usage',
     'hbar-app-ui-usage-catalog',
     chartOverview ? 'lumen-usage-chart-stage hbar-app-ui-stage-padding-owner' : '',
+    modelTable ? 'lumen-usage-model-stage hbar-app-ui-stage-padding-owner' : '',
     `hbar-app-ui-usage-variant-${variant}`,
     density ? `hbar-app-ui-density-${density}` : '',
     surface ? `hbar-app-ui-surface-${surface}` : '',
@@ -743,9 +752,9 @@ function UsageRoot({
     .join(' ');
   return (
     <LumenSurface
-      as={chartOverview ? 'div' : 'section'}
-      boundary={chartOverview ? 'none' : 'horizontal'}
-      className={`lumen-usage-root-surface${chartOverview ? ' lumen-usage-chart-surface' : ''}`}
+      as={chartOverview || modelTable ? 'div' : 'section'}
+      boundary={chartOverview || modelTable ? 'none' : 'horizontal'}
+      className={`lumen-usage-root-surface${chartOverview ? ' lumen-usage-chart-surface' : ''}${modelTable ? ' lumen-usage-model-surface' : ''}`}
       contentClassName={contentClassName}
       data-lumen-component="usage"
       data-lumen-variant={variant}
@@ -774,7 +783,11 @@ export function LumenUsage(props: LumenUsageProps) {
     view = <LumenUsageRequestLog {...content.requests} />;
   if (props.variant === 8 && content.compact) view = <LumenUsageCompact {...content.compact} />;
   return (
-    <UsageRoot {...props} chartOverview={props.variant === 1 && Boolean(content.overview?.chart)}>
+    <UsageRoot
+      {...props}
+      chartOverview={props.variant === 1 && Boolean(content.overview?.chart)}
+      modelTable={props.variant === 2 && Boolean(content.modelSpend?.table)}
+    >
       {view}
     </UsageRoot>
   );
