@@ -14,6 +14,10 @@ import {
   type LumenControlOption,
 } from '@lumen/app-ui/ui';
 
+import setupPopupTestEnvironment from './popupTestEnvironment';
+
+setupPopupTestEnvironment();
+
 const choices: readonly LumenControlOption[] = [
   { id: 'research', label: '研究工作区：包含产品访谈、分析文档与团队决策记录' },
   { id: 'archived', label: '归档工作区', disabled: true },

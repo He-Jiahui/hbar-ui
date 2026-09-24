@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import type { LumenSize } from './appearance';
+import LumenAnchoredPopup from './anchored-popup';
 import { LumenButton, LumenIconButton, LumenText, type LumenButtonProps } from './primitives';
 import { LumenChip } from './ui-controls';
 
@@ -282,6 +283,7 @@ export function LumenChoiceSelect({
   const [open, setOpen] = React.useState(false);
   const [activeId, setActiveId] = React.useState<string | null>(null);
   const rootRef = React.useRef<HTMLDivElement>(null);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
   const items = uniqueOptions(options);
   const available = items.filter((item) => !item.disabled);
   const current = items.find((item) => item.id === value);
@@ -320,6 +322,7 @@ export function LumenChoiceSelect({
     >
       <LumenButton
         id={id}
+        ref={triggerRef}
         role="combobox"
         aria-label={label}
         aria-describedby={describedBy}
@@ -357,7 +360,17 @@ export function LumenChoiceSelect({
         <FormGlyph name="chevron" />
       </LumenButton>
       {open && !disabled ? (
-        <div id={listId} role="listbox" aria-label={label} className="lumen-choice-select-list">
+        <LumenAnchoredPopup
+          anchorRef={triggerRef}
+          onDismiss={() => {
+            setOpen(false);
+            setActiveId(null);
+          }}
+          id={listId}
+          role="listbox"
+          aria-label={label}
+          className="lumen-choice-select-list"
+        >
           {items.map((item) => (
             <LumenButton
               key={item.id}
@@ -370,14 +383,14 @@ export function LumenChoiceSelect({
               size={size}
               variant="text"
               onMouseDown={(event) => event.preventDefault()}
-              onMouseEnter={() => !item.disabled && setActiveId(item.id)}
+              onPointerMove={() => !item.disabled && setActiveId(item.id)}
               onClick={() => select(item)}
             >
               <span>{item.label}</span>
               {item.id === value ? <FormGlyph name="check" /> : null}
             </LumenButton>
           ))}
-        </div>
+        </LumenAnchoredPopup>
       ) : null}
     </div>
   );
@@ -505,6 +518,7 @@ export function LumenComboBox({
   onValueChange,
   ...ariaProps
 }: LumenComboBoxProps) {
+  const controlRef = React.useRef<HTMLDivElement>(null);
   const items = uniqueOptions(options);
   const available = items.filter((option) => !option.disabled);
   const [activeId, setActiveId] = React.useState<string | null>(null);
@@ -567,7 +581,7 @@ export function LumenComboBox({
         variant="text"
         size={size}
         onMouseDown={(event) => event.preventDefault()}
-        onMouseEnter={() => !option.disabled && setActiveId(option.id)}
+        onPointerMove={() => !option.disabled && setActiveId(option.id)}
         onClick={() => select(option)}
       >
         <span>
@@ -595,6 +609,7 @@ export function LumenComboBox({
       }}
     >
       <div
+        ref={controlRef}
         className="lumen-combobox-control"
         data-size={size}
         data-variant={variant}
@@ -659,7 +674,11 @@ export function LumenComboBox({
         </LumenIconButton>
       </div>
       {open && !disabled ? (
-        <div className="lumen-combobox-popup hbar-app-ui-dialog-menu">
+        <LumenAnchoredPopup
+          anchorRef={controlRef}
+          onDismiss={() => onOpenChange(false)}
+          className="lumen-combobox-popup"
+        >
           <div id={`${id}-listbox`} role="listbox" aria-label={labels.open} aria-busy={loading}>
             {optionContent}
           </div>
@@ -673,7 +692,7 @@ export function LumenComboBox({
               {loadMoreLabel}
             </LumenButton>
           ) : null}
-        </div>
+        </LumenAnchoredPopup>
       ) : null}
     </div>
   );

@@ -172,10 +172,8 @@ textarea.lumen-control {
 }
 
 .hbar-app-ui-dialog-menu.lumen-combobox-popup {
-  position: absolute;
-  z-index: 30;
-  inset-block-start: calc(100% + 0.25rem);
-  inset-inline: 0;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   border: 0.0625rem solid var(--lumen-edge);
   border-radius: var(--lumen-radius-control, 0.375rem);
@@ -186,6 +184,7 @@ textarea.lumen-control {
 
 .lumen-combobox-popup > [role='listbox'] {
   display: flex;
+  min-block-size: 0;
   max-block-size: 16rem;
   flex-direction: column;
   gap: 0.25rem;
@@ -253,12 +252,7 @@ textarea.lumen-control {
 }
 
 .lumen-choice-select .lumen-choice-select-list {
-  position: absolute;
-  z-index: 30;
-  inset-block-start: calc(100% + 0.25rem);
-  inset-inline: 0;
   display: flex;
-  max-block-size: 16rem;
   flex-direction: column;
   gap: 0.125rem;
   overflow: auto;

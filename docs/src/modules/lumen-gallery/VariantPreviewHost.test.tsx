@@ -7,6 +7,9 @@ import { LumenAnalyticsDesign, LumenInviteCommand } from '@lumen/app-ui';
 import VariantPreviewHost from './VariantPreviewHost';
 import PromptInputGallery from './PromptInputGallery';
 import { createCommandMenuFixtures } from './commandMenuLumenFixtures';
+import setupPopupTestEnvironment from './popupTestEnvironment';
+
+setupPopupTestEnvironment();
 
 describe('Lumen formal variant fixtures', () => {
   const { render } = createRenderer();
@@ -54,7 +57,10 @@ describe('Lumen formal variant fixtures', () => {
           value: String,
         }}
         content={{
-          periods: [{ id: 'week', label: 'Week' }, { id: 'month', label: 'Month' }],
+          periods: [
+            { id: 'week', label: 'Week' },
+            { id: 'month', label: 'Month' },
+          ],
           metrics: [],
           points: [],
         }}
