@@ -2,12 +2,12 @@
 
 import * as React from 'react';
 import { LumenCheckBox, LumenInput } from './forms';
-import LumenDivider from './LumenDivider';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
 import './agent-approval.css';
 import './agent-approval-diff.css';
 import './agent-approval-queue.css';
+import './agent-approval-permission.css';
 
 export type LumenAgentApprovalListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -138,11 +138,15 @@ export interface LumenAgentApprovalScope {
 }
 
 export interface LumenAgentApprovalPermissionContent {
+  readonly requestId: string;
+  readonly state: 'pending' | 'approved' | 'rejected';
+  readonly busy?: boolean | undefined;
   readonly labels: {
     readonly title: string;
     readonly agent: string;
     readonly status: string;
     readonly showRequest: string;
+    readonly hideRequest: string;
     readonly scopes: string;
     readonly expires: string;
     readonly reject: string;
@@ -153,6 +157,19 @@ export interface LumenAgentApprovalPermissionContent {
   readonly description: string;
   readonly scopes: readonly LumenAgentApprovalScope[];
   readonly expiry: string;
+  readonly requestText: string;
+  readonly onScopeChange: (requestId: string, scopeId: string, checked: boolean) => void;
+  readonly onDecision: (requestId: string, decision: 'approved' | 'rejected') => void;
+  readonly outcomes: Readonly<
+    Record<
+      'approved' | 'rejected',
+      {
+        readonly status: string;
+        readonly summary: (selected: number, total: number) => string;
+        readonly announcement: (selected: number) => string;
+      }
+    >
+  >;
   readonly listStrategy: LumenAgentApprovalListStrategy;
 }
 
@@ -375,7 +392,7 @@ function ApprovalRoot({
   return (
     <LumenSurface
       as="section"
-      boundary={variant <= 3 ? 'none' : 'horizontal'}
+      boundary={variant <= 4 ? 'none' : 'horizontal'}
       className="lumen-agent-approval-surface"
       contentClassName={contentClassName}
       data-lumen-component="agent-approval"
@@ -825,92 +842,147 @@ function PermissionApproval(
     () => uniqueLumenAgentApprovalItems(content.scopes),
     [content.scopes],
   );
-  const defaults = React.useMemo(
-    () => scopes.filter((scope) => scope.checked).map((scope) => scope.id),
-    [scopes],
-  );
-  const [checked, setChecked] = React.useState<readonly string[]>(defaults);
-  const [open, setOpen] = React.useState(true);
-  React.useEffect(() => setChecked(defaults), [defaults]);
+  const [open, setOpen] = React.useState(false);
+  const { scrollPane, scrollEdges } = useApprovalScrollEdges();
+  const selected = scopes.filter((scope) => scope.checked).length;
+  const outcome = content.state === 'pending' ? undefined : content.outcomes[content.state];
+  const disabled = Boolean(content.busy) || content.state !== 'pending';
+  const state =
+    content.state === 'pending'
+      ? 'needs-approval'
+      : content.state === 'approved'
+        ? 'approved'
+        : 'skipped';
+  const decide = (decision: 'approved' | 'rejected') => {
+    if (disabled || (decision === 'approved' && selected === 0)) return;
+    content.onDecision(content.requestId, decision);
+    report(
+      onAction,
+      decision === 'approved' ? 'approve-permission' : 'reject-permission',
+      content.requestId,
+    );
+  };
   return (
     <ApprovalRoot {...props} className="hbar-app-ui-agent-approval-permission">
-      <header className="hbar-app-ui-agent-approval-global-heading">
+      <header className="hbar-app-ui-agent-approval-permission-heading" role="banner">
         <LumenText as="h2" variant="heading">
           {content.labels.title}
         </LumenText>
         <span>{content.labels.agent}</span>
       </header>
-      <LumenDivider />
-      <main className="hbar-app-ui-agent-approval-centered-body">
-        <LumenSurface
-          as="section"
-          boundary="horizontal"
-          className="hbar-app-ui-agent-approval-card"
-          contentClassName="hbar-app-ui-agent-approval-card-flow"
-          material="frost"
-          tone="warning"
-        >
-          <div className="hbar-app-ui-agent-approval-card-content">
-            <ApprovalStatus state="needs-approval" label={content.labels.status} />
-            <LumenText as="h2" variant="heading">
-              {content.requestTitle}
-            </LumenText>
-            <p>{content.description}</p>
-          </div>
-          {open ? (
+      <div className="hbar-app-ui-agent-approval-permission-scroll-frame">
+        <main ref={scrollPane} className="hbar-app-ui-agent-approval-permission-scroll">
+          <LumenSurface
+            as="section"
+            aria-label={content.requestTitle}
+            boundary="none"
+            className="hbar-app-ui-agent-approval-permission-card"
+            contentClassName="hbar-app-ui-agent-approval-permission-flow"
+            material="frost"
+          >
+            <div className="hbar-app-ui-agent-approval-permission-summary">
+              <div className="hbar-app-ui-agent-approval-permission-status">
+                <StateMark state={state} />
+                <span>{outcome?.status ?? content.labels.status}</span>
+              </div>
+              <LumenText as="h3" variant="heading">
+                {content.requestTitle}
+              </LumenText>
+              <p>{content.description}</p>
+            </div>
             <div
-              aria-label={content.labels.scopes}
               className="hbar-app-ui-agent-approval-scope-list"
-              role="group"
+              data-hbar-app-ui-list-strategy={content.listStrategy.kind}
+              data-hbar-app-ui-expected-maximum={content.listStrategy.expectedMaximum}
             >
               <p className="hbar-app-ui-agent-approval-scope-heading">{content.labels.scopes}</p>
-              {scopes.map((scope) => (
-                <LumenCheckBox
-                  key={scope.id}
-                  label={scope.title}
-                  description={scope.description}
-                  checked={checked.includes(scope.id)}
-                  onChange={() => {
-                    setChecked((current) =>
-                      current.includes(scope.id)
-                        ? current.filter((id) => id !== scope.id)
-                        : [...current, scope.id],
-                    );
-                    report(onAction, 'toggle-permission-scope', scope.id);
-                  }}
-                />
-              ))}
+              <div>
+                {scopes.map((scope) => (
+                  <LumenCheckBox
+                    key={scope.id}
+                    label={scope.title}
+                    description={scope.description}
+                    checked={scope.checked}
+                    disabled={disabled}
+                    data-hbar-app-ui-scope-id={scope.id}
+                    onChange={(event) => {
+                      if (disabled) return;
+                      content.onScopeChange(
+                        content.requestId,
+                        scope.id,
+                        event.currentTarget.checked,
+                      );
+                      report(onAction, 'toggle-permission-scope', scope.id);
+                    }}
+                  />
+                ))}
+              </div>
             </div>
-          ) : null}
-          <LumenDivider tone="warning" />
-          <footer className="hbar-app-ui-agent-approval-action-row">
-            <LumenButton
-              variant="text"
-              aria-expanded={open}
-              onClick={() => {
-                setOpen((value) => !value);
-                report(onAction, 'toggle-permission-request');
-              }}
-            >
-              <ApprovalGlyph name="chevron" />
-              {content.labels.showRequest}
-            </LumenButton>
-            <span className="hbar-app-ui-agent-approval-expiry">
-              <span>{content.labels.expires}</span>
-              <span aria-hidden="true">{content.labels.separator}</span>
-              <strong>{content.expiry}</strong>
-            </span>
-            <div>
-              <LumenButton variant="outlined" onClick={() => report(onAction, 'reject-permission')}>
-                {content.labels.reject}
-              </LumenButton>
-              <LumenButton tone="primary" onClick={() => report(onAction, 'approve-permission')}>
-                {content.labels.approve}
-              </LumenButton>
+            <div className="hbar-app-ui-agent-approval-permission-actions">
+              {outcome ? (
+                <div className="hbar-app-ui-agent-approval-permission-result">
+                  <StateMark state={state} />
+                  <p>{outcome.summary(selected, scopes.length)}</p>
+                </div>
+              ) : (
+                <React.Fragment>
+                  <div className="hbar-app-ui-agent-approval-permission-buttons">
+                    <LumenButton
+                      variant="text"
+                      aria-expanded={open}
+                      onClick={() => {
+                        setOpen((value) => !value);
+                        report(onAction, 'toggle-permission-request');
+                      }}
+                    >
+                      <ApprovalGlyph name={open ? 'chevron-down' : 'chevron'} />
+                      {open ? content.labels.hideRequest : content.labels.showRequest}
+                    </LumenButton>
+                    <span className="hbar-app-ui-agent-approval-permission-expiry">
+                      <span>{content.labels.expires}</span>
+                      <span>{content.expiry}</span>
+                    </span>
+                    <div>
+                      <LumenButton
+                        variant="outlined"
+                        disabled={disabled}
+                        onClick={() => decide('rejected')}
+                      >
+                        {content.labels.reject}
+                      </LumenButton>
+                      <LumenButton
+                        tone="primary"
+                        disabled={disabled || selected === 0}
+                        onClick={() => decide('approved')}
+                      >
+                        {content.labels.approve}
+                      </LumenButton>
+                    </div>
+                  </div>
+                  {open ? (
+                    <pre tabIndex={0} className="hbar-app-ui-agent-approval-permission-payload">
+                      {content.requestText}
+                    </pre>
+                  ) : null}
+                </React.Fragment>
+              )}
             </div>
-          </footer>
-        </LumenSurface>
-      </main>
+          </LumenSurface>
+        </main>
+        <div
+          aria-hidden="true"
+          className="hbar-app-ui-agent-approval-scroll-overlay is-top"
+          data-visible={scrollEdges.top}
+        />
+        <div
+          aria-hidden="true"
+          className="hbar-app-ui-agent-approval-scroll-overlay is-bottom"
+          data-visible={scrollEdges.bottom}
+        />
+      </div>
+      <span className="hbar-app-ui-agent-approval-inline-announcement" aria-live="polite">
+        {outcome?.announcement(selected)}
+      </span>
     </ApprovalRoot>
   );
 }
@@ -1080,7 +1152,13 @@ export function LumenAgentApproval(props: LumenAgentApprovalProps) {
   if (props.variant === 3 && content?.queue)
     view = <QueueApproval {...props} content={content.queue} />;
   if (props.variant === 4 && content?.permission)
-    view = <PermissionApproval {...props} content={content.permission} />;
+    view = (
+      <PermissionApproval
+        {...props}
+        content={content.permission}
+        key={content.permission.requestId}
+      />
+    );
   if (props.variant === 5 && content?.cost)
     view = <CostApproval {...props} content={content.cost} />;
   if (props.variant === 6 && content?.history)

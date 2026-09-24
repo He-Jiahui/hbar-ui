@@ -61,6 +61,19 @@ its demo outcomes are not claims of a real server action. The queue owns its
 remaining-height pane scroll; `expectedMaximum` describes expected fixture or
 host capacity, never a silent item-drop limit.
 
+`LumenAgentApproval04` renders a host-controlled permission request. Provide a
+stable `requestId`, `state`, checked scopes, `expiry`, `requestText`, and typed
+`outcomes` with count formatters. `onScopeChange(requestId, scopeId, checked)`
+and `onDecision(requestId, decision)` report intent; only the host can confirm
+the decision. Set `busy` while awaiting confirmation. Zero selected scopes
+disable approval; a confirmed result locks the scopes and replaces actions,
+while preserving the summary and selections. The component owns only request
+disclosure, reset by a new `requestId`; it never runs a timer or grants access.
+Scope rows grow with content inside the remaining-height scroll pane. The
+preview uses its own Zustand permission model and demo countdown. Migration
+from the old local-state preview requires the callbacks, state, request ID,
+`labels.hideRequest`, payload and localized outcome formatters.
+
 `LumenWorkbenchNotice` centers a host-labelled title, description, and optional
 command inside a responsive glass surface. It accepts the shared square or
 rounded geometry while keeping localization and command values in the host.
