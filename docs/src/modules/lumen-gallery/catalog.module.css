@@ -115,6 +115,8 @@
   overflow: auto;
   gap: 0.25rem;
   padding: 0.25rem;
+  /* Reserve space for the navigation lamp mounted beyond each button's end edge. */
+  padding-inline-end: 0.75rem;
 }
 
 .variants {

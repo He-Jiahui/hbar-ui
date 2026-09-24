@@ -1,6 +1,73 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Locator } from '@playwright/test';
 
 const gallery = (variant: number) => `/experiments/lumen-app-ui/?variant=${variant}`;
+
+async function expectNavigationToFit(navigation: Locator) {
+  const geometry = await navigation.evaluate((element) => {
+    const bounds = element.getBoundingClientRect();
+    const left = bounds.left + element.clientLeft;
+    const right = left + element.clientWidth;
+    return {
+      horizontalOverflow: element.scrollWidth - element.clientWidth,
+      childrenFit: Array.from(element.querySelectorAll('button, button > [data-edge]')).every(
+        (child) => {
+          const childBounds = child.getBoundingClientRect();
+          return childBounds.left >= left - 1 && childBounds.right <= right + 1;
+        },
+      ),
+    };
+  });
+  expect(geometry).toEqual({ horizontalOverflow: 0, childrenFit: true });
+}
+
+for (const mode of ['dark', 'light'] as const) {
+  for (const width of [320, 390, 768, 1280, 1440]) {
+    test(`catalog navigation keeps content and lamps inside its scroll pane at ${width}px in ${mode}`, async ({
+      page,
+    }, testInfo) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/experiments/lumen-app-ui/catalog/');
+      if (mode === 'light') {
+        await page.getByRole('button', { name: '切换黑白主题' }).click();
+        await page.getByRole('button', { name: 'English', exact: true }).click();
+      }
+      const categories = page.getByRole('navigation', {
+        name: mode === 'dark' ? '组件类别' : 'Component families',
+      });
+      const variants = page.getByRole('navigation', {
+        name: mode === 'dark' ? '稳定变体 ID' : 'Stable variant IDs',
+      });
+      await variants.screenshot({ path: testInfo.outputPath('variant-navigation.png') });
+      await expectNavigationToFit(categories);
+      await expectNavigationToFit(variants);
+
+      await categories
+        .getByRole('button', {
+          name: mode === 'dark' ? '全部类别' : 'All categories',
+          exact: true,
+        })
+        .click();
+      await expect(variants.getByRole('button')).toHaveCount(300);
+      await expectNavigationToFit(variants);
+      const last = variants.getByRole('button').last();
+      await last.click();
+      await expect(last).toHaveAttribute('aria-current', 'page');
+      expect(await variants.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+      await expectNavigationToFit(variants);
+
+      const search = page.getByRole('searchbox');
+      await search.fill('hbar-app-ui-authentication-14');
+      await expect(variants.getByRole('button')).toHaveCount(1);
+      await expectNavigationToFit(variants);
+      await search.fill('no-matching-variant');
+      await expect(variants.getByRole('button')).toHaveCount(0);
+      await expectNavigationToFit(variants);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+        width,
+      );
+    });
+  }
+}
 
 test('controlled empty states keep recovery, suggestions, and upload operable', async ({
   page,
