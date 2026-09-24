@@ -6,6 +6,7 @@ import LumenDivider from './LumenDivider';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
 import './agent-approval.css';
+import './agent-approval-diff.css';
 
 export type LumenAgentApprovalListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -64,6 +65,7 @@ export interface LumenAgentApprovalDiffContent {
     readonly status: string;
     readonly separator: string;
     readonly showDiff: string;
+    readonly hideDiff: string;
     readonly reject: string;
     readonly alwaysAllow: string;
     readonly approve: string;
@@ -72,6 +74,17 @@ export interface LumenAgentApprovalDiffContent {
   readonly title: string;
   readonly description: string;
   readonly changes: readonly LumenAgentApprovalChange[];
+  readonly diffText: string;
+  readonly outcomes: Readonly<
+    Record<
+      'approved' | 'rejected' | 'always-allow',
+      {
+        readonly status: string;
+        readonly summary: string;
+        readonly announcement: string;
+      }
+    >
+  >;
   readonly listStrategy: LumenAgentApprovalListStrategy;
 }
 
@@ -345,7 +358,7 @@ function ApprovalRoot({
   return (
     <LumenSurface
       as="section"
-      boundary={variant === 1 ? 'none' : 'horizontal'}
+      boundary={variant <= 2 ? 'none' : 'horizontal'}
       className="lumen-agent-approval-surface"
       contentClassName={contentClassName}
       data-lumen-component="agent-approval"
@@ -379,12 +392,7 @@ function Pane({
   );
 }
 
-function InlineApproval(
-  props: Omit<LumenAgentApprovalProps, 'content'> & { content: LumenAgentApprovalInlineContent },
-) {
-  const { content, onAction } = props;
-  const [decision, setDecision] = React.useState<'pending' | 'approved' | 'rejected'>('pending');
-  const [requestOpen, setRequestOpen] = React.useState(false);
+function useApprovalScrollEdges() {
   const scrollPane = React.useRef<HTMLDivElement>(null);
   const [scrollEdges, setScrollEdges] = React.useState({ top: false, bottom: false });
   React.useEffect(() => {
@@ -409,6 +417,16 @@ function InlineApproval(
       pane.removeEventListener('scroll', update);
     };
   }, []);
+  return { scrollPane, scrollEdges };
+}
+
+function InlineApproval(
+  props: Omit<LumenAgentApprovalProps, 'content'> & { content: LumenAgentApprovalInlineContent },
+) {
+  const { content, onAction } = props;
+  const [decision, setDecision] = React.useState<'pending' | 'approved' | 'rejected'>('pending');
+  const [requestOpen, setRequestOpen] = React.useState(false);
+  const { scrollPane, scrollEdges } = useApprovalScrollEdges();
   const decide = (value: 'approved' | 'rejected') => {
     setDecision(value);
     report(onAction, 'decide-inline-approval', value);
@@ -510,92 +528,127 @@ function DiffApproval(
 ) {
   const { content, onAction } = props;
   const changes = uniqueLumenAgentApprovalItems(content.changes);
-  const [open, setOpen] = React.useState(true);
-  const [decision, setDecision] = React.useState<'pending' | 'approved' | 'rejected'>('pending');
+  const [open, setOpen] = React.useState(false);
+  const [decision, setDecision] = React.useState<
+    'pending' | 'approved' | 'rejected' | 'always-allow'
+  >('pending');
+  const { scrollPane, scrollEdges } = useApprovalScrollEdges();
+  const outcome = decision === 'pending' ? undefined : content.outcomes[decision];
   const decide = (value: 'approved' | 'rejected' | 'always-allow') => {
-    setDecision(value === 'always-allow' ? 'approved' : value);
+    setDecision(value);
     report(onAction, 'decide-diff-approval', value);
   };
   return (
     <ApprovalRoot {...props} className="hbar-app-ui-agent-approval-diff">
-      <header className="hbar-app-ui-agent-approval-global-heading">
-        <LumenText as="h2" variant="heading">
-          {content.labels.headerTitle}
-        </LumenText>
+      <header className="hbar-app-ui-agent-approval-diff-heading" role="banner">
+        <h2>{content.labels.headerTitle}</h2>
         <span>{content.labels.agent}</span>
       </header>
-      <LumenDivider />
-      <main className="hbar-app-ui-agent-approval-centered-body">
-        <LumenSurface
-          as="section"
-          boundary="horizontal"
-          className="hbar-app-ui-agent-approval-card"
-          contentClassName="hbar-app-ui-agent-approval-card-flow"
-          material="frost"
-          tone="warning"
+      <div className="hbar-app-ui-agent-approval-diff-scroll-frame">
+        <main
+          className="hbar-app-ui-agent-approval-diff-scroll"
+          ref={scrollPane}
+          data-hbar-app-ui-list-strategy={content.listStrategy.kind}
+          data-hbar-app-ui-expected-maximum={content.listStrategy.expectedMaximum}
         >
-          <div className="hbar-app-ui-agent-approval-card-content">
-            <ApprovalStatus
-              state={decision === 'pending' ? 'needs-approval' : decision}
-              label={content.labels.status}
-            />
-            <LumenText as="h2" variant="heading">
-              {content.title}
-            </LumenText>
-            <p>{content.description}</p>
-            {open ? (
-              <dl className="hbar-app-ui-agent-approval-change-list">
-                {changes.map((change) => (
-                  <div key={change.id}>
-                    <dt>{change.label}</dt>
-                    <dd>
-                      <s>{change.previousValue}</s>
-                      <span aria-hidden="true">{content.labels.changeSeparator}</span>
-                      <strong>{change.nextValue}</strong>
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            ) : null}
-          </div>
-          <footer className="hbar-app-ui-agent-approval-action-row">
-            <LumenButton
-              variant="text"
-              aria-expanded={open}
-              onClick={() => {
-                setOpen((value) => !value);
-                report(onAction, 'toggle-diff-details');
-              }}
+          <div className="hbar-app-ui-agent-approval-diff-body">
+            <LumenSurface
+              as="section"
+              aria-label={content.title}
+              boundary="none"
+              className="hbar-app-ui-agent-approval-diff-card"
+              contentClassName="hbar-app-ui-agent-approval-diff-flow"
+              material="frost"
             >
-              <ApprovalGlyph name="chevron" />
-              {content.labels.showDiff}
-            </LumenButton>
-            <div>
-              <LumenButton
-                variant="outlined"
-                disabled={decision !== 'pending'}
-                onClick={() => decide('rejected')}
-              >
-                {content.labels.reject}
-              </LumenButton>
-              <LumenButton
-                variant="outlined"
-                disabled={decision !== 'pending'}
-                onClick={() => decide('always-allow')}
-              >
-                {content.labels.alwaysAllow}
-              </LumenButton>
-              <LumenButton
-                tone="primary"
-                disabled={decision !== 'pending'}
-                onClick={() => decide('approved')}
-              >
-                {content.labels.approve}
-              </LumenButton>
-            </div>
-          </footer>
-        </LumenSurface>
-      </main>
+              <div className="hbar-app-ui-agent-approval-diff-summary">
+                <div className="hbar-app-ui-agent-approval-diff-status">
+                  <StateMark state={outcome ? 'skipped' : 'needs-approval'} />
+                  <span>{outcome?.status ?? content.labels.status}</span>
+                </div>
+                <h2>{content.title}</h2>
+                <p>{content.description}</p>
+                <dl className="hbar-app-ui-agent-approval-change-list">
+                  {changes.map((change) => (
+                    <div key={change.id}>
+                      <dt>{change.label}</dt>
+                      <dd>
+                        <span>{change.previousValue}</span>
+                        <svg
+                          className="hbar-app-ui-agent-approval-diff-arrow"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <path d="m9 18 6-6-6-6" />
+                        </svg>
+                        <span>{change.nextValue}</span>
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+              <div className="hbar-app-ui-agent-approval-diff-actions">
+                {outcome ? (
+                  <div className="hbar-app-ui-agent-approval-diff-result">
+                    <StateMark state="skipped" />
+                    <p>{outcome.summary}</p>
+                  </div>
+                ) : (
+                  <React.Fragment>
+                    <div className="hbar-app-ui-agent-approval-diff-buttons">
+                      <LumenButton
+                        variant="text"
+                        aria-expanded={open}
+                        onClick={() => {
+                          setOpen((value) => !value);
+                          report(onAction, 'toggle-diff-details');
+                        }}
+                      >
+                        <svg
+                          className="hbar-app-ui-agent-approval-diff-arrow"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <path d={open ? 'm6 9 6 6 6-6' : 'm9 18 6-6-6-6'} />
+                        </svg>
+                        {open ? content.labels.hideDiff : content.labels.showDiff}
+                      </LumenButton>
+                      <div>
+                        <LumenButton variant="outlined" onClick={() => decide('rejected')}>
+                          {content.labels.reject}
+                        </LumenButton>
+                        <LumenButton variant="outlined" onClick={() => decide('always-allow')}>
+                          {content.labels.alwaysAllow}
+                        </LumenButton>
+                        <LumenButton onClick={() => decide('approved')}>
+                          {content.labels.approve}
+                        </LumenButton>
+                      </div>
+                    </div>
+                    {open ? (
+                      <pre tabIndex={0} className="hbar-app-ui-agent-approval-diff-payload">
+                        {content.diffText}
+                      </pre>
+                    ) : null}
+                  </React.Fragment>
+                )}
+              </div>
+            </LumenSurface>
+          </div>
+        </main>
+        <div
+          aria-hidden="true"
+          className="hbar-app-ui-agent-approval-scroll-overlay is-top"
+          data-visible={scrollEdges.top}
+        />
+        <div
+          aria-hidden="true"
+          className="hbar-app-ui-agent-approval-scroll-overlay is-bottom"
+          data-visible={scrollEdges.bottom}
+        />
+      </div>
+      <div className="hbar-app-ui-agent-approval-inline-announcement" aria-live="polite">
+        {outcome?.announcement}
+      </div>
     </ApprovalRoot>
   );
 }
