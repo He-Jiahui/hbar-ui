@@ -459,6 +459,7 @@
 }
 
 .lumen-inline-usage {
+  flex-direction: row;
   flex-wrap: wrap;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
@@ -532,6 +533,11 @@
 
   .lumen-composer-toolbar > div {
     justify-content: space-between;
+  }
+
+  .lumen-inline-usage > div:first-child,
+  .lumen-inline-usage > .lumen-compact-metrics {
+    flex: 0 0 auto;
   }
 }
 

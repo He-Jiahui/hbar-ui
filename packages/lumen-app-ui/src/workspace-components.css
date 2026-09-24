@@ -83,7 +83,13 @@
 }
 
 .lumen-tool-pane-heading {
+  flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+.lumen-tool-pane-heading h2 {
+  max-inline-size: 100%;
+  flex: 0 0 auto;
 }
 
 .lumen-tool-pane-heading h2,
@@ -93,6 +99,8 @@
 }
 
 .lumen-tool-pane-heading span {
+  min-inline-size: 0;
+  flex: 1 1 12rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
