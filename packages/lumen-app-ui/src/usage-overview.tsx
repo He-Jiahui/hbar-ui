@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { LumenButton } from './primitives';
 import type { LumenUsageOverviewContent } from './usage';
 import './usage-overview.css';
 
@@ -58,8 +59,10 @@ function UsageOverviewPlot({ chart }: { readonly chart: LumenUsageOverviewChart 
       ) : (
         <div className="lumen-usage-overview-plot" data-overflow={points.length > 7}>
           {points.map((point) => (
-            <button
+            <LumenButton
               type="button"
+              variant="text"
+              indicator="none"
               key={point.id}
               className="lumen-usage-overview-bar"
               aria-label={point.accessibleLabel}
@@ -83,7 +86,7 @@ function UsageOverviewPlot({ chart }: { readonly chart: LumenUsageOverviewChart 
                 />
               </div>
               <span>{point.label}</span>
-            </button>
+            </LumenButton>
           ))}
         </div>
       )}
@@ -109,15 +112,18 @@ export function UsageOverviewChartContent({
         {range ? (
           <div className="lumen-usage-overview-tabs" role="tablist" aria-label={range.label}>
             {uniqueRecords(range.options).map((option) => (
-              <button
+              <LumenButton
                 type="button"
+                variant="text"
+                size="s"
+                indicatorState={option.id === range.value ? 'selected' : 'idle'}
                 role="tab"
                 key={option.id}
                 aria-selected={option.id === range.value}
                 onClick={() => range.onChange(option.id)}
               >
                 {option.label}
-              </button>
+              </LumenButton>
             ))}
           </div>
         ) : null}
