@@ -2,7 +2,6 @@ import * as React from 'react';
 import {
   DEFAULT_LUMEN_APPEARANCE,
   LumenButton,
-  LumenField,
   LumenIndicator,
   LumenInput,
   LumenLink,
@@ -193,15 +192,14 @@ export default function LumenCatalog() {
             </LumenButton>
           </div>
         </header>
-        <LumenField boundary="horizontal" className={styles.search}>
-          <LumenInput
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={copy.search}
-            aria-label={copy.search}
-          />
-        </LumenField>
+        <LumenInput
+          className={styles.search}
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder={copy.search}
+          aria-label={copy.search}
+        />
         <p className={styles.note}>{copy.note}</p>
         <div className={styles.layout}>
           <nav className={styles.categories} aria-label={copy.category}>

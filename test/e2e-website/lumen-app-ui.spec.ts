@@ -2,6 +2,67 @@ import { expect, test, type Locator } from '@playwright/test';
 
 const gallery = (variant: number) => `/experiments/lumen-app-ui/?variant=${variant}`;
 
+for (const mode of ['dark', 'light'] as const) {
+  for (const width of [390, 1440]) {
+    test(`catalog search uses one rounded outline and a focus glow at ${width}px in ${mode}`, async ({
+      page,
+    }, testInfo) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/experiments/lumen-app-ui/catalog/');
+      if (mode === 'light') {
+        await page.getByRole('button', { name: '切换黑白主题' }).click();
+      }
+      const search = page.getByRole('searchbox', { name: '搜索类别、ID 或组件说明' });
+      await expect(search).toHaveAttribute('data-lumen-component', 'input');
+      expect(await search.evaluate((element) => Boolean(element.closest('[data-boundary]')))).toBe(
+        false,
+      );
+      await expect(search).toHaveCSS('box-shadow', 'none');
+      const outline = await search.evaluate((element) => {
+        const style = getComputedStyle(element);
+        return {
+          radius: Number.parseFloat(style.borderTopLeftRadius),
+          widths: [
+            style.borderTopWidth,
+            style.borderRightWidth,
+            style.borderBottomWidth,
+            style.borderLeftWidth,
+          ],
+          transitions: style.transitionProperty,
+        };
+      });
+      expect(outline.radius).toBeGreaterThan(0);
+      expect(outline.widths).toEqual(['1px', '1px', '1px', '1px']);
+      expect(outline.transitions).toContain('box-shadow');
+      const unfocusedBounds = await search.boundingBox();
+      await search.click();
+      await expect(search).toBeFocused();
+      await expect(search).not.toHaveCSS('box-shadow', 'none');
+      // Wait for the shared smooth focus transition before capturing its final appearance.
+      await search.evaluate(async (element) => {
+        await Promise.all(element.getAnimations().map((animation) => animation.finished));
+      });
+      expect(await search.boundingBox()).toMatchObject({
+        width: unfocusedBounds?.width,
+        height: unfocusedBounds?.height,
+      });
+      await page.screenshot({ path: testInfo.outputPath('catalog-search-focused.png') });
+
+      const variants = page.getByRole('navigation', { name: '稳定变体 ID' });
+      await search.fill('hbar-app-ui-prompt-input-2');
+      await expect(variants.getByRole('button')).toHaveCount(1);
+      await search.fill('');
+      await expect(variants.getByRole('button')).toHaveCount(7);
+      await search.press('Tab');
+      await expect(search).not.toBeFocused();
+      await expect(search).toHaveCSS('box-shadow', 'none');
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+        width,
+      );
+    });
+  }
+}
+
 async function expectNavigationToFit(navigation: Locator) {
   const geometry = await navigation.evaluate((element) => {
     const bounds = element.getBoundingClientRect();
