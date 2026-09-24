@@ -74,6 +74,21 @@ preview uses its own Zustand permission model and demo countdown. Migration
 from the old local-state preview requires the callbacks, state, request ID,
 `labels.hideRequest`, payload and localized outcome formatters.
 
+`LumenAgentApproval05` also requires a stable `requestId`, confirmed `state`,
+`onDecision(requestId, decision)` and optional `busy`. The host supplies the
+original `requestText`, `labels.hideRequest` and distinct localized outcomes.
+Approval/rejection retain the estimate rows and replace only the action region;
+the component never starts a paid operation. Each metric has a term and two
+definition values (amount and detail); desktop columns become narrow stacks.
+The numeric spend bar is passive and bounded to 0–100. The preview host uses a
+separate Zustand model for simulated confirmation.
+
+Known reference limitation for Approval 5: a centered card taller than a short
+pane can extend above the scroll origin. The 286×560 live reference reproduces
+this (`y=-40`, card height 640). Reference-parity evidence is **not** a no-clipping
+acceptance. Do not claim the whole variant accepted until the narrow overflow
+policy is resolved; prefer safe centering for an accessibility-oriented follow-up.
+
 `LumenWorkbenchNotice` centers a host-labelled title, description, and optional
 command inside a responsive glass surface. It accepts the shared square or
 rounded geometry while keeping localization and command values in the host.

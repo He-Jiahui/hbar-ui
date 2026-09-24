@@ -8,6 +8,7 @@ import './agent-approval.css';
 import './agent-approval-diff.css';
 import './agent-approval-queue.css';
 import './agent-approval-permission.css';
+import './agent-approval-cost.css';
 
 export type LumenAgentApprovalListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -181,6 +182,10 @@ export interface LumenAgentApprovalCostMetric {
 }
 
 export interface LumenAgentApprovalCostContent {
+  readonly requestId: string;
+  readonly state: 'pending' | 'approved' | 'rejected';
+  readonly busy?: boolean | undefined;
+  readonly onDecision: (requestId: string, decision: 'approved' | 'rejected') => void;
   readonly labels: {
     readonly badge: string;
     readonly agent: string;
@@ -194,6 +199,7 @@ export interface LumenAgentApprovalCostContent {
     readonly projected: string;
     readonly separator: string;
     readonly showRequest: string;
+    readonly hideRequest: string;
     readonly reject: string;
     readonly approve: string;
   };
@@ -202,6 +208,17 @@ export interface LumenAgentApprovalCostContent {
   readonly projectedValue: string;
   readonly progress: number;
   readonly progressLabel: string;
+  readonly requestText: string;
+  readonly outcomes: Readonly<
+    Record<
+      'approved' | 'rejected',
+      {
+        readonly status: string;
+        readonly summary: string;
+        readonly announcement: string;
+      }
+    >
+  >;
   readonly listStrategy: LumenAgentApprovalListStrategy;
 }
 
@@ -351,16 +368,12 @@ function ApprovalStatus({
   );
 }
 
-function ApprovalProgress({ value, label }: { readonly value: number; readonly label: string }) {
+function ApprovalProgress({ value }: { readonly value: number }) {
   const bounded = Math.max(0, Math.min(100, Number.isFinite(value) ? value : 0));
   return (
     <div
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={bounded}
+      aria-hidden="true"
       className="lumen-agent-approval-progress hbar-app-ui-agent-approval-progress"
-      role="progressbar"
     >
       <span style={{ inlineSize: `${bounded}%` }} />
     </div>
@@ -381,6 +394,7 @@ function ApprovalRoot({
     'lumen-agent-approval',
     'hbar-app-ui-agent-approval-surface',
     `hbar-app-ui-agent-approval-variant-${variant}`,
+    variant === 5 ? 'hbar-app-ui-stage-padding-owner' : '',
     density ? `hbar-app-ui-density-${density}` : '',
     surface ? `hbar-app-ui-surface-${surface}` : '',
     state ? `hbar-app-ui-state-${state}` : '',
@@ -392,7 +406,7 @@ function ApprovalRoot({
   return (
     <LumenSurface
       as="section"
-      boundary={variant <= 4 ? 'none' : 'horizontal'}
+      boundary={variant <= 5 ? 'none' : 'horizontal'}
       className="lumen-agent-approval-surface"
       contentClassName={contentClassName}
       data-lumen-component="agent-approval"
@@ -992,72 +1006,111 @@ function CostApproval(
 ) {
   const { content, onAction } = props;
   const metrics = uniqueLumenAgentApprovalItems(content.metrics);
-  const [approved, setApproved] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
+  const outcome = content.state === 'pending' ? undefined : content.outcomes[content.state];
+  const state =
+    content.state === 'pending'
+      ? 'needs-approval'
+      : content.state === 'approved'
+        ? 'approved'
+        : 'skipped';
+  const decide = (decision: 'approved' | 'rejected') => {
+    if (content.busy || content.state !== 'pending') return;
+    content.onDecision(content.requestId, decision);
+    report(onAction, decision === 'approved' ? 'approve-cost' : 'reject-cost', content.requestId);
+  };
   return (
     <ApprovalRoot {...props} className="hbar-app-ui-agent-approval-cost">
-      <main className="hbar-app-ui-agent-approval-centered-body">
-        <section className="hbar-app-ui-agent-approval-card">
-          <section className="hbar-app-ui-agent-approval-cost-summary">
-            <header className="hbar-app-ui-agent-approval-cost-heading">
-              <span>
-                <StateMark state="needs-approval" />
-                {content.labels.badge}
-              </span>
-              <span>{content.labels.agent}</span>
-            </header>
-            <div className="hbar-app-ui-agent-approval-card-content">
-              <LumenText as="h2" variant="heading">
-                {content.labels.title}
-              </LumenText>
-              {content.description ? <p>{content.description}</p> : null}
-            </div>
-          </section>
-          <section className="hbar-app-ui-agent-approval-cost-details">
-            <dl className="hbar-app-ui-agent-approval-cost-metrics">
-              {metrics.map((metric) => (
-                <div key={metric.id}>
-                  <dt>{metric.label}</dt>
-                  <dd>
-                    <strong>{metric.value}</strong>
-                    <span>{metric.detail}</span>
-                  </dd>
-                </div>
-              ))}
-            </dl>
-            <div className="hbar-app-ui-agent-approval-projected">
-              <div>
-                <span>{content.labels.projected}</span>
-                <span>{content.projectedValue}</span>
+      <LumenSurface
+        as="section"
+        aria-label={content.labels.title}
+        boundary="none"
+        material="frost"
+        className="hbar-app-ui-agent-approval-cost-card"
+        contentClassName="hbar-app-ui-agent-approval-cost-flow"
+      >
+        <div className="hbar-app-ui-agent-approval-cost-summary">
+          <div className="hbar-app-ui-agent-approval-cost-heading">
+            <StateMark state={state} />
+            <span>{outcome?.status ?? content.labels.badge}</span>
+            <span>{content.labels.agent}</span>
+          </div>
+          <LumenText as="h2" variant="heading">
+            {content.labels.title}
+          </LumenText>
+          {content.description ? <p>{content.description}</p> : null}
+        </div>
+        <div className="hbar-app-ui-agent-approval-cost-details">
+          <dl
+            className="hbar-app-ui-agent-approval-cost-metrics"
+            data-hbar-app-ui-list-strategy={content.listStrategy.kind}
+            data-hbar-app-ui-expected-maximum={content.listStrategy.expectedMaximum}
+          >
+            {metrics.map((metric) => (
+              <div key={metric.id}>
+                <dt>{metric.label}</dt>
+                <dd>{metric.value}</dd>
+                <dd>{metric.detail}</dd>
               </div>
-              <ApprovalProgress label={content.progressLabel} value={content.progress} />
-            </div>
-          </section>
-          <footer className="hbar-app-ui-agent-approval-action-row">
-            <LumenButton variant="text" onClick={() => report(onAction, 'toggle-cost-request')}>
-              {content.labels.showRequest}
-            </LumenButton>
+            ))}
+          </dl>
+          <div className="hbar-app-ui-agent-approval-cost-projected">
             <div>
-              <LumenButton
-                variant="outlined"
-                disabled={approved}
-                onClick={() => report(onAction, 'reject-cost')}
-              >
-                {content.labels.reject}
-              </LumenButton>
-              <LumenButton
-                tone="primary"
-                disabled={approved}
-                onClick={() => {
-                  setApproved(true);
-                  report(onAction, 'approve-cost');
-                }}
-              >
-                {content.labels.approve}
-              </LumenButton>
+              <span>{content.labels.projected}</span>
+              <span>{content.projectedValue}</span>
             </div>
-          </footer>
-        </section>
-      </main>
+            <ApprovalProgress value={content.progress} />
+          </div>
+        </div>
+        <div className="hbar-app-ui-agent-approval-cost-actions">
+          {outcome ? (
+            <div className="hbar-app-ui-agent-approval-cost-result">
+              <StateMark state={state} />
+              <p>{outcome.summary}</p>
+            </div>
+          ) : (
+            <React.Fragment>
+              <div className="hbar-app-ui-agent-approval-cost-buttons">
+                <LumenButton
+                  variant="text"
+                  aria-expanded={open}
+                  onClick={() => {
+                    setOpen((value) => !value);
+                    report(onAction, 'toggle-cost-request', content.requestId);
+                  }}
+                >
+                  <ApprovalGlyph name={open ? 'chevron-down' : 'chevron'} />
+                  {open ? content.labels.hideRequest : content.labels.showRequest}
+                </LumenButton>
+                <div>
+                  <LumenButton
+                    variant="outlined"
+                    disabled={content.busy}
+                    onClick={() => decide('rejected')}
+                  >
+                    {content.labels.reject}
+                  </LumenButton>
+                  <LumenButton
+                    tone="primary"
+                    disabled={content.busy}
+                    onClick={() => decide('approved')}
+                  >
+                    {content.labels.approve}
+                  </LumenButton>
+                </div>
+              </div>
+              {open ? (
+                <pre tabIndex={0} className="hbar-app-ui-agent-approval-cost-payload">
+                  {content.requestText}
+                </pre>
+              ) : null}
+            </React.Fragment>
+          )}
+        </div>
+      </LumenSurface>
+      <span className="hbar-app-ui-agent-approval-inline-announcement" aria-live="polite">
+        {outcome?.announcement}
+      </span>
     </ApprovalRoot>
   );
 }
@@ -1160,7 +1213,7 @@ export function LumenAgentApproval(props: LumenAgentApprovalProps) {
       />
     );
   if (props.variant === 5 && content?.cost)
-    view = <CostApproval {...props} content={content.cost} />;
+    view = <CostApproval {...props} content={content.cost} key={content.cost.requestId} />;
   if (props.variant === 6 && content?.history)
     view = <HistoryApproval {...props} content={content.history} />;
   return (
