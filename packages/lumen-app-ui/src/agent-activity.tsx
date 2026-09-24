@@ -520,7 +520,8 @@ function NestedActivity(
               return (
                 <li key={group.id}>
                   <div className="lumen-agent-activity-group">
-                    <button
+                    <LumenButton
+                      variant="text"
                       type="button"
                       className="hbar-app-ui-agent-activity-group-row"
                       aria-expanded={open}
@@ -536,7 +537,7 @@ function NestedActivity(
                       <span className="hbar-app-ui-agent-activity-group-label">{group.label}</span>
                       <span className="hbar-app-ui-agent-activity-duration">{group.duration}</span>
                       <span aria-hidden="true" className="hbar-app-ui-agent-activity-chevron" />
-                    </button>
+                    </LumenButton>
                     {open ? (
                       <ol className="hbar-app-ui-agent-activity-child-list">
                         {children.map((child) => (
@@ -764,7 +765,8 @@ function LogActivity(
           role="radiogroup"
         >
           {filters.map((filter) => (
-            <button
+            <LumenButton
+              variant="text"
               aria-checked={filter.id === activeFilter?.id}
               className={filter.id === activeFilter?.id ? 'is-selected' : ''}
               key={filter.id}
@@ -777,7 +779,7 @@ function LogActivity(
             >
               <span className="is-compact">{filter.compactLabel}</span>
               <span className="is-full">{filter.label}</span>
-            </button>
+            </LumenButton>
           ))}
         </div>
         {running ? (
@@ -828,7 +830,8 @@ function LogActivity(
           ))}
         </ol>
           </div>
-          {jumpVisible && !running ? <button
+          {jumpVisible && !running ? <LumenButton
+            variant="text"
             className="hbar-app-ui-agent-activity-log-jump"
             type="button"
             onClick={() => {
@@ -840,7 +843,7 @@ function LogActivity(
           >
             <ActivityGlyph name="down" />
             {content.labels.jumpToLatest}
-          </button> : null}
+          </LumenButton> : null}
         </ActivityPane>
       </div>
     </ActivityFrame>
