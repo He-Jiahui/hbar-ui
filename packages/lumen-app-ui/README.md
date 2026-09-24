@@ -178,6 +178,21 @@ no invented click, focus, selection, or keyboard action. Two representative
 real source/local hover pairs cover wide/narrow feedback; equivalent rows are
 explicitly inferred rather than individually replayed.
 
+Plan variant 5 is a passive phase board. Every host section renders a combined
+title/count heading and an ordered list of host-owned tasks, with independent
+state text and duration. Duplicate section/item IDs keep the first occurrence;
+host changes can reorder, move, remove or update tasks without an invented
+client-side execution state. Cards have no click, drag, focus or hover action.
+
+At 64rem and above, equal flex columns own independent list scrolling. Below
+that breakpoint, content-grown columns stack inside one board scroll region;
+the global heading stays outside both scroll arrangements. The preview expects
+up to 24 tasks per column and retains over-bound records. Short hosts do not
+inherit the source preview shell's 35rem minimum. Titles ellipsis as observed,
+while long translated status text can wrap. Running dots pulse and respect
+reduced motion. Three real source/local wheel pairs cover column end, stacked
+middle and stacked end; equivalent columns/positions are inferred, not replayed.
+
 `LumenWorkbenchNotice` centers a host-labelled title, description, and optional
 command inside a responsive glass surface. It accepts the shared square or
 rounded geometry while keeping localization and command values in the host.

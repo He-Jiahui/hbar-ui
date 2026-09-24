@@ -4,11 +4,12 @@ import * as React from 'react';
 import { LumenPlanEditor } from './plan-editor';
 import { LumenPlanReview, type LumenPlanReviewContent } from './plan-review';
 import LumenSurface from './LumenSurface';
-import { LumenButton, LumenStatus, LumenText } from './primitives';
+import { LumenButton, LumenText } from './primitives';
 import './agent-plan.css';
 import './agent-plan-checklist.css';
 import './agent-plan-tree.css';
 import './agent-plan-actual.css';
+import './agent-plan-board.css';
 
 export type LumenAgentPlanListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -235,13 +236,6 @@ function report(onAction: LumenAgentPlanProps['onAction'], actionId: string, val
   onAction?.(value === undefined ? { actionId } : { actionId, value });
 }
 
-function stateTone(state: LumenAgentPlanState): 'neutral' | 'success' | 'warning' | 'danger' {
-  if (state === 'done') return 'success';
-  if (state === 'running' || state === 'waiting') return 'warning';
-  if (state === 'failed' || state === 'blocked') return 'danger';
-  return 'neutral';
-}
-
 function PlanGlyph({
   name,
 }: {
@@ -264,23 +258,6 @@ function PlanGlyph({
         <rect x="2" y="2" width="12" height="12" rx="1.333" fill="currentColor" />
       ) : null}
     </svg>
-  );
-}
-
-function AgentPlanStatus({
-  state,
-  label,
-}: {
-  readonly state: LumenAgentPlanState;
-  readonly label: string;
-}) {
-  return (
-    <LumenStatus
-      className={`hbar-app-ui-agent-plan-status is-${state}`}
-      data-state={state}
-      tone={stateTone(state)}
-      value={label}
-    />
   );
 }
 
@@ -333,7 +310,7 @@ function AgentPlanRoot({
     'lumen-agent-plan',
     'hbar-app-ui-agent-plan-surface',
     `hbar-app-ui-agent-plan-variant-${variant}`,
-    variant >= 1 && variant <= 4 ? 'hbar-app-ui-stage-padding-owner' : '',
+    variant >= 1 && variant <= 5 ? 'hbar-app-ui-stage-padding-owner' : '',
     density ? `hbar-app-ui-density-${density}` : '',
     surface ? `hbar-app-ui-surface-${surface}` : '',
     state ? `hbar-app-ui-state-${state}` : '',
@@ -345,7 +322,7 @@ function AgentPlanRoot({
   return (
     <LumenSurface
       as="section"
-      boundary={variant >= 1 && variant <= 4 ? 'none' : 'horizontal'}
+      boundary={variant >= 1 && variant <= 5 ? 'none' : 'horizontal'}
       className="lumen-agent-plan-root-surface"
       contentClassName={contentClassName}
       data-lumen-component="agent-plan"
@@ -855,64 +832,118 @@ function PlanBoard(
   );
   const done = sections.reduce((sum, section) => sum + section.done, 0);
   const total = sections.reduce((sum, section) => sum + section.total, 0);
+  const boardRef = React.useRef<HTMLDivElement>(null);
+  const edges = usePlanBoardEdges(boardRef, sections);
   return (
     <AgentPlanRoot {...props} className="hbar-app-ui-agent-plan-board-surface">
-      <PlanHeading
-        title={content.labels.title}
-        detail={
-          <LumenText as="span" tone="muted" variant="supporting">
-            {content.labels.progress(done, total)}
-          </LumenText>
-        }
-      />
-      <AgentPlanPane strategy={content.listStrategy} className="hbar-app-ui-agent-plan-board-pane">
-        {sections.length > 0 ? (
-          <div className="hbar-app-ui-agent-plan-board-columns">
-            {sections.map((section) => {
-              const items = uniqueLumenAgentPlanItems(section.items);
-              return (
-                <section className="hbar-app-ui-agent-plan-board-column" key={section.id}>
-                  <header>
-                    <LumenText as="h3" variant="label">
-                      {section.title}
-                    </LumenText>
-                    <LumenText as="span" tone="muted" variant="supporting">
-                      {section.progressLabel}
-                    </LumenText>
-                  </header>
-                  {items.length > 0 ? (
-                    <ol>
-                      {items.map((item) => (
-                        <li className={`is-${item.state}`} key={item.id}>
-                          <p>{item.title}</p>
-                          <p>
-                            <AgentPlanStatus state={item.state} label={item.stateLabel} />
-                            {item.duration ? (
-                              <>
-                                <span aria-hidden="true">{content.labels.separator}</span>
-                                <span>{item.duration}</span>
-                              </>
-                            ) : null}
-                          </p>
-                        </li>
-                      ))}
-                    </ol>
-                  ) : (
-                    <LumenText as="p" className="hbar-app-ui-agent-plan-empty" tone="muted">
-                      {content.labels.empty}
-                    </LumenText>
-                  )}
-                </section>
-              );
-            })}
-          </div>
-        ) : (
-          <LumenText as="p" className="hbar-app-ui-agent-plan-empty" tone="muted">
-            {content.labels.empty}
-          </LumenText>
-        )}
-      </AgentPlanPane>
+      <header className="lumen-plan-board-heading" role="banner">
+        <h2>{content.labels.title}</h2>
+        <span>{content.labels.progress(done, total)}</span>
+      </header>
+      <div
+        className="lumen-plan-board-frame"
+        data-hbar-app-ui-expected-maximum={content.listStrategy.expectedMaximum}
+        data-hbar-app-ui-list-strategy={content.listStrategy.kind}
+      >
+        <div ref={boardRef} className="lumen-plan-board-columns">
+          {sections.length ? (
+            sections.map((section) => (
+              <PlanBoardColumn key={section.id} section={section} labels={content.labels} />
+            ))
+          ) : (
+            <p className="lumen-plan-board-empty">{content.labels.empty}</p>
+          )}
+        </div>
+        <PlanBoardEdges edges={edges} />
+      </div>
     </AgentPlanRoot>
+  );
+}
+
+function usePlanBoardEdges(ref: React.RefObject<HTMLElement | null>, records: object) {
+  const [edges, setEdges] = React.useState({ top: false, bottom: false });
+  React.useEffect(() => {
+    const pane = ref.current;
+    if (!pane) return undefined;
+    const update = () => {
+      const next = {
+        top: pane.scrollTop > 1,
+        bottom: pane.scrollHeight - pane.clientHeight - pane.scrollTop > 1,
+      };
+      setEdges((previous) =>
+        previous.top === next.top && previous.bottom === next.bottom ? previous : next,
+      );
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(pane);
+    pane.addEventListener('scroll', update, { passive: true });
+    return () => {
+      observer.disconnect();
+      pane.removeEventListener('scroll', update);
+    };
+  }, [ref, records]);
+  return edges;
+}
+
+function PlanBoardEdges({ edges }: { edges: { top: boolean; bottom: boolean } }) {
+  return (
+    <>
+      <div
+        aria-hidden="true"
+        className="lumen-plan-board-edge-overlay is-top"
+        data-visible={edges.top}
+      />
+      <div
+        aria-hidden="true"
+        className="lumen-plan-board-edge-overlay is-bottom"
+        data-visible={edges.bottom}
+      />
+    </>
+  );
+}
+
+function PlanBoardColumn({
+  section,
+  labels,
+}: {
+  section: LumenAgentPlanBoardSection;
+  labels: LumenAgentPlanBoardContent['labels'];
+}) {
+  const items = React.useMemo(() => uniqueLumenAgentPlanItems(section.items), [section.items]);
+  const listRef = React.useRef<HTMLOListElement>(null);
+  const edges = usePlanBoardEdges(listRef, items);
+  return (
+    <section className="lumen-plan-board-column" data-section-id={section.id}>
+      <h3>
+        <span>{section.title}</span>
+        <span>{section.progressLabel}</span>
+      </h3>
+      <div className="lumen-plan-board-list-frame">
+        <ol ref={listRef}>
+          {items.length ? (
+            items.map((item) => (
+              <li key={item.id} data-step-id={item.id} data-state={item.state}>
+                <p>{item.title}</p>
+                <p>
+                  <span aria-hidden="true" className="lumen-plan-board-dot" />
+                  <span>{item.stateLabel}</span>
+                  {item.duration ? (
+                    <>
+                      <span aria-hidden="true">{labels.separator}</span>
+                      <span>{item.duration}</span>
+                    </>
+                  ) : null}
+                </p>
+              </li>
+            ))
+          ) : (
+            <li className="lumen-plan-board-empty">{labels.empty}</li>
+          )}
+        </ol>
+        <PlanBoardEdges edges={edges} />
+      </div>
+    </section>
   );
 }
 
