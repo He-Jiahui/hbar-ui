@@ -161,6 +161,23 @@ narrow keyboard feedback, including a compact state that shows all six shipping
 and staging subtasks together. Repeated group/gesture combinations are inferred,
 not individually replayed.
 
+Plan variant 4 renders a passive native timing table, not an interactive list
+or progress control. Host rows supply independent `durationProgress` and optional
+`plannedProgress` ratios; both are clamped to finite values in the unit interval,
+and missing actual data has no fill. Labels and formatted durations remain
+host-owned; the component never parses localized timing strings.
+
+The three metrics remain in one flexible row. The table owns pane scrolling
+inside a double frame, with its heading and metrics outside that region. The
+preview declares an expected bound of 12 rows and retains over-bound data.
+Below 40rem the diagram column is hidden. The step column targets 38% width,
+yielding when needed to three 3.5rem numeric columns; wide layouts use 5rem.
+Short labels can use cell padding space, while longer
+translations wrap in bounded text flow. Rows have passive hover feedback but
+no invented click, focus, selection, or keyboard action. Two representative
+real source/local hover pairs cover wide/narrow feedback; equivalent rows are
+explicitly inferred rather than individually replayed.
+
 `LumenWorkbenchNotice` centers a host-labelled title, description, and optional
 command inside a responsive glass surface. It accepts the shared square or
 rounded geometry while keeping localization and command values in the host.
