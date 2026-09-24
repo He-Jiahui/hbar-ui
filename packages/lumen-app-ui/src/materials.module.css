@@ -181,8 +181,8 @@
 .indicator:not([data-tone='neutral']) .beam {
   opacity: 0.5;
 }
-:global(button:hover) > .indicator .beam,
-:global(button:focus-visible) > .indicator .beam {
+:global(button:hover) > .indicator[data-length] .beam,
+:global(button:focus-visible) > .indicator[data-length] .beam {
   opacity: 0.65;
 }
 :global(button:hover) > .indicator[data-edge='bottom'] .beam,
