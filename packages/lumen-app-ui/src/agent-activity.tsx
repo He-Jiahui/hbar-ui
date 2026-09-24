@@ -387,7 +387,7 @@ function ActivityFrame({
   return (
     <LumenSurface
       as={variant === 1 || variant === 2 || variant === 3 ? 'div' : 'section'}
-      boundary={variant <= 5 ? 'none' : 'horizontal'}
+      boundary={variant <= 6 ? 'none' : 'horizontal'}
       className="lumen-agent-activity-root-surface"
       contentClassName={contentClassName}
       data-lumen-component="agent-activity"
@@ -849,31 +849,33 @@ function WorkersActivity(
   const workers = uniqueLumenAgentActivityItems(content.workers);
   return (
     <ActivityFrame {...props} className="hbar-app-ui-agent-activity-workers">
-      <header className="lumen-agent-activity-heading hbar-app-ui-agent-activity-heading">
+      <header className="lumen-agent-activity-heading hbar-app-ui-agent-activity-heading" role="banner">
         <LumenText as="h2" variant="heading">
           {content.labels.title}
         </LumenText>
         <div className="lumen-agent-activity-worker-summary hbar-app-ui-agent-activity-worker-summary">
-          <LumenStatus value={content.labels.activeSummary} tone="warning" />
-          <LumenStatus value={content.labels.queuedSummary} />
+          <span>{content.labels.activeSummary}</span>
+          <span>{content.labels.queuedSummary}</span>
         </div>
       </header>
       <ActivityPane strategy={content.listStrategy}>
         <ul className="lumen-agent-activity-worker-list hbar-app-ui-agent-activity-worker-list">
           {workers.map((worker) => (
-            <li key={worker.id}>
-              <div className="hbar-app-ui-agent-activity-worker-heading">
-                <ActivityStateMark state={worker.state} />
-                <strong>{worker.name}</strong>
-                <span>{worker.rate}</span>
+            <li className={worker.progress > 0 ? 'has-progress' : 'without-progress'} key={worker.id}>
+              <ActivityStateMark state={worker.state} />
+              <div className="hbar-app-ui-agent-activity-worker-body">
+                <div className="hbar-app-ui-agent-activity-worker-heading">
+                  <span>{worker.name}</span>
+                  <span>{worker.rate}</span>
+                </div>
+                <div className="hbar-app-ui-agent-activity-worker-detail">
+                  <span>{worker.task}</span>
+                  <span>{worker.stateLabel}</span>
+                </div>
+                {worker.progress > 0 ? (
+                  <ActivityProgress label={worker.progressLabel} value={worker.progress} decorative />
+                ) : null}
               </div>
-              <div className="hbar-app-ui-agent-activity-worker-detail">
-                <span>{worker.task}</span>
-                <ActivityStatus state={worker.state} label={worker.stateLabel} />
-              </div>
-              {worker.progress > 0 ? (
-                <ActivityProgress label={worker.progressLabel} value={worker.progress} />
-              ) : null}
             </li>
           ))}
         </ul>
