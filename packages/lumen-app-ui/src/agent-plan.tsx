@@ -4,12 +4,13 @@ import * as React from 'react';
 import { LumenPlanEditor } from './plan-editor';
 import { LumenPlanReview, type LumenPlanReviewContent } from './plan-review';
 import LumenSurface from './LumenSurface';
-import { LumenButton, LumenText } from './primitives';
+import { LumenButton } from './primitives';
 import './agent-plan.css';
 import './agent-plan-checklist.css';
 import './agent-plan-tree.css';
 import './agent-plan-actual.css';
 import './agent-plan-board.css';
+import './agent-plan-summary.css';
 
 export type LumenAgentPlanListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -167,6 +168,30 @@ export interface LumenAgentPlanSummaryContent {
   readonly tools: readonly string[];
   readonly breakdown: readonly LumenAgentPlanBreakdownRow[];
   readonly listStrategy: LumenAgentPlanListStrategy;
+  /** Optional controlled workflow; omitted hosts retain the legacy action callbacks. */
+  readonly interaction?: {
+    readonly planId: string;
+    readonly editing: boolean;
+    readonly draft: string;
+    readonly running: boolean;
+    readonly step: number;
+    readonly total: number;
+    readonly busy?: boolean;
+    readonly error?: string;
+    readonly labels: {
+      readonly goalInput: string;
+      readonly save: string;
+      readonly cancel: string;
+      readonly stop: string;
+      readonly running: (step: number, total: number) => React.ReactNode;
+    };
+    readonly onEdit: () => void;
+    readonly onDraftChange: (value: string) => void;
+    readonly onSave: () => void;
+    readonly onCancel: () => void;
+    readonly onRun: () => void;
+    readonly onStop: () => void;
+  };
 }
 
 export interface LumenAgentPlanContent {
@@ -261,20 +286,6 @@ function PlanGlyph({
   );
 }
 
-function AgentPlanNumber({ value }: { readonly value: number }) {
-  return (
-    <LumenText
-      as="span"
-      aria-hidden="true"
-      className="hbar-app-ui-agent-plan-number"
-      tone="subtle"
-      variant="code"
-    >
-      {value}
-    </LumenText>
-  );
-}
-
 function AgentPlanProgress({
   value,
   maximum,
@@ -310,7 +321,7 @@ function AgentPlanRoot({
     'lumen-agent-plan',
     'hbar-app-ui-agent-plan-surface',
     `hbar-app-ui-agent-plan-variant-${variant}`,
-    variant >= 1 && variant <= 5 ? 'hbar-app-ui-stage-padding-owner' : '',
+    variant >= 1 && variant <= 6 ? 'hbar-app-ui-stage-padding-owner' : '',
     density ? `hbar-app-ui-density-${density}` : '',
     surface ? `hbar-app-ui-surface-${surface}` : '',
     state ? `hbar-app-ui-state-${state}` : '',
@@ -322,7 +333,7 @@ function AgentPlanRoot({
   return (
     <LumenSurface
       as="section"
-      boundary={variant >= 1 && variant <= 5 ? 'none' : 'horizontal'}
+      boundary={variant >= 1 && variant <= 6 ? 'none' : 'horizontal'}
       className="lumen-agent-plan-root-surface"
       contentClassName={contentClassName}
       data-lumen-component="agent-plan"
@@ -333,43 +344,6 @@ function AgentPlanRoot({
     >
       {children}
     </LumenSurface>
-  );
-}
-
-function AgentPlanPane({
-  strategy,
-  className,
-  children,
-}: {
-  readonly strategy: LumenAgentPlanListStrategy;
-  readonly className: string;
-  readonly children: React.ReactNode;
-}) {
-  return (
-    <main
-      className={className}
-      data-hbar-app-ui-expected-maximum={strategy.expectedMaximum}
-      data-hbar-app-ui-list-strategy={strategy.kind}
-    >
-      {children}
-    </main>
-  );
-}
-
-function PlanHeading({
-  title,
-  detail,
-}: {
-  readonly title: string;
-  readonly detail?: React.ReactNode;
-}) {
-  return (
-    <header className="hbar-app-ui-agent-plan-heading">
-      <LumenText as="h2" variant="heading">
-        {title}
-      </LumenText>
-      {detail}
-    </header>
   );
 }
 
@@ -833,7 +807,7 @@ function PlanBoard(
   const done = sections.reduce((sum, section) => sum + section.done, 0);
   const total = sections.reduce((sum, section) => sum + section.total, 0);
   const boardRef = React.useRef<HTMLDivElement>(null);
-  const edges = usePlanBoardEdges(boardRef, sections);
+  const edges = usePlanScrollEdges(boardRef, sections);
   return (
     <AgentPlanRoot {...props} className="hbar-app-ui-agent-plan-board-surface">
       <header className="lumen-plan-board-heading" role="banner">
@@ -860,7 +834,7 @@ function PlanBoard(
   );
 }
 
-function usePlanBoardEdges(ref: React.RefObject<HTMLElement | null>, records: object) {
+function usePlanScrollEdges(ref: React.RefObject<HTMLElement | null>, records: object) {
   const [edges, setEdges] = React.useState({ top: false, bottom: false });
   React.useEffect(() => {
     const pane = ref.current;
@@ -912,7 +886,7 @@ function PlanBoardColumn({
 }) {
   const items = React.useMemo(() => uniqueLumenAgentPlanItems(section.items), [section.items]);
   const listRef = React.useRef<HTMLOListElement>(null);
-  const edges = usePlanBoardEdges(listRef, items);
+  const edges = usePlanScrollEdges(listRef, items);
   return (
     <section className="lumen-plan-board-column" data-section-id={section.id}>
       <h3>
@@ -959,93 +933,142 @@ function PlanSummary(
     () => uniqueLumenAgentPlanItems(content.breakdown),
     [content.breakdown],
   );
+  const tools = React.useMemo(() => [...new Set(content.tools)], [content.tools]);
+  const interaction = content.interaction;
+  const scroll = React.useRef<HTMLElement>(null);
+  const input = React.useRef<HTMLTextAreaElement>(null);
+  const edges = usePlanScrollEdges(scroll, content);
+  React.useEffect(() => {
+    if (interaction?.editing) input.current?.focus();
+  }, [interaction?.editing]);
   return (
-    <AgentPlanRoot {...props} className="hbar-app-ui-agent-plan-summary">
-      <PlanHeading
-        title={content.labels.title}
-        detail={
-          <LumenText as="span" tone="muted" variant="supporting">
-            {content.labels.stepCount}
-          </LumenText>
-        }
-      />
-      <AgentPlanPane
-        strategy={content.listStrategy}
-        className="hbar-app-ui-agent-plan-summary-body"
-      >
-        <section className="hbar-app-ui-agent-plan-summary-section">
-          <LumenText as="h3" variant="label">
-            {content.labels.goal}
-          </LumenText>
-          <div className="hbar-app-ui-agent-plan-summary-copy">
-            <LumenText as="p" tone="muted">
-              {content.goal}
-            </LumenText>
-          </div>
-        </section>
-        <dl className="hbar-app-ui-agent-plan-metrics">
-          {metrics.map((metric) => (
-            <div key={metric.id}>
-              <LumenText as="dt" tone="muted" variant="supporting">
-                {metric.label}
-              </LumenText>
-              <LumenText as="dd" variant="heading">
-                {metric.value}
-              </LumenText>
-            </div>
-          ))}
-        </dl>
-        <section className="hbar-app-ui-agent-plan-summary-section">
-          <LumenText as="h3" variant="label">
-            {content.labels.tools}
-          </LumenText>
-          <div className="hbar-app-ui-agent-plan-chip-list">
-            <ul>
-              {content.tools.map((tool) => (
-                <li key={tool}>{tool}</li>
-              ))}
-            </ul>
-          </div>
-        </section>
-        <section className="hbar-app-ui-agent-plan-summary-section">
-          <LumenText as="h3" variant="label">
-            {content.labels.breakdown}
-          </LumenText>
-          {breakdown.length > 0 ? (
-            <ul className="hbar-app-ui-agent-plan-breakdown-list">
-              {breakdown.map((row, index) => (
-                <li key={row.id}>
-                  <AgentPlanNumber value={index + 1} />
-                  <span>{row.title}</span>
-                  <span>{row.countLabel}</span>
-                  <span>{row.duration}</span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <LumenText as="p" className="hbar-app-ui-agent-plan-empty" tone="muted">
-              {content.labels.empty}
-            </LumenText>
-          )}
-        </section>
-        <LumenText
-          as="p"
-          className="hbar-app-ui-agent-plan-summary-review"
-          tone="subtle"
-          variant="supporting"
+    <AgentPlanRoot {...props} className="lumen-plan-summary hbar-app-ui-agent-plan-summary">
+      <header className="lumen-plan-summary-heading" role="banner">
+        <h2>{content.labels.title}</h2>
+        <span>{content.labels.stepCount}</span>
+      </header>
+      <div className="lumen-plan-summary-frame">
+        <main
+          ref={scroll}
+          className="lumen-plan-summary-scroll"
+          data-hbar-app-ui-list-strategy={content.listStrategy.kind}
+          data-hbar-app-ui-expected-maximum={content.listStrategy.expectedMaximum}
         >
-          {content.labels.review}
-        </LumenText>
-      </AgentPlanPane>
-      <footer className="hbar-app-ui-agent-plan-summary-footer">
-        <LumenButton variant="outlined" onClick={() => report(onAction, 'edit-plan')}>
-          <PlanGlyph name="edit" />
-          {content.labels.edit}
-        </LumenButton>
-        <LumenButton tone="primary" onClick={() => report(onAction, 'run-plan')}>
-          <PlanGlyph name="play" />
-          {content.labels.run}
-        </LumenButton>
+          <section>
+            <h3>{content.labels.goal}</h3>
+            <div className="lumen-plan-summary-copy">
+              {interaction?.editing ? (
+                <>
+                  <textarea
+                    ref={input}
+                    rows={3}
+                    aria-label={interaction.labels.goalInput}
+                    value={interaction.draft}
+                    disabled={interaction.busy}
+                    onChange={(event) => interaction.onDraftChange(event.currentTarget.value)}
+                  />
+                  <div className="lumen-plan-summary-edit-actions">
+                    <LumenButton
+                      tone="primary"
+                      disabled={interaction.busy}
+                      onClick={interaction.onSave}
+                    >
+                      {interaction.labels.save}
+                    </LumenButton>
+                    <LumenButton disabled={interaction.busy} onClick={interaction.onCancel}>
+                      {interaction.labels.cancel}
+                    </LumenButton>
+                  </div>
+                </>
+              ) : (
+                <p>{content.goal}</p>
+              )}
+              {interaction?.error ? <p role="alert">{interaction.error}</p> : null}
+            </div>
+          </section>
+          <dl className="lumen-plan-summary-metrics">
+            {metrics.map((metric) => (
+              <div key={metric.id}>
+                <dt>{metric.label}</dt>
+                <dd>{metric.value}</dd>
+              </div>
+            ))}
+          </dl>
+          <section>
+            <h3>{content.labels.tools}</h3>
+            <div className="lumen-plan-summary-tools">
+              <ul>
+                {tools.map((tool) => (
+                  <li key={tool}>{tool}</li>
+                ))}
+              </ul>
+            </div>
+          </section>
+          <section>
+            <h3>{content.labels.breakdown}</h3>
+            <ul className="lumen-plan-summary-breakdown">
+              {breakdown.length ? (
+                breakdown.map((row, index) => (
+                  <li key={row.id} data-step-id={row.id}>
+                    <span>{index + 1}</span>
+                    <span>{row.title}</span>
+                    <span>{row.countLabel}</span>
+                    <span>{row.duration}</span>
+                  </li>
+                ))
+              ) : (
+                <li className="lumen-plan-summary-empty">{content.labels.empty}</li>
+              )}
+            </ul>
+          </section>
+        </main>
+        <div
+          aria-hidden="true"
+          className="lumen-plan-summary-edge-overlay is-top"
+          data-visible={edges.top}
+        />
+        <div
+          aria-hidden="true"
+          className="lumen-plan-summary-edge-overlay is-bottom"
+          data-visible={edges.bottom}
+        />
+      </div>
+      <footer className="lumen-plan-summary-footer" role="contentinfo">
+        <p>
+          {interaction?.running
+            ? interaction.labels.running(interaction.step, interaction.total)
+            : content.labels.review}
+        </p>
+        {interaction?.running ? (
+          <LumenButton variant="outlined" disabled={interaction.busy} onClick={interaction.onStop}>
+            <PlanGlyph name="stop" />
+            {interaction.labels.stop}
+          </LumenButton>
+        ) : (
+          <>
+            <LumenButton
+              disabled={interaction?.editing || interaction?.busy}
+              onClick={() => {
+                interaction?.onEdit();
+                report(onAction, 'edit-plan');
+              }}
+            >
+              <PlanGlyph name="edit" />
+              {content.labels.edit}
+            </LumenButton>
+            <LumenButton
+              tone="primary"
+              disabled={interaction?.editing || interaction?.busy}
+              onClick={() => {
+                interaction?.onRun();
+                report(onAction, 'run-plan');
+              }}
+            >
+              <PlanGlyph name="play" />
+              {content.labels.run}
+            </LumenButton>
+          </>
+        )}
       </footer>
     </AgentPlanRoot>
   );

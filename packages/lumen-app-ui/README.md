@@ -193,6 +193,21 @@ while long translated status text can wrap. Running dots pulse and respect
 reduced motion. Three real source/local wheel pairs cover column end, stacked
 middle and stacked end; equivalent columns/positions are inferred, not replayed.
 
+Plan variant 6 keeps three metrics side by side, wraps passive tool chips and
+scrolls the goal/breakdown body independently of the heading and footer. The
+preview uses a pane-scroll contract with an expected bound of 12 breakdown rows;
+over-bound records remain reachable. Long status copy and short hosts remain
+content-safe, while ordinary rows grow from their contents rather than fixed heights.
+
+Its optional `interaction` bundle controls editing, the goal draft, running step,
+busy/error feedback and callbacks. The host owns committed goals and execution
+facts. Edit focuses the labelled textarea and disables the idle footer actions;
+running replaces them with Stop. The preview's isolated Zustand model demonstrates
+trimmed Save, Cancel, whitespace-save preservation, Run/Stop and stale-plan guards.
+No network execution or automatic progress is invented. Omitting this bundle
+retains legacy Edit/Run action callbacks. Nine representative real source/local
+pairs cover distinct outcomes; repeated gestures and passive records are inferred.
+
 `LumenWorkbenchNotice` centers a host-labelled title, description, and optional
 command inside a responsive glass surface. It accepts the shared square or
 rounded geometry while keeping localization and command values in the host.
