@@ -106,6 +106,24 @@ pane, so its last rows remain reachable through the list scroll owner. Export
 only notifies the host; the reference demo has no observed download or success
 feedback, and this component does not fabricate either.
 
+`LumenAgentPlan01` receives a stable `runId`, controlled `paused` state, optional
+`busy` state and a target-ID `onPausedChange` callback. The host supplies all
+seven step descriptions, target/estimate metadata and localized labels; the
+component does not execute or cancel a real job. Its single-open disclosure is
+local presentation state, independent of the running step and live announcement.
+A new run resets disclosure, a removed open step closes it, and duplicate IDs
+retain the first row. The preview owns pause/resume in an isolated Zustand store
+with stale-target and busy/completed-run guards.
+
+The checklist owns its remaining list scroll area. At narrow widths, titles
+ellipsis and detail metadata wrap. An overfull header lets the passive progress
+track shrink so Resume and long localized action labels remain accessible;
+this intentionally avoids the public demo's clipped Resume at a 286px canvas.
+The preview's 35rem minimum height is not imposed on a short host pane. Native
+keyboard focus remains visible. Six representative source/local interaction
+pairs cover distinct mechanisms; equivalent step buttons are inferred, not
+claimed as separately replayed.
+
 `LumenWorkbenchNotice` centers a host-labelled title, description, and optional
 command inside a responsive glass surface. It accepts the shared square or
 rounded geometry while keeping localization and command values in the host.

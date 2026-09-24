@@ -5,6 +5,7 @@ import { LumenPlanEditor, type LumenPlanEditorProps } from './plan-editor';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
 import './agent-plan.css';
+import './agent-plan-checklist.css';
 
 export type LumenAgentPlanListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -25,14 +26,21 @@ export interface LumenAgentPlanStep {
 }
 
 export interface LumenAgentPlanChecklistContent {
+  readonly runId: string;
+  readonly paused: boolean;
+  readonly busy?: boolean | undefined;
+  readonly onPausedChange?: ((runId: string, paused: boolean) => void) | undefined;
   readonly labels: {
     readonly title: string;
     readonly progress: (done: number, total: number) => string;
     readonly stop: string;
+    readonly resume: string;
+    readonly paused: string;
     readonly target: string;
     readonly estimate: string;
     readonly empty: string;
     readonly workingOn: (title: string) => string;
+    readonly pausedOn: (title: string) => string;
   };
   readonly steps: readonly LumenAgentPlanStep[];
   readonly activeStepId?: string | undefined;
@@ -244,7 +252,9 @@ function PlanGlyph({
       {name === 'edit' ? <path d="m3 11-.5 2.5L5 13l7.5-7.5-2-2ZM9.5 4.5l2 2" /> : null}
       {name === 'play' ? <path d="m5 3 8 5-8 5Z" /> : null}
       {name === 'retry' ? <path d="M4 5H1V2m0 3a6 6 0 1 1-1 5" /> : null}
-      {name === 'stop' ? <rect x="4" y="4" width="8" height="8" rx="1" /> : null}
+      {name === 'stop' ? (
+        <rect x="2" y="2" width="12" height="12" rx="1.333" fill="currentColor" />
+      ) : null}
     </svg>
   );
 }
@@ -293,18 +303,10 @@ function AgentPlanProgress({
   const bounded = Math.max(0, Math.min(safeMaximum, Number.isFinite(value) ? value : 0));
   return (
     <div className="hbar-app-ui-agent-plan-progress">
-      <div
-        aria-label={label}
-        aria-valuemax={safeMaximum}
-        aria-valuemin={0}
-        aria-valuenow={bounded}
-        role="progressbar"
-      >
+      <div aria-hidden="true">
         <span style={{ inlineSize: `${(bounded / safeMaximum) * 100}%` }} />
       </div>
-      <LumenText as="span" tone="muted" variant="supporting">
-        {label}
-      </LumenText>
+      <span>{label}</span>
     </div>
   );
 }
@@ -323,6 +325,7 @@ function AgentPlanRoot({
     'lumen-agent-plan',
     'hbar-app-ui-agent-plan-surface',
     `hbar-app-ui-agent-plan-variant-${variant}`,
+    variant === 1 ? 'hbar-app-ui-stage-padding-owner' : '',
     density ? `hbar-app-ui-density-${density}` : '',
     surface ? `hbar-app-ui-surface-${surface}` : '',
     state ? `hbar-app-ui-state-${state}` : '',
@@ -334,7 +337,7 @@ function AgentPlanRoot({
   return (
     <LumenSurface
       as="section"
-      boundary="horizontal"
+      boundary={variant === 1 ? 'none' : 'horizontal'}
       className="lumen-agent-plan-root-surface"
       contentClassName={contentClassName}
       data-lumen-component="agent-plan"
@@ -390,89 +393,129 @@ function ChecklistPlan(
 ) {
   const { content, onAction } = props;
   const steps = React.useMemo(() => uniqueLumenAgentPlanItems(content.steps), [content.steps]);
-  const firstActive = selectLumenAgentPlanItem(steps, content.activeStepId)?.id;
-  const [activeStepId, setActiveStepId] = React.useState<string | undefined>(firstActive);
-  const [stopped, setStopped] = React.useState(false);
-  const activeStep = selectLumenAgentPlanItem(steps, activeStepId);
+  const [openId, setOpenId] = React.useState<string | undefined>(
+    () => selectLumenAgentPlanItem(steps, content.activeStepId)?.id,
+  );
+  const runningStep = steps.find((step) => step.state === 'running');
+  const list = React.useRef<HTMLOListElement>(null);
+  const [edges, setEdges] = React.useState({ top: false, bottom: false });
+  React.useEffect(() => {
+    if (openId !== undefined && !steps.some((step) => step.id === openId)) setOpenId(undefined);
+  }, [steps, openId]);
+  React.useEffect(() => {
+    const pane = list.current;
+    if (!pane) return undefined;
+    const update = () => {
+      const next = {
+        top: pane.scrollTop > 1,
+        bottom: pane.scrollHeight - pane.clientHeight - pane.scrollTop > 1,
+      };
+      setEdges((previous) =>
+        previous.top === next.top && previous.bottom === next.bottom ? previous : next,
+      );
+    };
+    const observer = new ResizeObserver(update);
+    observer.observe(pane);
+    pane.addEventListener('scroll', update, { passive: true });
+    return () => {
+      observer.disconnect();
+      pane.removeEventListener('scroll', update);
+    };
+  }, []);
   const done = steps.filter((step) => step.state === 'done').length;
   const progressLabel = content.labels.progress(done, steps.length);
 
   return (
     <AgentPlanRoot {...props} className="hbar-app-ui-agent-plan-checklist">
-      <PlanHeading
-        title={content.labels.title}
-        detail={
-          <div className="hbar-app-ui-agent-plan-heading-actions">
-            <AgentPlanProgress value={done} maximum={steps.length} label={progressLabel} />
-            <LumenButton
-              variant="outlined"
-              disabled={stopped}
-              onClick={() => {
-                setStopped(true);
-                report(onAction, 'stop-plan');
-              }}
-            >
-              <PlanGlyph name="stop" />
-              {content.labels.stop}
-            </LumenButton>
-          </div>
-        }
-      />
-      <AgentPlanPane
-        strategy={content.listStrategy}
+      <header className="hbar-app-ui-agent-plan-checklist-heading" role="banner">
+        <h2>{content.labels.title}</h2>
+        <AgentPlanProgress value={done} maximum={steps.length} label={progressLabel} />
+        <LumenButton
+          variant="outlined"
+          disabled={content.busy || !runningStep}
+          onClick={() => {
+            content.onPausedChange?.(content.runId, !content.paused);
+            report(onAction, content.paused ? 'resume-plan' : 'stop-plan', content.runId);
+          }}
+        >
+          <PlanGlyph name={content.paused ? 'play' : 'stop'} />
+          {content.paused ? content.labels.resume : content.labels.stop}
+        </LumenButton>
+      </header>
+      <p className="hbar-app-ui-agent-plan-checklist-announcement" aria-live="polite">
+        {runningStep
+          ? content.paused
+            ? content.labels.pausedOn(runningStep.title)
+            : content.labels.workingOn(runningStep.title)
+          : null}
+      </p>
+      <div
         className="hbar-app-ui-agent-plan-checklist-pane"
+        data-hbar-app-ui-expected-maximum={content.listStrategy.expectedMaximum}
+        data-hbar-app-ui-list-strategy={content.listStrategy.kind}
       >
-        <section aria-label={activeStep ? content.labels.workingOn(activeStep.title) : undefined}>
-          {steps.length > 0 ? (
-            <ol>
-              {steps.map((step, index) => {
-                const active = step.id === activeStep?.id;
-                return (
-                  <li className={active ? 'is-active' : ''} key={step.id}>
-                    <LumenButton
-                      variant="text"
-                      aria-pressed={active}
-                      onClick={() => {
-                        setActiveStepId(step.id);
-                        report(onAction, 'select-plan-step', step.id);
-                      }}
-                    >
-                      <AgentPlanNumber value={index + 1} />
-                      <span className="hbar-app-ui-agent-plan-step-title">{step.title}</span>
-                      <AgentPlanStatus state={step.state} label={step.stateLabel} />
-                    </LumenButton>
-                    {active && (step.detail || step.target || step.estimate) ? (
-                      <div className="hbar-app-ui-agent-plan-step-detail">
-                        {step.detail ? <p>{step.detail}</p> : null}
-                        {step.target || step.estimate ? (
-                          <dl>
-                            {step.target ? (
-                              <div>
-                                <dt>{content.labels.target}</dt>
-                                <dd>{step.target}</dd>
-                              </div>
-                            ) : null}
-                            {step.estimate ? (
-                              <div>
-                                <dt>{content.labels.estimate}</dt>
-                                <dd>{step.estimate}</dd>
-                              </div>
-                            ) : null}
-                          </dl>
-                        ) : null}
-                      </div>
-                    ) : null}
-                  </li>
-                );
-              })}
-            </ol>
-          ) : (
-            <LumenText as="p" className="hbar-app-ui-agent-plan-empty" tone="muted">
-              {content.labels.empty}
-            </LumenText>
-          )}
-        </section>
-      </AgentPlanPane>
+        <div className="hbar-app-ui-agent-plan-checklist-scroll-frame">
+          <ol ref={list} hidden={steps.length === 0}>
+            {steps.map((step, index) => {
+              const open = step.id === openId;
+              const state = step.state === 'running' && content.paused ? 'paused' : step.state;
+              return (
+                <li data-state={state} key={step.id}>
+                  <LumenButton
+                    variant="text"
+                    aria-expanded={open}
+                    onClick={() => {
+                      setOpenId((previous) => (previous === step.id ? undefined : step.id));
+                      report(onAction, 'select-plan-step', step.id);
+                    }}
+                  >
+                    <span className="hbar-app-ui-agent-plan-checklist-number">{index + 1}</span>
+                    <span className="hbar-app-ui-agent-plan-step-title">{step.title}</span>
+                    <span className="hbar-app-ui-agent-plan-checklist-status">
+                      <span aria-hidden="true" />
+                      <span>{state === 'paused' ? content.labels.paused : step.stateLabel}</span>
+                    </span>
+                  </LumenButton>
+                  {open && (step.detail || step.target || step.estimate) ? (
+                    <div className="hbar-app-ui-agent-plan-step-detail">
+                      {step.detail ? <p>{step.detail}</p> : null}
+                      {step.target || step.estimate ? (
+                        <dl>
+                          {step.target ? (
+                            <div>
+                              <dt>{content.labels.target}</dt>
+                              <dd>{step.target}</dd>
+                            </div>
+                          ) : null}
+                          {step.estimate ? (
+                            <div>
+                              <dt>{content.labels.estimate}</dt>
+                              <dd>{step.estimate}</dd>
+                            </div>
+                          ) : null}
+                        </dl>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ol>
+          {steps.length === 0 ? (
+            <p className="hbar-app-ui-agent-plan-empty">{content.labels.empty}</p>
+          ) : null}
+          <div
+            aria-hidden="true"
+            className="hbar-app-ui-agent-plan-checklist-edge-overlay is-top"
+            data-visible={edges.top}
+          />
+          <div
+            aria-hidden="true"
+            className="hbar-app-ui-agent-plan-checklist-edge-overlay is-bottom"
+            data-visible={edges.bottom}
+          />
+        </div>
+      </div>
     </AgentPlanRoot>
   );
 }
@@ -885,7 +928,7 @@ export function LumenAgentPlan(props: LumenAgentPlanProps) {
   switch (props.variant) {
     case 1:
       return content?.checklist ? (
-        <ChecklistPlan {...props} content={content.checklist} />
+        <ChecklistPlan {...props} content={content.checklist} key={content.checklist.runId} />
       ) : (
         emptyPlan(props)
       );
