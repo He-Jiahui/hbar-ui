@@ -72,26 +72,11 @@
 .lumen-plan-summary-tools {
   padding: 1rem;
 }
-.lumen-plan-summary-copy > p,
-.lumen-plan-summary-copy textarea {
+.lumen-plan-summary-copy > p {
   color: var(--lumen-muted);
   font-size: 0.8125rem;
   line-height: 1.3203125rem;
   overflow-wrap: anywhere;
-}
-.lumen-plan-summary-copy textarea {
-  inline-size: 100%;
-  resize: none;
-  padding: 0.5rem 0.75rem;
-  border: 0.0625rem solid var(--lumen-line);
-  border-radius: 0.5rem;
-  background: var(--lumen-contrast);
-  color: var(--lumen-ink);
-  font-family: inherit;
-}
-.lumen-plan-summary-copy textarea:focus-visible {
-  outline: none;
-  border-color: var(--lumen-ink);
 }
 .lumen-plan-summary-edit-actions {
   display: flex;

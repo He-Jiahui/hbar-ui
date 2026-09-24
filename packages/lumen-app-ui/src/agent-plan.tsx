@@ -5,6 +5,7 @@ import { LumenPlanEditor } from './plan-editor';
 import { LumenPlanReview, type LumenPlanReviewContent } from './plan-review';
 import LumenSurface from './LumenSurface';
 import { LumenButton } from './primitives';
+import { LumenTextarea } from './forms';
 import './agent-plan.css';
 import './agent-plan-checklist.css';
 import './agent-plan-tree.css';
@@ -959,7 +960,7 @@ function PlanSummary(
             <div className="lumen-plan-summary-copy">
               {interaction?.editing ? (
                 <>
-                  <textarea
+                  <LumenTextarea
                     ref={input}
                     rows={3}
                     aria-label={interaction.labels.goalInput}
