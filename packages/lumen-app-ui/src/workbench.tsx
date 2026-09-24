@@ -338,7 +338,6 @@ export function LumenActionMenu<ActionId extends string = string>({
 }: LumenActionMenuProps<ActionId>) {
   return (
     // Native details owns the toggle and Escape interaction for this disclosed menu.
-    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <details
       className="lumen-action-menu hbar-app-ui-action-menu"
       onToggle={(event) => {

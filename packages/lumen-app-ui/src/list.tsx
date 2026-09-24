@@ -1194,7 +1194,8 @@ function empty(props: LumenListProps) {
 }
 
 export function LumenList(props: LumenListProps) {
-  const content = props.content ?? useLumenListContent();
+  const inheritedContent = useLumenListContent();
+  const content = props.content ?? inheritedContent;
   if (props.variant === 1)
     return content?.metrics ? <Metrics {...props} content={content.metrics} /> : empty(props);
   if (props.variant === 2)

@@ -985,7 +985,8 @@ function empty(props: LumenFilteringProps) {
   return <Root {...props}>{null}</Root>;
 }
 export function LumenFiltering(props: LumenFilteringProps) {
-  const content = props.content ?? useLumenFilteringContent();
+  const inheritedContent = useLumenFilteringContent();
+  const content = props.content ?? inheritedContent;
   if (props.variant === 1)
     return content?.product ? <Product {...props} content={content.product} /> : empty(props);
   if (props.variant === 2)

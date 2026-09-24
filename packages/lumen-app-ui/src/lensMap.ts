@@ -24,8 +24,8 @@ export default function createLensMap(width: number, height: number, radius: num
       const cornerDistance = Math.hypot(dx, dy);
       const distances = [x, w - 1 - x, y, h - 1 - y];
       const distance = cornerDistance > 0 ? r - cornerDistance : Math.min(...distances);
-      let nx = 0;
-      let ny = 0;
+      let nx: number;
+      let ny: number;
       if (cornerDistance > 0) {
         nx = dx / cornerDistance;
         ny = dy / cornerDistance;

@@ -68,7 +68,8 @@ function empty(props: LumenNavbarProps) {
   );
 }
 export function LumenNavbar(props: LumenNavbarProps) {
-  const c = props.content ?? useLumenNavbarContent(),
+  const inheritedContent = useLumenNavbarContent();
+  const c = props.content ?? inheritedContent,
     p = composition(props);
   if (props.variant === 1)
     return c?.projectBoard ? <ProjectBoardNavbar {...p} content={c.projectBoard} /> : empty(props);

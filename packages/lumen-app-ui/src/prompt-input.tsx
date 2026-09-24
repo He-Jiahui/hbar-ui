@@ -821,7 +821,8 @@ function empty(props: LumenPromptInputProps) {
 }
 
 export function LumenPromptInput(props: LumenPromptInputProps) {
-  const content = props.content ?? useLumenPromptInputContent();
+  const inheritedContent = useLumenPromptInputContent();
+  const content = props.content ?? inheritedContent;
   if (props.variant === 1) return <Controlled {...props} />;
   if (!content) return empty(props);
   if (props.variant === 2)

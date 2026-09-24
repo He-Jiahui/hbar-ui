@@ -919,7 +919,8 @@ function empty(props: LumenAppDialogProps) {
   return <Root {...props}>{null}</Root>;
 }
 export function LumenAppDialog(props: LumenAppDialogProps) {
-  const content = props.content ?? useLumenAppDialogContent();
+  const inheritedContent = useLumenAppDialogContent();
+  const content = props.content ?? inheritedContent;
   if (props.variant === 1)
     return content?.plan ? <Plan {...props} content={content.plan} /> : empty(props);
   if (props.variant === 2)

@@ -957,7 +957,9 @@ export function LumenCompactUsage({
     case 'positive':
       mappedTone = 'success';
       break;
-    default:
+    case 'neutral':
+    case 'warning':
+    case 'danger':
       mappedTone = tone;
   }
   if (density === 'inline') {

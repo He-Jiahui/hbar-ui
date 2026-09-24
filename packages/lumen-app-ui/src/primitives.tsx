@@ -5,8 +5,6 @@ import type { LumenShape, LumenSize } from './appearance';
 import LumenIndicator, { type LumenState, type LumenTone } from './LumenIndicator';
 import styles from './primitives.module.css';
 
-/* eslint-disable react/button-has-type -- Public button types are restricted by the typed primitive contract. */
-
 export type LumenActionVariant = 'solid' | 'outlined' | 'text';
 export type LumenActionTone = 'neutral' | 'primary' | 'success' | 'warning' | 'danger';
 

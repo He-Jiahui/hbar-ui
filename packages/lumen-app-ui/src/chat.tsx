@@ -812,7 +812,8 @@ function empty(props: LumenChatProps) {
 }
 
 export function LumenChat(props: LumenChatProps) {
-  const content = props.content ?? useLumenChatContent();
+  const inheritedContent = useLumenChatContent();
+  const content = props.content ?? inheritedContent;
   if (props.variant === 1)
     return content?.team ? <Team {...props} content={content.team} /> : empty(props);
   if (props.variant === 2)

@@ -69,7 +69,8 @@ function empty(props: LumenBillingProps) {
 }
 
 export function LumenBilling(props: LumenBillingProps) {
-  const content = props.content ?? useLumenBillingContent();
+  const inheritedContent = useLumenBillingContent();
+  const content = props.content ?? inheritedContent;
   const composition = compositionProps(props);
   if (props.variant === 1)
     return content?.statement ? (

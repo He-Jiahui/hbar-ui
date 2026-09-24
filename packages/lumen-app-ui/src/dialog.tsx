@@ -84,7 +84,6 @@ export function LumenDialog({
 
   return (
     // Native dialog owns modal pointer and keyboard interaction semantics.
-    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <dialog
       ref={connect}
       className={[

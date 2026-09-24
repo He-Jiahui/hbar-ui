@@ -908,7 +908,8 @@ function empty(props: LumenCardProps) {
 }
 
 export function LumenCard(props: LumenCardProps) {
-  const content = props.content ?? useLumenCardContent();
+  const inheritedContent = useLumenCardContent();
+  const content = props.content ?? inheritedContent;
   if (props.variant === 1)
     return content?.member ? <Member {...props} content={content.member} /> : empty(props);
   if (props.variant === 2)

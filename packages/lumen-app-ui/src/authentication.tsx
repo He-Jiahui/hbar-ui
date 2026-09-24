@@ -78,7 +78,8 @@ function empty(props: LumenAuthenticationProps) {
 }
 
 export function LumenAuthentication(props: LumenAuthenticationProps) {
-  const content = props.content ?? useLumenAuthenticationContent();
+  const inheritedContent = useLumenAuthenticationContent();
+  const content = props.content ?? inheritedContent;
   const composition = compositionProps(props);
   if (props.variant === 1)
     return content?.signIn ? (

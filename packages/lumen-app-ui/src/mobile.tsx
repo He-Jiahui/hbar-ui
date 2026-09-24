@@ -714,7 +714,8 @@ function empty(props: LumenMobileProps) {
   return <Root {...props}>{null}</Root>;
 }
 export function LumenMobile(props: LumenMobileProps) {
-  const content = props.content ?? useLumenMobileContent();
+  const inheritedContent = useLumenMobileContent();
+  const content = props.content ?? inheritedContent;
   if (props.variant === 1)
     return content?.activity ? <Activity {...props} content={content.activity} /> : empty(props);
   if (props.variant === 2)

@@ -970,7 +970,8 @@ function empty(props: LumenSchedulingProps) {
 }
 
 export function LumenScheduling(props: LumenSchedulingProps) {
-  const content = props.content ?? useLumenSchedulingContent();
+  const inheritedContent = useLumenSchedulingContent();
+  const content = props.content ?? inheritedContent;
   if (props.variant === 1)
     return content?.month ? <Month {...props} content={content.month} /> : empty(props);
   if (props.variant === 2)

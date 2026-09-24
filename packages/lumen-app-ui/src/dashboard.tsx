@@ -1158,7 +1158,8 @@ function empty(props: LumenDashboardProps) {
   return <Root {...props}>{null}</Root>;
 }
 export function LumenDashboard(props: LumenDashboardProps) {
-  const content = props.content ?? useLumenDashboardContent();
+  const inheritedContent = useLumenDashboardContent();
+  const content = props.content ?? inheritedContent;
   if (props.variant === 1)
     return content?.overview ? <Overview {...props} content={content.overview} /> : empty(props);
   if (props.variant === 2)

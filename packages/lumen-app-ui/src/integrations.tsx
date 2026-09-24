@@ -70,7 +70,8 @@ function empty(props: LumenIntegrationsProps) {
 }
 
 export function LumenIntegrations(props: LumenIntegrationsProps) {
-  const content = props.content ?? useLumenIntegrationContent();
+  const inheritedContent = useLumenIntegrationContent();
+  const content = props.content ?? inheritedContent;
   const composition = compositionProps(props);
   if (props.variant === 1)
     return content?.marketplace ? (

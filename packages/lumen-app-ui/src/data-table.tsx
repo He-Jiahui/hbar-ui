@@ -944,7 +944,8 @@ function empty(props: LumenDataTableProps) {
 }
 
 export function LumenDataTable(props: LumenDataTableProps) {
-  const content = props.content ?? useLumenDataTableContent();
+  const inheritedContent = useLumenDataTableContent();
+  const content = props.content ?? inheritedContent;
   if (!content) return empty(props);
   const rows = uniqueLumenDataTableItems(content.rows);
   if (props.variant === 1)

@@ -691,7 +691,8 @@ function empty(props: LumenOnboardingProps) {
   return <Root {...props}>{null}</Root>;
 }
 export function LumenOnboarding(props: LumenOnboardingProps) {
-  const content = props.content ?? useLumenOnboardingContent();
+  const inheritedContent = useLumenOnboardingContent();
+  const content = props.content ?? inheritedContent;
   if (props.variant === 1)
     return content?.profile ? <Profile {...props} content={content.profile} /> : empty(props);
   if (props.variant === 2)

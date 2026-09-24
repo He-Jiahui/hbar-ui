@@ -598,12 +598,11 @@ function Suggestions(
 ) {
   const { content, onAction } = props;
   const suggestions = uniqueLumenEditorItems(content.suggestions);
-  const ids = new Set(suggestions.map((item) => item.id));
   const [resolved, setResolved] = React.useState<ReadonlySet<string>>(() => new Set());
-  React.useEffect(
-    () => setResolved((current) => new Set([...current].filter((id) => ids.has(id)))),
-    [content.suggestions],
-  );
+  React.useEffect(() => {
+    const ids = new Set(content.suggestions.map((item) => item.id));
+    setResolved((current) => new Set([...current].filter((id) => ids.has(id))));
+  }, [content.suggestions]);
   const remaining = suggestions.filter((item) => !resolved.has(item.id));
   const resolve = (item: LumenSuggestion, action: LumenSuggestionAction | 'dismiss') => {
     setResolved((current) => new Set(current).add(item.id));
@@ -831,7 +830,8 @@ function empty(props: LumenEditorProps) {
   );
 }
 export function LumenEditor(props: LumenEditorProps) {
-  const content = props.content ?? useLumenEditorContent();
+  const inheritedContent = useLumenEditorContent();
+  const content = props.content ?? inheritedContent;
   if (props.variant === 1)
     return content?.richText ? <RichText {...props} content={content.richText} /> : empty(props);
   if (props.variant === 2)

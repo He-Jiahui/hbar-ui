@@ -1101,7 +1101,8 @@ function empty(props: LumenFormsProps) {
   return <Root {...props}>{null}</Root>;
 }
 export function LumenForms(props: LumenFormsProps) {
-  const content = props.content ?? useLumenFormsContent();
+  const inheritedContent = useLumenFormsContent();
+  const content = props.content ?? inheritedContent;
   if (props.variant === 1)
     return content?.record ? <RecordForm {...props} content={content.record} /> : empty(props);
   if (props.variant === 2)

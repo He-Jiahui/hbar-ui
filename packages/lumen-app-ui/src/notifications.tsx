@@ -1032,7 +1032,8 @@ function empty(props: LumenNotificationsProps) {
   return <Root {...props}>{null}</Root>;
 }
 export function LumenNotifications(props: LumenNotificationsProps) {
-  const content = props.content ?? useLumenNotificationsContent();
+  const inheritedContent = useLumenNotificationsContent();
+  const content = props.content ?? inheritedContent;
   if (props.variant === 1)
     return content?.center ? <Center {...props} content={content.center} /> : empty(props);
   if (props.variant === 2)

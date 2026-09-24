@@ -1017,7 +1017,8 @@ function empty(props: LumenMonitoringProps) {
   return <Root {...props}>{null}</Root>;
 }
 export function LumenMonitoring(props: LumenMonitoringProps) {
-  const content = props.content ?? useLumenMonitoringContent();
+  const inheritedContent = useLumenMonitoringContent();
+  const content = props.content ?? inheritedContent;
   if (props.variant === 1)
     return content?.health ? <Health {...props} content={content.health} /> : empty(props);
   if (props.variant === 2)

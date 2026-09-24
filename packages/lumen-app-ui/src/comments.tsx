@@ -581,7 +581,8 @@ function empty(props: LumenCommentsProps) {
   return <Root {...props}>{null}</Root>;
 }
 export function LumenComments(props: LumenCommentsProps) {
-  const c = props.content ?? useLumenCommentsContent();
+  const inheritedContent = useLumenCommentsContent();
+  const c = props.content ?? inheritedContent;
   if (props.variant === 1)
     return c?.discussion ? <Discussion {...props} content={c.discussion} /> : empty(props);
   if (props.variant === 2)

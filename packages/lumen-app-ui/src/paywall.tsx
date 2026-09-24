@@ -771,7 +771,8 @@ function empty(props: LumenPaywallProps) {
 }
 
 export function LumenPaywall(props: LumenPaywallProps) {
-  const content = props.content ?? useLumenPaywallContent();
+  const inheritedContent = useLumenPaywallContent();
+  const content = props.content ?? inheritedContent;
   if (props.variant === 1)
     return content?.article ? <Article {...props} content={content.article} /> : empty(props);
   if (props.variant === 2)

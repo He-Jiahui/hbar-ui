@@ -1336,7 +1336,8 @@ function empty(props: LumenAnalyticsProps) {
   return <Root {...props}>{null}</Root>;
 }
 export function LumenAnalytics(props: LumenAnalyticsProps) {
-  const content = props.content ?? useLumenAnalyticsContent();
+  const inheritedContent = useLumenAnalyticsContent();
+  const content = props.content ?? inheritedContent;
   if (props.variant === 1)
     return content?.range ? <Range {...props} content={content.range} /> : empty(props);
   if (props.variant === 2)
