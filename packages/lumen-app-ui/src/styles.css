@@ -1,5 +1,14 @@
 @import './forms.css';
 
+/* Canonical defaults also serve compatibility class names without a hbar host. */
+:root {
+  --hbar-app-ui-icon-xs: 0.75rem;
+  --hbar-app-ui-icon-sm: 0.875rem;
+  --hbar-app-ui-icon-md: 1rem;
+  --hbar-app-ui-icon-lg: 1.25rem;
+  --hbar-app-ui-icon-xl: 1.5rem;
+}
+
 /* Scoped tokens for hosts that render Lumen composition components. */
 [data-lumen-mode='dark'] {
   --lumen-ink: #eee;

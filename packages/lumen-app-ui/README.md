@@ -7,6 +7,12 @@ import `@lumen/app-ui/styles.css` once in the host application. Material UI
 provides the interaction primitives. The package does not depend on hbar's
 runtime or preview application.
 
+The public stylesheet includes the base appearance tokens and the shared
+`xs/sm/md/lg/xl` icon scale (12/14/16/20/24px at a 16px root font). Compatibility
+icon classes keep their existing `--hbar-app-ui-icon-*` names, but Lumen owns
+their defaults; hosts do not need hbar's stylesheet. Root font scaling and
+scoped host overrides continue to apply to these semantic tiers.
+
 Application roots should use `LumenProvider` with a host-owned
 `LumenAppearance`. The provider projects the resolved mode, control size, text
 size, corner size, square or rounded shape, glow intensity, and motion setting

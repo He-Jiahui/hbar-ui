@@ -6,6 +6,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import { normalizeLumenGlow, type LumenAppearance } from './appearance';
 import createLumenTheme from './theme';
 import styles from './provider.module.css';
+import './styles.css';
 
 export interface LumenProviderProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
   appearance: Readonly<LumenAppearance>;
