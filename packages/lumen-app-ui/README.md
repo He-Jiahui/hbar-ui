@@ -48,6 +48,19 @@ feedback. `LumenNavigationButton` adds the selected indicator and standard
 `aria-current="page"` semantics. `LumenText` and `LumenStatus` provide the same
 semantic text and status colors without owning any visible copy.
 
+`LumenAgentApproval03` renders a host-controlled, ordered approval queue.
+Supply `labels.waiting(count)`, `hideRequest`, per-request `requestText`, typed
+outcome labels, and `onDecision(id, decision)`. The component reports the stable
+request ID but does not execute a tool or mark a request approved by itself.
+Update the corresponding `pending` row to its confirmed state in place; the
+first remaining `needs-approval`/`queued` row is promoted, starts collapsed,
+and the count is derived from the rows. Keep `busyId` set while awaiting host
+confirmation. An optional `announcement` carries the host's localized result.
+The preview host uses a separate Zustand model to simulate these decisions;
+its demo outcomes are not claims of a real server action. The queue owns its
+remaining-height pane scroll; `expectedMaximum` describes expected fixture or
+host capacity, never a silent item-drop limit.
+
 `LumenWorkbenchNotice` centers a host-labelled title, description, and optional
 command inside a responsive glass surface. It accepts the shared square or
 rounded geometry while keeping localization and command values in the host.

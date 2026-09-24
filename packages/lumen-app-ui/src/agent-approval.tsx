@@ -7,6 +7,7 @@ import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
 import './agent-approval.css';
 import './agent-approval-diff.css';
+import './agent-approval-queue.css';
 
 export type LumenAgentApprovalListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -96,20 +97,36 @@ export interface LumenAgentApprovalQueueItem {
   readonly stateLabel: string;
   readonly when: string;
   readonly expandable: boolean;
+  readonly requestText?: string | undefined;
 }
 
 export interface LumenAgentApprovalQueueContent {
   readonly labels: {
     readonly title: string;
-    readonly waiting: string;
+    readonly waiting: (count: number) => string;
     readonly separator: string;
     readonly status: string;
     readonly showRequest: string;
+    readonly hideRequest: string;
     readonly reject: string;
     readonly approve: string;
   };
   readonly pending: readonly LumenAgentApprovalQueueItem[];
   readonly history: readonly LumenAgentApprovalQueueItem[];
+  /** Ordered request rows remain in place after the host confirms a decision. */
+  readonly onDecision: (id: string, decision: 'approved' | 'rejected') => void;
+  readonly announcement?: string | undefined;
+  readonly busyId?: string | undefined;
+  readonly outcomes: Readonly<
+    Record<
+      'approved' | 'rejected',
+      {
+        readonly stateLabel: string;
+        readonly when: string;
+        readonly announcement: string;
+      }
+    >
+  >;
   readonly listStrategy: LumenAgentApprovalListStrategy;
 }
 
@@ -358,7 +375,7 @@ function ApprovalRoot({
   return (
     <LumenSurface
       as="section"
-      boundary={variant <= 2 ? 'none' : 'horizontal'}
+      boundary={variant <= 3 ? 'none' : 'horizontal'}
       className="lumen-agent-approval-surface"
       contentClassName={contentClassName}
       data-lumen-component="agent-approval"
@@ -655,11 +672,85 @@ function DiffApproval(
 
 function QueueRow({ item }: { readonly item: LumenAgentApprovalQueueItem }) {
   return (
-    <li className="hbar-app-ui-agent-approval-queue-compact-row">
-      <StateMark state={item.state} />
-      <strong>{item.title}</strong>
-      <ApprovalStatus state={item.state} label={item.stateLabel} />
-      <time>{item.when}</time>
+    <li data-hbar-app-ui-item-id={item.id} data-hbar-app-ui-state={item.state}>
+      <div className="hbar-app-ui-agent-approval-queue-compact-row">
+        <StateMark state={item.state} />
+        <p>{item.title}</p>
+        <span className="hbar-app-ui-agent-approval-queue-row-status">{item.stateLabel}</span>
+        <span className="hbar-app-ui-agent-approval-queue-row-time">{item.when}</span>
+      </div>
+    </li>
+  );
+}
+
+function QueueRequest({
+  item,
+  content,
+  onAction,
+}: {
+  readonly item: LumenAgentApprovalQueueItem;
+  readonly content: LumenAgentApprovalQueueContent;
+  readonly onAction: LumenAgentApprovalProps['onAction'];
+}) {
+  const [open, setOpen] = React.useState(false);
+  const decide = (value: 'approved' | 'rejected') => {
+    if (content.busyId === item.id) return;
+    content.onDecision(item.id, value);
+    report(onAction, value === 'approved' ? 'approve-queue-item' : 'reject-queue-item', item.id);
+  };
+  return (
+    <li data-hbar-app-ui-item-id={item.id} data-hbar-app-ui-state="needs-approval">
+      <div className="hbar-app-ui-agent-approval-queue-featured">
+        <div className="hbar-app-ui-agent-approval-queue-summary">
+          <div className="hbar-app-ui-agent-approval-queue-status">
+            <StateMark state="needs-approval" />
+            <span>{content.labels.status}</span>
+          </div>
+          <p className="hbar-app-ui-agent-approval-queue-title">{item.title}</p>
+          <p>{item.detail}</p>
+        </div>
+        <div className="hbar-app-ui-agent-approval-queue-actions">
+          <div className="hbar-app-ui-agent-approval-queue-buttons">
+            {item.expandable && item.requestText !== undefined ? (
+              <LumenButton
+                variant="text"
+                aria-expanded={open}
+                data-hbar-app-ui-action="toggle-queue-request"
+                onClick={() => {
+                  setOpen((value) => !value);
+                  report(onAction, 'toggle-queue-request', item.id);
+                }}
+              >
+                <ApprovalGlyph name={open ? 'chevron-down' : 'chevron'} />
+                {open ? content.labels.hideRequest : content.labels.showRequest}
+              </LumenButton>
+            ) : null}
+            <div>
+              <LumenButton
+                variant="outlined"
+                disabled={content.busyId === item.id}
+                data-hbar-app-ui-action="reject-queue-item"
+                onClick={() => decide('rejected')}
+              >
+                {content.labels.reject}
+              </LumenButton>
+              <LumenButton
+                tone="primary"
+                disabled={content.busyId === item.id}
+                data-hbar-app-ui-action="approve-queue-item"
+                onClick={() => decide('approved')}
+              >
+                {content.labels.approve}
+              </LumenButton>
+            </div>
+          </div>
+          {open && item.expandable && item.requestText !== undefined ? (
+            <pre tabIndex={0} className="hbar-app-ui-agent-approval-queue-payload">
+              {item.requestText}
+            </pre>
+          ) : null}
+        </div>
+      </div>
     </li>
   );
 }
@@ -672,78 +763,54 @@ function QueueApproval(
     () => uniqueLumenAgentApprovalItems(content.pending),
     [content.pending],
   );
-  const history = React.useMemo(
-    () => uniqueLumenAgentApprovalItems(content.history),
-    [content.history],
+  const rows = uniqueLumenAgentApprovalItems([...pending, ...content.history]);
+  const waiting = pending.filter(
+    (item) => item.state === 'needs-approval' || item.state === 'queued',
   );
-  const first = pending[0];
-  const [openId, setOpenId] = React.useState<string | undefined>(first?.id);
-  const [decisionId, setDecisionId] = React.useState<string>();
-  const decide = (id: string, value: 'approve' | 'reject') => {
-    setDecisionId(id);
-    report(onAction, value === 'approve' ? 'approve-queue-item' : 'reject-queue-item', id);
-  };
+  const first = waiting[0];
+  const { scrollPane, scrollEdges } = useApprovalScrollEdges();
   return (
     <ApprovalRoot {...props} className="hbar-app-ui-agent-approval-queue">
-      <header className="hbar-app-ui-agent-approval-global-heading">
+      <header className="hbar-app-ui-agent-approval-queue-heading" role="banner">
         <LumenText as="h2" variant="heading">
           {content.labels.title}
         </LumenText>
         <span>
-          <StateMark state="needs-approval" />
-          {content.labels.waiting}
+          <StateMark state={waiting.length > 0 ? 'needs-approval' : 'skipped'} />
+          {content.labels.waiting(waiting.length)}
         </span>
       </header>
-      <Pane strategy={content.listStrategy} className="hbar-app-ui-agent-approval-queue-pane">
-        <ul>
-          {first ? (
-            <li className="hbar-app-ui-agent-approval-queue-featured">
-              <section className="hbar-app-ui-agent-approval-card-content">
-                <ApprovalStatus state={first.state} label={first.stateLabel} />
-                <LumenText as="h2" variant="heading">
-                  {first.title}
-                </LumenText>
-                <p>{first.detail}</p>
-              </section>
-              <footer className="hbar-app-ui-agent-approval-action-row">
-                <LumenButton
-                  variant="text"
-                  aria-expanded={openId === first.id}
-                  onClick={() => {
-                    setOpenId((current) => (current === first.id ? undefined : first.id));
-                    report(onAction, 'toggle-queue-request', first.id);
-                  }}
-                >
-                  <ApprovalGlyph name="chevron" />
-                  {content.labels.showRequest}
-                </LumenButton>
-                <div>
-                  <LumenButton
-                    variant="outlined"
-                    disabled={decisionId === first.id}
-                    onClick={() => decide(first.id, 'reject')}
-                  >
-                    {content.labels.reject}
-                  </LumenButton>
-                  <LumenButton
-                    tone="primary"
-                    disabled={decisionId === first.id}
-                    onClick={() => decide(first.id, 'approve')}
-                  >
-                    {content.labels.approve}
-                  </LumenButton>
-                </div>
-              </footer>
-            </li>
-          ) : null}
-          {pending.slice(1).map((item) => (
-            <QueueRow item={item} key={item.id} />
-          ))}
-          {history.map((item) => (
-            <QueueRow item={item} key={item.id} />
-          ))}
-        </ul>
-      </Pane>
+      <div className="hbar-app-ui-agent-approval-queue-scroll-frame">
+        <div
+          ref={scrollPane}
+          className="hbar-app-ui-agent-approval-queue-pane"
+          data-hbar-app-ui-expected-maximum={content.listStrategy.expectedMaximum}
+          data-hbar-app-ui-list-strategy={content.listStrategy.kind}
+        >
+          <ul>
+            {rows.map((item) =>
+              item.id !== first?.id ? (
+                <QueueRow item={item} key={item.id} />
+              ) : (
+                <QueueRequest item={item} content={content} onAction={onAction} key={item.id} />
+              ),
+            )}
+          </ul>
+        </div>
+        <div
+          aria-hidden="true"
+          className="hbar-app-ui-agent-approval-scroll-overlay is-top"
+          data-visible={scrollEdges.top}
+        />
+        <div
+          aria-hidden="true"
+          className="hbar-app-ui-agent-approval-scroll-overlay is-bottom"
+          data-visible={scrollEdges.bottom}
+        />
+      </div>
+      <span className="hbar-app-ui-agent-approval-inline-announcement" aria-live="polite">
+        {content.announcement}
+      </span>
     </ApprovalRoot>
   );
 }
