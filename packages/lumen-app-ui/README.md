@@ -89,6 +89,23 @@ this (`y=-40`, card height 640). Reference-parity evidence is **not** a no-clipp
 acceptance. Do not claim the whole variant accepted until the narrow overflow
 policy is resolved; prefer safe centering for an accessibility-oriented follow-up.
 
+`LumenAgentApproval06` receives a stable `historyId`, controlled `query` and
+`activeFilterId`, typed query/filter/clear/export callbacks, and localized empty
+state labels. Filters are native pressed buttons; history rows are passive list
+items with title/detail paragraphs, a state and a responsive timestamp. Search
+matches title and detail and composes with filter membership. Duplicate IDs keep
+the first entry; a stale filter falls back to the first available filter. The
+preview host uses an isolated Zustand store and ignores actions for a replaced
+history. Clearing restores the host's initial filter and an empty query.
+
+History content owns the remaining pane scroll area, not an arbitrary fixed
+list height. Narrow layouts stack search and filters and hide timestamps; long
+localized filter labels can scroll horizontally without overlapping controls.
+The public reference's 40rem preview minimum is not imposed on a smaller host
+pane, so its last rows remain reachable through the list scroll owner. Export
+only notifies the host; the reference demo has no observed download or success
+feedback, and this component does not fabricate either.
+
 `LumenWorkbenchNotice` centers a host-labelled title, description, and optional
 command inside a responsive glass surface. It accepts the shared square or
 rounded geometry while keeping localization and command values in the host.

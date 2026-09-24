@@ -3,12 +3,13 @@
 import * as React from 'react';
 import { LumenCheckBox, LumenInput } from './forms';
 import LumenSurface from './LumenSurface';
-import { LumenButton, LumenStatus, LumenText } from './primitives';
+import { LumenButton, LumenText } from './primitives';
 import './agent-approval.css';
 import './agent-approval-diff.css';
 import './agent-approval-queue.css';
 import './agent-approval-permission.css';
 import './agent-approval-cost.css';
+import './agent-approval-history.css';
 
 export type LumenAgentApprovalListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -238,15 +239,24 @@ export interface LumenAgentApprovalHistoryFilter {
 }
 
 export interface LumenAgentApprovalHistoryContent {
+  readonly historyId: string;
   readonly labels: {
     readonly title: string;
     readonly export: string;
     readonly searchLabel: string;
     readonly filtersLabel: string;
+    readonly emptyTitle: string;
+    readonly emptyDescription: string;
+    readonly clearFilters: string;
   };
   readonly searchPlaceholder: string;
   readonly filters: readonly LumenAgentApprovalHistoryFilter[];
   readonly activeFilterId: string;
+  readonly query: string;
+  readonly onQueryChange?: ((historyId: string, query: string) => void) | undefined;
+  readonly onFilterChange?: ((historyId: string, filterId: string) => void) | undefined;
+  readonly onClearFilters?: ((historyId: string) => void) | undefined;
+  readonly onExport?: ((historyId: string) => void) | undefined;
   readonly entries: readonly LumenAgentApprovalHistoryEntry[];
   readonly listStrategy: LumenAgentApprovalListStrategy;
 }
@@ -317,15 +327,6 @@ function report(onAction: LumenAgentApprovalProps['onAction'], actionId: string,
   onAction?.(value === undefined ? { actionId } : { actionId, value });
 }
 
-function approvalTone(
-  state: LumenAgentApprovalState,
-): 'neutral' | 'success' | 'warning' | 'danger' {
-  if (state === 'approved' || state === 'complete' || state === 'auto-approved') return 'success';
-  if (state === 'rejected' || state === 'expired') return 'danger';
-  if (state === 'needs-approval' || state === 'queued') return 'warning';
-  return 'neutral';
-}
-
 function ApprovalGlyph({
   name,
 }: {
@@ -347,23 +348,6 @@ function StateMark({ state }: { readonly state: LumenAgentApprovalState }) {
     <i
       aria-hidden="true"
       className={`lumen-agent-approval-state-mark hbar-app-ui-agent-approval-state-mark is-${state}`}
-    />
-  );
-}
-
-function ApprovalStatus({
-  state,
-  label,
-}: {
-  readonly state: LumenAgentApprovalState;
-  readonly label: string;
-}) {
-  return (
-    <LumenStatus
-      className={`hbar-app-ui-agent-approval-status is-${state}`}
-      data-state={state}
-      tone={approvalTone(state)}
-      value={label}
     />
   );
 }
@@ -406,7 +390,7 @@ function ApprovalRoot({
   return (
     <LumenSurface
       as="section"
-      boundary={variant <= 5 ? 'none' : 'horizontal'}
+      boundary="none"
       className="lumen-agent-approval-surface"
       contentClassName={contentClassName}
       data-lumen-component="agent-approval"
@@ -417,26 +401,6 @@ function ApprovalRoot({
     >
       {children}
     </LumenSurface>
-  );
-}
-
-function Pane({
-  strategy,
-  className,
-  children,
-}: {
-  readonly strategy: LumenAgentApprovalListStrategy;
-  readonly className?: string;
-  readonly children: React.ReactNode;
-}) {
-  return (
-    <main
-      className={className}
-      data-hbar-app-ui-expected-maximum={strategy.expectedMaximum}
-      data-hbar-app-ui-list-strategy={strategy.kind}
-    >
-      {children}
-    </main>
   );
 }
 
@@ -1127,69 +1091,115 @@ function HistoryApproval(
     () => uniqueLumenAgentApprovalItems(content.entries),
     [content.entries],
   );
-  const [activeFilterId, setActiveFilterId] = React.useState(content.activeFilterId);
-  const [query, setQuery] = React.useState('');
-  const activeFilter = selectLumenAgentApprovalItem(filters, activeFilterId);
-  const normalized = query.trim().toLocaleLowerCase();
+  const { scrollPane, scrollEdges } = useApprovalScrollEdges();
+  const searchId = React.useId();
+  const activeFilter = selectLumenAgentApprovalItem(filters, content.activeFilterId);
+  const normalized = content.query.trim().toLocaleLowerCase();
   const visible = entries.filter(
     (entry) =>
       (!activeFilter || entry.filterIds.includes(activeFilter.id)) &&
       (!normalized || `${entry.title} ${entry.detail}`.toLocaleLowerCase().includes(normalized)),
   );
-  React.useEffect(() => setActiveFilterId(content.activeFilterId), [content.activeFilterId]);
   return (
     <ApprovalRoot {...props} className="hbar-app-ui-agent-approval-history">
-      <header className="hbar-app-ui-agent-approval-global-heading">
-        <LumenText as="h2" variant="heading">
-          {content.labels.title}
-        </LumenText>
-        <LumenButton variant="outlined" onClick={() => report(onAction, 'export-approval-history')}>
+      <header className="hbar-app-ui-agent-approval-history-heading" role="banner">
+        <h2>{content.labels.title}</h2>
+        <LumenButton
+          variant="outlined"
+          onClick={() => {
+            content.onExport?.(content.historyId);
+            report(onAction, 'export-approval-history', content.historyId);
+          }}
+        >
           <ApprovalGlyph name="download" />
           {content.labels.export}
         </LumenButton>
       </header>
       <div className="hbar-app-ui-agent-approval-history-toolbar">
-        <label className="hbar-app-ui-agent-approval-search">
+        <div className="hbar-app-ui-agent-approval-history-search">
           <ApprovalGlyph name="search" />
+          <label htmlFor={searchId} className="hbar-app-ui-agent-approval-history-search-label">
+            {content.labels.searchLabel}
+          </label>
           <LumenInput
-            aria-label={content.labels.searchLabel}
+            id={searchId}
+            variant="plain"
             placeholder={content.searchPlaceholder}
-            value={query}
-            onChange={(event) => setQuery(event.currentTarget.value)}
+            value={content.query}
+            onChange={(event) => {
+              content.onQueryChange?.(content.historyId, event.currentTarget.value);
+              report(onAction, 'search-approval-history', event.currentTarget.value);
+            }}
           />
-        </label>
-        <nav aria-label={content.labels.filtersLabel} role="tablist">
+        </div>
+        <div className="hbar-app-ui-agent-approval-history-filters">
           {filters.map((filter) => (
             <LumenButton
-              aria-selected={filter.id === activeFilter?.id}
+              aria-pressed={filter.id === activeFilter?.id}
               variant={filter.id === activeFilter?.id ? 'solid' : 'text'}
               key={filter.id}
               onClick={() => {
-                setActiveFilterId(filter.id);
+                content.onFilterChange?.(content.historyId, filter.id);
                 report(onAction, 'filter-approval-history', filter.id);
               }}
-              role="tab"
             >
               {filter.label}
             </LumenButton>
           ))}
-        </nav>
+        </div>
       </div>
-      <Pane strategy={content.listStrategy} className="hbar-app-ui-agent-approval-history-pane">
-        <ul>
-          {visible.map((entry) => (
-            <li key={entry.id}>
-              <StateMark state={entry.state} />
-              <span className="hbar-app-ui-agent-approval-history-copy">
-                <strong>{entry.title}</strong>
-                <small>{entry.detail}</small>
-              </span>
-              <ApprovalStatus state={entry.state} label={entry.stateLabel} />
-              <time>{entry.when}</time>
-            </li>
-          ))}
-        </ul>
-      </Pane>
+      <div className="hbar-app-ui-agent-approval-history-scroll-frame">
+        <div
+          ref={scrollPane}
+          className="hbar-app-ui-agent-approval-history-pane"
+          data-hbar-app-ui-expected-maximum={content.listStrategy.expectedMaximum}
+          data-hbar-app-ui-list-strategy={content.listStrategy.kind}
+        >
+          {visible.length ? (
+            <ul>
+              {visible.map((entry) => (
+                <li key={entry.id}>
+                  <span aria-hidden="true" className="hbar-app-ui-agent-approval-history-dot" />
+                  <div className="hbar-app-ui-agent-approval-history-copy">
+                    <p>{entry.title}</p>
+                    <p>{entry.detail}</p>
+                  </div>
+                  <span
+                    className="hbar-app-ui-agent-approval-history-state"
+                    data-state={entry.state}
+                  >
+                    {entry.stateLabel}
+                  </span>
+                  <span className="hbar-app-ui-agent-approval-history-time">{entry.when}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="hbar-app-ui-agent-approval-history-empty">
+              <p>{content.labels.emptyTitle}</p>
+              <p>{content.labels.emptyDescription}</p>
+              <LumenButton
+                onClick={() => {
+                  content.onClearFilters?.(content.historyId);
+                  report(onAction, 'clear-approval-history-filters', content.historyId);
+                }}
+              >
+                {content.labels.clearFilters}
+              </LumenButton>
+            </div>
+          )}
+        </div>
+        <div
+          aria-hidden="true"
+          className="hbar-app-ui-agent-approval-scroll-overlay is-top"
+          data-visible={scrollEdges.top}
+        />
+        <div
+          aria-hidden="true"
+          className="hbar-app-ui-agent-approval-scroll-overlay is-bottom"
+          data-visible={scrollEdges.bottom}
+        />
+      </div>
     </ApprovalRoot>
   );
 }
