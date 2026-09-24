@@ -1360,6 +1360,7 @@ export {
   uniqueLumenUsageItems,
   useLumenUsageContent,
 } from './usage';
+export type { LumenUsageChartPoint, LumenUsageOverviewChart } from './usage-overview';
 export type {
   LumenUsageAction,
   LumenUsageBudgetContent,

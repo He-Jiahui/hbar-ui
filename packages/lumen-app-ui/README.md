@@ -7,6 +7,20 @@ import `@lumen/app-ui/styles.css` once in the host application. Material UI
 provides the interaction primitives. The package does not depend on hbar's
 runtime or preview application.
 
+`LumenUsageOverviewContent.chart` opts into a stacked input/output chart. The
+host supplies localized labels, accessible point names, detail text, formatted
+metrics and normalized visual proportions through `LumenUsageOverviewChart`
+and `LumenUsageChartPoint`. Range selection remains controlled by the host;
+hover/focus detail is ephemeral and resets when the selected range changes.
+Omitting `chart` retains the older meter-only composition.
+
+Overview series are short, host-aggregated collections (normally 3–7 points,
+recommended maximum 31). More than seven points use plot-owned horizontal
+scrolling without dropping records; hosts aggregate or page unbounded data.
+Duplicate point/range IDs use the newest record at the original position.
+Missing highlighted points show the host hint, and empty series show the host
+empty label. The root pane keeps oversized content reachable from its top.
+
 The public stylesheet includes the base appearance tokens and the shared
 `xs/sm/md/lg/xl` icon scale (12/14/16/20/24px at a 16px root font). Compatibility
 icon classes keep their existing `--hbar-app-ui-icon-*` names, but Lumen owns

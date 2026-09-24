@@ -5,6 +5,7 @@ import { LumenDisclosure } from './disclosure';
 import { LumenInput, LumenSelect, LumenToggleControl } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
+import { UsageOverviewChartContent, type LumenUsageOverviewChart } from './usage-overview';
 import './usage.css';
 
 export interface LumenUsageMetric {
@@ -58,6 +59,8 @@ export interface LumenUsageOverviewContent extends LumenUsageHeading {
   readonly metrics: readonly LumenUsageMetric[];
   readonly meters: readonly LumenUsageMeter[];
   readonly range?: LumenUsageChoice | undefined;
+  /** Optional stacked-series surface; omitting it preserves the legacy meter API. */
+  readonly chart?: LumenUsageOverviewChart | undefined;
 }
 
 export interface LumenUsageModelSpendRow {
@@ -427,6 +430,7 @@ function UsageMetrics({ metrics }: { readonly metrics: readonly LumenUsageMetric
 }
 
 export function LumenUsageOverview(content: LumenUsageOverviewContent) {
+  if (content.chart) return <UsageOverviewChartContent content={content} chart={content.chart} />;
   return (
     <UsageFrame content={content} variant={1}>
       {content.range ? <UsageTabs choice={content.range} /> : null}
@@ -719,10 +723,15 @@ function UsageRoot({
   visualMode,
   className,
   children,
-}: Omit<LumenUsageProps, 'content'> & { readonly children: React.ReactNode }) {
+  chartOverview,
+}: Omit<LumenUsageProps, 'content'> & {
+  readonly children: React.ReactNode;
+  readonly chartOverview: boolean;
+}) {
   const contentClassName = [
     'lumen-usage',
     'hbar-app-ui-usage-catalog',
+    chartOverview ? 'lumen-usage-chart-stage hbar-app-ui-stage-padding-owner' : '',
     `hbar-app-ui-usage-variant-${variant}`,
     density ? `hbar-app-ui-density-${density}` : '',
     surface ? `hbar-app-ui-surface-${surface}` : '',
@@ -734,9 +743,9 @@ function UsageRoot({
     .join(' ');
   return (
     <LumenSurface
-      as="section"
-      boundary="horizontal"
-      className="lumen-usage-root-surface"
+      as={chartOverview ? 'div' : 'section'}
+      boundary={chartOverview ? 'none' : 'horizontal'}
+      className={`lumen-usage-root-surface${chartOverview ? ' lumen-usage-chart-surface' : ''}`}
       contentClassName={contentClassName}
       data-lumen-component="usage"
       data-lumen-variant={variant}
@@ -764,7 +773,11 @@ export function LumenUsage(props: LumenUsageProps) {
   if (props.variant === 7 && content.requests)
     view = <LumenUsageRequestLog {...content.requests} />;
   if (props.variant === 8 && content.compact) view = <LumenUsageCompact {...content.compact} />;
-  return <UsageRoot {...props}>{view}</UsageRoot>;
+  return (
+    <UsageRoot {...props} chartOverview={props.variant === 1 && Boolean(content.overview?.chart)}>
+      {view}
+    </UsageRoot>
+  );
 }
 
 function createUsageVariant(variant: number) {
