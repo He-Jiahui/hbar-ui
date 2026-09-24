@@ -8,6 +8,7 @@ import { LumenButton, LumenStatus, LumenText } from './primitives';
 import './agent-plan.css';
 import './agent-plan-checklist.css';
 import './agent-plan-tree.css';
+import './agent-plan-actual.css';
 
 export type LumenAgentPlanListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -84,6 +85,7 @@ export interface LumenAgentPlanActualRow {
   readonly id: string;
   readonly title: string;
   readonly durationProgress?: number | undefined;
+  readonly plannedProgress?: number | undefined;
   readonly planned: string;
   readonly actual: string;
   readonly drift: string;
@@ -331,7 +333,7 @@ function AgentPlanRoot({
     'lumen-agent-plan',
     'hbar-app-ui-agent-plan-surface',
     `hbar-app-ui-agent-plan-variant-${variant}`,
-    variant >= 1 && variant <= 3 ? 'hbar-app-ui-stage-padding-owner' : '',
+    variant >= 1 && variant <= 4 ? 'hbar-app-ui-stage-padding-owner' : '',
     density ? `hbar-app-ui-density-${density}` : '',
     surface ? `hbar-app-ui-surface-${surface}` : '',
     state ? `hbar-app-ui-state-${state}` : '',
@@ -343,7 +345,7 @@ function AgentPlanRoot({
   return (
     <LumenSurface
       as="section"
-      boundary={variant >= 1 && variant <= 3 ? 'none' : 'horizontal'}
+      boundary={variant >= 1 && variant <= 4 ? 'none' : 'horizontal'}
       className="lumen-agent-plan-root-surface"
       contentClassName={contentClassName}
       data-lumen-component="agent-plan"
@@ -694,25 +696,32 @@ function TreeGlyph({ name }: { readonly name: 'down' | 'right' | 'retry' }) {
 
 function DurationBar({
   value,
-  label,
+  planned,
 }: {
   readonly value?: number | undefined;
-  readonly label: string;
+  readonly planned?: number | undefined;
 }) {
   const bounded = Math.max(0, Math.min(1, Number.isFinite(value) ? (value ?? 0) : 0));
+  const marker = Math.max(0, Math.min(1, Number.isFinite(planned) ? (planned ?? 0) : 0));
   return (
-    <div
-      aria-label={label}
-      aria-valuemax={1}
-      aria-valuemin={0}
-      aria-valuenow={bounded}
-      className="hbar-app-ui-agent-plan-duration-bar"
+    <span
+      aria-hidden="true"
+      className="lumen-plan-actual-duration-bar"
       data-value={bounded}
-      role="progressbar"
+      data-planned={planned === undefined ? undefined : marker}
     >
-      <span style={{ inlineSize: `${bounded * 100}%` }} />
-    </div>
+      <svg aria-hidden="true" focusable="false">
+        <rect width={`${bounded * 100}%`} height="100%" rx="2" fill="currentColor" />
+        {planned !== undefined ? (
+          <line x1={`${marker * 100}%`} x2={`${marker * 100}%`} y1="0" y2="100%" />
+        ) : null}
+      </svg>
+    </span>
   );
+}
+
+function PlanActualValue({ value }: { value: string }) {
+  return <span className="lumen-plan-actual-value">{value}</span>;
 }
 
 function PlanActual(
@@ -724,75 +733,110 @@ function PlanActual(
     [content.metrics],
   );
   const rows = React.useMemo(() => uniqueLumenAgentPlanItems(content.rows), [content.rows]);
+  const paneRef = React.useRef<HTMLElement>(null);
+  const [edges, setEdges] = React.useState({ top: false, bottom: false });
+  React.useEffect(() => {
+    const pane = paneRef.current;
+    if (!pane) return undefined;
+    const update = () => {
+      const next = {
+        top: pane.scrollTop > 1,
+        bottom: pane.scrollHeight - pane.clientHeight - pane.scrollTop > 1,
+      };
+      setEdges((previous) =>
+        previous.top === next.top && previous.bottom === next.bottom ? previous : next,
+      );
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(pane);
+    pane.addEventListener('scroll', update, { passive: true });
+    return () => {
+      observer.disconnect();
+      pane.removeEventListener('scroll', update);
+    };
+  }, [rows]);
   return (
     <AgentPlanRoot {...props} className="hbar-app-ui-agent-plan-actual">
-      <PlanHeading
-        title={content.labels.title}
-        detail={
-          <LumenText as="span" tone="muted" variant="supporting">
-            {content.labels.remaining}
-          </LumenText>
-        }
-      />
-      <dl className="hbar-app-ui-agent-plan-metrics">
+      <header className="lumen-plan-actual-heading" role="banner">
+        <h2>{content.labels.title}</h2>
+        <span>{content.labels.remaining}</span>
+      </header>
+      <div className="lumen-plan-actual-metrics">
         {metrics.map((metric) => (
-          <div className={`is-${metric.tone ?? 'neutral'}`} key={metric.id}>
-            <LumenText as="dt" tone="muted" variant="supporting">
-              {metric.label}
-            </LumenText>
-            <LumenText
-              as="dd"
-              tone={
-                metric.tone === 'positive'
-                  ? 'success'
-                  : metric.tone === 'warning'
-                    ? 'warning'
-                    : metric.tone === 'danger'
-                      ? 'danger'
-                      : 'neutral'
-              }
-              variant="heading"
-            >
-              {metric.value}
-            </LumenText>
+          <div data-tone={metric.tone ?? 'neutral'} key={metric.id} data-metric-id={metric.id}>
+            <p>{metric.label}</p>
+            <p>
+              <span>{metric.value}</span>
+            </p>
           </div>
         ))}
-      </dl>
-      <AgentPlanPane strategy={content.listStrategy} className="hbar-app-ui-agent-plan-actual-pane">
-        <div className="hbar-app-ui-agent-plan-table-card">
-          <table>
-            <caption>{content.labels.description}</caption>
-            <thead>
-              <tr>
-                <th scope="col">{content.labels.step}</th>
-                <th scope="col">{content.labels.duration}</th>
-                <th scope="col">{content.labels.planned}</th>
-                <th scope="col">{content.labels.actual}</th>
-                <th scope="col">{content.labels.drift}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.length > 0 ? (
-                rows.map((row) => (
-                  <tr className={`is-${row.tone ?? 'neutral'}`} key={row.id}>
-                    <th scope="row">{row.title}</th>
-                    <td className="hbar-app-ui-agent-plan-duration-cell">
-                      <DurationBar value={row.durationProgress} label={content.labels.duration} />
-                    </td>
-                    <td>{row.planned}</td>
-                    <td>{row.actual}</td>
-                    <td>{row.drift}</td>
-                  </tr>
-                ))
-              ) : (
+      </div>
+      <div
+        className="lumen-plan-actual-card"
+        data-hbar-app-ui-expected-maximum={content.listStrategy.expectedMaximum}
+        data-hbar-app-ui-list-strategy={content.listStrategy.kind}
+      >
+        <div className="lumen-plan-actual-scroll-frame">
+          <main ref={paneRef} className="lumen-plan-actual-scroll">
+            <table className="lumen-plan-actual-table">
+              <caption>{content.labels.description}</caption>
+              <thead>
                 <tr>
-                  <td colSpan={5}>{content.labels.empty}</td>
+                  <th scope="col">{content.labels.step}</th>
+                  <th scope="col" className="lumen-plan-actual-duration-cell">
+                    {content.labels.duration}
+                  </th>
+                  <th scope="col">
+                    <PlanActualValue value={content.labels.planned} />
+                  </th>
+                  <th scope="col">
+                    <PlanActualValue value={content.labels.actual} />
+                  </th>
+                  <th scope="col">
+                    <PlanActualValue value={content.labels.drift} />
+                  </th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {rows.length > 0 ? (
+                  rows.map((row) => (
+                    <tr data-tone={row.tone ?? 'neutral'} key={row.id} data-row-id={row.id}>
+                      <th scope="row">{row.title}</th>
+                      <td className="lumen-plan-actual-duration-cell">
+                        <DurationBar value={row.durationProgress} planned={row.plannedProgress} />
+                      </td>
+                      <td>
+                        <PlanActualValue value={row.planned} />
+                      </td>
+                      <td>
+                        <PlanActualValue value={row.actual} />
+                      </td>
+                      <td>
+                        <PlanActualValue value={row.drift} />
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5}>{content.labels.empty}</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </main>
+          <div
+            aria-hidden="true"
+            className="lumen-plan-actual-edge-overlay is-top"
+            data-visible={edges.top}
+          />
+          <div
+            aria-hidden="true"
+            className="lumen-plan-actual-edge-overlay is-bottom"
+            data-visible={edges.bottom}
+          />
         </div>
-      </AgentPlanPane>
+      </div>
     </AgentPlanRoot>
   );
 }
