@@ -141,6 +141,26 @@ not forced to the public preview's 40rem minimum. Nine representative real
 source/local cases cover the distinct mechanisms; other row permutations are
 explicitly inferred, supported by state and capacity tests.
 
+`LumenAgentPlan03` receives a stable `runId`, host-owned groups/step states and
+an optional `onRetry(runId, groupId, stepId)` callback. All four groups contain
+their real subtask data, including initially collapsed groups. Disclosure is
+independent local presentation state, keyed by group ID and reset for a new
+run; removed groups lose their old disclosure override. Retry never executes a
+job inside the view. The isolated preview controller changes only the failed
+target to Running, preserving completion counts and other groups. New host
+facts can restore failure and Retry; locale-only changes reproject status copy.
+
+The nested tree owns pane scrolling, with header outside the scroll region,
+single-line titles, small-tier icons and a right-aligned status column. The
+preview declares an expected group bound of 20 and retains over-bound data.
+Short hosts are not forced to the reference shell's 40rem minimum. Scroll-edge
+hints follow native scroll/resize events, as observed in the source preview;
+disclosure alone does not refresh them. Nine representative source/local
+cases cover both missing group bodies, collapse, retry and distinct hover and
+narrow keyboard feedback, including a compact state that shows all six shipping
+and staging subtasks together. Repeated group/gesture combinations are inferred,
+not individually replayed.
+
 `LumenWorkbenchNotice` centers a host-labelled title, description, and optional
 command inside a responsive glass surface. It accepts the shared square or
 rounded geometry while keeping localization and command values in the host.

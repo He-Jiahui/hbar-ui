@@ -7,6 +7,7 @@ import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
 import './agent-plan.css';
 import './agent-plan-checklist.css';
+import './agent-plan-tree.css';
 
 export type LumenAgentPlanListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -63,12 +64,16 @@ export interface LumenAgentPlanGroup {
 }
 
 export interface LumenAgentPlanTreeContent {
+  readonly runId: string;
+  readonly busy?: boolean | undefined;
+  readonly onRetry?: ((runId: string, groupId: string, stepId: string) => void) | undefined;
   readonly labels: {
     readonly title: string;
     readonly progress: (done: number, total: number) => string;
     readonly expand: (title: string) => string;
     readonly collapse: (title: string) => string;
     readonly retry: string;
+    readonly running: string;
     readonly empty: string;
   };
   readonly groups: readonly LumenAgentPlanGroup[];
@@ -326,7 +331,7 @@ function AgentPlanRoot({
     'lumen-agent-plan',
     'hbar-app-ui-agent-plan-surface',
     `hbar-app-ui-agent-plan-variant-${variant}`,
-    variant === 1 || variant === 2 ? 'hbar-app-ui-stage-padding-owner' : '',
+    variant >= 1 && variant <= 3 ? 'hbar-app-ui-stage-padding-owner' : '',
     density ? `hbar-app-ui-density-${density}` : '',
     surface ? `hbar-app-ui-surface-${surface}` : '',
     state ? `hbar-app-ui-state-${state}` : '',
@@ -338,7 +343,7 @@ function AgentPlanRoot({
   return (
     <LumenSurface
       as="section"
-      boundary={variant === 1 || variant === 2 ? 'none' : 'horizontal'}
+      boundary={variant >= 1 && variant <= 3 ? 'none' : 'horizontal'}
       className="lumen-agent-plan-root-surface"
       contentClassName={contentClassName}
       data-lumen-component="agent-plan"
@@ -547,95 +552,143 @@ function PlanTree(
 ) {
   const { content, onAction } = props;
   const groups = React.useMemo(() => uniqueLumenAgentPlanItems(content.groups), [content.groups]);
-  const [openIds, setOpenIds] = React.useState<ReadonlySet<string>>(
-    () => new Set(groups.filter((group) => group.openByDefault).map((group) => group.id)),
+  const [disclosures, setDisclosures] = React.useState<ReadonlyMap<string, boolean>>(
+    () => new Map(),
   );
+  const list = React.useRef<HTMLUListElement>(null);
+  const [edges, setEdges] = React.useState({ top: false, bottom: false });
+  React.useEffect(() => {
+    setDisclosures((current) => {
+      const next = new Map([...current].filter(([id]) => groups.some((group) => group.id === id)));
+      return next.size === current.size ? current : next;
+    });
+  }, [groups]);
+  React.useEffect(() => {
+    const pane = list.current;
+    if (!pane) return undefined;
+    const update = () => {
+      const next = {
+        top: pane.scrollTop > 1,
+        bottom: pane.scrollHeight - pane.clientHeight - pane.scrollTop > 1,
+      };
+      setEdges((previous) =>
+        previous.top === next.top && previous.bottom === next.bottom ? previous : next,
+      );
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(pane);
+    pane.addEventListener('scroll', update, { passive: true });
+    return () => {
+      observer.disconnect();
+      pane.removeEventListener('scroll', update);
+    };
+    // Like the public preview, edge hints follow native scroll/resize events;
+    // disclosure itself does not recompute them before the user scrolls.
+  }, []);
   const done = groups.reduce((total, group) => total + group.done, 0);
   const total = groups.reduce((count, group) => count + group.total, 0);
-  const toggle = (id: string) => {
-    setOpenIds((current) => {
-      const next = new Set(current);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-    report(onAction, 'toggle-plan-group', id);
-  };
-
   return (
     <AgentPlanRoot {...props} className="hbar-app-ui-agent-plan-tree">
-      <PlanHeading
-        title={content.labels.title}
-        detail={
-          <LumenText as="span" tone="muted" variant="supporting">
-            {content.labels.progress(done, total)}
-          </LumenText>
-        }
-      />
-      <AgentPlanPane strategy={content.listStrategy} className="hbar-app-ui-agent-plan-tree-pane">
-        {groups.length > 0 ? (
-          <ul>
+      <header className="lumen-plan-tree-heading" role="banner">
+        <h2>{content.labels.title}</h2>
+        <span>{content.labels.progress(done, total)}</span>
+      </header>
+      <div
+        className="lumen-plan-tree-card"
+        data-hbar-app-ui-expected-maximum={content.listStrategy.expectedMaximum}
+        data-hbar-app-ui-list-strategy={content.listStrategy.kind}
+      >
+        <div className="lumen-plan-tree-scroll-frame">
+          <ul ref={list} className="lumen-plan-tree-list" hidden={groups.length === 0}>
             {groups.map((group) => {
-              const open = openIds.has(group.id);
+              const open = disclosures.get(group.id) ?? group.openByDefault;
               const items = uniqueLumenAgentPlanItems(group.items);
               return (
-                <li key={group.id}>
-                  <LumenButton
-                    variant="text"
+                <li key={group.id} data-group-id={group.id}>
+                  <button
+                    type="button"
                     aria-expanded={open}
-                    aria-label={
-                      open
-                        ? content.labels.collapse(group.title)
-                        : content.labels.expand(group.title)
-                    }
-                    className="hbar-app-ui-agent-plan-tree-group"
-                    onClick={() => toggle(group.id)}
+                    className="lumen-plan-tree-group"
+                    onClick={() => {
+                      setDisclosures((current) => new Map(current).set(group.id, !open));
+                      report(onAction, 'toggle-plan-group', group.id);
+                    }}
                   >
-                    <span className="hbar-app-ui-agent-plan-tree-toggle">
-                      <PlanGlyph name={open ? 'chevron-down' : 'chevron-right'} />
+                    <span className="lumen-plan-tree-number" aria-hidden="true">
+                      <TreeGlyph name={open ? 'down' : 'right'} />
                     </span>
-                    <span className="hbar-app-ui-agent-plan-tree-group-title">{group.title}</span>
-                    <LumenText
-                      as="span"
-                      className="hbar-app-ui-agent-plan-tree-group-progress"
-                      tone="muted"
-                      variant="supporting"
-                    >
-                      {group.progressLabel}
-                    </LumenText>
-                  </LumenButton>
+                    <span className="lumen-plan-tree-title">{group.title}</span>
+                    <span className="lumen-plan-tree-count">{group.progressLabel}</span>
+                  </button>
                   {open ? (
-                    <ol className="hbar-app-ui-agent-plan-tree-children">
+                    <ul className="lumen-plan-tree-children">
                       {items.map((item, index) => (
-                        <li key={item.id}>
-                          <AgentPlanNumber value={index + 1} />
-                          <span className="hbar-app-ui-agent-plan-step-title">{item.title}</span>
+                        <li key={item.id} data-step-id={item.id} data-state={item.state}>
+                          <span className="lumen-plan-tree-number">{index + 1}</span>
+                          <span className="lumen-plan-tree-title">{item.title}</span>
                           {item.state === 'failed' ? (
-                            <LumenButton
-                              size="s"
-                              variant="outlined"
-                              onClick={() => report(onAction, 'retry-plan-step', item.id)}
+                            <button
+                              type="button"
+                              className="lumen-plan-tree-retry"
+                              disabled={content.busy}
+                              onClick={() => {
+                                content.onRetry?.(content.runId, group.id, item.id);
+                                report(onAction, 'retry-plan-step', item.id);
+                              }}
                             >
-                              <PlanGlyph name="retry" />
+                              <TreeGlyph name="retry" />
                               {content.labels.retry}
-                            </LumenButton>
+                            </button>
                           ) : null}
-                          <AgentPlanStatus state={item.state} label={item.stateLabel} />
+                          <span className="lumen-plan-tree-status">
+                            <span aria-hidden="true" />
+                            <span>{item.stateLabel}</span>
+                          </span>
                         </li>
                       ))}
-                    </ol>
+                    </ul>
                   ) : null}
                 </li>
               );
             })}
           </ul>
-        ) : (
-          <LumenText as="p" className="hbar-app-ui-agent-plan-empty" tone="muted">
-            {content.labels.empty}
-          </LumenText>
-        )}
-      </AgentPlanPane>
+          {groups.length === 0 ? (
+            <p className="hbar-app-ui-agent-plan-empty">{content.labels.empty}</p>
+          ) : null}
+          <div
+            aria-hidden="true"
+            className="lumen-plan-tree-edge-overlay is-top"
+            data-visible={edges.top}
+          />
+          <div
+            aria-hidden="true"
+            className="lumen-plan-tree-edge-overlay is-bottom"
+            data-visible={edges.bottom}
+          />
+        </div>
+      </div>
     </AgentPlanRoot>
+  );
+}
+
+function TreeGlyph({ name }: { readonly name: 'down' | 'right' | 'retry' }) {
+  return (
+    <svg
+      className="lumen-plan-tree-glyph"
+      data-tier="sm"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      focusable="false"
+    >
+      {name === 'down' ? <path d="m6 9 6 6 6-6" /> : null}
+      {name === 'right' ? <path d="m9 6 6 6-6 6" /> : null}
+      {name === 'retry' ? (
+        <>
+          <path d="M3 11a9 9 0 1 1 2.6 7.4M3 3v6h6" />
+        </>
+      ) : null}
+    </svg>
   );
 }
 
@@ -944,7 +997,11 @@ export function LumenAgentPlan(props: LumenAgentPlanProps) {
         emptyPlan(props)
       );
     case 3:
-      return content?.tree ? <PlanTree {...props} content={content.tree} /> : emptyPlan(props);
+      return content?.tree ? (
+        <PlanTree {...props} content={content.tree} key={content.tree.runId} />
+      ) : (
+        emptyPlan(props)
+      );
     case 4:
       return content?.actual ? (
         <PlanActual {...props} content={content.actual} />
