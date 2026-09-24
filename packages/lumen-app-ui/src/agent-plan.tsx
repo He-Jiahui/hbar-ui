@@ -1,7 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { LumenPlanEditor, type LumenPlanEditorProps } from './plan-editor';
+import { LumenPlanEditor } from './plan-editor';
+import { LumenPlanReview, type LumenPlanReviewContent } from './plan-review';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
 import './agent-plan.css';
@@ -47,7 +48,7 @@ export interface LumenAgentPlanChecklistContent {
   readonly listStrategy: LumenAgentPlanListStrategy;
 }
 
-export type LumenAgentPlanEditableContent = Omit<LumenPlanEditorProps, 'steps'> & {
+export type LumenAgentPlanEditableContent = Omit<LumenPlanReviewContent, 'steps'> & {
   readonly steps: readonly LumenAgentPlanStep[];
 };
 
@@ -325,7 +326,7 @@ function AgentPlanRoot({
     'lumen-agent-plan',
     'hbar-app-ui-agent-plan-surface',
     `hbar-app-ui-agent-plan-variant-${variant}`,
-    variant === 1 ? 'hbar-app-ui-stage-padding-owner' : '',
+    variant === 1 || variant === 2 ? 'hbar-app-ui-stage-padding-owner' : '',
     density ? `hbar-app-ui-density-${density}` : '',
     surface ? `hbar-app-ui-surface-${surface}` : '',
     state ? `hbar-app-ui-state-${state}` : '',
@@ -337,7 +338,7 @@ function AgentPlanRoot({
   return (
     <LumenSurface
       as="section"
-      boundary={variant === 1 ? 'none' : 'horizontal'}
+      boundary={variant === 1 || variant === 2 ? 'none' : 'horizontal'}
       className="lumen-agent-plan-root-surface"
       contentClassName={contentClassName}
       data-lumen-component="agent-plan"
@@ -526,13 +527,17 @@ function EditablePlan(
   const { content } = props;
   return (
     <AgentPlanRoot {...props} className="hbar-app-ui-agent-plan-editable">
-      <div
-        className="hbar-app-ui-agent-plan-editable-content"
-        data-hbar-app-ui-expected-maximum={content.listStrategy.expectedMaximum}
-        data-hbar-app-ui-list-strategy={content.listStrategy.kind}
-      >
-        <LumenPlanEditor {...content} />
-      </div>
+      {content.editing ? (
+        <div
+          className="hbar-app-ui-agent-plan-editable-content"
+          data-hbar-app-ui-expected-maximum={content.listStrategy.expectedMaximum}
+          data-hbar-app-ui-list-strategy={content.listStrategy.kind}
+        >
+          <LumenPlanEditor {...content} />
+        </div>
+      ) : (
+        <LumenPlanReview content={content} key={content.planId} />
+      )}
     </AgentPlanRoot>
   );
 }

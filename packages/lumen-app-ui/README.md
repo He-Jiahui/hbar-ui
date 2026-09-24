@@ -124,6 +124,23 @@ keyboard focus remains visible. Six representative source/local interaction
 pairs cover distinct mechanisms; equivalent step buttons are inferred, not
 claimed as separately replayed.
 
+`LumenAgentPlan02` uses a dedicated review presentation while the shared
+`LumenPlanEditor` remains available for editable workbench fields. Its host owns
+the stable `planId`, rows, draft, running/busy state, errors and ID-bound actions.
+Typed formatters project included/skipped counts and move/add announcements;
+zero skipped items omit that count. Skip retains the row and exposes Restore.
+Start locks review controls and changes the footer to Stop; Stop restores the
+same rows and draft, without fabricating execution progress or a backend result.
+
+The review declares pane-owned scrolling (expected bound 16 in the preview;
+over-bound rows are retained). Its input and footer stay outside that scroll
+owner. Narrow rows remain horizontal with title ellipsis and three small-tier
+actions; the footer helper is hidden below 40rem. Add is disabled for a blank
+trimmed draft, and Enter submission ignores IME composition. A shorter host is
+not forced to the public preview's 40rem minimum. Nine representative real
+source/local cases cover the distinct mechanisms; other row permutations are
+explicitly inferred, supported by state and capacity tests.
+
 `LumenWorkbenchNotice` centers a host-labelled title, description, and optional
 command inside a responsive glass surface. It accepts the shared square or
 rounded geometry while keeping localization and command values in the host.
