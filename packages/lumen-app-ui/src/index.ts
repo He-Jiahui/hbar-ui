@@ -1363,6 +1363,7 @@ export {
 export type { LumenUsageChartPoint, LumenUsageOverviewChart } from './usage-overview';
 export type { LumenUsageModelTableRow, LumenUsageModelTableContent } from './usage-model-table';
 export type { LumenUsageRatePanelMeter, LumenUsageRatePanelContent } from './usage-rate-panel';
+export type { LumenUsageMemberRow, LumenUsageMemberListContent } from './usage-member-list';
 export type {
   LumenUsageAction,
   LumenUsageBudgetContent,

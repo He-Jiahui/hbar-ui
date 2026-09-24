@@ -8,6 +8,7 @@ import { LumenButton, LumenStatus, LumenText } from './primitives';
 import { UsageOverviewChartContent, type LumenUsageOverviewChart } from './usage-overview';
 import { UsageModelTable, type LumenUsageModelTableContent } from './usage-model-table';
 import { UsageRatePanel, type LumenUsageRatePanelContent } from './usage-rate-panel';
+import { UsageMemberList, type LumenUsageMemberListContent } from './usage-member-list';
 import './usage.css';
 
 export interface LumenUsageMetric {
@@ -107,6 +108,8 @@ export interface LumenUsageSeatRow {
 }
 
 export interface LumenUsageSeatContent extends LumenUsageHeading, LumenUsageCollection {
+  /** Detailed member list; omission retains the legacy seat-list API. */
+  readonly members?: LumenUsageMemberListContent | undefined;
   readonly query: string;
   readonly searchLabel: string;
   readonly onQueryChange: (value: string) => void;
@@ -322,7 +325,7 @@ function UsageChoiceControl({
   disabled = false,
 }: {
   readonly choice: LumenUsageChoice;
-  readonly disabled?: boolean;
+  readonly disabled?: boolean | undefined;
 }) {
   const options = uniqueLumenUsageItems(choice.options);
   return (
@@ -336,7 +339,7 @@ function UsageChoiceControl({
         disabled={disabled}
         onChange={(event) => choice.onChange(event.currentTarget.value)}
       >
-        <option value="" hidden disabled />
+        <option value="" hidden disabled aria-label={choice.label} />
         {options.map((option) => (
           <option key={option.id} value={option.id}>
             {option.label}
@@ -374,12 +377,13 @@ function UsageCollectionView<Item extends { readonly id: string }>({
   readonly render: (item: Item) => React.ReactNode;
 }) {
   const records = uniqueLumenUsageItems(items);
-  if (records.length === 0)
+  if (records.length === 0) {
     return (
       <LumenText as="p" tone="muted">
         {content.emptyLabel}
       </LumenText>
     );
+  }
   return (
     <div
       className="lumen-usage-list hbar-app-ui-usage-list"
@@ -436,7 +440,9 @@ function UsageMetrics({ metrics }: { readonly metrics: readonly LumenUsageMetric
 }
 
 export function LumenUsageOverview(content: LumenUsageOverviewContent) {
-  if (content.chart) return <UsageOverviewChartContent content={content} chart={content.chart} />;
+  if (content.chart) {
+    return <UsageOverviewChartContent content={content} chart={content.chart} />;
+  }
   return (
     <UsageFrame content={content} variant={1}>
       {content.range ? <UsageTabs choice={content.range} /> : null}
@@ -453,7 +459,9 @@ export function LumenUsageOverview(content: LumenUsageOverviewContent) {
 }
 
 export function LumenUsageModelSpend(content: LumenUsageModelSpendContent) {
-  if (content.table) return <UsageModelTable heading={content} table={content.table} />;
+  if (content.table) {
+    return <UsageModelTable heading={content} table={content.table} />;
+  }
   return (
     <UsageFrame content={content} variant={2}>
       {content.sort ? (
@@ -489,7 +497,9 @@ export function LumenUsageModelSpend(content: LumenUsageModelSpendContent) {
 }
 
 export function LumenUsageRateLimits(content: LumenUsageRateLimitsContent) {
-  if (content.panel) return <UsageRatePanel heading={content} panel={content.panel} />;
+  if (content.panel) {
+    return <UsageRatePanel heading={content} panel={content.panel} />;
+  }
   return (
     <UsageFrame content={content} variant={3}>
       {content.tier ? <UsageChoiceControl choice={content.tier} /> : null}
@@ -509,6 +519,9 @@ export function LumenUsageRateLimits(content: LumenUsageRateLimitsContent) {
 }
 
 export function LumenUsageSeats(content: LumenUsageSeatContent) {
+  if (content.members) {
+    return <UsageMemberList content={content} members={content.members} />;
+  }
   return (
     <UsageFrame content={content} variant={4}>
       <div className="lumen-usage-search hbar-app-ui-inline-search">
@@ -557,7 +570,9 @@ export function LumenUsageBudget(content: LumenUsageBudgetContent) {
         aria-busy={content.busy}
         onSubmit={(event) => {
           event.preventDefault();
-          if (!content.busy && content.canSave) content.onSave();
+          if (!content.busy && content.canSave) {
+            content.onSave();
+          }
         }}
       >
         <label className="lumen-usage-cap">
@@ -727,6 +742,7 @@ export interface UsageRootProps extends Omit<LumenUsageProps, 'content'> {
   readonly chartOverview: boolean;
   readonly modelTable: boolean;
   readonly ratePanel: boolean;
+  readonly memberList: boolean;
 }
 
 function UsageRoot({
@@ -741,12 +757,16 @@ function UsageRoot({
   chartOverview,
   modelTable,
   ratePanel,
+  memberList,
 }: UsageRootProps) {
   const contentClassName = [
     'lumen-usage',
     'hbar-app-ui-usage-catalog',
     chartOverview ? 'lumen-usage-chart-stage hbar-app-ui-stage-padding-owner' : '',
     modelTable ? 'lumen-usage-model-stage hbar-app-ui-stage-padding-owner' : '',
+    memberList
+      ? 'lumen-usage-member-stage hbar-app-ui-stage-padding-owner hbar-app-ui-full-canvas-owner'
+      : '',
     ratePanel
       ? 'lumen-usage-rate-stage hbar-app-ui-stage-padding-owner hbar-app-ui-full-canvas-owner'
       : '',
@@ -761,9 +781,9 @@ function UsageRoot({
     .join(' ');
   return (
     <LumenSurface
-      as={chartOverview || modelTable || ratePanel ? 'div' : 'section'}
-      boundary={chartOverview || modelTable || ratePanel ? 'none' : 'horizontal'}
-      className={`lumen-usage-root-surface${chartOverview ? ' lumen-usage-chart-surface' : ''}${modelTable ? ' lumen-usage-model-surface' : ''}${ratePanel ? ' lumen-usage-rate-surface' : ''}`}
+      as={chartOverview || modelTable || ratePanel || memberList ? 'div' : 'section'}
+      boundary={chartOverview || modelTable || ratePanel || memberList ? 'none' : 'horizontal'}
+      className={`lumen-usage-root-surface${chartOverview ? ' lumen-usage-chart-surface' : ''}${modelTable ? ' lumen-usage-model-surface' : ''}${ratePanel ? ' lumen-usage-rate-surface' : ''}${memberList ? ' lumen-usage-member-surface' : ''}`}
       contentClassName={contentClassName}
       data-lumen-component="usage"
       data-lumen-variant={variant}
@@ -780,23 +800,37 @@ export function LumenUsage(props: LumenUsageProps) {
   const providerContent = useLumenUsageContent();
   const content = props.content ?? providerContent;
   let view: React.ReactNode = null;
-  if (props.variant === 1 && content.overview) view = <LumenUsageOverview {...content.overview} />;
-  if (props.variant === 2 && content.modelSpend)
+  if (props.variant === 1 && content.overview) {
+    view = <LumenUsageOverview {...content.overview} />;
+  }
+  if (props.variant === 2 && content.modelSpend) {
     view = <LumenUsageModelSpend {...content.modelSpend} />;
-  if (props.variant === 3 && content.rateLimits)
+  }
+  if (props.variant === 3 && content.rateLimits) {
     view = <LumenUsageRateLimits {...content.rateLimits} />;
-  if (props.variant === 4 && content.seats) view = <LumenUsageSeats {...content.seats} />;
-  if (props.variant === 5 && content.budget) view = <LumenUsageBudget {...content.budget} />;
-  if (props.variant === 6 && content.overage) view = <LumenUsageOverage {...content.overage} />;
-  if (props.variant === 7 && content.requests)
+  }
+  if (props.variant === 4 && content.seats) {
+    view = <LumenUsageSeats {...content.seats} />;
+  }
+  if (props.variant === 5 && content.budget) {
+    view = <LumenUsageBudget {...content.budget} />;
+  }
+  if (props.variant === 6 && content.overage) {
+    view = <LumenUsageOverage {...content.overage} />;
+  }
+  if (props.variant === 7 && content.requests) {
     view = <LumenUsageRequestLog {...content.requests} />;
-  if (props.variant === 8 && content.compact) view = <LumenUsageCompact {...content.compact} />;
+  }
+  if (props.variant === 8 && content.compact) {
+    view = <LumenUsageCompact {...content.compact} />;
+  }
   return (
     <UsageRoot
       {...props}
       chartOverview={props.variant === 1 && Boolean(content.overview?.chart)}
       modelTable={props.variant === 2 && Boolean(content.modelSpend?.table)}
       ratePanel={props.variant === 3 && Boolean(content.rateLimits?.panel)}
+      memberList={props.variant === 4 && Boolean(content.seats?.members)}
     >
       {view}
     </UsageRoot>
@@ -804,9 +838,11 @@ export function LumenUsage(props: LumenUsageProps) {
 }
 
 function createUsageVariant(variant: number) {
-  const Component = (props: LumenUsageVariantProps) => (
-    <LumenUsage {...props} variant={variant} variantId={`hbar-app-ui-ai-usage-${variant}`} />
-  );
+  function Component(props: LumenUsageVariantProps) {
+    return (
+      <LumenUsage {...props} variant={variant} variantId={`hbar-app-ui-ai-usage-${variant}`} />
+    );
+  }
   Component.displayName = `LumenUsage${String(variant).padStart(2, '0')}`;
   return Component;
 }
