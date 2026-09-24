@@ -28,6 +28,37 @@ export interface LumenFormFieldProps {
   className?: string | undefined;
 }
 
+function containsControl(node: React.ReactNode, controlId: string): boolean {
+  return React.Children.toArray(node).some(
+    (child) =>
+      React.isValidElement<{ id?: string; children?: React.ReactNode }>(child) &&
+      (child.props.id === controlId || containsControl(child.props.children, controlId)),
+  );
+}
+
+function bindDescendantControl(
+  node: React.ReactNode,
+  controlId: string,
+  attributes: Readonly<Record<string, unknown>>,
+): React.ReactNode {
+  return React.Children.map(node, (child) => {
+    if (!React.isValidElement<Record<string, unknown> & { children?: React.ReactNode }>(child)) {
+      return child;
+    }
+    if (child.props.id === controlId) {
+      const binding = Object.fromEntries(
+        Object.entries(attributes).map(([name, value]) => [name, child.props[name] ?? value]),
+      );
+      return React.cloneElement(child, binding);
+    }
+    return child.props.children === undefined
+      ? child
+      : React.cloneElement(child, {
+          children: bindDescendantControl(child.props.children, controlId, attributes),
+        });
+  });
+}
+
 export function LumenFormField({
   controlId,
   label,
@@ -48,15 +79,23 @@ export function LumenFormField({
     messageId = `${controlId}-hint`;
   }
   const describedBy = [descriptionId, messageId].filter(Boolean).join(' ') || undefined;
-  const control = React.isValidElement<Record<string, unknown>>(children)
-    ? React.cloneElement(children, {
-        id: children.props.id ?? controlId,
-        required: children.props.required ?? required,
-        'aria-describedby': children.props['aria-describedby'] ?? describedBy,
-        'aria-invalid': children.props['aria-invalid'] ?? (Boolean(error) || undefined),
-        'data-size': children.props['data-size'] ?? size,
-      })
-    : children;
+  const attributes = {
+    required,
+    'aria-describedby': describedBy,
+    'aria-invalid': Boolean(error) || undefined,
+    'data-size': size,
+  };
+  const control = containsControl(children, controlId)
+    ? bindDescendantControl(children, controlId, attributes)
+    : React.isValidElement<Record<string, unknown>>(children)
+      ? React.cloneElement(children, {
+          id: children.props.id ?? controlId,
+          required: children.props.required ?? required,
+          'aria-describedby': children.props['aria-describedby'] ?? describedBy,
+          'aria-invalid': children.props['aria-invalid'] ?? (Boolean(error) || undefined),
+          'data-size': children.props['data-size'] ?? size,
+        })
+      : children;
 
   let message: React.ReactNode;
   if (error) {
