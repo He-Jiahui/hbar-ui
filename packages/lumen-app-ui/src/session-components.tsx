@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useConversationViewport } from './conversation-viewport';
 import { LumenDisclosure } from './disclosure';
 import { LumenInput, LumenTextarea } from './forms';
 import LumenDivider from './LumenDivider';
@@ -126,7 +127,7 @@ export interface LumenConversationProps {
   latestLabel?: string | undefined;
 }
 
-/** Controlled conversation timeline with DOM-owned scroll anchoring and host-owned messages. */
+/** Pane-owned timeline; measured virtualization above 40 messages, host-owned data and copy. */
 export function LumenConversation({
   title,
   messages: sourceMessages,
@@ -139,39 +140,18 @@ export function LumenConversation({
   contentRevision,
   latestLabel,
 }: LumenConversationProps) {
-  const messages = uniqueById(sourceMessages);
-  const viewportId = `lumen-conversation-${scrollKey.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
-  const revision = String(contentRevision ?? `${messages.length}:${messages.at(-1)?.id ?? ''}`);
-  const connectViewport = (element: HTMLDivElement | null) => {
-    if (!element) {
-      return;
-    }
-    const previousKey = element.dataset.scrollKey;
-    const previousRevision = element.dataset.contentRevision;
-    const previousHeight = Number(element.dataset.scrollHeight ?? 0);
-    const firstId = messages[0]?.id ?? '';
-    const lastId = messages.at(-1)?.id ?? '';
-    const previousFirst = element.dataset.firstMessage;
-    const previousLast = element.dataset.lastMessage;
-    const distance = element.scrollHeight - element.scrollTop - element.clientHeight;
-    const wasAtEnd = previousRevision === undefined || distance <= 32;
-    queueMicrotask(() => {
-      if (!element.isConnected) {
-        return;
-      }
-      if (previousKey !== scrollKey || wasAtEnd) {
-        element.scrollTop = element.scrollHeight;
-      } else if (previousFirst !== firstId && previousLast === lastId && previousHeight > 0) {
-        element.scrollTop += Math.max(0, element.scrollHeight - previousHeight);
-      }
-      element.dataset.scrollHeight = String(element.scrollHeight);
-    });
-    element.dataset.scrollKey = scrollKey;
-    element.dataset.contentRevision = revision;
-    element.dataset.firstMessage = firstId;
-    element.dataset.lastMessage = lastId;
-    element.dataset.scrollHeight = String(element.scrollHeight);
-  };
+  const {
+    viewport,
+    messages,
+    virtualized,
+    visible,
+    leading,
+    trailing,
+    measureElement,
+    hasNewContent,
+    onScroll,
+    showLatest,
+  } = useConversationViewport({ messages: sourceMessages, scrollKey, contentRevision });
   return (
     <section className="lumen-conversation" aria-label={title}>
       {header === undefined ? (
@@ -183,26 +163,51 @@ export function LumenConversation({
       ) : (
         header
       )}
-      <div ref={connectViewport} id={viewportId} className="lumen-conversation-messages">
+      <div ref={viewport} onScroll={onScroll} className="lumen-conversation-messages">
         <div className="lumen-conversation-content">
           {beforeMessages}
-          {messages.length > 0
-            ? messages.map((message) => <LumenMessage {...message} key={message.id} />)
-            : empty}
+          {messages.length > 0 ? (
+            virtualized ? (
+              <div
+                className="lumen-conversation-virtual"
+                role="list"
+                data-hbar-app-ui-list-strategy="virtualized"
+                data-hbar-app-ui-message-count={messages.length}
+              >
+                <div aria-hidden="true" style={{ blockSize: leading }} />
+                {visible.map((item) => {
+                  const message = messages[item.index];
+                  return message ? (
+                    <div
+                      key={message.id}
+                      data-index={item.index}
+                      ref={measureElement}
+                      className="lumen-conversation-virtual-row"
+                      role="listitem"
+                      aria-posinset={item.index + 1}
+                      aria-setsize={messages.length}
+                    >
+                      <LumenMessage {...message} />
+                    </div>
+                  ) : null;
+                })}
+                <div aria-hidden="true" style={{ blockSize: trailing }} />
+              </div>
+            ) : (
+              messages.map((message) => <LumenMessage {...message} key={message.id} />)
+            )
+          ) : (
+            empty
+          )}
           {afterMessages}
         </div>
       </div>
-      {latestLabel && messages.length > 0 ? (
+      {hasNewContent && latestLabel && messages.length > 0 ? (
         <LumenButton
           className="lumen-conversation-latest"
           variant="outlined"
           size="s"
-          onClick={() => {
-            const viewport = document.getElementById(viewportId);
-            if (viewport) {
-              viewport.scrollTop = viewport.scrollHeight;
-            }
-          }}
+          onClick={showLatest}
         >
           <SessionGlyph name="down" />
           {latestLabel}

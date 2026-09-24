@@ -46,6 +46,7 @@
   flex: 1 1 auto;
   overflow: auto;
   overscroll-behavior: contain;
+  overflow-anchor: none;
 }
 
 .lumen-conversation-content {
@@ -59,6 +60,18 @@
 .lumen-conversation-latest {
   align-self: center;
   flex: 0 0 auto;
+}
+
+.lumen-conversation-virtual {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  overflow-anchor: none;
+}
+
+.lumen-conversation-virtual-row {
+  min-inline-size: 0;
+  padding-block-end: 0.75rem;
 }
 
 .lumen-message-surface,
