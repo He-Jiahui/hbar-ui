@@ -25,6 +25,8 @@ export interface LumenAgentApprovalInlineContent {
   readonly labels: {
     readonly day: string;
     readonly showRequest: string;
+    readonly hideRequest: string;
+    readonly decisionTime: string;
     readonly reject: string;
     readonly approve: string;
   };
@@ -35,6 +37,17 @@ export interface LumenAgentApprovalInlineContent {
   readonly requestTitle: string;
   readonly requestDescription: string;
   readonly requestStatusLabel: string;
+  readonly requestText: string;
+  readonly outcomes: Readonly<
+    Record<
+      'approved' | 'rejected',
+      {
+        readonly summary: string;
+        readonly followUp?: string | undefined;
+        readonly announcement: string;
+      }
+    >
+  >;
 }
 
 export interface LumenAgentApprovalChange {
@@ -249,10 +262,15 @@ function approvalTone(
   return 'neutral';
 }
 
-function ApprovalGlyph({ name }: { readonly name: 'chevron' | 'download' | 'search' | 'approve' }) {
+function ApprovalGlyph({
+  name,
+}: {
+  readonly name: 'chevron' | 'chevron-down' | 'download' | 'search' | 'approve';
+}) {
   return (
     <svg className="lumen-agent-approval-glyph" viewBox="0 0 16 16" aria-hidden="true">
       {name === 'chevron' ? <path d="m6 3 5 5-5 5" /> : null}
+      {name === 'chevron-down' ? <path d="m3 6 5 5 5-5" /> : null}
       {name === 'download' ? <path d="M8 2.5v8m-3-3 3 3 3-3M3 13.5h10" /> : null}
       {name === 'search' ? <path d="M7 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm4-1 3 3" /> : null}
       {name === 'approve' ? <path d="m3.5 8 3 3 6-6" /> : null}
@@ -327,7 +345,7 @@ function ApprovalRoot({
   return (
     <LumenSurface
       as="section"
-      boundary="horizontal"
+      boundary={variant === 1 ? 'none' : 'horizontal'}
       className="lumen-agent-approval-surface"
       contentClassName={contentClassName}
       data-lumen-component="agent-approval"
@@ -366,75 +384,123 @@ function InlineApproval(
 ) {
   const { content, onAction } = props;
   const [decision, setDecision] = React.useState<'pending' | 'approved' | 'rejected'>('pending');
-  const [requestOpen, setRequestOpen] = React.useState(true);
+  const [requestOpen, setRequestOpen] = React.useState(false);
+  const scrollPane = React.useRef<HTMLDivElement>(null);
+  const [scrollEdges, setScrollEdges] = React.useState({ top: false, bottom: false });
+  React.useEffect(() => {
+    const pane = scrollPane.current;
+    if (!pane) return undefined;
+    const update = () => {
+      const next = {
+        top: pane.scrollTop > 1,
+        bottom: pane.scrollHeight - pane.clientHeight - pane.scrollTop > 1,
+      };
+      setScrollEdges((previous) =>
+        previous.top === next.top && previous.bottom === next.bottom ? previous : next,
+      );
+    };
+    const observer = new ResizeObserver(update);
+    // The live preview refreshes these indicators on viewport resize or scroll,
+    // not merely when its request disclosure changes the content height.
+    observer.observe(pane);
+    pane.addEventListener('scroll', update, { passive: true });
+    return () => {
+      observer.disconnect();
+      pane.removeEventListener('scroll', update);
+    };
+  }, []);
   const decide = (value: 'approved' | 'rejected') => {
     setDecision(value);
     report(onAction, 'decide-inline-approval', value);
   };
+  const outcome = decision === 'pending' ? undefined : content.outcomes[decision];
   return (
-    <ApprovalRoot {...props} className="hbar-app-ui-agent-approval-inline">
-      <main className="hbar-app-ui-agent-approval-inline-body">
-        <LumenText as="p" className="hbar-app-ui-agent-approval-day" tone="muted">
-          {content.labels.day}
-        </LumenText>
-        <p className="hbar-app-ui-agent-approval-user-message">{content.userMessage}</p>
-        <p className="hbar-app-ui-agent-approval-detail-message">{content.detailMessage}</p>
-        <div className="hbar-app-ui-agent-approval-tool-row">
-          <StateMark state="complete" />
-          <code>{content.toolName}</code>
-          <time>{content.toolDuration}</time>
-        </div>
-        <LumenSurface
-          as="section"
-          boundary="horizontal"
-          className="hbar-app-ui-agent-approval-request-card"
-          contentClassName="hbar-app-ui-agent-approval-request-flow"
-          material="frost"
-          tone="warning"
-        >
-          <div className="hbar-app-ui-agent-approval-request-summary">
-            <ApprovalStatus
-              state={decision === 'pending' ? 'needs-approval' : decision}
-              label={content.requestStatusLabel}
-            />
-            <LumenText as="h2" variant="heading">
-              {content.requestTitle}
-            </LumenText>
-            <p>{content.requestDescription}</p>
+    <ApprovalRoot {...props} className="hbar-app-ui-agent-approval-inline-overlay-frame">
+      <div className="hbar-app-ui-agent-approval-inline" ref={scrollPane}>
+        <div className="hbar-app-ui-agent-approval-inline-body">
+          <p className="hbar-app-ui-agent-approval-day">{content.labels.day}</p>
+          <div className="hbar-app-ui-agent-approval-user-row">
+            <p className="hbar-app-ui-agent-approval-user-message">{content.userMessage}</p>
           </div>
-          <LumenDivider tone="warning" />
-          <footer className="hbar-app-ui-agent-approval-action-row">
-            <LumenButton
-              variant="text"
-              aria-expanded={requestOpen}
-              onClick={() => {
-                setRequestOpen((value) => !value);
-                report(onAction, 'toggle-inline-request');
-              }}
+          <p className="hbar-app-ui-agent-approval-detail-message">{content.detailMessage}</p>
+          <div className="hbar-app-ui-agent-approval-tool-row">
+            <StateMark state="complete" />
+            <span>{content.toolName}</span>
+            <span>{content.toolDuration}</span>
+          </div>
+          {outcome ? (
+            <React.Fragment>
+              <div className="hbar-app-ui-agent-approval-inline-result">
+                <StateMark state={decision === 'approved' ? 'approved' : 'skipped'} />
+                <p>{outcome.summary}</p>
+                <span>{content.labels.decisionTime}</span>
+              </div>
+              {outcome.followUp ? (
+                <p className="hbar-app-ui-agent-approval-inline-follow-up">{outcome.followUp}</p>
+              ) : null}
+            </React.Fragment>
+          ) : (
+            <LumenSurface
+              as="section"
+              aria-label={content.requestTitle}
+              boundary="none"
+              className="hbar-app-ui-agent-approval-request-card"
+              contentClassName="hbar-app-ui-agent-approval-request-flow"
+              material="frost"
             >
-              <ApprovalGlyph name="chevron" />
-              {content.labels.showRequest}
-            </LumenButton>
-            <div>
-              <LumenButton
-                variant="outlined"
-                disabled={decision !== 'pending'}
-                onClick={() => decide('rejected')}
-              >
-                {content.labels.reject}
-              </LumenButton>
-              <LumenButton
-                tone="primary"
-                disabled={decision !== 'pending'}
-                onClick={() => decide('approved')}
-              >
-                <ApprovalGlyph name="approve" />
-                {content.labels.approve}
-              </LumenButton>
-            </div>
-          </footer>
-        </LumenSurface>
-      </main>
+              <div className="hbar-app-ui-agent-approval-request-summary">
+                <div className="hbar-app-ui-agent-approval-inline-status">
+                  <StateMark state="needs-approval" />
+                  <span>{content.requestStatusLabel}</span>
+                </div>
+                <p className="hbar-app-ui-agent-approval-inline-title">{content.requestTitle}</p>
+                <p>{content.requestDescription}</p>
+              </div>
+              <div className="hbar-app-ui-agent-approval-inline-actions">
+                <footer className="hbar-app-ui-agent-approval-action-row">
+                  <LumenButton
+                    variant="text"
+                    aria-expanded={requestOpen}
+                    onClick={() => {
+                      setRequestOpen((value) => !value);
+                      report(onAction, 'toggle-inline-request');
+                    }}
+                  >
+                    <ApprovalGlyph name={requestOpen ? 'chevron-down' : 'chevron'} />
+                    {requestOpen ? content.labels.hideRequest : content.labels.showRequest}
+                  </LumenButton>
+                  <div>
+                    <LumenButton variant="outlined" onClick={() => decide('rejected')}>
+                      {content.labels.reject}
+                    </LumenButton>
+                    <LumenButton onClick={() => decide('approved')}>
+                      {content.labels.approve}
+                    </LumenButton>
+                  </div>
+                </footer>
+                {requestOpen ? (
+                  <pre tabIndex={0} className="hbar-app-ui-agent-approval-inline-request">
+                    {content.requestText}
+                  </pre>
+                ) : null}
+              </div>
+            </LumenSurface>
+          )}
+        </div>
+        <div className="hbar-app-ui-agent-approval-inline-announcement" aria-live="polite">
+          {outcome?.announcement}
+        </div>
+      </div>
+      <div
+        aria-hidden="true"
+        className="hbar-app-ui-agent-approval-scroll-overlay is-top"
+        data-visible={scrollEdges.top}
+      />
+      <div
+        aria-hidden="true"
+        className="hbar-app-ui-agent-approval-scroll-overlay is-bottom"
+        data-visible={scrollEdges.bottom}
+      />
     </ApprovalRoot>
   );
 }
@@ -884,7 +950,8 @@ function HistoryApproval(
 }
 
 export function LumenAgentApproval(props: LumenAgentApprovalProps) {
-  const content = props.content ?? useLumenAgentApprovalContent();
+  const contextualContent = useLumenAgentApprovalContent();
+  const content = props.content ?? contextualContent;
   let view: React.ReactNode = null;
   if (props.variant === 1 && content?.inline)
     view = <InlineApproval {...props} content={content.inline} />;
