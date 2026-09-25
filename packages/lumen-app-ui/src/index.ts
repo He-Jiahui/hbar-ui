@@ -1119,6 +1119,14 @@ export type {
   LumenDocumentMenuItem,
 } from './app-shell-documents';
 export type {
+  LumenAppShellScopeContent,
+  LumenScopeOption,
+  LumenScopeKind,
+  LumenScopePicker,
+  LumenScopeDatabase,
+  LumenScopeNavigation,
+} from './app-shell-scope';
+export type {
   LumenAppShellChoice,
   LumenAppShellContent,
   LumenAppShellListStrategy,
