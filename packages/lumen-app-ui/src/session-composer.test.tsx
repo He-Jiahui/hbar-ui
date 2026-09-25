@@ -35,6 +35,35 @@ const defaults: LumenPromptComposerProps = {
 describe('LumenPromptComposer running actions', () => {
   const { render } = createRenderer();
 
+  it('keeps both horizontal surface lamps by default for existing consumers', () => {
+    render(<LumenPromptComposer {...defaults} />);
+    const form = screen.getByRole('textbox', { name: labels.input }).closest('form');
+    expect(form?.getAttribute('data-boundary')).to.equal('horizontal');
+    expect(
+      Array.from(form?.children ?? [])
+        .map((child) => child.getAttribute('data-edge'))
+        .filter(Boolean),
+    ).to.deep.equal(['top', 'bottom']);
+  });
+
+  it('omits only decorative surface lamps when boundary is none, preserving input and submit', async () => {
+    const onSubmit = vi.fn();
+    const { user } = render(
+      <LumenPromptComposer {...defaults} boundary="none" canStop={false} onSubmit={onSubmit} />,
+    );
+    const input = screen.getByRole('textbox', { name: labels.input });
+    const form = input.closest('form');
+    expect(form?.getAttribute('data-boundary')).to.equal('none');
+    expect(form?.getAttribute('data-interactive')).to.equal('true');
+    expect(
+      Array.from(form?.children ?? []).filter((child) => child.hasAttribute('data-edge')),
+    ).to.have.length(0);
+    await user.click(input);
+    expect(input).to.equal(document.activeElement);
+    await user.click(screen.getByRole('button', { name: labels.send }));
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+
   it('preserves the legacy Stop and Send controls when the optional contract is omitted', () => {
     render(<LumenPromptComposer {...defaults} />);
     expect(screen.getByRole('button', { name: labels.stop })).not.to.equal(null);
@@ -119,9 +148,12 @@ describe('LumenPromptComposer running actions', () => {
             role="textbox"
             aria-label={inputLabel}
             contentEditable
+            tabIndex={0}
             data-testid="rich-composer-editor"
             onKeyDown={(event) => {
-              if (event.key === 'Enter') submit();
+              if (event.key === 'Enter') {
+                submit();
+              }
             }}
           />
         )}

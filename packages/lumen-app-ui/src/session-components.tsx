@@ -6,7 +6,7 @@ import { LumenDisclosure } from './disclosure';
 import { LumenInput, LumenTextarea } from './forms';
 import { LumenFilePicker } from './file-picker';
 import LumenDivider from './LumenDivider';
-import LumenSurface from './LumenSurface';
+import LumenSurface, { type LumenSurfaceProps } from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { LumenCompactMetrics } from './workspace-components';
 import './session-components.css';
@@ -180,6 +180,40 @@ export function LumenConversation({
     onScroll,
     showLatest,
   } = useConversationViewport({ messages: sourceMessages, scrollKey, contentRevision });
+  let messageContent: React.ReactNode = empty;
+  if (messages.length > 0) {
+    if (virtualized) {
+      messageContent = (
+        <div
+          className="lumen-conversation-virtual"
+          role="list"
+          data-hbar-app-ui-list-strategy="virtualized"
+          data-hbar-app-ui-message-count={messages.length}
+        >
+          <div aria-hidden="true" style={{ blockSize: leading }} />
+          {visible.map((item) => {
+            const message = messages[item.index];
+            return message ? (
+              <div
+                key={message.id}
+                data-index={item.index}
+                ref={measureElement}
+                className="lumen-conversation-virtual-row"
+                role="listitem"
+                aria-posinset={item.index + 1}
+                aria-setsize={messages.length}
+              >
+                <LumenMessage {...message} />
+              </div>
+            ) : null;
+          })}
+          <div aria-hidden="true" style={{ blockSize: trailing }} />
+        </div>
+      );
+    } else {
+      messageContent = messages.map((message) => <LumenMessage {...message} key={message.id} />);
+    }
+  }
   return (
     <section className="lumen-conversation" aria-label={title}>
       {header === undefined ? (
@@ -194,39 +228,7 @@ export function LumenConversation({
       <div ref={viewport} onScroll={onScroll} className="lumen-conversation-messages">
         <div className="lumen-conversation-content">
           {beforeMessages}
-          {messages.length > 0 ? (
-            virtualized ? (
-              <div
-                className="lumen-conversation-virtual"
-                role="list"
-                data-hbar-app-ui-list-strategy="virtualized"
-                data-hbar-app-ui-message-count={messages.length}
-              >
-                <div aria-hidden="true" style={{ blockSize: leading }} />
-                {visible.map((item) => {
-                  const message = messages[item.index];
-                  return message ? (
-                    <div
-                      key={message.id}
-                      data-index={item.index}
-                      ref={measureElement}
-                      className="lumen-conversation-virtual-row"
-                      role="listitem"
-                      aria-posinset={item.index + 1}
-                      aria-setsize={messages.length}
-                    >
-                      <LumenMessage {...message} />
-                    </div>
-                  ) : null;
-                })}
-                <div aria-hidden="true" style={{ blockSize: trailing }} />
-              </div>
-            ) : (
-              messages.map((message) => <LumenMessage {...message} key={message.id} />)
-            )
-          ) : (
-            empty
-          )}
+          {messageContent}
           {afterMessages}
         </div>
       </div>
@@ -268,6 +270,8 @@ export interface LumenPromptComposerProps {
   value: string;
   labels: LumenPromptLabels;
   attachments: readonly LumenComposerAttachment[];
+  /** Opt out of the decorative surface lamps without changing form behavior. Defaults to horizontal. */
+  boundary?: LumenSurfaceProps['boundary'] | undefined;
   disabled?: boolean | undefined;
   submitting: boolean;
   uploading: boolean;
@@ -322,27 +326,29 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
     runningActions?.submit === 'hidden',
   );
   const submit = () => {
-    if (!blocked) props.onSubmit();
+    if (!blocked) {
+      props.onSubmit();
+    }
   };
+  let surfaceState: NonNullable<LumenSurfaceProps['state']> = 'idle';
+  if (props.error) {
+    surfaceState = 'failed';
+  } else if (props.submitting || props.uploading) {
+    surfaceState = 'running';
+  } else if (props.disabled) {
+    surfaceState = 'disabled';
+  } else if (props.value.trim()) {
+    surfaceState = 'selected';
+  }
   return (
     <LumenSurface
       as="form"
-      boundary="horizontal"
+      boundary={props.boundary ?? 'horizontal'}
       className="lumen-prompt-composer-surface"
       contentClassName="lumen-prompt-composer"
       interactive
       material="frost"
-      state={
-        props.error
-          ? 'failed'
-          : props.submitting || props.uploading
-            ? 'running'
-            : props.disabled
-              ? 'disabled'
-              : props.value.trim()
-                ? 'selected'
-                : 'idle'
-      }
+      state={surfaceState}
       tone={props.error ? 'danger' : 'neutral'}
       aria-busy={props.submitting || props.uploading || undefined}
       onSubmit={(event) => {
@@ -730,6 +736,12 @@ export function LumenApprovalRequest({
   if (state.status === 'pending') {
     statusLabel = labels.savingLabel;
   }
+  let surfaceState: 'idle' | 'running' | 'failed' = 'idle';
+  if (state.error) {
+    surfaceState = 'failed';
+  } else if (state.status === 'pending') {
+    surfaceState = 'running';
+  }
   return (
     <LumenSurface
       as="section"
@@ -739,7 +751,7 @@ export function LumenApprovalRequest({
       aria-label={labels.title}
       aria-busy={state.status === 'pending' || undefined}
       material="frost"
-      state={state.error ? 'failed' : state.status === 'pending' ? 'running' : 'idle'}
+      state={surfaceState}
       tone={state.error ? 'danger' : 'warning'}
     >
       <header className="hbar-app-ui-approval-request-heading">
@@ -856,6 +868,12 @@ export function LumenQuestionnaire({
   if (state.status === 'pending') {
     submitLabel = labels.submittingLabel;
   }
+  let surfaceState: 'idle' | 'running' | 'failed' = 'idle';
+  if (state.error) {
+    surfaceState = 'failed';
+  } else if (state.status === 'pending') {
+    surfaceState = 'running';
+  }
   return (
     <LumenSurface
       as="section"
@@ -865,7 +883,7 @@ export function LumenQuestionnaire({
       aria-label={labels.title}
       aria-busy={state.status === 'pending' || undefined}
       material="frost"
-      state={state.error ? 'failed' : state.status === 'pending' ? 'running' : 'idle'}
+      state={surfaceState}
       tone={state.error ? 'danger' : 'neutral'}
     >
       <header className="hbar-app-ui-questionnaire-heading">
@@ -1022,7 +1040,7 @@ export function LumenCompactUsage({
   metrics,
 }: LumenCompactUsageProps) {
   const normalized = Number.isFinite(progress) ? Math.max(0, Math.min(1, progress)) : 0;
-  let mappedTone: 'neutral' | 'primary' | 'success' | 'warning' | 'danger';
+  let mappedTone: 'neutral' | 'primary' | 'success' | 'warning' | 'danger' | undefined;
   switch (tone) {
     case 'accent':
       mappedTone = 'primary';
@@ -1034,8 +1052,17 @@ export function LumenCompactUsage({
     case 'warning':
     case 'danger':
       mappedTone = tone;
+      break;
+    default:
+      mappedTone = undefined;
   }
   if (density === 'inline') {
+    let surfaceTone: NonNullable<LumenSurfaceProps['tone']> = 'neutral';
+    if (mappedTone === 'primary') {
+      surfaceTone = 'info';
+    } else if (mappedTone === 'success' || mappedTone === 'warning' || mappedTone === 'danger') {
+      surfaceTone = mappedTone;
+    }
     return (
       <LumenSurface
         as="section"
@@ -1046,13 +1073,7 @@ export function LumenCompactUsage({
         title={description}
         data-tone={mappedTone}
         material="frost"
-        tone={
-          mappedTone === 'primary'
-            ? 'info'
-            : mappedTone === 'success' || mappedTone === 'warning' || mappedTone === 'danger'
-              ? mappedTone
-              : 'neutral'
-        }
+        tone={surfaceTone}
       >
         <div>
           <strong>{value}</strong>
