@@ -1134,6 +1134,14 @@ export type {
   LumenAdaptiveQueueIcon,
 } from './app-shell-adaptive';
 export type {
+  LumenAppShellChatContent,
+  LumenShellChatAction,
+  LumenShellChatIcon,
+  LumenShellChatMessage,
+  LumenShellChatModel,
+  LumenShellChatThread,
+} from './app-shell-chat';
+export type {
   LumenAppShellChoice,
   LumenAppShellContent,
   LumenAppShellListStrategy,

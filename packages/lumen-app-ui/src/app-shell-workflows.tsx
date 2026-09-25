@@ -14,6 +14,7 @@ import { AppShellInbox, type LumenAppShellInboxContent } from './app-shell-inbox
 import { AppShellDocuments, type LumenAppShellDocumentsContent } from './app-shell-documents';
 import { AppShellScope, type LumenAppShellScopeContent } from './app-shell-scope';
 import { AppShellAdaptive, type LumenAppShellAdaptiveContent } from './app-shell-adaptive';
+import { AppShellChat, type LumenAppShellChatContent } from './app-shell-chat';
 
 export interface LumenAppShellListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -49,6 +50,7 @@ export interface LumenAppShellContent {
   readonly documents?: LumenAppShellDocumentsContent | undefined;
   readonly scope?: LumenAppShellScopeContent | undefined;
   readonly adaptive?: LumenAppShellAdaptiveContent | undefined;
+  readonly chat?: LumenAppShellChatContent | undefined;
   readonly labels: {
     readonly brand: string;
     readonly title: string;
@@ -930,6 +932,15 @@ export function LumenAppShellWorkflows(props: LumenAppShellWorkflowsProps) {
     return <Adaptive {...props} content={content} />;
   }
   if (props.variant === 9) {
+    if (content.chat)
+      return (
+        <Root
+          {...props}
+          className={['lumen-shell-chat-stage', props.className].filter(Boolean).join(' ')}
+        >
+          <AppShellChat content={content.chat} />
+        </Root>
+      );
     return <Chat {...props} content={content} />;
   }
   return empty(props);
