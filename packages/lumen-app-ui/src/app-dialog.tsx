@@ -12,6 +12,7 @@ import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './app-dialog.css';
 import './app-dialog-plan.css';
+import './app-dialog-delete.css';
 
 export interface LumenAppDialogListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -56,10 +57,14 @@ export interface LumenAppDialogDeleteContent {
     readonly detail: string;
     readonly close: string;
     readonly confirmation: (name: string) => string;
+    readonly confirmationBefore?: string | undefined;
+    readonly confirmationAfter?: string | undefined;
     readonly placeholder: string;
     readonly cancel: string;
     readonly confirm: string;
     readonly empty: string;
+    readonly successTitle?: string | undefined;
+    readonly successDetail?: string | undefined;
   };
   readonly projectName: string;
   readonly metrics: readonly LumenAppDialogMetric[];
@@ -270,7 +275,7 @@ function Root({
 }: Omit<LumenAppDialogProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
   const contentClassName = [
     'lumen-app-dialog-stage',
-    variant === 1 ? 'hbar-app-ui-full-canvas-owner' : '',
+    variant === 1 || variant === 2 ? 'hbar-app-ui-full-canvas-owner' : '',
     `hbar-app-ui-dialog-variant-${variant}`,
     density ? `hbar-app-ui-density-${density}` : '',
     surface ? `hbar-app-ui-surface-${surface}` : '',
@@ -283,8 +288,8 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary={variant === 1 ? 'none' : 'horizontal'}
-      material={variant === 1 ? 'frost' : 'glass'}
+      boundary={variant === 1 || variant === 2 ? 'none' : 'horizontal'}
+      material={variant === 1 || variant === 2 ? 'frost' : 'glass'}
       className="lumen-app-dialog-stage-surface"
       contentClassName={contentClassName}
       data-lumen-component="app-dialog"
@@ -476,11 +481,13 @@ function DeleteProject(
 ) {
   const metrics = uniqueLumenAppDialogItems(props.content.metrics);
   const [confirmation, setConfirmation] = React.useState('');
+  const [deleted, setDeleted] = React.useState(false);
   return (
     <Root {...props}>
       <DialogState trigger={props.content.labels.trigger} onAction={props.onAction}>
         {(close) => (
           <Panel
+            landmarks
             title={props.content.labels.title}
             detail={props.content.labels.detail}
             titleId={`${props.variantId}-title`}
@@ -496,7 +503,8 @@ function DeleteProject(
                   disabled={confirmation !== props.content.projectName}
                   onClick={() => {
                     close();
-                    report(props.onAction, 'confirm', 'delete');
+                    setDeleted(true);
+                    report(props.onAction, 'confirm', props.content.projectName);
                   }}
                 >
                   {props.content.labels.confirm}
@@ -519,19 +527,36 @@ function DeleteProject(
                 <Empty>{props.content.labels.empty}</Empty>
               )}
             </dl>
-            <LumenFormField
-              controlId={`${props.variantId}-confirmation`}
-              label={props.content.labels.confirmation(props.content.projectName)}
-            >
+            <div className="lumen-delete-field">
+              <label htmlFor={`${props.variantId}-confirmation`}>
+                {props.content.labels.confirmationBefore !== undefined &&
+                props.content.labels.confirmationAfter !== undefined ? (
+                  <>
+                    {props.content.labels.confirmationBefore}
+                    <span className="lumen-delete-project-name">{props.content.projectName}</span>
+                    {props.content.labels.confirmationAfter}
+                  </>
+                ) : (
+                  props.content.labels.confirmation(props.content.projectName)
+                )}
+              </label>
               <LumenInput
+                id={`${props.variantId}-confirmation`}
+                variant="plain"
                 value={confirmation}
                 onChange={(event) => setConfirmation(event.target.value)}
                 placeholder={props.content.labels.placeholder}
               />
-            </LumenFormField>
+            </div>
           </Panel>
         )}
       </DialogState>
+      {deleted && props.content.labels.successTitle && props.content.labels.successDetail && (
+        <div className="hbar-app-ui-dialog-delete-toast">
+          <p>{props.content.labels.successTitle}</p>
+          <p>{props.content.labels.successDetail}</p>
+        </div>
+      )}
     </Root>
   );
 }
