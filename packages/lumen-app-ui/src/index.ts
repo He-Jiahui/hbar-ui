@@ -1402,6 +1402,11 @@ export type {
   LumenUsageOveragePanelContent,
   UsageOveragePanelProps,
 } from './usage-overage-panel';
+export type {
+  LumenUsageRequestRecord,
+  LumenUsageRequestTableContent,
+  UsageRequestTableProps,
+} from './usage-request-table';
 export {
   LumenFeedback,
   LumenFeedback01,

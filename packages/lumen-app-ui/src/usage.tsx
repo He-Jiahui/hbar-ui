@@ -11,6 +11,7 @@ import { UsageRatePanel, type LumenUsageRatePanelContent } from './usage-rate-pa
 import { UsageMemberList, type LumenUsageMemberListContent } from './usage-member-list';
 import { UsageBudgetPanel, type LumenUsageBudgetPanelContent } from './usage-budget-panel';
 import { UsageOveragePanel, type LumenUsageOveragePanelContent } from './usage-overage-panel';
+import { UsageRequestTable, type LumenUsageRequestTableContent } from './usage-request-table';
 import './usage.css';
 
 export interface LumenUsageMetric {
@@ -172,6 +173,8 @@ export interface LumenUsageRequest {
 }
 
 export interface LumenUsageRequestLogContent extends LumenUsageHeading, LumenUsageCollection {
+  /** Detailed responsive request log; omission retains the legacy disclosure API. */
+  readonly table?: LumenUsageRequestTableContent | undefined;
   readonly rows: readonly LumenUsageRequest[];
   readonly filter?: LumenUsageAction | undefined;
 }
@@ -657,6 +660,7 @@ export function LumenUsageOverage(content: LumenUsageOverageContent) {
 }
 
 export function LumenUsageRequestLog(content: LumenUsageRequestLogContent) {
+  if (content.table) return <UsageRequestTable heading={content} table={content.table} />;
   return (
     <UsageFrame content={content} variant={7}>
       {content.filter ? (
@@ -757,6 +761,7 @@ export interface UsageRootProps extends Omit<LumenUsageProps, 'content'> {
   readonly memberList: boolean;
   readonly budgetPanel: boolean;
   readonly overagePanel: boolean;
+  readonly requestTable: boolean;
 }
 
 function UsageRoot({
@@ -774,12 +779,22 @@ function UsageRoot({
   memberList,
   budgetPanel,
   overagePanel,
+  requestTable,
 }: UsageRootProps) {
   const detailed =
-    chartOverview || modelTable || ratePanel || memberList || budgetPanel || overagePanel;
+    chartOverview ||
+    modelTable ||
+    ratePanel ||
+    memberList ||
+    budgetPanel ||
+    overagePanel ||
+    requestTable;
   const contentClassName = [
     'lumen-usage',
     'hbar-app-ui-usage-catalog',
+    requestTable
+      ? 'lumen-usage-request-stage hbar-app-ui-stage-padding-owner hbar-app-ui-full-canvas-owner'
+      : '',
     overagePanel
       ? 'lumen-usage-overage-stage hbar-app-ui-stage-padding-owner hbar-app-ui-full-canvas-owner'
       : '',
@@ -807,7 +822,7 @@ function UsageRoot({
     <LumenSurface
       as={detailed ? 'div' : 'section'}
       boundary={detailed ? 'none' : 'horizontal'}
-      className={`lumen-usage-root-surface${chartOverview ? ' lumen-usage-chart-surface' : ''}${modelTable ? ' lumen-usage-model-surface' : ''}${ratePanel ? ' lumen-usage-rate-surface' : ''}${memberList ? ' lumen-usage-member-surface' : ''}${budgetPanel ? ' lumen-usage-budget-surface' : ''}${overagePanel ? ' lumen-usage-overage-surface' : ''}`}
+      className={`lumen-usage-root-surface${chartOverview ? ' lumen-usage-chart-surface' : ''}${modelTable ? ' lumen-usage-model-surface' : ''}${ratePanel ? ' lumen-usage-rate-surface' : ''}${memberList ? ' lumen-usage-member-surface' : ''}${budgetPanel ? ' lumen-usage-budget-surface' : ''}${overagePanel ? ' lumen-usage-overage-surface' : ''}${requestTable ? ' lumen-usage-request-surface' : ''}`}
       contentClassName={contentClassName}
       data-lumen-component="usage"
       data-lumen-variant={variant}
@@ -857,6 +872,7 @@ export function LumenUsage(props: LumenUsageProps) {
       memberList={props.variant === 4 && Boolean(content.seats?.members)}
       budgetPanel={props.variant === 5 && Boolean(content.budget?.panel)}
       overagePanel={props.variant === 6 && Boolean(content.overage?.panel)}
+      requestTable={props.variant === 7 && Boolean(content.requests?.table)}
     >
       {view}
     </UsageRoot>
