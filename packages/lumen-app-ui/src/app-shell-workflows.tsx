@@ -10,6 +10,7 @@ import { AppShellSidebar, type LumenAppShellSidebarContent } from './app-shell-s
 import { AppShellRail, type LumenAppShellRailContent } from './app-shell-rail';
 import { AppShellContracts, type LumenAppShellContractsContent } from './app-shell-contracts';
 import { AppShellEditorial, type LumenAppShellEditorialContent } from './app-shell-editorial';
+import { AppShellInbox, type LumenAppShellInboxContent } from './app-shell-inbox';
 
 export interface LumenAppShellListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -41,6 +42,7 @@ export interface LumenAppShellContent {
   readonly rail?: LumenAppShellRailContent | undefined;
   readonly contracts?: LumenAppShellContractsContent | undefined;
   readonly editorial?: LumenAppShellEditorialContent | undefined;
+  readonly inbox?: LumenAppShellInboxContent | undefined;
   readonly labels: {
     readonly brand: string;
     readonly title: string;
@@ -874,6 +876,15 @@ export function LumenAppShellWorkflows(props: LumenAppShellWorkflowsProps) {
     return <Contextual {...props} content={content} />;
   }
   if (props.variant === 5) {
+    if (content.inbox)
+      return (
+        <Root
+          {...props}
+          className={['lumen-shell-inbox-stage', props.className].filter(Boolean).join(' ')}
+        >
+          <AppShellInbox content={content.inbox} />
+        </Root>
+      );
     return <Triage {...props} content={content} />;
   }
   if (props.variant === 6) {

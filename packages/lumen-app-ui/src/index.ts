@@ -1106,6 +1106,11 @@ export type {
   LumenEditorialEvent,
 } from './app-shell-editorial';
 export type {
+  LumenAppShellInboxContent,
+  LumenInboxMailbox,
+  LumenInboxConversation,
+} from './app-shell-inbox';
+export type {
   LumenAppShellChoice,
   LumenAppShellContent,
   LumenAppShellListStrategy,
