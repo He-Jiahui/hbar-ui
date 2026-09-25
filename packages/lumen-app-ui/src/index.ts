@@ -1126,6 +1126,13 @@ export type {
   LumenScopeDatabase,
   LumenScopeNavigation,
 } from './app-shell-scope';
+export { selectAdaptiveJobs } from './app-shell-adaptive';
+export type {
+  LumenAppShellAdaptiveContent,
+  LumenAdaptiveJob,
+  LumenAdaptiveQueue,
+  LumenAdaptiveQueueIcon,
+} from './app-shell-adaptive';
 export type {
   LumenAppShellChoice,
   LumenAppShellContent,

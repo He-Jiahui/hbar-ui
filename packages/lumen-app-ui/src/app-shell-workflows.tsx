@@ -13,6 +13,7 @@ import { AppShellEditorial, type LumenAppShellEditorialContent } from './app-she
 import { AppShellInbox, type LumenAppShellInboxContent } from './app-shell-inbox';
 import { AppShellDocuments, type LumenAppShellDocumentsContent } from './app-shell-documents';
 import { AppShellScope, type LumenAppShellScopeContent } from './app-shell-scope';
+import { AppShellAdaptive, type LumenAppShellAdaptiveContent } from './app-shell-adaptive';
 
 export interface LumenAppShellListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -47,6 +48,7 @@ export interface LumenAppShellContent {
   readonly inbox?: LumenAppShellInboxContent | undefined;
   readonly documents?: LumenAppShellDocumentsContent | undefined;
   readonly scope?: LumenAppShellScopeContent | undefined;
+  readonly adaptive?: LumenAppShellAdaptiveContent | undefined;
   readonly labels: {
     readonly brand: string;
     readonly title: string;
@@ -916,6 +918,15 @@ export function LumenAppShellWorkflows(props: LumenAppShellWorkflowsProps) {
     return <Scoped {...props} content={content} />;
   }
   if (props.variant === 8) {
+    if (content.adaptive)
+      return (
+        <Root
+          {...props}
+          className={['lumen-shell-adaptive-stage', props.className].filter(Boolean).join(' ')}
+        >
+          <AppShellAdaptive content={content.adaptive} />
+        </Root>
+      );
     return <Adaptive {...props} content={content} />;
   }
   if (props.variant === 9) {
