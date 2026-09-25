@@ -7,6 +7,7 @@ import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitiv
 import { LumenAppSidebar, LumenSidebarAction } from './workbench';
 import { AppSidebarPrimary, type LumenAppSidebarPrimaryContent } from './app-sidebar-primary';
 import { AppSidebarRail, type LumenAppSidebarRailContent } from './app-sidebar-rail';
+import { AppSidebarWorkspace, type LumenAppSidebarWorkspaceContent } from './app-sidebar-workspace';
 import './app-sidebar-workflows.css';
 
 export interface LumenAppSidebarListStrategy {
@@ -30,6 +31,7 @@ export interface LumenAppSidebarTreeNode extends LumenAppSidebarItem {
 export interface LumenAppSidebarContent {
   readonly primary?: LumenAppSidebarPrimaryContent | undefined;
   readonly railPreview?: LumenAppSidebarRailContent | undefined;
+  readonly workspacePreview?: LumenAppSidebarWorkspaceContent | undefined;
   readonly labels: {
     readonly brand: string;
     readonly title: string;
@@ -635,6 +637,16 @@ export function LumenAppSidebarWorkflows(props: LumenAppSidebarWorkflowsProps) {
     return <Rail {...props} content={content} />;
   }
   if (props.variant === 3) {
+    if (content.workspacePreview) {
+      return (
+        <Root {...props}>
+          <AppSidebarWorkspace
+            content={content.workspacePreview}
+            onAction={(action, id) => report(props.onAction, action, id)}
+          />
+        </Root>
+      );
+    }
     return <Scoped {...props} content={content} />;
   }
   if (props.variant === 4) {
