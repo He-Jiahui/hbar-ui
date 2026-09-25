@@ -6,6 +6,7 @@ import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
 import './notifications.css';
 import './notifications-center-reference.css';
+import './notifications-toast-reference.css';
 
 export interface LumenNotificationsListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -55,8 +56,10 @@ export interface LumenNotificationCenterContent {
 export interface LumenNotificationToastChoice {
   readonly id: string;
   readonly label: string;
+  readonly title?: string | undefined;
   readonly detail: string;
   readonly tone: 'success' | 'danger' | 'info' | 'warning';
+  readonly action?: string | undefined;
 }
 export interface LumenNotificationToastsContent {
   readonly labels: {
@@ -67,6 +70,7 @@ export interface LumenNotificationToastsContent {
     readonly automatic: string;
     readonly empty: string;
     readonly clear: string;
+    readonly active?: ((count: number) => string) | undefined;
   };
   readonly choices: readonly LumenNotificationToastChoice[];
   readonly maximum: number;
@@ -313,8 +317,8 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary={variant === 1 ? 'none' : 'horizontal'}
-      shape={variant === 1 ? 'square' : 'rounded'}
+      boundary={variant <= 2 ? 'none' : 'horizontal'}
+      shape={variant <= 2 ? 'square' : 'rounded'}
       className="lumen-notifications-surface"
       contentClassName={contentClassName}
       data-lumen-component="notifications"
@@ -518,66 +522,90 @@ function NotificationIcon({ name }: { readonly name: LumenNotificationEntry['ico
 function Toasts(
   props: Omit<LumenNotificationsProps, 'content'> & { content: LumenNotificationToastsContent },
 ) {
+  type ToastInstance = { readonly key: number; readonly choice: LumenNotificationToastChoice; readonly remainingMs: number; readonly startedAt: number | null };
   const choices = uniqueLumenNotificationsItems(props.content.choices);
-  const [toasts, setToasts] = React.useState<readonly LumenNotificationToastChoice[]>([]);
-  const [paused, setPaused] = React.useState(false);
+  const [toasts, setToasts] = React.useState<readonly ToastInstance[]>([]);
+  const [expanded, setExpanded] = React.useState(false);
+  const nextKey = React.useRef(0);
+  React.useEffect(() => {
+    if (expanded || !toasts.length) return;
+    const now = Date.now();
+    const next = Math.min(...toasts.map((toast) => toast.remainingMs - (toast.startedAt === null ? 0 : now - toast.startedAt)));
+    const timer = window.setTimeout(() => {
+      const expiredAt = Date.now();
+      toasts.filter((toast) => toast.remainingMs <= (toast.startedAt === null ? 0 : expiredAt - toast.startedAt))
+        .forEach((toast) => report(props.onAction, 'expire', toast.choice.id));
+      setToasts((current) => current.filter((toast) => toast.remainingMs > (toast.startedAt === null ? 0 : expiredAt - toast.startedAt)));
+    }, Math.max(0, next));
+    return () => window.clearTimeout(timer);
+  }, [expanded, props.onAction, toasts]);
   return (
     <Root {...props}>
-      <Header title={props.content.labels.title} detail={props.content.labels.detail} />
-      <div className="lumen-notifications-toast-choices">
-        {choices.map((choice) => (
-          <LumenButton
-            key={choice.id}
-            variant="outlined"
-            onClick={() => {
-              setToasts((current) => [...current, choice].slice(-props.content.maximum));
-              report(props.onAction, 'show', choice.id);
-            }}
-          >
-            <Glyph name="info" />
-            {choice.label}
-          </LumenButton>
-        ))}
-      </div>
-      <section
-        className="lumen-notifications-toasts"
-        aria-live="polite"
-        onPointerEnter={() => setPaused(true)}
-        onPointerLeave={() => setPaused(false)}
-      >
-        {toasts.length ? (
-          toasts.map((toast, index) => (
-            <article key={`${toast.id}-${index}`} data-tone={toast.tone}>
-              <Glyph name={toast.tone === 'success' ? 'check' : 'info'} />
-              <span>
-                <strong>{toast.label}</strong>
-                <small>
-                  {paused
-                    ? props.content.labels.paused
-                    : toast.detail || props.content.labels.automatic}
-                </small>
-              </span>
-              <LumenIconButton
-                label={props.content.labels.dismiss(toast.label)}
-                onClick={() =>
-                  setToasts((current) =>
-                    current.filter((_, currentIndex) => currentIndex !== index),
-                  )
-                }
+      <div className="lumen-notifications-toast-frame">
+        <div className="lumen-notifications-toast-card">
+          <h2>{props.content.labels.title}</h2>
+          <p>{props.content.labels.detail}</p>
+          <div className="lumen-notifications-toast-choices">
+            {choices.map((choice) => (
+              <LumenButton
+                key={choice.id}
+                variant="outlined"
+                indicator="none"
+                data-toast-tone={choice.tone}
+                onClick={() => {
+                  const key = nextKey.current++;
+                  setToasts((current) => [{ key, choice, remainingMs: 5000, startedAt: Date.now() }, ...current].slice(0, props.content.maximum));
+                  report(props.onAction, 'show', choice.id);
+                }}
               >
-                <Glyph name="close" />
-              </LumenIconButton>
-            </article>
-          ))
-        ) : (
-          <div className="lumen-notifications-empty-state">
-            <span>{props.content.labels.empty}</span>
-            <LumenButton disabled>{props.content.labels.clear}</LumenButton>
+                <ToastGlyph tone={choice.tone} />
+                {choice.label}
+              </LumenButton>
+            ))}
           </div>
-        )}
-      </section>
+          <div className="lumen-notifications-toast-summary" data-empty={!toasts.length || undefined}>
+            <span>{toasts.length ? (props.content.labels.active?.(toasts.length) ?? `${toasts.length}`) : props.content.labels.empty}</span>
+            <LumenButton variant="text" indicator="none" disabled={!toasts.length} onClick={() => {
+              setToasts([]);
+              report(props.onAction, 'clear');
+            }}>{props.content.labels.clear}</LumenButton>
+          </div>
+        </div>
+      </div>
+      {toasts.length ? <section className="lumen-notifications-toast-stack" data-expanded={expanded || undefined}
+        onPointerEnter={() => {
+          const now = Date.now();
+          setToasts((current) => current.map((toast) => toast.startedAt === null ? toast : { ...toast, remainingMs: Math.max(0, toast.remainingMs - (now - toast.startedAt)), startedAt: null }));
+          setExpanded(true);
+        }} onPointerLeave={() => {
+          const now = Date.now();
+          setToasts((current) => current.map((toast) => ({ ...toast, startedAt: now })));
+          setExpanded(false);
+        }}>
+        {toasts.map(({ key, choice }, index) => <article key={key} data-toast-tone={choice.tone} style={{ '--toast-depth': Math.min(index, 3) } as React.CSSProperties}>
+          <ToastGlyph tone={choice.tone} />
+          <div className="lumen-notifications-toast-message"><p>{choice.title ?? choice.label}</p><p>{choice.detail}</p></div>
+          {choice.action ? <LumenButton variant="outlined" indicator="none" onClick={() => {
+            setToasts((current) => current.filter((toast) => toast.key !== key));
+            report(props.onAction, 'action', choice.id);
+          }}><Glyph name="restore" />{choice.action}</LumenButton> : null}
+          <LumenIconButton label={props.content.labels.dismiss(choice.label)} onClick={() => {
+            setToasts((current) => current.filter((toast) => toast.key !== key));
+            report(props.onAction, 'dismiss', choice.id);
+          }}><Glyph name="close" /></LumenIconButton>
+        </article>)}
+      </section> : null}
     </Root>
   );
+}
+function ToastGlyph({ tone }: { readonly tone: LumenNotificationToastChoice['tone'] }) {
+  return tone === 'warning'
+    ? <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8a5 5 0 1 0-5 5" /></svg>
+    : tone === 'success'
+      ? <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.5" /><path d="m5.7 8 1.5 1.5 3.3-3.5" /></svg>
+      : tone === 'danger'
+        ? <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.5" /><path d="M8 4.6v4.2m0 2.3h.01" /></svg>
+        : <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.5" /><path d="M8 7v4m0-6h.01" /></svg>;
 }
 function Preferences(
   props: Omit<LumenNotificationsProps, 'content'> & {
