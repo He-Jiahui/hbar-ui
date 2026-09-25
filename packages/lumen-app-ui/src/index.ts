@@ -1099,6 +1099,13 @@ export type {
   LumenShellContractRecord,
 } from './app-shell-contracts';
 export type {
+  LumenAppShellEditorialContent,
+  LumenEditorialLink,
+  LumenEditorialStory,
+  LumenEditorialDay,
+  LumenEditorialEvent,
+} from './app-shell-editorial';
+export type {
   LumenAppShellChoice,
   LumenAppShellContent,
   LumenAppShellListStrategy,

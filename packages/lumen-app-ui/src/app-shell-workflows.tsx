@@ -9,6 +9,7 @@ import './app-shell-workflows.css';
 import { AppShellSidebar, type LumenAppShellSidebarContent } from './app-shell-sidebar';
 import { AppShellRail, type LumenAppShellRailContent } from './app-shell-rail';
 import { AppShellContracts, type LumenAppShellContractsContent } from './app-shell-contracts';
+import { AppShellEditorial, type LumenAppShellEditorialContent } from './app-shell-editorial';
 
 export interface LumenAppShellListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -39,6 +40,7 @@ export interface LumenAppShellContent {
   readonly sidebar?: LumenAppShellSidebarContent | undefined;
   readonly rail?: LumenAppShellRailContent | undefined;
   readonly contracts?: LumenAppShellContractsContent | undefined;
+  readonly editorial?: LumenAppShellEditorialContent | undefined;
   readonly labels: {
     readonly brand: string;
     readonly title: string;
@@ -860,6 +862,15 @@ export function LumenAppShellWorkflows(props: LumenAppShellWorkflowsProps) {
     return <Workbench {...props} content={content} />;
   }
   if (props.variant === 4) {
+    if (content.editorial)
+      return (
+        <Root
+          {...props}
+          className={['lumen-shell-editorial-stage', props.className].filter(Boolean).join(' ')}
+        >
+          <AppShellEditorial content={content.editorial} />
+        </Root>
+      );
     return <Contextual {...props} content={content} />;
   }
   if (props.variant === 5) {
