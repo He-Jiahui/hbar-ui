@@ -5,6 +5,7 @@ import { LumenToggleControl } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
 import './notifications.css';
+import './notifications-center-reference.css';
 
 export interface LumenNotificationsListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -13,6 +14,7 @@ export interface LumenNotificationsListStrategy {
 export interface LumenNotificationsChoice {
   readonly id: string;
   readonly label: string;
+  readonly count?: string | undefined;
   readonly disabled?: boolean | undefined;
 }
 export interface LumenNotificationEntry {
@@ -24,6 +26,8 @@ export interface LumenNotificationEntry {
   readonly time: string;
   readonly unread: boolean;
   readonly mention?: boolean | undefined;
+  readonly icon?: 'mention' | 'review' | 'reply' | 'member' | 'security' | 'resolved' | 'approved' | undefined;
+  readonly titleParts?: readonly { readonly text: string; readonly strong?: boolean | undefined }[] | undefined;
 }
 export interface LumenNotificationGroup {
   readonly id: string;
@@ -42,6 +46,7 @@ export interface LumenNotificationCenterContent {
     readonly markUnread: (title: string) => string;
     readonly dismiss: (title: string) => string;
     readonly empty: string;
+    readonly count?: ((count: number) => string) | undefined;
   };
   readonly groups: readonly LumenNotificationGroup[];
   readonly entries: readonly LumenNotificationEntry[];
@@ -308,7 +313,8 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary="horizontal"
+      boundary={variant === 1 ? 'none' : 'horizontal'}
+      shape={variant === 1 ? 'square' : 'rounded'}
       className="lumen-notifications-surface"
       contentClassName={contentClassName}
       data-lumen-component="notifications"
@@ -355,11 +361,13 @@ function Tabs({
   selectedId,
   label,
   onChange,
+  indicator,
 }: {
   readonly choices: readonly LumenNotificationsChoice[];
   readonly selectedId: string | undefined;
   readonly label: string;
   readonly onChange: (id: string) => void;
+  readonly indicator?: 'none' | 'lamp' | undefined;
 }) {
   return (
     <div className="lumen-notifications-tabs" role="tablist" aria-label={label}>
@@ -368,10 +376,11 @@ function Tabs({
           key={item.id}
           role="tab"
           variant="text"
+          indicator={indicator}
           aria-selected={selectedId === item.id}
           onClick={() => onChange(item.id)}
         >
-          {item.label}
+          {item.label}{item.count === undefined ? null : <span className="lumen-notifications-tab-count">{item.count}</span>}
         </LumenButton>
       ))}
     </div>
@@ -389,10 +398,13 @@ function Center(
   );
   const [dismissed, setDismissed] = React.useState<ReadonlySet<string>>(() => new Set());
   const unread = entries.filter((item) => !readIds.has(item.id) && !dismissed.has(item.id)).length;
+  const total = entries.length - dismissed.size;
+  const mentions = entries.filter((item) => item.mention && !dismissed.has(item.id)).length;
+  const count = props.content.labels.count ?? ((value: number) => `${value}`);
   const filters = [
-    { id: 'all', label: props.content.labels.all },
-    { id: 'unread', label: `${props.content.labels.unreadFilter} ${unread}` },
-    { id: 'mentions', label: props.content.labels.mentions },
+    { id: 'all', label: props.content.labels.all, count: count(total) },
+    { id: 'unread', label: props.content.labels.unreadFilter, count: count(unread) },
+    { id: 'mentions', label: props.content.labels.mentions, count: count(mentions) },
   ];
   const visible = entries.filter(
     (item) =>
@@ -403,26 +415,29 @@ function Center(
   );
   return (
     <Root {...props}>
-      <Header
-        title={props.content.labels.title}
-        detail={props.content.labels.unread(unread)}
-        actions={
-          <LumenButton
-            variant="outlined"
-            onClick={() => {
-              setReadIds(new Set(entries.map((item) => item.id)));
-              report(props.onAction, 'read-all');
-            }}
-          >
-            <Glyph name="check" />
-            {props.content.labels.markAll}
-          </LumenButton>
-        }
-      />
+      <header className="lumen-notifications-center-header" role="banner">
+        <div className="lumen-notifications-center-heading">
+          <h2>{props.content.labels.title}</h2>
+          {unread ? <span className="lumen-notifications-center-badge">{count(unread)}</span> : null}
+        </div>
+        <LumenButton
+          variant="outlined"
+          indicator="none"
+          disabled={!unread}
+          onClick={() => {
+            setReadIds(new Set(entries.map((item) => item.id)));
+            report(props.onAction, 'read-all');
+          }}
+        >
+          <Glyph name="check" />
+          {props.content.labels.markAll}
+        </LumenButton>
+      </header>
       <Tabs
         choices={filters}
         selectedId={filter}
         label={props.content.labels.filters}
+        indicator="none"
         onChange={(id) => {
           setFilter(id);
           report(props.onAction, 'filter', id);
@@ -437,18 +452,18 @@ function Center(
             const children = visible.filter((item) => item.groupId === group.id);
             return children.length ? (
               <section key={group.id}>
-                <strong>{group.label}</strong>
-                {children.map((item) => {
+                <h3>{group.label}</h3>
+                <ul>{children.map((item) => {
                   const read = readIds.has(item.id);
                   return (
-                    <article key={item.id} data-unread={!read || undefined}>
-                      <span className="lumen-notifications-kind">{item.kind.slice(0, 1)}</span>
-                      <div>
-                        <strong>{item.title}</strong>
-                        {item.detail ? <small>{item.detail}</small> : null}
+                    <li key={item.id} data-unread={!read || undefined}>
+                      <span className="lumen-notifications-center-icon" aria-hidden="true"><NotificationIcon name={item.icon} /></span>
+                      <div className="lumen-notifications-center-copy">
+                        <p>{item.titleParts?.length ? item.titleParts.map((part, index) => <span className={part.strong ? 'is-emphasis' : undefined} key={index}>{part.text}</span>) : item.title}</p>
+                        {item.detail ? <p>{item.detail}</p> : null}
                       </div>
-                      <time>{item.time}</time>
-                      <LumenIconButton
+                      <span className="lumen-notifications-center-time">{item.time}</span>
+                      <div className="lumen-notifications-center-actions"><LumenIconButton
                         label={
                           read
                             ? props.content.labels.markUnread(item.title)
@@ -464,7 +479,7 @@ function Center(
                           })
                         }
                       >
-                        <Glyph name="check" />
+                        <span className="lumen-notifications-center-dot" aria-hidden="true" />
                       </LumenIconButton>
                       <LumenIconButton
                         label={props.content.labels.dismiss(item.title)}
@@ -474,10 +489,10 @@ function Center(
                         }}
                       >
                         <Glyph name="close" />
-                      </LumenIconButton>
-                    </article>
+                      </LumenIconButton></div>
+                    </li>
                   );
-                })}
+                })}</ul>
               </section>
             ) : null;
           })
@@ -487,6 +502,18 @@ function Center(
       </div>
     </Root>
   );
+}
+function NotificationIcon({ name }: { readonly name: LumenNotificationEntry['icon'] }) {
+  const paths = {
+    mention: <><circle cx="8" cy="8" r="5.2" /><path d="M10.5 6v4c0 1.7 2.4 1.4 2.4-.5M10.5 6C9.3 4.6 6 5 6 8c0 3 3.3 3.2 4.5 1" /></>,
+    review: <><circle cx="4" cy="3.5" r="1.6" /><circle cx="11.5" cy="12.5" r="1.6" /><path d="M4 5v5c0 1.5 1 2.5 2.5 2.5M9.5 3.5h2a2 2 0 0 1 2 2v3M8.5 1.5v4" /></>,
+    reply: <path d="M3 3.5h10v7H7l-3.5 2v-2H3z" />,
+    member: <><circle cx="6" cy="5" r="2.3" /><path d="M2.5 13v-1.3a3.5 3.5 0 0 1 7 0V13m3-8v5m-2.5-2.5h5" /></>,
+    security: <><path d="M8 1.5 13 3.6V8c0 2.8-2 4.6-5 6-3-1.4-5-3.2-5-6V3.6z" /><path d="m6 8 1.4 1.4L10 6.5" /></>,
+    resolved: <><circle cx="8" cy="8" r="5.5" /><path d="m5.5 8 1.7 1.7 3.4-3.5" /></>,
+    approved: <><path d="M3 8.5 6.3 12 13 4" /></>,
+  } satisfies Record<NonNullable<LumenNotificationEntry['icon']>, React.ReactNode>;
+  return <svg className="lumen-notifications-glyph" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name ?? 'mention']}</svg>;
 }
 function Toasts(
   props: Omit<LumenNotificationsProps, 'content'> & { content: LumenNotificationToastsContent },
