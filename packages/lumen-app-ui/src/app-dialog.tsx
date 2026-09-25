@@ -14,6 +14,7 @@ import './app-dialog.css';
 import './app-dialog-plan.css';
 import './app-dialog-delete.css';
 import './app-dialog-invite.css';
+import './app-dialog-wizard.css';
 
 export interface LumenAppDialogListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -120,6 +121,27 @@ export interface LumenAppDialogWizardContent {
   readonly workspaceSlug: string;
   readonly environments: readonly LumenAppDialogChoice[];
   readonly initialEnvironmentId: string;
+  /** The reference three-step workflow is opt-in so older host contracts remain valid. */
+  readonly reference?: {
+    readonly labels: {
+      readonly namePlaceholder: string;
+      readonly region: string;
+      readonly regionHint: string;
+      readonly team: string;
+      readonly teamPlaceholder: string;
+      readonly teamHint: string;
+      readonly reviewRegion: string;
+      readonly back: string;
+      readonly emptyRegions: string;
+      readonly successTitle: string;
+      readonly successDetail: (slug: string) => string;
+    };
+    readonly steps: readonly [LumenAppDialogWizardStep, LumenAppDialogWizardStep, LumenAppDialogWizardStep];
+    readonly regions: readonly LumenAppDialogChoice[];
+    readonly initialRegionId: string;
+    readonly slugForName: (name: string) => string;
+    readonly listStrategy: LumenAppDialogListStrategy;
+  } | undefined;
 }
 export interface LumenAppDialogAlertContent {
   readonly labels: {
@@ -251,14 +273,18 @@ export function selectLumenAppDialogItem<T extends { readonly id: string }>(
 }
 const report = (fn: LumenAppDialogProps['onAction'], actionId: string, value?: string) =>
   fn?.(value === undefined ? { actionId } : { actionId, value });
-function Glyph({ name }: { name: 'close' | 'archive' | 'download' | 'chevron' | 'menu' }) {
+function Glyph({ name }: { name: 'close' | 'archive' | 'download' | 'chevron' | 'menu' | 'back' | 'check' }) {
   const d =
     name === 'close'
       ? 'M3 3l10 10M13 3 3 13'
       : name === 'archive'
         ? 'M2.5 5h11v8h-11zM2 3h12v2H2zm4 5h4'
-        : name === 'download'
-          ? 'M8 2v8m-3-3 3 3 3-3M3 13h10'
+      : name === 'download'
+        ? 'M8 2v8m-3-3 3 3 3-3M3 13h10'
+        : name === 'back'
+          ? 'M13 8H3m4-4L3 8l4 4'
+          : name === 'check'
+            ? 'M3 8l3 3 7-7'
           : name === 'chevron'
             ? 'm6 3 5 5-5 5'
             : 'M3 8h.01M8 8h.01M13 8h.01';
@@ -280,7 +306,7 @@ function Root({
 }: Omit<LumenAppDialogProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
   const contentClassName = [
     'lumen-app-dialog-stage',
-    variant === 1 || variant === 2 || variant === 3 ? 'hbar-app-ui-full-canvas-owner' : '',
+    variant >= 1 && variant <= 4 ? 'hbar-app-ui-full-canvas-owner' : '',
     `hbar-app-ui-dialog-variant-${variant}`,
     density ? `hbar-app-ui-density-${density}` : '',
     surface ? `hbar-app-ui-surface-${surface}` : '',
@@ -293,8 +319,8 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary={variant <= 3 ? 'none' : 'horizontal'}
-      material={variant <= 3 ? 'frost' : 'glass'}
+      boundary={variant <= 4 ? 'none' : 'horizontal'}
+      material={variant <= 4 ? 'frost' : 'glass'}
       className="lumen-app-dialog-stage-surface"
       contentClassName={contentClassName}
       data-lumen-component="app-dialog"
@@ -341,6 +367,7 @@ function Panel({
   children,
   footer,
   landmarks = false,
+  countFirst = false,
 }: {
   readonly title: string;
   readonly detail?: string | undefined;
@@ -351,6 +378,7 @@ function Panel({
   readonly children: React.ReactNode;
   readonly footer: React.ReactNode;
   readonly landmarks?: boolean | undefined;
+  readonly countFirst?: boolean | undefined;
 }) {
   return (
     <div className={side ? 'lumen-app-dialog-backdrop is-side' : 'lumen-app-dialog-backdrop'}>
@@ -362,10 +390,11 @@ function Panel({
       >
         <header role={landmarks ? 'banner' : undefined}>
           <div>
+            {countFirst && detail ? <LumenText as="p" tone="muted">{detail}</LumenText> : null}
             <LumenText as="h2" id={titleId} variant="title">
               {title}
             </LumenText>
-            {detail ? (
+            {!countFirst && detail ? (
               <LumenText as="p" tone="muted">
                 {detail}
               </LumenText>
@@ -672,7 +701,155 @@ function Invite(
     </Root>
   );
 }
-function Wizard(
+function ReferenceWizard({
+  reference,
+  ...props
+}: Omit<LumenAppDialogProps, 'content'> & {
+  content: LumenAppDialogWizardContent;
+  reference: NonNullable<LumenAppDialogWizardContent['reference']>;
+}) {
+  const regions = uniqueLumenAppDialogItems(reference.regions);
+  const [step, setStep] = React.useState(0);
+  const [name, setName] = React.useState(props.content.workspaceName);
+  const [regionId, setRegionId] = React.useState(reference.initialRegionId);
+  const [invitees, setInvitees] = React.useState('');
+  const [created, setCreated] = React.useState(false);
+  const region = selectLumenAppDialogItem(regions, regionId);
+  const slug = reference.slugForName(name);
+  const current = reference.steps[step] ?? reference.steps[0];
+  return (
+    <Root {...props}>
+      <DialogState trigger={props.content.labels.trigger} onAction={props.onAction}>
+        {(close) => (
+          <Panel
+            landmarks
+            countFirst
+            title={current.label}
+            detail={props.content.labels.count(step + 1, reference.steps.length)}
+            titleId={`${props.variantId}-title`}
+            closeLabel={props.content.labels.close}
+            onClose={close}
+            footer={
+              <>
+                {step === 0 ? (
+                  <LumenButton variant="outlined" onClick={close} indicator="none">
+                    {props.content.labels.cancel}
+                  </LumenButton>
+                ) : (
+                  <LumenButton
+                    variant="outlined"
+                    indicator="none"
+                    onClick={() => {
+                      setStep((value) => Math.max(0, value - 1));
+                      report(props.onAction, 'back', reference.steps[step - 1]?.id);
+                    }}
+                  >
+                    <Glyph name="back" />{reference.labels.back}
+                  </LumenButton>
+                )}
+                <LumenButton
+                  tone="primary"
+                  indicator="none"
+                  disabled={step === 1 && !region}
+                  onClick={() => {
+                    if (step === reference.steps.length - 1) {
+                      close();
+                      setCreated(true);
+                      report(props.onAction, 'confirm', slug);
+                    } else {
+                      setStep((value) => value + 1);
+                      report(props.onAction, 'next', reference.steps[step + 1]?.id);
+                    }
+                  }}
+                >
+                  {step === reference.steps.length - 1 ? props.content.labels.confirm : props.content.labels.next}
+                </LumenButton>
+              </>
+            }
+          >
+            <div className="lumen-app-dialog-wizard-progress" aria-hidden="true">
+              {reference.steps.map((item, index) => <span data-active={index <= step || undefined} key={item.id} />)}
+            </div>
+            {step === 0 ? (
+              <div className="lumen-app-dialog-wizard-fields">
+                <div className="lumen-app-dialog-wizard-field">
+                  <label htmlFor={`${props.variantId}-workspace`}>{props.content.labels.name}</label>
+                  <LumenInput
+                    id={`${props.variantId}-workspace`}
+                    variant="plain"
+                    value={name}
+                    placeholder={reference.labels.namePlaceholder}
+                    onChange={(event) => setName(event.target.value)}
+                  />
+                </div>
+                <div className="lumen-app-dialog-wizard-field">
+                  <span>{props.content.labels.url}</span>
+                  <div className="lumen-app-dialog-wizard-url">
+                    <span>{props.content.workspacePrefix}</span><span className="lumen-app-dialog-wizard-slug">{slug}</span>
+                  </div>
+                  <p className="lumen-app-dialog-wizard-hint">{props.content.labels.urlHint}</p>
+                </div>
+              </div>
+            ) : step === 1 ? (
+              <div className="lumen-app-dialog-wizard-fields is-regions">
+                <div className="lumen-app-dialog-wizard-field">
+                  <span>{reference.labels.region}</span>
+                  <p>{reference.labels.regionHint}</p>
+                </div>
+                {regions.length ? (
+                  <ul className="lumen-app-dialog-wizard-regions" data-hbar-app-ui-list-strategy={reference.listStrategy.kind}>
+                    {regions.map((item) => (
+                      <li key={item.id}>
+                        <LumenButton
+                          indicator="none"
+                          aria-pressed={item.id === region?.id}
+                          disabled={item.disabled}
+                          onClick={() => {
+                            setRegionId(item.id);
+                            report(props.onAction, 'select', item.id);
+                          }}
+                        >
+                          <span>{item.label}</span>
+                          {item.id === region?.id ? <Glyph name="check" /> : null}
+                        </LumenButton>
+                      </li>
+                    ))}
+                  </ul>
+                ) : <Empty>{reference.labels.emptyRegions}</Empty>}
+              </div>
+            ) : (
+              <div className="lumen-app-dialog-wizard-fields">
+                <div className="lumen-app-dialog-wizard-field">
+                  <label htmlFor={`${props.variantId}-team`}>{reference.labels.team}</label>
+                  <LumenTextarea
+                    id={`${props.variantId}-team`}
+                    variant="plain"
+                    value={invitees}
+                    placeholder={reference.labels.teamPlaceholder}
+                    aria-describedby={`${props.variantId}-team-hint`}
+                    onChange={(event) => setInvitees(event.target.value)}
+                  />
+                  <p id={`${props.variantId}-team-hint`}>{reference.labels.teamHint}</p>
+                </div>
+                <dl className="lumen-app-dialog-wizard-review">
+                  <div><dt>{props.content.labels.reviewName}</dt><dd>{name}</dd></div>
+                  <div><dt>{reference.labels.reviewRegion}</dt><dd>{region?.label ?? reference.labels.emptyRegions}</dd></div>
+                </dl>
+              </div>
+            )}
+          </Panel>
+        )}
+      </DialogState>
+      {created && (
+        <div className="hbar-app-ui-dialog-wizard-toast" role="status">
+          <p>{reference.labels.successTitle}</p>
+          <p>{reference.labels.successDetail(slug)}</p>
+        </div>
+      )}
+    </Root>
+  );
+}
+function LegacyWizard(
   props: Omit<LumenAppDialogProps, 'content'> & { content: LumenAppDialogWizardContent },
 ) {
   const steps = uniqueLumenAppDialogItems(props.content.steps);
@@ -780,6 +957,11 @@ function Wizard(
       </DialogState>
     </Root>
   );
+}
+function Wizard(props: Omit<LumenAppDialogProps, 'content'> & { content: LumenAppDialogWizardContent }) {
+  return props.content.reference
+    ? <ReferenceWizard {...props} reference={props.content.reference} />
+    : <LegacyWizard {...props} />;
 }
 function Alert(
   props: Omit<LumenAppDialogProps, 'content'> & { content: LumenAppDialogAlertContent },
