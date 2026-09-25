@@ -1211,6 +1211,12 @@ export type {
   LumenAppSidebarTreeFolder,
   LumenAppSidebarTreeDocument,
 } from './app-sidebar-tree';
+export type {
+  LumenAppSidebarDrawerContent,
+  LumenAppSidebarDrawerGroup,
+  LumenAppSidebarDrawerItem,
+  LumenAppSidebarDrawerIcon,
+} from './app-sidebar-drawer';
 export {
   LumenAiChat,
   LumenAiChat01,
