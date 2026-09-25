@@ -13,6 +13,7 @@ import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitiv
 import './app-dialog.css';
 import './app-dialog-plan.css';
 import './app-dialog-delete.css';
+import './app-dialog-invite.css';
 
 export interface LumenAppDialogListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -85,6 +86,10 @@ export interface LumenAppDialogInviteContent {
     readonly roleHint: string;
     readonly cancel: string;
     readonly confirm: string;
+    readonly nameError?: string | undefined;
+    readonly emailError?: string | undefined;
+    readonly successTitle?: string | undefined;
+    readonly successDetail?: string | undefined;
   };
   readonly roles: readonly LumenAppDialogChoice[];
   readonly initialRoleId: string;
@@ -275,7 +280,7 @@ function Root({
 }: Omit<LumenAppDialogProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
   const contentClassName = [
     'lumen-app-dialog-stage',
-    variant === 1 || variant === 2 ? 'hbar-app-ui-full-canvas-owner' : '',
+    variant === 1 || variant === 2 || variant === 3 ? 'hbar-app-ui-full-canvas-owner' : '',
     `hbar-app-ui-dialog-variant-${variant}`,
     density ? `hbar-app-ui-density-${density}` : '',
     surface ? `hbar-app-ui-surface-${surface}` : '',
@@ -288,8 +293,8 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary={variant === 1 || variant === 2 ? 'none' : 'horizontal'}
-      material={variant === 1 || variant === 2 ? 'frost' : 'glass'}
+      boundary={variant <= 3 ? 'none' : 'horizontal'}
+      material={variant <= 3 ? 'frost' : 'glass'}
       className="lumen-app-dialog-stage-surface"
       contentClassName={contentClassName}
       data-lumen-component="app-dialog"
@@ -565,11 +570,19 @@ function Invite(
 ) {
   const roles = uniqueLumenAppDialogItems(props.content.roles);
   const [roleId, setRoleId] = React.useState(props.content.initialRoleId);
+  const [name, setName] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [submitted, setSubmitted] = React.useState(false);
+  const [sent, setSent] = React.useState(false);
+  const nameInvalid = submitted && !name.trim();
+  const emailInvalid = submitted && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const formId = `${props.variantId}-form`;
   return (
     <Root {...props}>
       <DialogState trigger={props.content.labels.trigger} onAction={props.onAction}>
         {(close) => (
           <Panel
+            landmarks
             title={props.content.labels.title}
             detail={props.content.labels.detail}
             titleId={`${props.variantId}-title`}
@@ -581,46 +594,81 @@ function Invite(
                   {props.content.labels.cancel}
                 </LumenButton>
                 <LumenButton
+                  type="submit"
+                  form={formId}
                   tone="primary"
-                  onClick={() => {
-                    close();
-                    report(props.onAction, 'confirm', roleId);
-                  }}
                 >
                   {props.content.labels.confirm}
                 </LumenButton>
               </>
             }
           >
-            <LumenFormField controlId={`${props.variantId}-name`} label={props.content.labels.name}>
-              <LumenInput placeholder={props.content.labels.namePlaceholder} />
-            </LumenFormField>
-            <LumenFormField
-              controlId={`${props.variantId}-email`}
-              label={props.content.labels.email}
-              hint={props.content.labels.emailHint}
+            <form
+              id={formId}
+              className="lumen-app-dialog-invite-form"
+              noValidate
+              onSubmit={(event) => {
+                event.preventDefault();
+                setSubmitted(true);
+                if (!name.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return;
+                close();
+                setSent(true);
+                report(props.onAction, 'confirm', roleId);
+              }}
             >
-              <LumenInput type="email" placeholder={props.content.labels.emailPlaceholder} />
-            </LumenFormField>
-            <LumenFormField
-              controlId={`${props.variantId}-role`}
-              label={props.content.labels.role}
-              hint={props.content.labels.roleHint}
-            >
-              <LumenSelect
-                value={selectLumenAppDialogItem(roles, roleId)?.id ?? ''}
-                onChange={(event) => setRoleId(event.target.value)}
-              >
-                {roles.map((role) => (
-                  <option key={role.id} value={role.id}>
-                    {role.label}
-                  </option>
-                ))}
-              </LumenSelect>
-            </LumenFormField>
+              <div className="lumen-app-dialog-invite-field">
+                <label htmlFor={`${props.variantId}-name`}>{props.content.labels.name}</label>
+                <LumenInput
+                  id={`${props.variantId}-name`}
+                  variant="plain"
+                  value={name}
+                  aria-invalid={nameInvalid}
+                  aria-describedby={nameInvalid && props.content.labels.nameError ? `${props.variantId}-name-help` : undefined}
+                  placeholder={props.content.labels.namePlaceholder}
+                  onChange={(event) => setName(event.target.value)}
+                />
+                {nameInvalid && props.content.labels.nameError && (
+                  <p id={`${props.variantId}-name-help`} className="lumen-app-dialog-invite-error">{props.content.labels.nameError}</p>
+                )}
+              </div>
+              <div className="lumen-app-dialog-invite-field">
+                <label htmlFor={`${props.variantId}-email`}>{props.content.labels.email}</label>
+                <LumenInput
+                  id={`${props.variantId}-email`}
+                  variant="plain"
+                  type="email"
+                  value={email}
+                  aria-invalid={emailInvalid}
+                  aria-describedby={`${props.variantId}-email-help`}
+                  placeholder={props.content.labels.emailPlaceholder}
+                  onChange={(event) => setEmail(event.target.value)}
+                />
+                <p id={`${props.variantId}-email-help`} className={emailInvalid ? 'lumen-app-dialog-invite-error' : ''}>
+                  {emailInvalid && props.content.labels.emailError ? props.content.labels.emailError : props.content.labels.emailHint}
+                </p>
+              </div>
+              <div className="lumen-app-dialog-invite-field">
+                <label htmlFor={`${props.variantId}-role`}>{props.content.labels.role}</label>
+                <LumenSelect
+                  id={`${props.variantId}-role`}
+                  variant="plain"
+                  value={selectLumenAppDialogItem(roles, roleId)?.id ?? ''}
+                  onChange={(event) => setRoleId(event.target.value)}
+                >
+                  {roles.map((role) => <option key={role.id} value={role.id}>{role.label}</option>)}
+                </LumenSelect>
+                <p>{props.content.labels.roleHint}</p>
+              </div>
+            </form>
           </Panel>
         )}
       </DialogState>
+      {sent && props.content.labels.successTitle && props.content.labels.successDetail && (
+        <div className="hbar-app-ui-dialog-invite-toast" role="status">
+          <p>{props.content.labels.successTitle}</p>
+          <p>{props.content.labels.successDetail}</p>
+        </div>
+      )}
     </Root>
   );
 }
