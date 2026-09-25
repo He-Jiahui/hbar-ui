@@ -1,0 +1,33 @@
+.lumen-range.lumen-control[type='range'] {
+  appearance: none;
+  min-block-size: 0;
+  block-size: 0.375rem;
+  padding: 0;
+  border-radius: 999rem;
+  background: var(--lumen-line);
+  accent-color: var(--lumen-ink);
+  cursor: pointer;
+}
+.lumen-range::-webkit-slider-thumb {
+  appearance: none;
+  inline-size: 1rem;
+  block-size: 1rem;
+  border: 0;
+  border-radius: 50%;
+  background: var(--lumen-ink);
+}
+.lumen-range::-moz-range-thumb {
+  inline-size: 1rem;
+  block-size: 1rem;
+  border: 0;
+  border-radius: 50%;
+  background: var(--lumen-ink);
+}
+.lumen-range:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 var(--lumen-glow-near, 0.875rem)
+    color-mix(in srgb, var(--lumen-ink) 65%, transparent);
+}
+.lumen-range:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 var(--lumen-glow-near, 0.875rem)
+    color-mix(in srgb, var(--lumen-ink) 65%, transparent);
+}

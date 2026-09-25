@@ -9,6 +9,7 @@ import { UsageOverviewChartContent, type LumenUsageOverviewChart } from './usage
 import { UsageModelTable, type LumenUsageModelTableContent } from './usage-model-table';
 import { UsageRatePanel, type LumenUsageRatePanelContent } from './usage-rate-panel';
 import { UsageMemberList, type LumenUsageMemberListContent } from './usage-member-list';
+import { UsageBudgetPanel, type LumenUsageBudgetPanelContent } from './usage-budget-panel';
 import './usage.css';
 
 export interface LumenUsageMetric {
@@ -118,6 +119,8 @@ export interface LumenUsageSeatContent extends LumenUsageHeading, LumenUsageColl
 }
 
 export interface LumenUsageBudgetContent extends LumenUsageHeading {
+  /** Immediate budget controls; omission preserves the legacy save-form API. */
+  readonly panel?: LumenUsageBudgetPanelContent | undefined;
   readonly labels: { readonly cap: string; readonly save: string; readonly saving: string };
   readonly cap: {
     readonly value: string;
@@ -560,6 +563,9 @@ export function LumenUsageSeats(content: LumenUsageSeatContent) {
 }
 
 export function LumenUsageBudget(content: LumenUsageBudgetContent) {
+  if (content.panel) {
+    return <UsageBudgetPanel heading={content} panel={content.panel} />;
+  }
   return (
     <UsageFrame content={content} variant={5}>
       {content.status ? (
@@ -743,6 +749,7 @@ export interface UsageRootProps extends Omit<LumenUsageProps, 'content'> {
   readonly modelTable: boolean;
   readonly ratePanel: boolean;
   readonly memberList: boolean;
+  readonly budgetPanel: boolean;
 }
 
 function UsageRoot({
@@ -758,12 +765,16 @@ function UsageRoot({
   modelTable,
   ratePanel,
   memberList,
+  budgetPanel,
 }: UsageRootProps) {
   const contentClassName = [
     'lumen-usage',
     'hbar-app-ui-usage-catalog',
     chartOverview ? 'lumen-usage-chart-stage hbar-app-ui-stage-padding-owner' : '',
     modelTable ? 'lumen-usage-model-stage hbar-app-ui-stage-padding-owner' : '',
+    budgetPanel
+      ? 'lumen-usage-budget-stage hbar-app-ui-stage-padding-owner hbar-app-ui-full-canvas-owner'
+      : '',
     memberList
       ? 'lumen-usage-member-stage hbar-app-ui-stage-padding-owner hbar-app-ui-full-canvas-owner'
       : '',
@@ -781,9 +792,13 @@ function UsageRoot({
     .join(' ');
   return (
     <LumenSurface
-      as={chartOverview || modelTable || ratePanel || memberList ? 'div' : 'section'}
-      boundary={chartOverview || modelTable || ratePanel || memberList ? 'none' : 'horizontal'}
-      className={`lumen-usage-root-surface${chartOverview ? ' lumen-usage-chart-surface' : ''}${modelTable ? ' lumen-usage-model-surface' : ''}${ratePanel ? ' lumen-usage-rate-surface' : ''}${memberList ? ' lumen-usage-member-surface' : ''}`}
+      as={chartOverview || modelTable || ratePanel || memberList || budgetPanel ? 'div' : 'section'}
+      boundary={
+        chartOverview || modelTable || ratePanel || memberList || budgetPanel
+          ? 'none'
+          : 'horizontal'
+      }
+      className={`lumen-usage-root-surface${chartOverview ? ' lumen-usage-chart-surface' : ''}${modelTable ? ' lumen-usage-model-surface' : ''}${ratePanel ? ' lumen-usage-rate-surface' : ''}${memberList ? ' lumen-usage-member-surface' : ''}${budgetPanel ? ' lumen-usage-budget-surface' : ''}`}
       contentClassName={contentClassName}
       data-lumen-component="usage"
       data-lumen-variant={variant}
@@ -831,6 +846,7 @@ export function LumenUsage(props: LumenUsageProps) {
       modelTable={props.variant === 2 && Boolean(content.modelSpend?.table)}
       ratePanel={props.variant === 3 && Boolean(content.rateLimits?.panel)}
       memberList={props.variant === 4 && Boolean(content.seats?.members)}
+      budgetPanel={props.variant === 5 && Boolean(content.budget?.panel)}
     >
       {view}
     </UsageRoot>

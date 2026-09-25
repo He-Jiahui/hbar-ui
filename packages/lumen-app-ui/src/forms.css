@@ -199,18 +199,21 @@ textarea.lumen-control {
     opacity 180ms ease;
 }
 
-.lumen-toggle-control:has(.lumen-toggle-input:checked) .lumen-toggle-track {
+.lumen-toggle-control:has(.lumen-toggle-input:checked) .lumen-toggle-track,
+.lumen-toggle-control[aria-checked='true'] .lumen-toggle-track {
   justify-content: flex-end;
 }
 
-.lumen-toggle-control:has(.lumen-toggle-input:checked) .lumen-toggle-lamp {
+.lumen-toggle-control:has(.lumen-toggle-input:checked) .lumen-toggle-lamp,
+.lumen-toggle-control[aria-checked='true'] .lumen-toggle-lamp {
   background: var(--lumen-ink);
   box-shadow:
     0 0 var(--lumen-glow-near, 0.875rem) color-mix(in srgb, var(--lumen-ink) 72%, transparent),
     0 0 var(--lumen-glow-far, 1.75rem) color-mix(in srgb, var(--lumen-ink) 32%, transparent);
 }
 
-.lumen-toggle-control:has(.lumen-toggle-input:focus-visible) .lumen-toggle-lamp {
+.lumen-toggle-control:has(.lumen-toggle-input:focus-visible) .lumen-toggle-lamp,
+.lumen-toggle-control[aria-checked]:focus-visible .lumen-toggle-lamp {
   box-shadow:
     inset 0 0 0 0.125rem var(--lumen-ink),
     0 0 var(--lumen-glow-far, 1.75rem) color-mix(in srgb, var(--lumen-ink) 72%, transparent);
@@ -219,6 +222,11 @@ textarea.lumen-control {
 .lumen-toggle-control[data-size='s'] {
   inline-size: 1.875rem;
   block-size: 1.25rem;
+}
+
+.lumen-toggle-button {
+  padding: 0;
+  min-block-size: 0;
 }
 
 .lumen-toggle-control[data-size='s'] .lumen-toggle-lamp {

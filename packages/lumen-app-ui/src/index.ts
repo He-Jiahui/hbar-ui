@@ -10,6 +10,10 @@ export { default as LumenDivider } from './LumenDivider';
 export type { LumenDividerProps } from './LumenDivider';
 export { default as LumenSlider } from './LumenSlider';
 export type { LumenSliderProps } from './LumenSlider';
+export { LumenRange } from './range';
+export type { LumenRangeProps } from './range';
+export { LumenToggleButton } from './toggle-button';
+export type { LumenToggleButtonProps } from './toggle-button';
 export { LumenDialog } from './dialog';
 export type { LumenDialogProps } from './dialog';
 export { LumenFilePicker } from './file-picker';
@@ -1364,6 +1368,11 @@ export type { LumenUsageChartPoint, LumenUsageOverviewChart } from './usage-over
 export type { LumenUsageModelTableRow, LumenUsageModelTableContent } from './usage-model-table';
 export type { LumenUsageRatePanelMeter, LumenUsageRatePanelContent } from './usage-rate-panel';
 export type { LumenUsageMemberRow, LumenUsageMemberListContent } from './usage-member-list';
+export type {
+  LumenUsageBudgetPanelContent,
+  LumenUsageBudgetThreshold,
+  LumenUsageBudgetSwitch,
+} from './usage-budget-panel';
 export type {
   LumenUsageAction,
   LumenUsageBudgetContent,
