@@ -62,6 +62,10 @@ export interface LumenMessageProps {
   avatar: string;
   timestamp?: string | undefined;
   streaming?: boolean | undefined;
+  /** Transcript omits repeated role chrome and uses prose-first conversation flow. */
+  appearance?: 'card' | 'transcript' | undefined;
+  /** A host-owned action row; null explicitly suppresses the legacy copy action. */
+  actions?: React.ReactNode;
   copyLabel: string;
   copied?: boolean | undefined;
   onCopy?: (() => void) | undefined;
@@ -75,11 +79,40 @@ export function LumenMessage({
   avatar,
   timestamp,
   streaming,
+  appearance = 'card',
+  actions,
   copyLabel,
   copied,
   onCopy,
   children,
 }: LumenMessageProps) {
+  let actionContent = actions;
+  if (actionContent === undefined && onCopy) {
+    actionContent = (
+      <LumenIconButton label={copyLabel} size="s" onClick={onCopy}>
+        <SessionGlyph name={copied ? 'check' : 'copy'} />
+      </LumenIconButton>
+    );
+  }
+  if (appearance === 'transcript') {
+    return (
+      <article
+        className="lumen-message-transcript"
+        data-role={role}
+        data-message-id={id}
+        aria-label={author}
+        aria-busy={streaming || undefined}
+      >
+        <div className="lumen-message-transcript-body">{children}</div>
+        {actionContent || timestamp ? (
+          <footer>
+            {actionContent}
+            {timestamp ? <time>{timestamp}</time> : null}
+          </footer>
+        ) : null}
+      </article>
+    );
+  }
   return (
     <LumenSurface
       as="article"
@@ -104,13 +137,7 @@ export function LumenMessage({
         </header>
       ) : null}
       <div className="lumen-message-body">{children}</div>
-      {onCopy ? (
-        <footer>
-          <LumenIconButton label={copyLabel} size="s" onClick={onCopy}>
-            <SessionGlyph name={copied ? 'check' : 'copy'} />
-          </LumenIconButton>
-        </footer>
-      ) : null}
+      {actionContent ? <footer>{actionContent}</footer> : null}
     </LumenSurface>
   );
 }

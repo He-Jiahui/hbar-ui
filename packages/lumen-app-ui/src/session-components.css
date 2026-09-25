@@ -145,6 +145,49 @@
   justify-content: flex-end;
 }
 
+.lumen-message-transcript {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  color: var(--lumen-ink);
+}
+
+.lumen-message-transcript-body {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+.lumen-message-transcript[data-role='user'] {
+  align-items: flex-end;
+}
+
+.lumen-message-transcript[data-role='user'] > .lumen-message-transcript-body {
+  max-inline-size: min(85%, 42rem);
+  padding: 10px 14px;
+  border-radius: var(--lumen-radius-control);
+  background: var(--lumen-reading);
+}
+
+.lumen-message-transcript > footer {
+  display: flex;
+  min-inline-size: 0;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--lumen-muted);
+  font-size: 0.75rem;
+}
+
+.lumen-message-transcript[data-role='user'] > footer {
+  justify-content: flex-end;
+}
+
+.lumen-message-transcript[data-role='system'] {
+  color: var(--lumen-muted);
+}
+
 .lumen-prompt-composer-surface {
   inline-size: 100%;
 }
