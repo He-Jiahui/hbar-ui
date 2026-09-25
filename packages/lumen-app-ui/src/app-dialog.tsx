@@ -17,6 +17,7 @@ import './app-dialog-invite.css';
 import './app-dialog-wizard.css';
 import './app-dialog-alert.css';
 import './app-dialog-evidence.css';
+import './app-dialog-menu-reference.css';
 
 export interface LumenAppDialogListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -239,6 +240,7 @@ export interface LumenAppDialogMenuItem {
   readonly danger?: boolean | undefined;
   readonly submenu?: boolean | undefined;
   readonly separatorBefore?: boolean | undefined;
+  readonly icon?: 'rename' | 'duplicate' | 'export' | 'link' | 'archive' | 'delete' | undefined;
 }
 export interface LumenAppDialogMenuContent {
   readonly labels: {
@@ -249,6 +251,17 @@ export interface LumenAppDialogMenuContent {
   };
   readonly items: readonly LumenAppDialogMenuItem[];
   readonly listStrategy: LumenAppDialogListStrategy;
+  readonly referenceLayout?: {
+    readonly targetLabel: string;
+    readonly visibleItemLimit: number;
+    readonly exportOptions: readonly Readonly<{ id: string; label: string }>[];
+    readonly labels: {
+      readonly selected: (label: string) => string;
+      readonly exportedAs: (label: string) => string;
+      readonly appliedTo: (target: string) => string;
+      readonly emptyExport: string;
+    };
+  } | undefined;
 }
 export interface LumenAppDialogContent {
   readonly plan?: LumenAppDialogPlanContent | undefined;
@@ -304,7 +317,7 @@ export function selectLumenAppDialogItem<T extends { readonly id: string }>(
 }
 const report = (fn: LumenAppDialogProps['onAction'], actionId: string, value?: string) =>
   fn?.(value === undefined ? { actionId } : { actionId, value });
-function Glyph({ name }: { name: 'close' | 'archive' | 'download' | 'chevron' | 'menu' | 'back' | 'check' }) {
+function Glyph({ name }: { name: 'close' | 'archive' | 'download' | 'chevron' | 'down' | 'menu' | 'back' | 'check' | 'rename' | 'duplicate' | 'export' | 'link' | 'delete' }) {
   const d =
     name === 'close'
       ? 'M3 3l10 10M13 3 3 13'
@@ -312,6 +325,18 @@ function Glyph({ name }: { name: 'close' | 'archive' | 'download' | 'chevron' | 
         ? 'M2.5 5h11v8h-11zM2 3h12v2H2zm4 5h4'
       : name === 'download'
         ? 'M8 2v8m-3-3 3 3 3-3M3 13h10'
+      : name === 'rename'
+        ? 'm3 11 8-8 2 2-8 8H3zm7-9 2-1 3 3-1 2'
+      : name === 'duplicate'
+        ? 'M5 5h9v9H5zM2 11V2h9'
+      : name === 'export'
+        ? 'M4 2h5l3 3v9H4zM9 2v3h3M6 8h4M6 11h4'
+      : name === 'link'
+        ? 'M6 5H5a3 3 0 0 0 0 6h2m2-6h2a3 3 0 0 1 0 6h-1M6 8h4'
+      : name === 'delete'
+        ? 'M3 4h10M6 4V2h4v2M4 5l1 9h6l1-9M7 7v5m2-5v5'
+      : name === 'down'
+        ? 'm3 6 5 5 5-5'
         : name === 'back'
           ? 'M13 8H3m4-4L3 8l4 4'
           : name === 'check'
@@ -337,7 +362,7 @@ function Root({
 }: Omit<LumenAppDialogProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
   const contentClassName = [
     'lumen-app-dialog-stage',
-    variant >= 1 && variant <= 6 ? 'hbar-app-ui-full-canvas-owner' : '',
+    variant >= 1 && variant <= 7 ? 'hbar-app-ui-full-canvas-owner' : '',
     `hbar-app-ui-dialog-variant-${variant}`,
     density ? `hbar-app-ui-density-${density}` : '',
     surface ? `hbar-app-ui-surface-${surface}` : '',
@@ -350,8 +375,8 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary={variant <= 6 ? 'none' : 'horizontal'}
-      material={variant <= 6 ? 'frost' : 'glass'}
+      boundary={variant <= 7 ? 'none' : 'horizontal'}
+      material={variant <= 7 ? 'frost' : 'glass'}
       className="lumen-app-dialog-stage-surface"
       contentClassName={contentClassName}
       data-lumen-component="app-dialog"
@@ -1360,7 +1385,129 @@ function Evidence(props: Omit<LumenAppDialogProps, 'content'> & { content: Lumen
     ? <ReferenceEvidence {...props} referenceLayout={props.content.referenceLayout} />
     : <LegacyEvidence {...props} />;
 }
-function Menu(
+function ReferenceMenu(
+  props: Omit<LumenAppDialogProps, 'content'> & {
+    content: LumenAppDialogMenuContent;
+    referenceLayout: NonNullable<LumenAppDialogMenuContent['referenceLayout']>;
+  },
+) {
+  const items = uniqueLumenAppDialogItems(props.content.items);
+  const exports = uniqueLumenAppDialogItems(props.referenceLayout.exportOptions);
+  const [open, setOpen] = React.useState(true);
+  const [submenuOpen, setSubmenuOpen] = React.useState(false);
+  const [selected, setSelected] = React.useState<{ kind: 'item' | 'export'; id: string } | null>(null);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const itemRefs = React.useRef<(HTMLButtonElement | null)[]>([]);
+  const exportRefs = React.useRef<(HTMLButtonElement | null)[]>([]);
+  React.useEffect(() => {
+    if (open) itemRefs.current[0]?.focus();
+    else triggerRef.current?.focus();
+  }, [open]);
+  React.useEffect(() => { if (submenuOpen) exportRefs.current[0]?.focus(); }, [submenuOpen]);
+  const close = () => { setSubmenuOpen(false); setOpen(false); };
+  const chooseItem = (item: LumenAppDialogMenuItem) => {
+    setSelected({ kind: 'item', id: item.id });
+    close();
+    report(props.onAction, item.id);
+  };
+  const chooseExport = (option: { readonly id: string; readonly label: string }) => {
+    setSelected({ kind: 'export', id: option.id });
+    close();
+    report(props.onAction, 'export', option.id);
+  };
+  const itemKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, index: number, submenu: boolean) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      if (submenu) {
+        setSubmenuOpen(false);
+        itemRefs.current.find((item) => item?.getAttribute('aria-haspopup') === 'menu')?.focus();
+      }
+      else close();
+      return;
+    }
+    if (event.key === 'ArrowRight' && !submenu && items[index]?.submenu) {
+      event.preventDefault(); setSubmenuOpen(true); return;
+    }
+    if (event.key === 'ArrowLeft' && submenu) {
+      event.preventDefault(); setSubmenuOpen(false);
+      itemRefs.current.find((item) => item?.getAttribute('aria-haspopup') === 'menu')?.focus();
+      return;
+    }
+    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const refs = submenu ? exportRefs.current : itemRefs.current;
+    const length = submenu ? exports.length : items.length;
+    if (!length) return;
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? length - 1
+      : (index + (event.key === 'ArrowDown' ? 1 : length - 1)) % length;
+    refs[next]?.focus();
+  };
+  const selectedItem = selected?.kind === 'item' ? items.find((item) => item.id === selected.id) : undefined;
+  const selectedExport = selected?.kind === 'export' ? exports.find((item) => item.id === selected.id) : undefined;
+  const result = selectedItem ? props.referenceLayout.labels.selected(selectedItem.label)
+    : selectedExport ? props.referenceLayout.labels.exportedAs(selectedExport.label) : null;
+  return (
+    <Root {...props}>
+      <div className="lumen-app-dialog-reference-menu-stage">
+        {open && <div className="lumen-app-dialog-reference-menu-scrim" aria-hidden="true" onClick={close} />}
+        <div className="lumen-app-dialog-reference-menu-anchor">
+          <LumenButton
+            ref={triggerRef}
+            type="button"
+            variant="outlined"
+            indicator="none"
+            className="lumen-app-dialog-reference-menu-trigger"
+            aria-haspopup="dialog"
+            aria-expanded={open}
+            onClick={() => { setSelected(null); setOpen(true); }}
+          >{props.content.labels.trigger}<Glyph name="down" /></LumenButton>
+          {open && <>
+            <div className="lumen-app-dialog-reference-menu-dialog" role="dialog" aria-labelledby={`${props.variantId}-menu-title`}
+              onKeyDown={(event) => { if (event.key === 'Escape' && event.target === event.currentTarget) close(); }}>
+              <h2 id={`${props.variantId}-menu-title`} className="lumen-app-dialog-reference-menu-visually-hidden">{props.content.labels.menu}</h2>
+              <div className={items.length > props.referenceLayout.visibleItemLimit
+                ? 'lumen-app-dialog-reference-menu-list is-scrollable' : 'lumen-app-dialog-reference-menu-list'}
+                role="menu" aria-label={props.content.labels.menu}
+                data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}>
+                {items.length ? items.map((item, index) => <React.Fragment key={item.id}>
+                  {item.separatorBefore && <div className="lumen-app-dialog-reference-menu-separator" role="separator" />}
+                  <div className="lumen-app-dialog-reference-menu-row">
+                    <LumenButton ref={(element) => { itemRefs.current[index] = element; }} type="button" role="menuitem"
+                      variant="text" indicator="none"
+                      className={item.danger ? 'is-danger' : undefined}
+                      aria-haspopup={item.submenu ? 'menu' : undefined}
+                      aria-expanded={item.submenu ? submenuOpen : undefined}
+                      onMouseEnter={() => setSubmenuOpen(Boolean(item.submenu))}
+                      onFocus={() => { if (!item.submenu) setSubmenuOpen(false); }}
+                      onKeyDown={(event) => itemKeyDown(event, index, false)}
+                      onClick={() => item.submenu ? setSubmenuOpen(true) : chooseItem(item)}>
+                      <Glyph name={item.icon ?? 'menu'} /><span className="lumen-app-dialog-reference-menu-label">{item.label}</span>
+                      {item.shortcut && <kbd>{item.shortcut}</kbd>}
+                      {item.submenu && <Glyph name="chevron" />}
+                    </LumenButton>
+                    {item.submenu && submenuOpen && <div role="menu"
+                      className="lumen-app-dialog-reference-submenu" aria-label={props.content.labels.submenu(item.label)}>
+                      {exports.length ? exports.map((option, optionIndex) => <LumenButton key={option.id} type="button" role="menuitem"
+                        variant="text" indicator="none"
+                        ref={(element) => { exportRefs.current[optionIndex] = element; }}
+                        onKeyDown={(event) => { event.stopPropagation(); itemKeyDown(event, optionIndex, true); }}
+                        onClick={() => chooseExport(option)}>{option.label}</LumenButton>)
+                        : <p>{props.referenceLayout.labels.emptyExport}</p>}
+                    </div>}
+                  </div>
+                </React.Fragment>) : <p>{props.content.labels.empty}</p>}
+              </div>
+            </div>
+          </>}
+        </div>
+        {result && !open && <div className="lumen-app-dialog-reference-menu-result" aria-live="polite">
+          <p>{result}</p><p>{props.referenceLayout.labels.appliedTo(props.referenceLayout.targetLabel)}</p>
+        </div>}
+      </div>
+    </Root>
+  );
+}
+function LegacyMenu(
   props: Omit<LumenAppDialogProps, 'content'> & { content: LumenAppDialogMenuContent },
 ) {
   const items = uniqueLumenAppDialogItems(props.content.items);
@@ -1417,6 +1564,11 @@ function Menu(
       </div>
     </Root>
   );
+}
+function Menu(props: Omit<LumenAppDialogProps, 'content'> & { content: LumenAppDialogMenuContent }) {
+  return props.content.referenceLayout
+    ? <ReferenceMenu {...props} referenceLayout={props.content.referenceLayout} />
+    : <LegacyMenu {...props} />;
 }
 function empty(props: LumenAppDialogProps) {
   return <Root {...props}>{null}</Root>;
