@@ -6,6 +6,7 @@ import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { LumenAppSidebar, LumenSidebarAction } from './workbench';
 import { AppSidebarPrimary, type LumenAppSidebarPrimaryContent } from './app-sidebar-primary';
+import { AppSidebarRail, type LumenAppSidebarRailContent } from './app-sidebar-rail';
 import './app-sidebar-workflows.css';
 
 export interface LumenAppSidebarListStrategy {
@@ -27,7 +28,8 @@ export interface LumenAppSidebarTreeNode extends LumenAppSidebarItem {
   readonly children?: readonly LumenAppSidebarTreeNode[] | undefined;
 }
 export interface LumenAppSidebarContent {
-  readonly primary?: LumenAppSidebarPrimaryContent;
+  readonly primary?: LumenAppSidebarPrimaryContent | undefined;
+  readonly railPreview?: LumenAppSidebarRailContent | undefined;
   readonly labels: {
     readonly brand: string;
     readonly title: string;
@@ -607,7 +609,7 @@ export function LumenAppSidebarWorkflows(props: LumenAppSidebarWorkflowsProps) {
     return empty(props);
   }
   if (props.variant === 1) {
-    if (content.primary)
+    if (content.primary) {
       return (
         <Root {...props}>
           <AppSidebarPrimary
@@ -616,9 +618,20 @@ export function LumenAppSidebarWorkflows(props: LumenAppSidebarWorkflowsProps) {
           />
         </Root>
       );
+    }
     return <Primary {...props} content={content} />;
   }
   if (props.variant === 2) {
+    if (content.railPreview) {
+      return (
+        <Root {...props}>
+          <AppSidebarRail
+            content={content.railPreview}
+            onAction={(action, id) => report(props.onAction, action, id)}
+          />
+        </Root>
+      );
+    }
     return <Rail {...props} content={content} />;
   }
   if (props.variant === 3) {
