@@ -8,6 +8,7 @@ import { LumenAppSidebar, LumenSidebarAction } from './workbench';
 import { AppSidebarPrimary, type LumenAppSidebarPrimaryContent } from './app-sidebar-primary';
 import { AppSidebarRail, type LumenAppSidebarRailContent } from './app-sidebar-rail';
 import { AppSidebarWorkspace, type LumenAppSidebarWorkspaceContent } from './app-sidebar-workspace';
+import { AppSidebarDual, type LumenAppSidebarDualContent } from './app-sidebar-dual';
 import './app-sidebar-workflows.css';
 
 export interface LumenAppSidebarListStrategy {
@@ -32,6 +33,7 @@ export interface LumenAppSidebarContent {
   readonly primary?: LumenAppSidebarPrimaryContent | undefined;
   readonly railPreview?: LumenAppSidebarRailContent | undefined;
   readonly workspacePreview?: LumenAppSidebarWorkspaceContent | undefined;
+  readonly dualPreview?: LumenAppSidebarDualContent | undefined;
   readonly labels: {
     readonly brand: string;
     readonly title: string;
@@ -650,6 +652,16 @@ export function LumenAppSidebarWorkflows(props: LumenAppSidebarWorkflowsProps) {
     return <Scoped {...props} content={content} />;
   }
   if (props.variant === 4) {
+    if (content.dualPreview) {
+      return (
+        <Root {...props}>
+          <AppSidebarDual
+            content={content.dualPreview}
+            onAction={(action, id) => report(props.onAction, action, id)}
+          />
+        </Root>
+      );
+    }
     return <Dual {...props} content={content} />;
   }
   if (props.variant === 5) {

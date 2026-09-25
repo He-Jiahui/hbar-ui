@@ -1199,6 +1199,13 @@ export type {
   LumenAppSidebarWorkspaceOption,
   LumenAppSidebarWorkspaceIcon,
 } from './app-sidebar-workspace';
+export type {
+  LumenAppSidebarDualContent,
+  LumenAppSidebarDualSection,
+  LumenAppSidebarDualGroup,
+  LumenAppSidebarDualItem,
+  LumenAppSidebarDualIcon,
+} from './app-sidebar-dual';
 export {
   LumenAiChat,
   LumenAiChat01,
