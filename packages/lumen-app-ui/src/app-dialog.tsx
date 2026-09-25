@@ -15,6 +15,7 @@ import './app-dialog-plan.css';
 import './app-dialog-delete.css';
 import './app-dialog-invite.css';
 import './app-dialog-wizard.css';
+import './app-dialog-alert.css';
 
 export interface LumenAppDialogListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -164,6 +165,27 @@ export interface LumenAppDialogAlertContent {
   readonly threshold: string;
   readonly note: string;
   readonly initialEnabled: boolean;
+  readonly reference?: {
+    readonly labels: {
+      readonly discardTitle: string;
+      readonly discardDetail: string;
+      readonly keepEditing: string;
+      readonly discard: string;
+      readonly savedTitle: string;
+      readonly savedDetail: string;
+      readonly emptyChannels: string;
+      readonly saving: string;
+      readonly saveError: string;
+    };
+    readonly listStrategy: LumenAppDialogListStrategy;
+    readonly onSave?: ((draft: LumenAppDialogAlertDraft) => Promise<void> | void) | undefined;
+  } | undefined;
+}
+export interface LumenAppDialogAlertDraft {
+  readonly channelId: string;
+  readonly threshold: string;
+  readonly note: string;
+  readonly enabled: boolean;
 }
 export interface LumenAppDialogDetail {
   readonly id: string;
@@ -306,7 +328,7 @@ function Root({
 }: Omit<LumenAppDialogProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
   const contentClassName = [
     'lumen-app-dialog-stage',
-    variant >= 1 && variant <= 4 ? 'hbar-app-ui-full-canvas-owner' : '',
+    variant >= 1 && variant <= 5 ? 'hbar-app-ui-full-canvas-owner' : '',
     `hbar-app-ui-dialog-variant-${variant}`,
     density ? `hbar-app-ui-density-${density}` : '',
     surface ? `hbar-app-ui-surface-${surface}` : '',
@@ -319,8 +341,8 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary={variant <= 4 ? 'none' : 'horizontal'}
-      material={variant <= 4 ? 'frost' : 'glass'}
+      boundary={variant <= 5 ? 'none' : 'horizontal'}
+      material={variant <= 5 ? 'frost' : 'glass'}
       className="lumen-app-dialog-stage-surface"
       contentClassName={contentClassName}
       data-lumen-component="app-dialog"
@@ -963,7 +985,131 @@ function Wizard(props: Omit<LumenAppDialogProps, 'content'> & { content: LumenAp
     ? <ReferenceWizard {...props} reference={props.content.reference} />
     : <LegacyWizard {...props} />;
 }
-function Alert(
+function ReferenceAlert(
+  props: Omit<LumenAppDialogProps, 'content'> & { content: LumenAppDialogAlertContent; reference: NonNullable<LumenAppDialogAlertContent['reference']> },
+) {
+  const channels = uniqueLumenAppDialogItems(props.content.channels);
+  const initial: LumenAppDialogAlertDraft = {
+    channelId: selectLumenAppDialogItem(channels, props.content.initialChannelId)?.id ?? '',
+    threshold: props.content.threshold,
+    note: props.content.note,
+    enabled: props.content.initialEnabled,
+  };
+  const [saved, setSaved] = React.useState(initial);
+  const [draft, setDraft] = React.useState(initial);
+  const [open, setOpen] = React.useState(true);
+  const [guard, setGuard] = React.useState(false);
+  const [success, setSuccess] = React.useState(false);
+  const [saveState, setSaveState] = React.useState<'idle' | 'saving' | 'error'>('idle');
+  const selected = selectLumenAppDialogItem(channels, draft.channelId);
+  const normalizedDraft = { ...draft, channelId: selected?.id ?? '' };
+  const dirty = normalizedDraft.channelId !== saved.channelId || normalizedDraft.threshold !== saved.threshold ||
+    normalizedDraft.note !== saved.note || normalizedDraft.enabled !== saved.enabled;
+  const close = () => {
+    setOpen(false);
+    setGuard(false);
+    setDraft(saved);
+    report(props.onAction, 'close');
+  };
+  const attemptClose = () => {
+    if (saveState === 'saving') return;
+    if (dirty) setGuard(true);
+    else close();
+  };
+  const save = async () => {
+    if (saveState === 'saving') return;
+    const next = { ...normalizedDraft };
+    setSaveState('saving');
+    try {
+      await props.reference.onSave?.(next);
+      setSaved(next);
+      setDraft(next);
+      setSuccess(true);
+      setOpen(false);
+      setSaveState('idle');
+      report(props.onAction, 'save', props.content.ruleName);
+    } catch {
+      setSaveState('error');
+      report(props.onAction, 'save-error', props.content.ruleName);
+    }
+  };
+  React.useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      if (guard) setGuard(false);
+      else attemptClose();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  });
+  return (
+    <Root {...props}>
+      <Trigger open={open} onClick={() => {
+        setOpen(true);
+        setSuccess(false);
+        report(props.onAction, 'open');
+      }}>{props.content.labels.trigger}</Trigger>
+      {open && (
+        <Panel
+          side
+          landmarks
+          title={props.content.labels.title}
+          titleId={`${props.variantId}-title`}
+          closeLabel={props.content.labels.close}
+          onClose={attemptClose}
+          footer={<>
+            <LumenButton variant="outlined" indicator="none" disabled={saveState === 'saving'} onClick={attemptClose}>{props.content.labels.cancel}</LumenButton>
+            <LumenButton tone="primary" indicator="none" disabled={!selected || saveState === 'saving'} onClick={() => {
+              save().catch(() => setSaveState('error'));
+            }}>{saveState === 'saving' ? props.reference.labels.saving : props.content.labels.save}</LumenButton>
+            {saveState === 'error' && <p role="alert" className="lumen-app-dialog-alert-save-error">{props.reference.labels.saveError}</p>}
+          </>}
+        >
+          <div className="lumen-app-dialog-alert-field">
+            <span>{props.content.labels.name}</span>
+            <span className="lumen-app-dialog-alert-readonly">{props.content.ruleName}</span>
+          </div>
+          <div className="lumen-app-dialog-alert-field">
+            <label htmlFor={`${props.variantId}-deliver`}>{props.content.labels.deliver}</label>
+            <LumenSelect id={`${props.variantId}-deliver`} variant="plain" value={selected?.id ?? ''} onChange={(event) => setDraft((value) => ({ ...value, channelId: event.target.value }))} data-hbar-app-ui-list-strategy={props.reference.listStrategy.kind}>
+              {!channels.length && <option value="">{props.reference.labels.emptyChannels}</option>}
+              {channels.map((item) => <option key={item.id} value={item.id} disabled={item.disabled}>{item.label}</option>)}
+            </LumenSelect>
+          </div>
+          <div className="lumen-app-dialog-alert-field">
+            <label htmlFor={`${props.variantId}-threshold`}>{props.content.labels.threshold}</label>
+            <LumenInput id={`${props.variantId}-threshold`} variant="plain" value={draft.threshold} onChange={(event) => setDraft((value) => ({ ...value, threshold: event.target.value }))} />
+          </div>
+          <div className="lumen-app-dialog-alert-field">
+            <label htmlFor={`${props.variantId}-note`}>{props.content.labels.note}</label>
+            <LumenTextarea id={`${props.variantId}-note`} variant="plain" value={draft.note} onChange={(event) => setDraft((value) => ({ ...value, note: event.target.value }))} />
+          </div>
+          <div className="lumen-app-dialog-alert-toggle">
+            <span><span>{props.content.labels.enabled}</span><small>{props.content.labels.enabledHint}</small></span>
+            <LumenButton role="switch" aria-label={props.content.labels.enabled} aria-checked={draft.enabled} indicator="none" onClick={() => {
+              setDraft((value) => ({ ...value, enabled: !value.enabled }));
+              report(props.onAction, 'toggle', draft.enabled ? 'disabled' : 'enabled');
+            }}><span /></LumenButton>
+          </div>
+        </Panel>
+      )}
+      {open && guard && <div className="lumen-app-dialog-alert-guard-backdrop">
+        <section role="alertdialog" aria-modal="true" aria-labelledby={`${props.variantId}-discard-title`} aria-describedby={`${props.variantId}-discard-detail`} className="lumen-app-dialog-alert-guard">
+          <h2 id={`${props.variantId}-discard-title`}>{props.reference.labels.discardTitle}</h2>
+          <p id={`${props.variantId}-discard-detail`}>{props.reference.labels.discardDetail}</p>
+          <div>
+            <LumenButton variant="outlined" indicator="none" onClick={() => setGuard(false)}>{props.reference.labels.keepEditing}</LumenButton>
+            <LumenButton tone="danger" indicator="none" onClick={close}>{props.reference.labels.discard}</LumenButton>
+          </div>
+        </section>
+      </div>}
+      {success && <div role="status" className="lumen-app-dialog-alert-toast"><p>{props.reference.labels.savedTitle}</p><p>{props.reference.labels.savedDetail}</p></div>}
+    </Root>
+  );
+}
+function LegacyAlert(
   props: Omit<LumenAppDialogProps, 'content'> & { content: LumenAppDialogAlertContent },
 ) {
   const channels = uniqueLumenAppDialogItems(props.content.channels);
@@ -1044,6 +1190,11 @@ function Alert(
       </DialogState>
     </Root>
   );
+}
+function Alert(props: Omit<LumenAppDialogProps, 'content'> & { content: LumenAppDialogAlertContent }) {
+  return props.content.reference
+    ? <ReferenceAlert {...props} reference={props.content.reference} />
+    : <LegacyAlert {...props} />;
 }
 function Evidence(
   props: Omit<LumenAppDialogProps, 'content'> & { content: LumenAppDialogEvidenceContent },
