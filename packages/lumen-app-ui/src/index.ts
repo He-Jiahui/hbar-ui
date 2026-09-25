@@ -1178,6 +1178,13 @@ export type {
   LumenAppSidebarWorkflowsProviderProps,
   LumenAppSidebarWorkflowVariantProps,
 } from './app-sidebar-workflows';
+export type {
+  LumenAppSidebarPrimaryContent,
+  LumenAppSidebarPrimaryGroup,
+  LumenAppSidebarPrimaryItem,
+  LumenAppSidebarPrimaryAction,
+  LumenAppSidebarPrimaryIcon,
+} from './app-sidebar-primary';
 export {
   LumenAiChat,
   LumenAiChat01,

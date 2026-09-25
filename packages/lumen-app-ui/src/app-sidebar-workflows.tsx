@@ -5,6 +5,7 @@ import { LumenInput, LumenSelect } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { LumenAppSidebar, LumenSidebarAction } from './workbench';
+import { AppSidebarPrimary, type LumenAppSidebarPrimaryContent } from './app-sidebar-primary';
 import './app-sidebar-workflows.css';
 
 export interface LumenAppSidebarListStrategy {
@@ -26,6 +27,7 @@ export interface LumenAppSidebarTreeNode extends LumenAppSidebarItem {
   readonly children?: readonly LumenAppSidebarTreeNode[] | undefined;
 }
 export interface LumenAppSidebarContent {
+  readonly primary?: LumenAppSidebarPrimaryContent;
   readonly labels: {
     readonly brand: string;
     readonly title: string;
@@ -605,6 +607,15 @@ export function LumenAppSidebarWorkflows(props: LumenAppSidebarWorkflowsProps) {
     return empty(props);
   }
   if (props.variant === 1) {
+    if (content.primary)
+      return (
+        <Root {...props}>
+          <AppSidebarPrimary
+            content={content.primary}
+            onAction={(action, id) => report(props.onAction, action, id)}
+          />
+        </Root>
+      );
     return <Primary {...props} content={content} />;
   }
   if (props.variant === 2) {
