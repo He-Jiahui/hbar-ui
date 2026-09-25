@@ -12,6 +12,7 @@ import { UsageMemberList, type LumenUsageMemberListContent } from './usage-membe
 import { UsageBudgetPanel, type LumenUsageBudgetPanelContent } from './usage-budget-panel';
 import { UsageOveragePanel, type LumenUsageOveragePanelContent } from './usage-overage-panel';
 import { UsageRequestTable, type LumenUsageRequestTableContent } from './usage-request-table';
+import { UsageCompactWidget, type LumenUsageCompactWidgetContent } from './usage-compact-widget';
 import './usage.css';
 
 export interface LumenUsageMetric {
@@ -180,12 +181,15 @@ export interface LumenUsageRequestLogContent extends LumenUsageHeading, LumenUsa
 }
 
 export interface LumenUsageCompactContent extends LumenUsageHeading {
+  /** Detailed plan widget. Inline density and omission retain the legacy surfaces. */
+  readonly widget?: LumenUsageCompactWidgetContent | undefined;
   readonly density?: 'default' | 'inline' | undefined;
   readonly value: string;
   readonly detail: string;
   readonly progress: number;
   readonly progressLabel: string;
   readonly tone: LumenUsageMeter['tone'];
+  /** Bounded normalized trend, normally twelve points; hosts aggregate above thirty-one. */
   readonly sparkline: readonly { readonly id: string; readonly value: number }[];
   readonly sparklineLabel: string;
   readonly metrics: readonly (LumenUsageMetric & { readonly id: string })[];
@@ -717,6 +721,7 @@ export function LumenUsageCompact(content: LumenUsageCompactContent) {
       </section>
     );
   }
+  if (content.widget) return <UsageCompactWidget content={content} widget={content.widget} />;
   return (
     <UsageFrame content={content} variant={8}>
       {content.action ? <UsageActionButton action={content.action} /> : null}
@@ -762,6 +767,7 @@ export interface UsageRootProps extends Omit<LumenUsageProps, 'content'> {
   readonly budgetPanel: boolean;
   readonly overagePanel: boolean;
   readonly requestTable: boolean;
+  readonly compactWidget: boolean;
 }
 
 function UsageRoot({
@@ -780,6 +786,7 @@ function UsageRoot({
   budgetPanel,
   overagePanel,
   requestTable,
+  compactWidget,
 }: UsageRootProps) {
   const detailed =
     chartOverview ||
@@ -788,10 +795,14 @@ function UsageRoot({
     memberList ||
     budgetPanel ||
     overagePanel ||
-    requestTable;
+    requestTable ||
+    compactWidget;
   const contentClassName = [
     'lumen-usage',
     'hbar-app-ui-usage-catalog',
+    compactWidget
+      ? 'lumen-usage-widget-stage hbar-app-ui-stage-padding-owner hbar-app-ui-full-canvas-owner'
+      : '',
     requestTable
       ? 'lumen-usage-request-stage hbar-app-ui-stage-padding-owner hbar-app-ui-full-canvas-owner'
       : '',
@@ -822,7 +833,7 @@ function UsageRoot({
     <LumenSurface
       as={detailed ? 'div' : 'section'}
       boundary={detailed ? 'none' : 'horizontal'}
-      className={`lumen-usage-root-surface${chartOverview ? ' lumen-usage-chart-surface' : ''}${modelTable ? ' lumen-usage-model-surface' : ''}${ratePanel ? ' lumen-usage-rate-surface' : ''}${memberList ? ' lumen-usage-member-surface' : ''}${budgetPanel ? ' lumen-usage-budget-surface' : ''}${overagePanel ? ' lumen-usage-overage-surface' : ''}${requestTable ? ' lumen-usage-request-surface' : ''}`}
+      className={`lumen-usage-root-surface${chartOverview ? ' lumen-usage-chart-surface' : ''}${modelTable ? ' lumen-usage-model-surface' : ''}${ratePanel ? ' lumen-usage-rate-surface' : ''}${memberList ? ' lumen-usage-member-surface' : ''}${budgetPanel ? ' lumen-usage-budget-surface' : ''}${overagePanel ? ' lumen-usage-overage-surface' : ''}${requestTable ? ' lumen-usage-request-surface' : ''}${compactWidget ? ' lumen-usage-widget-surface' : ''}`}
       contentClassName={contentClassName}
       data-lumen-component="usage"
       data-lumen-variant={variant}
@@ -873,6 +884,11 @@ export function LumenUsage(props: LumenUsageProps) {
       budgetPanel={props.variant === 5 && Boolean(content.budget?.panel)}
       overagePanel={props.variant === 6 && Boolean(content.overage?.panel)}
       requestTable={props.variant === 7 && Boolean(content.requests?.table)}
+      compactWidget={
+        props.variant === 8 &&
+        content.compact?.density !== 'inline' &&
+        Boolean(content.compact?.widget)
+      }
     >
       {view}
     </UsageRoot>

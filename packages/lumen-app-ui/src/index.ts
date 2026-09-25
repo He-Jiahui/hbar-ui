@@ -1407,6 +1407,10 @@ export type {
   LumenUsageRequestTableContent,
   UsageRequestTableProps,
 } from './usage-request-table';
+export type {
+  LumenUsageCompactWidgetContent,
+  UsageCompactWidgetProps,
+} from './usage-compact-widget';
 export {
   LumenFeedback,
   LumenFeedback01,
