@@ -16,6 +16,7 @@ import './app-dialog-delete.css';
 import './app-dialog-invite.css';
 import './app-dialog-wizard.css';
 import './app-dialog-alert.css';
+import './app-dialog-evidence.css';
 
 export interface LumenAppDialogListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -222,6 +223,14 @@ export interface LumenAppDialogEvidenceContent {
   readonly controls: readonly LumenAppDialogControl[];
   readonly history: readonly LumenAppDialogHistory[];
   readonly listStrategy: LumenAppDialogListStrategy;
+  readonly referenceLayout?: {
+    readonly labels: {
+      readonly separator: string;
+      readonly archivedTitle: string;
+      readonly downloadTitle: string;
+      readonly resultDetail: string;
+    };
+  } | undefined;
 }
 export interface LumenAppDialogMenuItem {
   readonly id: string;
@@ -328,7 +337,7 @@ function Root({
 }: Omit<LumenAppDialogProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
   const contentClassName = [
     'lumen-app-dialog-stage',
-    variant >= 1 && variant <= 5 ? 'hbar-app-ui-full-canvas-owner' : '',
+    variant >= 1 && variant <= 6 ? 'hbar-app-ui-full-canvas-owner' : '',
     `hbar-app-ui-dialog-variant-${variant}`,
     density ? `hbar-app-ui-density-${density}` : '',
     surface ? `hbar-app-ui-surface-${surface}` : '',
@@ -341,8 +350,8 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary={variant <= 5 ? 'none' : 'horizontal'}
-      material={variant <= 5 ? 'frost' : 'glass'}
+      boundary={variant <= 6 ? 'none' : 'horizontal'}
+      material={variant <= 6 ? 'frost' : 'glass'}
       className="lumen-app-dialog-stage-surface"
       contentClassName={contentClassName}
       data-lumen-component="app-dialog"
@@ -1196,7 +1205,73 @@ function Alert(props: Omit<LumenAppDialogProps, 'content'> & { content: LumenApp
     ? <ReferenceAlert {...props} reference={props.content.reference} />
     : <LegacyAlert {...props} />;
 }
-function Evidence(
+function ReferenceEvidence(
+  props: Omit<LumenAppDialogProps, 'content'> & {
+    content: LumenAppDialogEvidenceContent;
+    referenceLayout: NonNullable<LumenAppDialogEvidenceContent['referenceLayout']>;
+  },
+) {
+  const details = uniqueLumenAppDialogItems(props.content.details);
+  const controls = uniqueLumenAppDialogItems(props.content.controls);
+  const history = uniqueLumenAppDialogItems(props.content.history);
+  const [result, setResult] = React.useState<'archive' | 'download' | null>(null);
+  return (
+    <Root {...props}>
+      <DialogState trigger={props.content.labels.trigger} onAction={props.onAction}>
+        {(close) => (
+          <Panel
+            side
+            landmarks
+            title={props.content.labels.title}
+            titleId={`${props.variantId}-title`}
+            closeLabel={props.content.labels.close}
+            onClose={close}
+            footer={<>
+              <LumenButton variant="outlined" indicator="none" onClick={() => {
+                setResult('archive');
+                report(props.onAction, 'archive', props.content.reference);
+              }}><Glyph name="archive" />{props.content.labels.archive}</LumenButton>
+              <LumenButton tone="primary" indicator="none" onClick={() => {
+                setResult('download');
+                report(props.onAction, 'download', props.content.reference);
+              }}><Glyph name="download" />{props.content.labels.download}</LumenButton>
+            </>}
+          >
+            <div className="lumen-app-dialog-evidence-flow" data-hbar-app-ui-scroll-owner={props.content.listStrategy.kind}>
+              <div className="lumen-app-dialog-evidence-status">
+                <span aria-hidden="true" className="lumen-app-dialog-evidence-dot" />
+                <span>{props.content.status}</span><span>{props.referenceLayout.labels.separator}</span><span>{props.content.reference}</span>
+              </div>
+              <LumenText as="p" className="lumen-app-dialog-evidence-description">{props.content.description}</LumenText>
+              <dl className="lumen-app-dialog-evidence-details">
+                {details.length ? details.map((item) => (
+                  <div key={item.id}><dt>{item.label}</dt><dd>{item.value}</dd></div>
+                )) : <Empty>{props.content.labels.emptyDetails}</Empty>}
+              </dl>
+              <section className="lumen-app-dialog-evidence-section">
+                <h3>{props.content.labels.controls}</h3>
+                {controls.length ? <ul className="lumen-app-dialog-evidence-controls">
+                  {controls.map((item) => <li key={item.id}><span>{item.code}</span><span>{item.label}</span></li>)}
+                </ul> : <Empty>{props.content.labels.emptyControls}</Empty>}
+              </section>
+              <section className="lumen-app-dialog-evidence-section">
+                <h3>{props.content.labels.history}</h3>
+                {history.length ? <ul className="lumen-app-dialog-evidence-history">
+                  {history.map((item) => <li key={item.id}><span className="lumen-app-dialog-evidence-time">{item.time}</span><span>{item.label}</span></li>)}
+                </ul> : <Empty>{props.content.labels.emptyHistory}</Empty>}
+              </section>
+            </div>
+          </Panel>
+        )}
+      </DialogState>
+      {result && <div className="lumen-app-dialog-evidence-toast" role="status">
+        <p>{result === 'archive' ? props.referenceLayout.labels.archivedTitle : props.referenceLayout.labels.downloadTitle}</p>
+        <p>{props.referenceLayout.labels.resultDetail}</p>
+      </div>}
+    </Root>
+  );
+}
+function LegacyEvidence(
   props: Omit<LumenAppDialogProps, 'content'> & { content: LumenAppDialogEvidenceContent },
 ) {
   const details = uniqueLumenAppDialogItems(props.content.details);
@@ -1279,6 +1354,11 @@ function Evidence(
       </DialogState>
     </Root>
   );
+}
+function Evidence(props: Omit<LumenAppDialogProps, 'content'> & { content: LumenAppDialogEvidenceContent }) {
+  return props.content.referenceLayout
+    ? <ReferenceEvidence {...props} referenceLayout={props.content.referenceLayout} />
+    : <LegacyEvidence {...props} />;
 }
 function Menu(
   props: Omit<LumenAppDialogProps, 'content'> & { content: LumenAppDialogMenuContent },
