@@ -285,6 +285,18 @@ export interface LumenPromptComposerProps {
     | undefined;
   error?: string | undefined;
   context?: React.ReactNode;
+  /** Host-owned rich editor; omitted to preserve the built-in textarea and Enter behavior. */
+  editor?:
+    | ((controls: {
+        value: string;
+        inputLabel: string;
+        placeholder: string;
+        disabled: boolean;
+        onChange: (value: string) => void;
+        /** Same submission gate as the Send button; the editor owns IME/newline handling. */
+        onSubmit: () => void;
+      }) => React.ReactNode)
+    | undefined;
   controls?: React.ReactNode;
   modelPicker?: React.ReactNode;
   onChange: (value: string) => void;
@@ -309,6 +321,9 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
     !props.canSubmit ||
     runningActions?.submit === 'hidden',
   );
+  const submit = () => {
+    if (!blocked) props.onSubmit();
+  };
   return (
     <LumenSurface
       as="form"
@@ -332,9 +347,7 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
       aria-busy={props.submitting || props.uploading || undefined}
       onSubmit={(event) => {
         event.preventDefault();
-        if (!blocked) {
-          props.onSubmit();
-        }
+        submit();
       }}
     >
       {props.context}
@@ -367,23 +380,34 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
           })}
         </div>
       ) : null}
-      <LumenTextarea
-        variant="plain"
-        aria-label={props.labels.input}
-        placeholder={props.labels.placeholder}
-        disabled={props.disabled}
-        rows={3}
-        value={props.value}
-        onChange={(event) => props.onChange(event.currentTarget.value)}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
-            event.preventDefault();
-            if (!blocked) {
-              props.onSubmit();
+      {props.editor ? (
+        props.editor({
+          value: props.value,
+          inputLabel: props.labels.input,
+          placeholder: props.labels.placeholder,
+          disabled: Boolean(props.disabled),
+          onChange: props.onChange,
+          onSubmit: submit,
+        })
+      ) : (
+        <LumenTextarea
+          variant="plain"
+          aria-label={props.labels.input}
+          placeholder={props.labels.placeholder}
+          disabled={props.disabled}
+          rows={3}
+          value={props.value}
+          onChange={(event) => props.onChange(event.currentTarget.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
+              event.preventDefault();
+              if (!blocked) {
+                props.onSubmit();
+              }
             }
-          }
-        }}
-      />
+          }}
+        />
+      )}
       {props.error ? (
         <LumenText as="p" tone="danger" role="alert">
           {props.error}

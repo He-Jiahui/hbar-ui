@@ -108,6 +108,59 @@ describe('LumenPromptComposer running actions', () => {
     expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 
+  it('accepts a host-owned editor without replacing the existing Send control', async () => {
+    const onSubmit = vi.fn();
+    const { user } = render(
+      <LumenPromptComposer
+        {...defaults}
+        canStop={false}
+        editor={({ inputLabel, onSubmit: submit }) => (
+          <div
+            role="textbox"
+            aria-label={inputLabel}
+            contentEditable
+            data-testid="rich-composer-editor"
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') submit();
+            }}
+          />
+        )}
+        onSubmit={onSubmit}
+      />,
+    );
+    expect(screen.getAllByRole('textbox')).to.have.length(1);
+    expect(screen.getByTestId('rich-composer-editor')).not.to.equal(null);
+    expect(screen.queryByPlaceholderText(labels.placeholder)).to.equal(null);
+    await user.click(screen.getByRole('textbox', { name: labels.input }));
+    await user.keyboard('{Enter}');
+    await user.click(screen.getByRole('button', { name: labels.send }));
+    expect(onSubmit).toHaveBeenCalledTimes(2);
+  });
+
+  it('passes the submission gate and disabled state into a rich editor', async () => {
+    const onSubmit = vi.fn();
+    const { user } = render(
+      <LumenPromptComposer
+        {...defaults}
+        disabled
+        canStop={false}
+        editor={({ inputLabel, disabled, onSubmit: submit }) => (
+          <button
+            type="button"
+            aria-label={inputLabel}
+            data-editor-disabled={disabled}
+            onClick={submit}
+          />
+        )}
+        onSubmit={onSubmit}
+      />,
+    );
+    const editor = screen.getByRole('button', { name: labels.input });
+    expect(editor.getAttribute('data-editor-disabled')).to.equal('true');
+    await user.click(editor);
+    expect(onSubmit).toHaveBeenCalledTimes(0);
+  });
+
   it('can queue an attachment-only draft and preserves the host-owned long translated label', async () => {
     const onSubmit = vi.fn();
     const queueLabel = '在当前会话正在执行的任务完成之后，把这份附件加入后续处理队列';
