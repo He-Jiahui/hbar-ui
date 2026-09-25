@@ -1111,6 +1111,14 @@ export type {
   LumenInboxConversation,
 } from './app-shell-inbox';
 export type {
+  LumenAppShellDocumentsContent,
+  LumenShellDocument,
+  LumenDocumentFolder,
+  LumenDocumentBlock,
+  LumenDocumentFormat,
+  LumenDocumentMenuItem,
+} from './app-shell-documents';
+export type {
   LumenAppShellChoice,
   LumenAppShellContent,
   LumenAppShellListStrategy,
