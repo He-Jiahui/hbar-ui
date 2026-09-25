@@ -239,6 +239,18 @@
   gap: 0.25rem;
 }
 
+.lumen-composer-queue-action {
+  min-inline-size: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.lumen-composer-toolbar > .lumen-composer-running-actions {
+  max-inline-size: 100%;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .lumen-uploading {
   display: inline-flex;
   min-inline-size: var(--lumen-control-size);

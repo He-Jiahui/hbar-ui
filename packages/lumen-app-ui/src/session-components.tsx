@@ -275,6 +275,14 @@ export interface LumenPromptComposerProps {
   canStop: boolean;
   canAddAttachments?: boolean | undefined;
   stopping?: boolean | undefined;
+  /** Opt in to a stable Stop action during a run, with an explicit queued submission. */
+  runningActions?:
+    | {
+        submit: 'hidden' | 'queue';
+        queueLabel: string;
+        queueTitle: string;
+      }
+    | undefined;
   error?: string | undefined;
   context?: React.ReactNode;
   controls?: React.ReactNode;
@@ -287,6 +295,7 @@ export interface LumenPromptComposerProps {
 }
 
 export function LumenPromptComposer(props: LumenPromptComposerProps) {
+  const runningActions = props.canStop ? props.runningActions : undefined;
   const attachments = uniqueById(
     props.attachments.map((attachment) => ({
       ...attachment,
@@ -294,7 +303,11 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
     })),
   );
   const blocked = Boolean(
-    props.disabled || props.submitting || props.uploading || !props.canSubmit,
+    props.disabled ||
+    props.submitting ||
+    props.uploading ||
+    !props.canSubmit ||
+    runningActions?.submit === 'hidden',
   );
   return (
     <LumenSurface
@@ -395,27 +408,44 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
             </span>
           ) : null}
         </div>
-        <div>
+        <div className={runningActions ? 'lumen-composer-running-actions' : undefined}>
           {props.modelPicker}
+          {runningActions?.submit === 'queue' ? (
+            <LumenButton
+              type="submit"
+              className="lumen-composer-queue-action"
+              title={runningActions.queueTitle}
+              tone="primary"
+              variant="text"
+              indicator="none"
+              loading={props.submitting}
+              disabled={blocked}
+            >
+              {runningActions.queueLabel}
+            </LumenButton>
+          ) : null}
           {props.canStop ? (
             <LumenIconButton
               label={props.labels.stop}
-              disabled={props.stopping}
+              tone={runningActions ? 'danger' : undefined}
+              disabled={props.stopping || Boolean(runningActions && props.disabled)}
               onClick={props.onStop}
             >
               <SessionGlyph name="stop" />
             </LumenIconButton>
           ) : null}
-          <LumenIconButton
-            type="submit"
-            label={props.labels.send}
-            title={props.labels.submitTitle}
-            tone="primary"
-            loading={props.submitting}
-            disabled={blocked}
-          >
-            <SessionGlyph name="send" />
-          </LumenIconButton>
+          {!runningActions ? (
+            <LumenIconButton
+              type="submit"
+              label={props.labels.send}
+              title={props.labels.submitTitle}
+              tone="primary"
+              loading={props.submitting}
+              disabled={blocked}
+            >
+              <SessionGlyph name="send" />
+            </LumenIconButton>
+          ) : null}
         </div>
       </div>
     </LumenSurface>
