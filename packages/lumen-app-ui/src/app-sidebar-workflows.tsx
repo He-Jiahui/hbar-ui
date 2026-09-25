@@ -9,6 +9,7 @@ import { AppSidebarPrimary, type LumenAppSidebarPrimaryContent } from './app-sid
 import { AppSidebarRail, type LumenAppSidebarRailContent } from './app-sidebar-rail';
 import { AppSidebarWorkspace, type LumenAppSidebarWorkspaceContent } from './app-sidebar-workspace';
 import { AppSidebarDual, type LumenAppSidebarDualContent } from './app-sidebar-dual';
+import { AppSidebarTree, type LumenAppSidebarTreeContent } from './app-sidebar-tree';
 import './app-sidebar-workflows.css';
 
 export interface LumenAppSidebarListStrategy {
@@ -34,6 +35,7 @@ export interface LumenAppSidebarContent {
   readonly railPreview?: LumenAppSidebarRailContent | undefined;
   readonly workspacePreview?: LumenAppSidebarWorkspaceContent | undefined;
   readonly dualPreview?: LumenAppSidebarDualContent | undefined;
+  readonly treePreview?: LumenAppSidebarTreeContent | undefined;
   readonly labels: {
     readonly brand: string;
     readonly title: string;
@@ -665,6 +667,16 @@ export function LumenAppSidebarWorkflows(props: LumenAppSidebarWorkflowsProps) {
     return <Dual {...props} content={content} />;
   }
   if (props.variant === 5) {
+    if (content.treePreview) {
+      return (
+        <Root {...props}>
+          <AppSidebarTree
+            content={content.treePreview}
+            onAction={(action, id) => report(props.onAction, action, id)}
+          />
+        </Root>
+      );
+    }
     return <Tree {...props} content={content} />;
   }
   if (props.variant === 6) {
