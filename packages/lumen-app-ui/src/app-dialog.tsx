@@ -11,6 +11,7 @@ import {
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './app-dialog.css';
+import './app-dialog-plan.css';
 
 export interface LumenAppDialogListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -35,6 +36,9 @@ export interface LumenAppDialogPlanContent {
     readonly close: string;
     readonly cancel: string;
     readonly confirm: string;
+    readonly transition: string;
+    readonly confirmationTitle: string;
+    readonly confirmationDetail: string;
     readonly empty: string;
   };
   readonly rows: readonly LumenAppDialogRow[];
@@ -266,6 +270,7 @@ function Root({
 }: Omit<LumenAppDialogProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
   const contentClassName = [
     'lumen-app-dialog-stage',
+    variant === 1 ? 'hbar-app-ui-full-canvas-owner' : '',
     `hbar-app-ui-dialog-variant-${variant}`,
     density ? `hbar-app-ui-density-${density}` : '',
     surface ? `hbar-app-ui-surface-${surface}` : '',
@@ -278,7 +283,8 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary="horizontal"
+      boundary={variant === 1 ? 'none' : 'horizontal'}
+      material={variant === 1 ? 'frost' : 'glass'}
       className="lumen-app-dialog-stage-surface"
       contentClassName={contentClassName}
       data-lumen-component="app-dialog"
@@ -324,6 +330,7 @@ function Panel({
   side,
   children,
   footer,
+  landmarks = false,
 }: {
   readonly title: string;
   readonly detail?: string | undefined;
@@ -333,6 +340,7 @@ function Panel({
   readonly side?: boolean | undefined;
   readonly children: React.ReactNode;
   readonly footer: React.ReactNode;
+  readonly landmarks?: boolean | undefined;
 }) {
   return (
     <div className={side ? 'lumen-app-dialog-backdrop is-side' : 'lumen-app-dialog-backdrop'}>
@@ -342,7 +350,7 @@ function Panel({
         aria-modal="true"
         aria-labelledby={titleId}
       >
-        <header>
+        <header role={landmarks ? 'banner' : undefined}>
           <div>
             <LumenText as="h2" id={titleId} variant="title">
               {title}
@@ -356,7 +364,7 @@ function Panel({
           <Close label={closeLabel} onClick={onClose} />
         </header>
         <div className="lumen-app-dialog-body">{children}</div>
-        <footer>{footer}</footer>
+        <footer role={landmarks ? 'contentinfo' : undefined}>{footer}</footer>
       </section>
     </div>
   );
@@ -402,11 +410,13 @@ function Plan(
   props: Omit<LumenAppDialogProps, 'content'> & { content: LumenAppDialogPlanContent },
 ) {
   const rows = uniqueLumenAppDialogItems(props.content.rows);
+  const [confirmed, setConfirmed] = React.useState(false);
   return (
     <Root {...props}>
       <DialogState trigger={props.content.labels.trigger} onAction={props.onAction}>
         {(close) => (
           <Panel
+            landmarks
             title={props.content.labels.title}
             detail={props.content.labels.detail}
             titleId={`${props.variantId}-title`}
@@ -421,6 +431,7 @@ function Plan(
                   tone="primary"
                   onClick={() => {
                     close();
+                    setConfirmed(true);
                     report(props.onAction, 'confirm', 'plan-change');
                   }}
                 >
@@ -439,8 +450,8 @@ function Plan(
                     <dt>{row.label}</dt>
                     <dd>
                       <s>{row.from}</s>
-                      <span aria-hidden="true">→</span>
-                      <strong>{row.to}</strong>
+                      <span>{props.content.labels.transition}</span>
+                      <span>{row.to}</span>
                     </dd>
                   </div>
                 ))}
@@ -451,6 +462,12 @@ function Plan(
           </Panel>
         )}
       </DialogState>
+      {confirmed && (
+        <div className="hbar-app-ui-dialog-plan-toast">
+          <p>{props.content.labels.confirmationTitle}</p>
+          <p>{props.content.labels.confirmationDetail}</p>
+        </div>
+      )}
     </Root>
   );
 }
