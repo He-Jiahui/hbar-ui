@@ -8,6 +8,7 @@ import { LumenAppShell } from './workbench';
 import './app-shell-workflows.css';
 import { AppShellSidebar, type LumenAppShellSidebarContent } from './app-shell-sidebar';
 import { AppShellRail, type LumenAppShellRailContent } from './app-shell-rail';
+import { AppShellContracts, type LumenAppShellContractsContent } from './app-shell-contracts';
 
 export interface LumenAppShellListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -37,6 +38,7 @@ export interface LumenAppShellContent {
   /** Reference sidebar/records contract. Other variants retain their existing contract. */
   readonly sidebar?: LumenAppShellSidebarContent | undefined;
   readonly rail?: LumenAppShellRailContent | undefined;
+  readonly contracts?: LumenAppShellContractsContent | undefined;
   readonly labels: {
     readonly brand: string;
     readonly title: string;
@@ -846,6 +848,15 @@ export function LumenAppShellWorkflows(props: LumenAppShellWorkflowsProps) {
     return <Rails {...props} content={content} />;
   }
   if (props.variant === 3) {
+    if (content.contracts)
+      return (
+        <Root
+          {...props}
+          className={['lumen-shell-contracts-stage', props.className].filter(Boolean).join(' ')}
+        >
+          <AppShellContracts content={content.contracts} />
+        </Root>
+      );
     return <Workbench {...props} content={content} />;
   }
   if (props.variant === 4) {

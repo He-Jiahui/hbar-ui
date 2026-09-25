@@ -1094,6 +1094,11 @@ export type {
 } from './app-shell-rail';
 export { stableLumenShellRailItems } from './app-shell-rail';
 export type {
+  LumenAppShellContractsContent,
+  LumenShellContractLink,
+  LumenShellContractRecord,
+} from './app-shell-contracts';
+export type {
   LumenAppShellChoice,
   LumenAppShellContent,
   LumenAppShellListStrategy,
