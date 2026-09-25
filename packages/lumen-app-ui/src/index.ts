@@ -1080,6 +1080,13 @@ export {
   useLumenAppShellWorkflowsContent,
 } from './app-shell-workflows';
 export type {
+  LumenAppShellSidebarContent,
+  LumenShellSidebarIcon,
+  LumenShellSidebarLink,
+  LumenShellSidebarGroup,
+  LumenShellSidebarRecord,
+} from './app-shell-sidebar';
+export type {
   LumenAppShellChoice,
   LumenAppShellContent,
   LumenAppShellListStrategy,

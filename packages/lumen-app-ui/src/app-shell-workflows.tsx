@@ -6,6 +6,7 @@ import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { LumenAppShell } from './workbench';
 import './app-shell-workflows.css';
+import { AppShellSidebar, type LumenAppShellSidebarContent } from './app-shell-sidebar';
 
 export interface LumenAppShellListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -32,6 +33,8 @@ export interface LumenAppShellScope {
   readonly initialOptionId: string;
 }
 export interface LumenAppShellContent {
+  /** Reference sidebar/records contract. Other variants retain their existing contract. */
+  readonly sidebar?: LumenAppShellSidebarContent | undefined;
   readonly labels: {
     readonly brand: string;
     readonly title: string;
@@ -815,6 +818,16 @@ export function LumenAppShellWorkflows(props: LumenAppShellWorkflowsProps) {
     return empty(props);
   }
   if (props.variant === 1) {
+    if (content.sidebar) {
+      return (
+        <Root
+          {...props}
+          className={['lumen-shell-sidebar-stage', props.className].filter(Boolean).join(' ')}
+        >
+          <AppShellSidebar content={content.sidebar} />
+        </Root>
+      );
+    }
     return <Sidebar {...props} content={content} />;
   }
   if (props.variant === 2) {
