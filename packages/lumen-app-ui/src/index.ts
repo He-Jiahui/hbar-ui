@@ -1397,6 +1397,11 @@ export type {
   LumenUsageSeatRow,
   LumenUsageVariantProps,
 } from './usage';
+export type {
+  LumenUsageOveragePlan,
+  LumenUsageOveragePanelContent,
+  UsageOveragePanelProps,
+} from './usage-overage-panel';
 export {
   LumenFeedback,
   LumenFeedback01,
