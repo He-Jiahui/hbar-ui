@@ -7,6 +7,7 @@ import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitiv
 import { LumenAppShell } from './workbench';
 import './app-shell-workflows.css';
 import { AppShellSidebar, type LumenAppShellSidebarContent } from './app-shell-sidebar';
+import { AppShellRail, type LumenAppShellRailContent } from './app-shell-rail';
 
 export interface LumenAppShellListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -35,6 +36,7 @@ export interface LumenAppShellScope {
 export interface LumenAppShellContent {
   /** Reference sidebar/records contract. Other variants retain their existing contract. */
   readonly sidebar?: LumenAppShellSidebarContent | undefined;
+  readonly rail?: LumenAppShellRailContent | undefined;
   readonly labels: {
     readonly brand: string;
     readonly title: string;
@@ -831,6 +833,16 @@ export function LumenAppShellWorkflows(props: LumenAppShellWorkflowsProps) {
     return <Sidebar {...props} content={content} />;
   }
   if (props.variant === 2) {
+    if (content.rail) {
+      return (
+        <Root
+          {...props}
+          className={['lumen-shell-rail-stage', props.className].filter(Boolean).join(' ')}
+        >
+          <AppShellRail content={content.rail} />
+        </Root>
+      );
+    }
     return <Rails {...props} content={content} />;
   }
   if (props.variant === 3) {

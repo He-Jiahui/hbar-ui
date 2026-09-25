@@ -1087,6 +1087,13 @@ export type {
   LumenShellSidebarRecord,
 } from './app-shell-sidebar';
 export type {
+  LumenAppShellRailContent,
+  LumenShellRailArea,
+  LumenShellRailRecord,
+  LumenShellRailWorkspace,
+} from './app-shell-rail';
+export { stableLumenShellRailItems } from './app-shell-rail';
+export type {
   LumenAppShellChoice,
   LumenAppShellContent,
   LumenAppShellListStrategy,
