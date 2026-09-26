@@ -26,6 +26,7 @@ import './authentication.css';
 import './authentication-sign-in-reference.css';
 import './authentication-provider-first-reference.css';
 import './authentication-quote-reference.css';
+import './authentication-two-step-reference.css';
 
 export interface LumenAuthenticationAction {
   readonly actionId: string;

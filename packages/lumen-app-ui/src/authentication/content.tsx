@@ -142,18 +142,29 @@ export interface LumenAuthTwoStepContent {
     readonly emailLabel: string;
     readonly emailPlaceholder: string;
     readonly continueLabel: string;
+    readonly continuing: string;
     readonly magicLink: string;
     readonly needAccount: string;
     readonly createAccount: string;
     readonly matchedAccount: string;
+    readonly back: string;
+    readonly forgotPassword: string;
+    readonly invalidEmail: string;
+    readonly securityNote: string;
     readonly passwordLabel: string;
     readonly passwordPlaceholder: string;
     readonly signIn: string;
+    readonly signingIn: string;
     readonly useAnother: string;
     readonly showPassword: string;
     readonly hidePassword: string;
   };
   readonly initialEmail: string;
+  readonly account: {
+    readonly initials: string;
+    readonly name: string;
+    readonly organization: string;
+  };
 }
 
 export interface LumenAuthMagicLinkContent {
