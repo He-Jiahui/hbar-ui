@@ -213,9 +213,11 @@ export interface LumenNotificationSystemContent {
 }
 export interface LumenNotificationBellMessage {
   readonly id: string;
-  readonly title: string;
+  readonly actor: string;
+  readonly summary: string;
   readonly time: string;
   readonly unread: boolean;
+  readonly icon: 'mention' | 'review' | 'security' | 'reply' | 'resolved';
 }
 export interface LumenNotificationBellContent {
   readonly labels: {
@@ -223,17 +225,26 @@ export interface LumenNotificationBellContent {
     readonly brand: string;
     readonly bell: (count: number) => string;
     readonly dialog: string;
-    readonly close: string;
+    readonly filter: string;
+    readonly all: string;
+    readonly unread: string;
     readonly markAll: string;
+    readonly openCenter: string;
     readonly settings: string;
     readonly hint: string;
     readonly empty: string;
+    readonly unreadEmpty: string;
+    readonly pending: string;
+    readonly failed: string;
+    readonly unavailable: string;
   };
   readonly navItems: readonly (LumenNotificationsChoice & { readonly href: string })[];
   readonly selectedNavId: string;
   readonly messages: readonly LumenNotificationBellMessage[];
   readonly avatar: string;
   readonly listStrategy: LumenNotificationsListStrategy;
+  /** The host confirms read state before the visible badge and rows change. */
+  readonly markRead?: ((messageIds: readonly string[], signal: AbortSignal) => Promise<'confirmed' | 'unchanged'>) | undefined;
 }
 export interface LumenNotificationsContent {
   readonly center?: LumenNotificationCenterContent | undefined;
@@ -1309,89 +1320,168 @@ function SystemGlyph({ name }: { name: LumenNotificationSystemMessage['tone'] })
 function Bell(
   props: Omit<LumenNotificationsProps, 'content'> & { content: LumenNotificationBellContent },
 ) {
-  const navItems = uniqueLumenNotificationsItems(props.content.navItems);
-  const messages = uniqueLumenNotificationsItems(props.content.messages);
+  const { content } = props;
+  const navItems = uniqueLumenNotificationsItems(content.navItems);
+  const messages = uniqueLumenNotificationsItems(content.messages);
   const [open, setOpen] = React.useState(false);
-  const [readIds, setReadIds] = React.useState<ReadonlySet<string>>(
-    () => new Set(messages.filter((item) => !item.unread).map((item) => item.id)),
+  const [filter, setFilter] = React.useState<'all' | 'unread'>('all');
+  const [readState, setReadState] = React.useState<{ source: typeof content.messages; ids: ReadonlySet<string> }>(
+    () => ({ source: content.messages, ids: new Set() }),
   );
-  const unread = messages.filter((item) => !readIds.has(item.id)).length;
+  const [pendingState, setPendingState] = React.useState<{ source: typeof content.messages; target: string } | null>(null);
+  const [failureState, setFailureState] = React.useState<{ source: typeof content.messages; target: string } | null>(null);
+  const readIds = readState.source === content.messages ? readState.ids : new Set<string>();
+  const pending = pendingState?.source === content.messages ? pendingState.target : null;
+  const failure = failureState?.source === content.messages ? failureState.target : null;
+  const pendingRef = React.useRef<AbortController | null>(null);
+  const bellRef = React.useRef<HTMLDivElement>(null);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const dialogId = React.useId();
+  React.useEffect(() => () => pendingRef.current?.abort(), []);
+  React.useEffect(() => {
+    pendingRef.current?.abort();
+    pendingRef.current = null;
+  }, [content.messages]);
+  React.useEffect(() => {
+    if (!open) {
+      return undefined;
+    }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') {
+        return;
+      }
+      event.preventDefault();
+      setOpen(false);
+      triggerRef.current?.focus();
+    };
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.target instanceof Node && !bellRef.current?.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('pointerdown', onPointerDown);
+    };
+  }, [open]);
+  const unreadMessages = messages.filter((item) => item.unread && !readIds.has(item.id));
+  const visible = filter === 'unread' ? unreadMessages : messages;
+  const markRead = async (ids: readonly string[], target: string) => {
+    if (!content.markRead || pendingRef.current || ids.length === 0) {
+      return;
+    }
+    const controller = new AbortController();
+    pendingRef.current = controller;
+    setPendingState({ source: content.messages, target });
+    setFailureState(null);
+    try {
+      const result = await content.markRead(ids, controller.signal);
+      if (controller.signal.aborted) {
+        return;
+      }
+      if (result === 'confirmed') {
+        setReadState((current) => ({
+          source: content.messages,
+          ids: new Set([...(current.source === content.messages ? current.ids : []), ...ids]),
+        }));
+        report(props.onAction, target === 'all' ? 'mark-all' : 'mark-read', target === 'all' ? undefined : target);
+      }
+    } catch {
+      if (!controller.signal.aborted) {
+        setFailureState({ source: content.messages, target });
+      }
+    } finally {
+      if (!controller.signal.aborted) {
+        setPendingState(null);
+      }
+      if (pendingRef.current === controller) {
+        pendingRef.current = null;
+      }
+    }
+  };
   return (
     <Root {...props}>
       <header className="lumen-notifications-appbar" role="banner">
         <div className="lumen-bell-leading">
-          <span className="lumen-bell-brand"><span className="lumen-bell-mark">{props.content.labels.brandMark}</span><span>{props.content.labels.brand}</span></span>
+          <span className="lumen-bell-brand"><span className="lumen-bell-mark">{content.labels.brandMark}</span><span>{content.labels.brand}</span></span>
           <nav>
             {navItems.map((item) => (
-              <a key={item.id} href={item.href} aria-current={item.id === props.content.selectedNavId ? 'page' : undefined}>{item.label}</a>
+              <a key={item.id} href={item.href} aria-current={item.id === content.selectedNavId ? 'page' : undefined}>{item.label}</a>
             ))}
           </nav>
         </div>
         <div className="lumen-bell-trailing">
-          <div className="lumen-notifications-bell">
+          <div className="lumen-notifications-bell" ref={bellRef}>
             <LumenIconButton
-              label={props.content.labels.bell(unread)}
+              ref={triggerRef}
+              label={content.labels.bell(unreadMessages.length)}
               aria-expanded={open}
+              aria-controls={open ? dialogId : undefined}
               onClick={() => {
                 setOpen((value) => !value);
                 report(props.onAction, 'toggle-bell');
               }}
             >
               <Glyph name="bell" />
-              {unread ? <span className="lumen-bell-badge">{unread}</span> : null}
+              {unreadMessages.length ? <span className="lumen-bell-badge">{unreadMessages.length}</span> : null}
             </LumenIconButton>
             {open ? (
-              <aside role="dialog" aria-label={props.content.labels.dialog}>
-                <header>
-                  <strong>{props.content.labels.dialog}</strong>
-                  <LumenIconButton
-                    label={props.content.labels.close}
-                    onClick={() => setOpen(false)}
-                  >
-                    <Glyph name="close" />
-                  </LumenIconButton>
-                </header>
-                <div data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}>
-                  {messages.length ? (
-                    messages.map((message) => (
-                      <article key={message.id}>
-                        <strong>{message.title}</strong>
-                        <small>{message.time}</small>
-                      </article>
-                    ))
-                  ) : (
-                    <Empty>{props.content.labels.empty}</Empty>
-                  )}
+              <aside className="lumen-bell-popover" id={dialogId} role="dialog" aria-label={content.labels.dialog}>
+                <div className="lumen-bell-toolbar">
+                  <div className="lumen-bell-filters" role="tablist" aria-label={content.labels.filter}>
+                    <LumenButton variant="text" indicator="none" role="tab" aria-selected={filter === 'all'} onClick={() => setFilter('all')}>{content.labels.all}</LumenButton>
+                    <LumenButton variant="text" indicator="none" role="tab" aria-selected={filter === 'unread'} onClick={() => setFilter('unread')}>{content.labels.unread}</LumenButton>
+                  </div>
+                  <LumenButton variant="text" indicator="none" className="lumen-bell-mark-all" data-hbar-app-ui-action="mark-all" disabled={unreadMessages.length === 0 || !content.markRead || pending !== null} onClick={() => { void markRead(unreadMessages.map((item) => item.id), 'all'); }}><Glyph name="check" />{content.labels.markAll}</LumenButton>
                 </div>
-                <LumenButton
-                  variant="text"
-                  onClick={() => {
-                    setReadIds(new Set(messages.map((item) => item.id)));
-                    report(props.onAction, 'read-all');
-                  }}
-                >
-                  <Glyph name="check" />
-                  {props.content.labels.markAll}
-                </LumenButton>
+                {pending === 'all' ? <p className="lumen-bell-status" role="status">{content.labels.pending}</p> : null}
+                {failure === 'all' ? <p className="lumen-bell-status" role="alert">{content.labels.failed}</p> : null}
+                {!content.markRead ? <p className="lumen-bell-status" role="status">{content.labels.unavailable}</p> : null}
+                <ul className="lumen-bell-list" data-hbar-app-ui-list-strategy={content.listStrategy.kind}>
+                  {visible.length ? visible.map((message) => (
+                    <li key={message.id}>
+                      <LumenButton variant="text" indicator="none" className="lumen-bell-message" data-unread={message.unread && !readIds.has(message.id)} data-hbar-app-ui-action="mark-read" disabled={!content.markRead || pending !== null} onClick={() => { void markRead(message.unread && !readIds.has(message.id) ? [message.id] : [], message.id); }}>
+                        <BellMessageGlyph name={message.icon} unread={message.unread && !readIds.has(message.id)} />
+                        <span className="lumen-bell-message-title"><span>{message.actor}</span> {message.summary}</span>
+                        <span className="lumen-bell-time">{message.time}</span>
+                      </LumenButton>
+                      {pending === message.id ? <p className="lumen-bell-status" role="status">{content.labels.pending}</p> : null}
+                      {failure === message.id ? <p className="lumen-bell-status" role="alert">{content.labels.failed}</p> : null}
+                    </li>
+                  )) : <li className="lumen-bell-empty">{filter === 'unread' ? content.labels.unreadEmpty : content.labels.empty}</li>}
+                </ul>
+                <div className="lumen-bell-footer"><LumenButton variant="text" indicator="none" data-hbar-app-ui-action="open-center" onClick={() => { setOpen(false); report(props.onAction, 'open-center'); }}>{content.labels.openCenter}</LumenButton></div>
               </aside>
             ) : null}
           </div>
           <LumenIconButton
-            label={props.content.labels.settings}
+            label={content.labels.settings}
             onClick={() => report(props.onAction, 'settings')}
           >
             <Glyph name="settings" />
           </LumenIconButton>
-          <span className="lumen-notifications-avatar">{props.content.avatar}</span>
+          <span className="lumen-notifications-avatar">{content.avatar}</span>
         </div>
       </header>
       <div className="lumen-notifications-hint">
         <LumenText as="p" tone="muted">
-          {props.content.labels.hint}
+          {content.labels.hint}
         </LumenText>
       </div>
     </Root>
   );
+}
+const bellMessagePaths: Record<LumenNotificationBellMessage['icon'], string> = {
+  mention: 'M11 11a5 5 0 1 1 2-4v2c0 2 2 2 2 0V8M8 5a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z',
+  review: 'M6 4H4a2 2 0 0 0-2 2v6h10V7M8 2h6v6M8 8l6-6',
+  security: 'M8 1.5 13 3v4.5c0 3-2 5-5 7-3-2-5-4-5-7V3l5-1.5Zm-2 6 1.5 1.5L10.5 6',
+  reply: 'M3 3h10v8H6l-3 2V3Z',
+  resolved: 'M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13Zm-3 6 2 2 4-4',
+};
+function BellMessageGlyph({ name, unread }: { readonly name: LumenNotificationBellMessage['icon']; readonly unread: boolean }) {
+  return <span className="lumen-bell-message-icon" data-unread={unread} aria-hidden="true"><svg viewBox="0 0 16 16"><path d={bellMessagePaths[name]} /></svg></span>;
 }
 function empty(props: LumenNotificationsProps) {
   return <Root {...props}>{null}</Root>;
