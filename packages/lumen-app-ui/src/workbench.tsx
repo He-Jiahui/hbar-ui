@@ -9,6 +9,11 @@ import {
   LumenStatus,
   LumenText,
 } from './primitives';
+import { LUMEN_TOOL_SEPARATOR_WIDTH_REM, resolveLumenToolPaneLayout } from './tool-pane-layout';
+import type { LumenToolLayout, LumenToolPresentation } from './tool-pane-layout';
+import { LumenToolPaneResizer } from './tool-pane-resize';
+import type { LumenToolResize } from './tool-pane-resize';
+import { useToolPaneGeometry } from './use-tool-pane-geometry';
 import './workbench.css';
 
 export type LumenIconTier = 'sm' | 'md' | 'lg';
@@ -36,6 +41,13 @@ export interface LumenAppShellProps {
   sidebar?: React.ReactNode;
   sidebarWidthRem: number;
   toolWidthRem?: number | undefined;
+  /** Opt in to available-container sizing. Omission preserves the legacy shell. */
+  toolLayout?: LumenToolLayout | undefined;
+  mainRef?: React.Ref<HTMLElement> | undefined;
+  toolRef?: React.Ref<HTMLElement> | undefined;
+  resizeRef?: React.Ref<HTMLElement> | undefined;
+  onToolPresentationChange?: ((value: LumenToolPresentation) => void) | undefined;
+  toolResize?: LumenToolResize | undefined;
   sidebarOpen: boolean;
   closeSidebarLabel: string;
   onCloseSidebar: () => void;
@@ -46,13 +58,19 @@ export interface LumenAppShellProps {
   children: React.ReactNode;
 }
 
-/** Host content stays in flow; only the bounded tool pane is an overlay below 80rem. */
+/** Adaptive panes stay in flow; content identity and persistence remain host-owned. */
 export function LumenAppShell({
   label,
   titlebar,
   sidebar,
   sidebarWidthRem,
   toolWidthRem = 24,
+  toolLayout,
+  mainRef,
+  toolRef,
+  resizeRef,
+  onToolPresentationChange,
+  toolResize,
   sidebarOpen,
   closeSidebarLabel,
   onCloseSidebar,
@@ -62,9 +80,39 @@ export function LumenAppShell({
   overlay,
   children,
 }: LumenAppShellProps) {
+  const { bodyRef, remProbeRef, geometry } = useToolPaneGeometry(toolLayout !== undefined);
+  const [previewWidthRem, setPreviewWidthRem] = React.useState<number | null>(null);
+  const toolPresent = Boolean(tool);
+  const paneLayout = toolLayout
+    ? resolveLumenToolPaneLayout({
+        toolPresent,
+        preferredWidthRem: previewWidthRem ?? toolWidthRem,
+        layout: toolLayout,
+        geometry,
+      })
+    : null;
+  const previousPresentation = React.useRef<LumenToolPresentation | null>(null);
+  React.useEffect(() => {
+    setPreviewWidthRem(null);
+  }, [
+    toolPresent,
+    toolWidthRem,
+    toolLayout?.mainMinWidthRem,
+    toolLayout?.minWidthRem,
+    toolLayout?.maxWidthRem,
+  ]);
+  React.useEffect(() => {
+    if (paneLayout && paneLayout.presentation !== previousPresentation.current) {
+      previousPresentation.current = paneLayout.presentation;
+      onToolPresentationChange?.(paneLayout.presentation);
+    }
+  }, [paneLayout, onToolPresentationChange]);
   const style = {
     '--lumen-sidebar-size': `${sidebarWidthRem}rem`,
-    '--lumen-tool-size': `${toolWidthRem}rem`,
+    '--lumen-tool-size': `${paneLayout?.widthRem ?? toolWidthRem}rem`,
+    '--lumen-tool-separator-size': `${LUMEN_TOOL_SEPARATOR_WIDTH_REM}rem`,
+    '--lumen-main-min-size':
+      paneLayout?.presentation === 'split' ? `${toolLayout?.mainMinWidthRem}rem` : undefined,
   } as React.CSSProperties;
 
   return (
@@ -73,9 +121,13 @@ export function LumenAppShell({
       data-lumen-shell="app"
       data-hbar-app-ui-shell="app"
       data-sidebar-open={sidebarOpen}
+      data-tool-presentation={paneLayout?.presentation}
       style={style}
     >
       {titlebar}
+      {toolLayout ? (
+        <div ref={remProbeRef} className="lumen-app-rem-probe" aria-hidden="true" />
+      ) : null}
       <div className="lumen-app-workspace">
         {sidebar ? (
           <div
@@ -95,14 +147,39 @@ export function LumenAppShell({
         ) : null}
         <div className="lumen-app-frame hbar-app-ui-app-frame">
           {header ? <div className="lumen-app-header hbar-app-ui-app-header">{header}</div> : null}
-          <div className="lumen-app-body hbar-app-ui-app-body">
-            <main className="lumen-app-main hbar-app-ui-app-main" aria-label={label}>
+          <div
+            ref={bodyRef}
+            className="lumen-app-body hbar-app-ui-app-body"
+            data-tool-presentation={paneLayout?.presentation}
+          >
+            <main
+              ref={mainRef}
+              className="lumen-app-main hbar-app-ui-app-main"
+              aria-label={label}
+              tabIndex={-1}
+              inert={paneLayout?.presentation === 'page' ? true : undefined}
+            >
               {children}
             </main>
+            {tool && paneLayout ? (
+              toolResize ? (
+                <LumenToolPaneResizer
+                  resize={toolResize}
+                  geometry={geometry}
+                  layout={paneLayout}
+                  onPreview={setPreviewWidthRem}
+                  resizeRef={resizeRef}
+                />
+              ) : (
+                <div className="lumen-app-tool-separator" aria-hidden="true" />
+              )
+            ) : null}
             {tool ? (
               <aside
+                ref={toolRef}
                 className="lumen-app-tool-drawer hbar-app-ui-app-tool-drawer"
                 aria-label={toolLabel}
+                tabIndex={-1}
               >
                 {tool}
               </aside>

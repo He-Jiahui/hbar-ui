@@ -189,6 +189,75 @@
   backdrop-filter: blur(1.25rem);
 }
 
+.lumen-app-rem-probe {
+  inline-size: 1rem;
+  block-size: 0;
+  flex: 0 0 auto;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.lumen-app-tool-separator {
+  display: flex;
+  inline-size: var(--lumen-tool-separator-size);
+  min-inline-size: 0;
+  min-block-size: 0;
+  flex: 0 0 var(--lumen-tool-separator-size);
+  align-items: stretch;
+  justify-content: center;
+  background: var(--lumen-frost);
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.lumen-app-tool-separator::before {
+  inline-size: 0.0625rem;
+  background: var(--lumen-edge);
+  content: '';
+}
+
+.lumen-app-tool-separator:hover::before,
+.lumen-app-tool-separator:focus-visible::before {
+  background: var(--lumen-ink);
+}
+
+.lumen-app-tool-separator:focus-visible {
+  outline: 0.125rem solid var(--lumen-ink);
+  outline-offset: -0.125rem;
+}
+
+.lumen-app-tool-separator[aria-disabled='true'] {
+  cursor: default;
+}
+
+.lumen-app-body[data-tool-presentation='split'] > .lumen-app-tool-drawer {
+  flex: 0 0 var(--lumen-tool-size);
+  border-inline-start: 0;
+}
+
+.lumen-app-body[data-tool-presentation='split'] > .lumen-app-main {
+  min-inline-size: var(--lumen-main-min-size);
+}
+
+/* An inert zero-width main remains mounted in normal flow. Unlike display:none,
+   this preserves native top-layer dialogs; the host owns focus and navigation. */
+.lumen-app-body[data-tool-presentation='page'] > .lumen-app-main {
+  inline-size: 0;
+  flex: 0 0 0;
+  overflow: hidden;
+}
+
+.lumen-app-body[data-tool-presentation='page'] > .lumen-app-tool-drawer {
+  inline-size: auto;
+  flex: 1 1 0;
+  border-inline-start: 0;
+}
+
+.lumen-app-body[data-tool-presentation='page'] > .lumen-app-tool-separator {
+  display: none;
+}
+
 .lumen-app-sidebar {
   display: flex;
   inline-size: 100%;
@@ -375,7 +444,8 @@
 }
 
 @media (max-width: 79.9375rem) {
-  .hbar-app-ui-app-tool-drawer.lumen-app-tool-drawer {
+  .lumen-app-shell:not([data-tool-presentation])
+    .hbar-app-ui-app-tool-drawer.lumen-app-tool-drawer {
     position: fixed;
     z-index: 20;
     inset-block: 0;
@@ -386,8 +456,15 @@
 }
 
 @media (max-width: 47.9375rem) {
-  .lumen-app-shell[data-sidebar-open='true'] .lumen-app-frame {
+  .lumen-app-shell[data-sidebar-open='true'] .lumen-app-frame:not(:has(dialog:modal)) {
     display: none;
+  }
+
+  .lumen-app-shell[data-sidebar-open='true'] .lumen-app-frame:has(dialog:modal) {
+    display: flex;
+    inline-size: 0;
+    flex: 0 0 0;
+    overflow: hidden;
   }
 
   .lumen-app-sidebar-drawer[data-open='true'] {
@@ -396,7 +473,7 @@
   }
 
   .lumen-app-sidebar-drawer-panel,
-  .lumen-app-tool-drawer {
+  .lumen-app-shell:not([data-tool-presentation]) .lumen-app-tool-drawer {
     inline-size: 100%;
   }
 }
@@ -413,5 +490,13 @@
 
   .lumen-window-control {
     border-color: ButtonBorder;
+  }
+
+  .lumen-app-tool-separator:focus-visible {
+    outline-color: Highlight;
+  }
+
+  .lumen-app-tool-separator::before {
+    background: CanvasText;
   }
 }

@@ -1717,6 +1717,19 @@ export {
   LumenSidebarAction,
   LumenWindowTitlebar,
 } from './workbench';
+export {
+  LUMEN_TOOL_SEPARATOR_WIDTH_REM,
+  resolveLumenToolPaneLayout,
+  nextLumenToolPaneWidth,
+} from './tool-pane-layout';
+export type {
+  LumenToolLayout,
+  LumenToolPresentation,
+  LumenToolPaneGeometry,
+  LumenToolPaneLayoutInput,
+  LumenToolPaneLayout,
+} from './tool-pane-layout';
+export type { LumenToolResize } from './tool-pane-resize';
 export type {
   LumenActionMenuItem,
   LumenActionMenuProps,
