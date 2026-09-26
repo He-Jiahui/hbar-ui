@@ -566,6 +566,32 @@ export interface LumenAuthPasswordResetContent {
   readonly devices: readonly LumenAuthDevice[];
   readonly initialPassword: string;
   readonly listStrategy: LumenAuthListStrategy;
+  readonly referenceFlow?: {
+    readonly labels: {
+      readonly descriptionBeforeEmail: string;
+      readonly descriptionAfterEmail: string;
+      readonly strength: readonly [string, string, string, string];
+      readonly mismatchHelper: string;
+      readonly stays: string;
+      readonly successTitle: string;
+      readonly successWithSignOut: (count: number, workspace: string) => string;
+      readonly successWithoutSignOut: (workspace: string) => string;
+      readonly continueWith: (workspace: string) => string;
+      readonly setDifferent: string;
+    };
+    readonly workspaceName: string;
+    readonly password: string;
+    readonly confirmation: string;
+    readonly passwordVisible: boolean;
+    readonly signOutOther: boolean;
+    readonly phase: 'form' | 'success';
+    readonly onPasswordChange: (value: string) => void;
+    readonly onConfirmationChange: (value: string) => void;
+    readonly onTogglePassword: () => void;
+    readonly onSignOutOtherChange: (value: boolean) => void;
+    readonly onSubmit: () => void;
+    readonly onSetDifferent: () => void;
+  } | undefined;
 }
 
 export interface LumenAuthRecentSignIn {
