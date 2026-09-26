@@ -171,14 +171,28 @@ export interface LumenAuthMagicLinkContent {
   readonly labels: {
     readonly title: string;
     readonly description: (email: string) => string;
+    readonly descriptionBeforeEmail: string;
+    readonly descriptionEmailSuffix: string;
+    readonly descriptionAfterEmail: string;
     readonly sentTo: string;
     readonly expires: string;
     readonly requestedFrom: string;
     readonly openMail: string;
     readonly resend: (seconds: number) => string;
+    readonly resendReady: string;
     readonly noEmail: string;
     readonly differentEmail: string;
     readonly rateLimit: string;
+    readonly formBrand: string;
+    readonly formTitle: string;
+    readonly formDescription: string;
+    readonly formEmailLabel: string;
+    readonly formEmailPlaceholder: string;
+    readonly formEmailHelper: string;
+    readonly formInvalidEmail: string;
+    readonly formSubmit: string;
+    readonly formPasswordPrompt: string;
+    readonly formPasswordSignIn: string;
   };
   readonly email: string;
   readonly expiry: string;
