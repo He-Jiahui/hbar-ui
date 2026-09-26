@@ -270,6 +270,8 @@ export interface LumenPromptComposerProps {
   value: string;
   labels: LumenPromptLabels;
   attachments: readonly LumenComposerAttachment[];
+  /** Host-owned attachments; undefined preserves legacy chips, null explicitly hides them. */
+  attachmentContent?: React.ReactNode;
   /** Opt out of the decorative surface lamps without changing form behavior. Defaults to horizontal. */
   boundary?: LumenSurfaceProps['boundary'] | undefined;
   disabled?: boolean | undefined;
@@ -357,7 +359,8 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
       }}
     >
       {props.context}
-      {attachments.length > 0 ? (
+      {props.attachmentContent}
+      {props.attachmentContent === undefined && attachments.length > 0 ? (
         <div className="lumen-attachment-strip">
           {attachments.map((attachment) => {
             const originalId = attachment.id.slice(attachment.kind.length + 1);

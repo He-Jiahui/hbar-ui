@@ -1648,6 +1648,14 @@ export {
   LumenQuestionnaire,
   LumenRunActivity,
 } from './session-components';
+export { LumenImageGallery, LumenImageTile } from './image-gallery';
+export type {
+  LumenImageGalleryImage,
+  LumenImageGalleryItem,
+  LumenImageGalleryLabels,
+  LumenImageGalleryProps,
+  LumenImageTileProps,
+} from './image-gallery';
 export type {
   LumenApprovalDecision,
   LumenApprovalRequestLabels,
