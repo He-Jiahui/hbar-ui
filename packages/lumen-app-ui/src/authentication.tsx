@@ -31,6 +31,7 @@ import './authentication-magic-link-reference.css';
 import './authentication-code-reference.css';
 import './authentication-sign-up-reference.css';
 import './authentication-enterprise-reference.css';
+import './authentication-passkey-reference.css';
 
 export interface LumenAuthenticationAction {
   readonly actionId: string;
@@ -89,90 +90,104 @@ export function LumenAuthentication(props: LumenAuthenticationProps) {
   const inheritedContent = useLumenAuthenticationContent();
   const content = props.content ?? inheritedContent;
   const composition = compositionProps(props);
-  if (props.variant === 1)
+  if (props.variant === 1) {
     return content?.signIn ? (
       <SignInAuthentication {...composition} content={content.signIn} />
     ) : (
       empty(props)
     );
-  if (props.variant === 2)
+  }
+  if (props.variant === 2) {
     return content?.providerFirst ? (
       <ProviderFirstAuthentication {...composition} content={content.providerFirst} />
     ) : (
       empty(props)
     );
-  if (props.variant === 3)
+  }
+  if (props.variant === 3) {
     return content?.quote ? (
       <QuoteAuthentication {...composition} content={content.quote} />
     ) : (
       empty(props)
     );
-  if (props.variant === 4)
+  }
+  if (props.variant === 4) {
     return content?.twoStep ? (
       <TwoStepAuthentication {...composition} content={content.twoStep} />
     ) : (
       empty(props)
     );
-  if (props.variant === 5)
+  }
+  if (props.variant === 5) {
     return content?.magicLink ? (
       <MagicLinkAuthentication {...composition} content={content.magicLink} />
     ) : (
       empty(props)
     );
-  if (props.variant === 6)
+  }
+  if (props.variant === 6) {
     return content?.code ? (
       <CodeAuthentication {...composition} content={content.code} />
     ) : (
       empty(props)
     );
-  if (props.variant === 7)
+  }
+  if (props.variant === 7) {
     return content?.signUp ? (
       <SignUpAuthentication {...composition} content={content.signUp} />
     ) : (
       empty(props)
     );
-  if (props.variant === 8)
+  }
+  if (props.variant === 8) {
     return content?.enterprise ? (
       <EnterpriseAuthentication {...composition} content={content.enterprise} />
     ) : (
       empty(props)
     );
-  if (props.variant === 9)
+  }
+  if (props.variant === 9) {
     return content?.passkey ? (
       <PasskeyAuthentication {...composition} content={content.passkey} />
     ) : (
       empty(props)
     );
-  if (props.variant === 10)
+  }
+  if (props.variant === 10) {
     return content?.account ? (
       <AccountChooserAuthentication {...composition} content={content.account} />
     ) : (
       empty(props)
     );
-  if (props.variant === 11)
+  }
+  if (props.variant === 11) {
     return content?.workspace ? (
       <WorkspacePickerAuthentication {...composition} content={content.workspace} />
     ) : (
       empty(props)
     );
-  if (props.variant === 12)
+  }
+  if (props.variant === 12) {
     return content?.invitation ? (
       <InvitationAuthentication {...composition} content={content.invitation} />
     ) : (
       empty(props)
     );
-  if (props.variant === 13)
+  }
+  if (props.variant === 13) {
     return content?.passwordReset ? (
       <PasswordResetAuthentication {...composition} content={content.passwordReset} />
     ) : (
       empty(props)
     );
-  if (props.variant === 14)
+  }
+  if (props.variant === 14) {
     return content?.approval ? (
       <SignInApprovalAuthentication {...composition} content={content.approval} />
     ) : (
       empty(props)
     );
+  }
   return empty(props);
 }
 

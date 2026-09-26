@@ -1,4 +1,6 @@
-import { createContext, type ReactNode, useContext } from 'react';
+'use client';
+
+import * as React from 'react';
 
 /**
  * Authentication previews use deliberately bounded collections. A host with
@@ -372,6 +374,18 @@ export interface LumenAuthPasskeyContent {
   readonly passkeys: readonly LumenAuthPasskey[];
   readonly initialPasskeyId: string;
   readonly listStrategy: LumenAuthListStrategy;
+  readonly referenceFlow?: {
+    readonly labels: {
+      readonly confirmOn: (name: string) => string;
+      readonly waiting: string;
+      readonly cancel: string;
+    };
+    readonly selectedId: string;
+    readonly phase: 'choose' | 'request';
+    readonly onSelect: (id: string) => void;
+    readonly onContinue: (id: string) => void;
+    readonly onCancel: () => void;
+  } | undefined;
 }
 
 export interface LumenAuthAccount {
@@ -562,7 +576,7 @@ export interface LumenAuthContent {
 
 export interface LumenAuthProviderProps {
   readonly content: LumenAuthContent;
-  readonly children: ReactNode;
+  readonly children: React.ReactNode;
 }
 
 export function uniqueLumenAuthItems<T extends { readonly id: string }>(
@@ -570,7 +584,9 @@ export function uniqueLumenAuthItems<T extends { readonly id: string }>(
 ): readonly T[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -584,12 +600,12 @@ export function selectLumenAuthItem<
   return items.find((item) => item.id === requestedId) ?? items[0];
 }
 
-const authContentContext = createContext<LumenAuthContent | undefined>(undefined);
+const authContentContext = React.createContext<LumenAuthContent | undefined>(undefined);
 
 export function LumenAuthenticationProvider({ content, children }: LumenAuthProviderProps) {
   return <authContentContext.Provider value={content}>{children}</authContentContext.Provider>;
 }
 
 export function useLumenAuthenticationContent(): LumenAuthContent | undefined {
-  return useContext(authContentContext);
+  return React.useContext(authContentContext);
 }

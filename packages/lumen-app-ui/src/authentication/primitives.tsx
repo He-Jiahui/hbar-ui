@@ -1,4 +1,5 @@
 import { Apple } from 'lucide-react';
+import * as React from 'react';
 import { LumenInput } from '../forms';
 import LumenSurface from '../LumenSurface';
 import { LumenButton } from '../primitives';
@@ -22,7 +23,6 @@ import {
   Upload,
   Wifi,
 } from './glyphs';
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import {
   type LumenAuthListStrategy,
   type LumenAuthProviderChoice,
@@ -41,6 +41,7 @@ export interface LumenAuthCompositionProps {
       readonly visualMode?: string | undefined;
     };
   };
+  // eslint-disable-next-line react/no-unused-prop-types -- Shared by composition implementations; AuthFrame uses only spec.
   readonly onAction?:
     | ((event: {
         readonly variantId: string;
@@ -55,7 +56,7 @@ export function AuthFrame({
   className,
   children,
 }: LumenAuthCompositionProps & {
-  readonly children: ReactNode;
+  readonly children: React.ReactNode;
   readonly className?: string | undefined;
 }) {
   const contentClassName = [
@@ -73,9 +74,9 @@ export function AuthFrame({
     .join(' ');
   return (
     <LumenSurface
-      as={spec.variant >= 2 && spec.variant <= 8 ? 'div' : 'section'}
-      boundary={spec.variant <= 8 ? 'none' : 'horizontal'}
-      glassStrength={spec.variant <= 8 ? 0 : 65}
+      as={spec.variant >= 2 && spec.variant <= 9 ? 'div' : 'section'}
+      boundary={spec.variant <= 9 ? 'none' : 'horizontal'}
+      glassStrength={spec.variant <= 9 ? 0 : 65}
       className="lumen-authentication-root-surface"
       contentClassName={contentClassName}
       data-lumen-component="authentication"
@@ -93,8 +94,8 @@ export function AuthCard({
   children,
   className = '',
 }: {
-  readonly children: ReactNode;
-  readonly className?: string;
+  readonly children: React.ReactNode;
+  readonly className?: string | undefined;
 }) {
   return <section className={`hbar-app-ui-auth-card ${className}`}>{children}</section>;
 }
@@ -103,8 +104,8 @@ export function AuthIcon({
   children,
   tier = 'sm',
 }: {
-  readonly children: ReactNode;
-  readonly tier?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  readonly children: React.ReactNode;
+  readonly tier?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | undefined;
 }) {
   return (
     <span className={`hbar-app-ui-auth-icon hbar-app-ui-icon-${tier}`} aria-hidden="true">
@@ -119,8 +120,8 @@ export function AuthButton({
   indicator = 'lamp',
   className,
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & {
-  readonly tone?: 'neutral' | 'accent' | 'danger';
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  readonly tone?: 'neutral' | 'accent' | 'danger' | undefined;
   readonly indicator?: 'lamp' | 'none' | undefined;
 }) {
   return (
@@ -141,7 +142,7 @@ export function AuthIconButton({
   children,
   indicator,
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & {
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
   readonly label: string;
   readonly indicator?: 'lamp' | 'none' | undefined;
 }) {
@@ -164,7 +165,7 @@ export function AuthBrand({
   plain = false,
 }: {
   readonly label: string;
-  readonly compact?: boolean;
+  readonly compact?: boolean | undefined;
   readonly plain?: boolean | undefined;
 }) {
   return (
@@ -229,12 +230,12 @@ export function AuthField({
   plain = false,
 }: {
   readonly label: string;
-  readonly placeholder?: string;
-  readonly value?: string;
-  readonly type?: string;
-  readonly onChange?: (value: string) => void;
-  readonly children?: ReactNode;
-  readonly helper?: ReactNode;
+  readonly placeholder?: string | undefined;
+  readonly value?: string | undefined;
+  readonly type?: string | undefined;
+  readonly onChange?: ((value: string) => void) | undefined;
+  readonly children?: React.ReactNode;
+  readonly helper?: React.ReactNode;
   readonly plain?: boolean | undefined;
 }) {
   return (
@@ -286,7 +287,7 @@ export function AuthPasswordButton({
 export function AuthProviderIcon({
   kind,
 }: {
-  readonly kind?: LumenAuthProviderChoice['icon'];
+  readonly kind?: LumenAuthProviderChoice['icon'] | undefined;
 }) {
   switch (kind) {
     case 'google':
@@ -348,7 +349,7 @@ export function AuthProviderButtons({
   readonly providers: readonly LumenAuthProviderChoice[];
   readonly onSelect: (provider: LumenAuthProviderChoice) => void;
   readonly listStrategy?: LumenAuthListStrategy | undefined;
-  readonly className?: string;
+  readonly className?: string | undefined;
   readonly indicator?: 'lamp' | 'none' | undefined;
 }) {
   const uniqueProviders = uniqueLumenAuthItems(providers);
@@ -373,8 +374,8 @@ export function AuthAvatar({
   large = false,
 }: {
   readonly initials: string;
-  readonly label?: string;
-  readonly large?: boolean;
+  readonly label?: string | undefined;
+  readonly large?: boolean | undefined;
 }) {
   return (
     <span className={`hbar-app-ui-auth-avatar ${large ? 'is-large' : ''}`} aria-label={label}>
@@ -388,7 +389,7 @@ export function AuthStatus({
   tone = 'neutral',
 }: {
   readonly label: string;
-  readonly tone?: 'neutral' | 'positive' | 'warning' | 'danger';
+  readonly tone?: 'neutral' | 'positive' | 'warning' | 'danger' | undefined;
 }) {
   return (
     <span className={`hbar-app-ui-auth-status hbar-app-ui-auth-status-${tone}`}>
@@ -415,7 +416,7 @@ export function AuthMetaRows({
   );
 }
 
-export function AuthArrow({ back = false }: { readonly back?: boolean }) {
+export function AuthArrow({ back = false }: { readonly back?: boolean | undefined }) {
   return <AuthIcon>{back ? <ArrowLeft /> : <ArrowRight />}</AuthIcon>;
 }
 
@@ -473,6 +474,8 @@ export function AuthLeadingIcon({
           <Laptop />
         </AuthIcon>
       );
+    default:
+      return null;
   }
 }
 
