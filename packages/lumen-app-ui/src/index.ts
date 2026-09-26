@@ -1730,6 +1730,12 @@ export type {
   LumenToolPaneLayout,
 } from './tool-pane-layout';
 export type { LumenToolResize } from './tool-pane-resize';
+export { resolveLumenSidebarLayout } from './sidebar-layout';
+export type {
+  LumenSidebarLayout,
+  LumenSidebarResize,
+  LumenSidebarLayoutInput,
+} from './sidebar-layout';
 export type {
   LumenActionMenuItem,
   LumenActionMenuProps,

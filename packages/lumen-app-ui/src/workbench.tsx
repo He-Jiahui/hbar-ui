@@ -14,6 +14,8 @@ import type { LumenToolLayout, LumenToolPresentation } from './tool-pane-layout'
 import { LumenToolPaneResizer } from './tool-pane-resize';
 import type { LumenToolResize } from './tool-pane-resize';
 import { useToolPaneGeometry } from './use-tool-pane-geometry';
+import { resolveLumenSidebarLayout } from './sidebar-layout';
+import type { LumenSidebarLayout, LumenSidebarResize } from './sidebar-layout';
 import './workbench.css';
 
 export type LumenIconTier = 'sm' | 'md' | 'lg';
@@ -40,6 +42,8 @@ export interface LumenAppShellProps {
   titlebar?: React.ReactNode;
   sidebar?: React.ReactNode;
   sidebarWidthRem: number;
+  sidebarLayout?: LumenSidebarLayout | undefined;
+  sidebarResize?: LumenSidebarResize | undefined;
   toolWidthRem?: number | undefined;
   /** Opt in to available-container sizing. Omission preserves the legacy shell. */
   toolLayout?: LumenToolLayout | undefined;
@@ -64,6 +68,8 @@ export function LumenAppShell({
   titlebar,
   sidebar,
   sidebarWidthRem,
+  sidebarLayout,
+  sidebarResize,
   toolWidthRem = 24,
   toolLayout,
   mainRef,
@@ -81,7 +87,31 @@ export function LumenAppShell({
   children,
 }: LumenAppShellProps) {
   const { bodyRef, remProbeRef, geometry } = useToolPaneGeometry(toolLayout !== undefined);
+  const sidebarGeometry = useToolPaneGeometry(sidebarLayout !== undefined);
   const [previewWidthRem, setPreviewWidthRem] = React.useState<number | null>(null);
+  const [sidebarPreviewRem, setSidebarPreviewRem] = React.useState<number | null>(null);
+  const sidebarPresent = Boolean(sidebar);
+  const sidebarPane = sidebarLayout
+    ? resolveLumenSidebarLayout({
+        sidebarPresent,
+        sidebarOpen,
+        viewportNarrow: sidebarGeometry.viewportNarrow,
+        preferredWidthRem: sidebarPreviewRem ?? sidebarWidthRem,
+        layout: sidebarLayout,
+        geometry: sidebarGeometry.geometry,
+      })
+    : null;
+  React.useEffect(() => {
+    setSidebarPreviewRem(null);
+  }, [
+    sidebarPresent,
+    sidebarOpen,
+    sidebarWidthRem,
+    sidebarLayout?.minWidthRem,
+    sidebarLayout?.maxWidthRem,
+    sidebarLayout?.mainMinWidthRem,
+    sidebarLayout?.defaultWidthRem,
+  ]);
   const toolPresent = Boolean(tool);
   const paneLayout = toolLayout
     ? resolveLumenToolPaneLayout({
@@ -108,7 +138,8 @@ export function LumenAppShell({
     }
   }, [paneLayout, onToolPresentationChange]);
   const style = {
-    '--lumen-sidebar-size': `${sidebarWidthRem}rem`,
+    '--lumen-sidebar-size': `${sidebarPane?.widthRem ?? sidebarWidthRem}rem`,
+    '--lumen-sidebar-separator-size': `${LUMEN_TOOL_SEPARATOR_WIDTH_REM}rem`,
     '--lumen-tool-size': `${paneLayout?.widthRem ?? toolWidthRem}rem`,
     '--lumen-tool-separator-size': `${LUMEN_TOOL_SEPARATOR_WIDTH_REM}rem`,
     '--lumen-main-min-size':
@@ -128,7 +159,10 @@ export function LumenAppShell({
       {toolLayout ? (
         <div ref={remProbeRef} className="lumen-app-rem-probe" aria-hidden="true" />
       ) : null}
-      <div className="lumen-app-workspace">
+      {sidebarLayout ? (
+        <div ref={sidebarGeometry.remProbeRef} className="lumen-app-rem-probe" aria-hidden="true" />
+      ) : null}
+      <div ref={sidebarGeometry.bodyRef} className="lumen-app-workspace">
         {sidebar ? (
           <div
             className="lumen-app-sidebar-drawer hbar-app-ui-app-sidebar-drawer"
@@ -144,6 +178,18 @@ export function LumenAppShell({
               onClick={onCloseSidebar}
             />
           </div>
+        ) : null}
+        {sidebar && sidebarOpen && sidebarResize && sidebarPane && sidebarLayout ? (
+          <LumenToolPaneResizer
+            resize={sidebarResize}
+            geometry={sidebarGeometry.geometry}
+            layout={sidebarPane}
+            onPreview={setSidebarPreviewRem}
+            edge="start"
+            className="lumen-app-sidebar-separator"
+            reset={{ widthRem: sidebarLayout.defaultWidthRem, label: sidebarResize.resetLabel }}
+            onFocusUnavailable={sidebarResize.onFocusUnavailable}
+          />
         ) : null}
         <div className="lumen-app-frame hbar-app-ui-app-frame">
           {header ? <div className="lumen-app-header hbar-app-ui-app-header">{header}</div> : null}

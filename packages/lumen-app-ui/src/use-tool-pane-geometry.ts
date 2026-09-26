@@ -6,6 +6,7 @@ export function useToolPaneGeometry(enabled: boolean) {
   const bodyRef = React.useRef<HTMLDivElement>(null);
   const remProbeRef = React.useRef<HTMLDivElement>(null);
   const [geometry, setGeometry] = React.useState<LumenToolPaneGeometry | null>(null);
+  const [viewportNarrow, setViewportNarrow] = React.useState(true);
 
   React.useEffect(() => {
     const body = bodyRef.current;
@@ -21,8 +22,8 @@ export function useToolPaneGeometry(enabled: boolean) {
         return;
       }
       // Used CSS width preserves subpixel boundaries without screen transforms
-      // or clientWidth's integer rounding. The body is already after sidebar
-      // allocation; exclude its own border/padding if a host decorates it.
+      // or clientWidth's integer rounding. Callers choose the flow container:
+      // tools measure after sidebar allocation; sidebar sizing measures the whole workspace.
       const style = getComputedStyle(body);
       const padding = Number.parseFloat(style.paddingLeft) + Number.parseFloat(style.paddingRight);
       const border =
@@ -31,6 +32,7 @@ export function useToolPaneGeometry(enabled: boolean) {
         Number.parseFloat(style.width) - (style.boxSizing === 'border-box' ? padding + border : 0);
       const rootFontSizePx = Number.parseFloat(getComputedStyle(document.documentElement).fontSize);
       const next = { availableInlineSizePx, rootFontSizePx };
+      setViewportNarrow(window.matchMedia('(max-width: 47.9375rem)').matches);
       setGeometry((previous) =>
         previous?.availableInlineSizePx === next.availableInlineSizePx &&
         previous.rootFontSizePx === next.rootFontSizePx
@@ -69,5 +71,5 @@ export function useToolPaneGeometry(enabled: boolean) {
     };
   }, [enabled]);
 
-  return { bodyRef, remProbeRef, geometry };
+  return { bodyRef, remProbeRef, geometry, viewportNarrow };
 }
