@@ -224,6 +224,34 @@ export interface LumenAuthCodeContent {
     | undefined;
   readonly onRecovery: (() => void) | undefined;
   readonly onBack: (() => void) | undefined;
+  /** Optional richer host-owned flow; absence keeps the existing controlled code-entry contract. */
+  readonly referenceFlow?: {
+    readonly labels: {
+      readonly recoveryTitle: string;
+      readonly recoveryDescription: string;
+      readonly recoveryLabel: string;
+      readonly recoveryPlaceholder: string;
+      readonly recoveryHelper: string;
+      readonly useTextedCode: string;
+      readonly checkingCode: string;
+      readonly verifying: string;
+      readonly verifiedTitle: string;
+      readonly verifiedDescription: string;
+      readonly methodLabel: string;
+      readonly trustedUntilLabel: string;
+      readonly continueLabel: string;
+      readonly verifyAnother: string;
+      readonly resendReady: string;
+      readonly digitSeparator: string;
+    };
+    readonly phase: 'text' | 'recovery' | 'verified';
+    readonly recoveryCode: string;
+    readonly canVerifyRecovery: boolean;
+    readonly success: { readonly method: string; readonly trustedUntil: string };
+    readonly onRecoveryCodeChange: (value: string) => void;
+    readonly onModeChange: (mode: 'text' | 'recovery') => void;
+    readonly onContinue: () => void;
+  } | undefined;
 }
 
 export interface LumenAuthSignUpContent {
