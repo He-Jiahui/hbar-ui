@@ -327,6 +327,27 @@ export interface LumenAuthEnterpriseContent {
     readonly sessionLength: string;
   };
   readonly email: string;
+  readonly referenceFlow?: {
+    readonly labels: {
+      readonly redirecting: string;
+      readonly continueUnmatched: string;
+      readonly unmatchedHint: (domain: string) => string;
+      readonly emptyHint: string;
+      readonly noMatch: string;
+      readonly lookupTitle: string;
+      readonly lookupDescription: string;
+    };
+    readonly alternateOrganizations: readonly {
+      readonly organization: LumenAuthEnterpriseContent['organization'];
+      readonly providerHint: string;
+      readonly securityChecks: readonly string[];
+      readonly lockedOut: string;
+    }[];
+    readonly email: string;
+    readonly busy: boolean;
+    readonly onEmailChange: (value: string) => void;
+    readonly onContinue: () => void;
+  } | undefined;
 }
 
 export interface LumenAuthPasskey {
