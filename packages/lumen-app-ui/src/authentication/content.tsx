@@ -39,12 +39,20 @@ export interface LumenAuthSignInContent {
     readonly status: string;
     readonly showPassword: string;
     readonly hidePassword: string;
+    readonly invalidEmail: string;
+    readonly invalidPassword: string;
+    readonly signingIn: string;
+    readonly signedIn: string;
+    readonly signInFailed: string;
+    readonly signInUnavailable: string;
   };
   readonly providers: readonly LumenAuthProviderChoice[];
   /** Sign-in providers are a short, content-grown group in this surface. */
   readonly providerListStrategy: LumenAuthListStrategy;
   readonly initialEmail: string;
   readonly initialRemember: boolean;
+  /** The host owns credential transport and confirms any successful sign-in. */
+  readonly onSignIn?: ((credentials: Readonly<{ email: string; password: string; remember: boolean }>, signal: AbortSignal) => Promise<'confirmed' | 'unchanged'>) | undefined;
 }
 
 export interface LumenAuthProviderFirstContent {

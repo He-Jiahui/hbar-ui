@@ -75,7 +75,8 @@ export function AuthFrame({
   return (
     <LumenSurface
       as="section"
-      boundary="horizontal"
+      boundary={spec.variant === 1 ? 'none' : 'horizontal'}
+      glassStrength={spec.variant === 1 ? 0 : 65}
       className="lumen-authentication-root-surface"
       contentClassName={contentClassName}
       data-lumen-component="authentication"
@@ -116,16 +117,19 @@ export function AuthIcon({
 export function AuthButton({
   children,
   tone = 'neutral',
+  indicator = 'lamp',
   className,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
   readonly tone?: 'neutral' | 'accent' | 'danger';
+  readonly indicator?: 'lamp' | 'none' | undefined;
 }) {
   return (
     <LumenButton
       {...props}
       tone={tone === 'accent' ? 'primary' : tone}
       variant={tone === 'neutral' ? 'outlined' : 'solid'}
+      indicator={indicator}
       className={`hbar-app-ui-auth-button hbar-app-ui-auth-button-${tone} ${className ?? ''}`}
     >
       {children}
@@ -136,13 +140,16 @@ export function AuthButton({
 export function AuthIconButton({
   label,
   children,
+  indicator,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
   readonly label: string;
+  readonly indicator?: 'lamp' | 'none' | undefined;
 }) {
   return (
     <AuthButton
       {...props}
+      indicator={indicator}
       className={`hbar-app-ui-auth-icon-button ${props.className ?? ''}`}
       aria-label={props['aria-label'] ?? label}
       title={props.title ?? label}
@@ -155,17 +162,19 @@ export function AuthIconButton({
 export function AuthBrand({
   label,
   compact = false,
+  plain = false,
 }: {
   readonly label: string;
   readonly compact?: boolean;
+  readonly plain?: boolean | undefined;
 }) {
   return (
     <div
       className={`hbar-app-ui-auth-brand ${compact ? 'is-compact' : ''}`}
-      aria-label={label}
-      role="img"
+      aria-label={plain ? undefined : label}
+      role={plain ? undefined : 'img'}
     >
-      <span aria-hidden="true">{label.slice(0, 1)}</span>
+      <span aria-hidden={plain ? undefined : true}>{label.slice(0, 1)}</span>
       <strong>{label}</strong>
     </div>
   );
@@ -184,15 +193,21 @@ export function AuthDivider({ label }: { readonly label: string }) {
 export function AuthFooterLinks({
   links,
   onSelect,
+  indicator,
+  navigation = true,
 }: {
   readonly links: readonly string[];
   readonly onSelect: (value: string) => void;
+  readonly indicator?: 'lamp' | 'none' | undefined;
+  readonly navigation?: boolean | undefined;
 }) {
+  const Container = navigation ? 'nav' : 'div';
   return (
-    <nav className="hbar-app-ui-auth-footer-links" aria-label={links.join(', ')}>
+    <Container className="hbar-app-ui-auth-footer-links" aria-label={navigation ? links.join(', ') : undefined}>
       {links.map((link) => (
         <LumenButton
           type="button"
+          indicator={indicator}
           className="hbar-app-ui-auth-inline-link"
           key={link}
           onClick={() => onSelect(link)}
@@ -200,7 +215,7 @@ export function AuthFooterLinks({
           {link}
         </LumenButton>
       ))}
-    </nav>
+    </Container>
   );
 }
 
@@ -212,6 +227,7 @@ export function AuthField({
   onChange,
   children,
   helper,
+  plain = false,
 }: {
   readonly label: string;
   readonly placeholder?: string;
@@ -220,12 +236,14 @@ export function AuthField({
   readonly onChange?: (value: string) => void;
   readonly children?: ReactNode;
   readonly helper?: ReactNode;
+  readonly plain?: boolean | undefined;
 }) {
   return (
     <label className="hbar-app-ui-auth-field">
       <span>{label}</span>
       <div className="hbar-app-ui-auth-input-wrap">
         <LumenInput
+          variant={plain ? 'plain' : 'boundary'}
           type={type}
           value={value}
           placeholder={placeholder}
@@ -243,14 +261,16 @@ export function AuthPasswordButton({
   showLabel,
   hideLabel,
   onToggle,
+  plain = false,
 }: {
   readonly visible: boolean;
   readonly showLabel: string;
   readonly hideLabel: string;
   readonly onToggle: () => void;
+  readonly plain?: boolean | undefined;
 }) {
   return (
-    <AuthIconButton type="button" label={visible ? hideLabel : showLabel} onClick={onToggle}>
+    <AuthIconButton type="button" label={visible ? hideLabel : showLabel} indicator={plain ? 'none' : 'lamp'} onClick={onToggle}>
       {visible ? (
         <AuthIcon>
           <EyeOff />
@@ -266,16 +286,16 @@ export function AuthPasswordButton({
 
 export function AuthProviderIcon({
   kind,
-  label,
 }: {
   readonly kind?: LumenAuthProviderChoice['icon'];
-  readonly label: string;
 }) {
   switch (kind) {
     case 'google':
       return (
         <AuthIcon>
-          <span className="hbar-app-ui-auth-provider-letter">{label.slice(0, 1)}</span>
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+            <path d="M13.5 4.2A6 6 0 1 0 14 8H8m6 0v4" />
+          </svg>
         </AuthIcon>
       );
     case 'apple':
@@ -322,11 +342,13 @@ export function AuthProviderButtons({
   onSelect,
   listStrategy,
   className = '',
+  indicator,
 }: {
   readonly providers: readonly LumenAuthProviderChoice[];
   readonly onSelect: (provider: LumenAuthProviderChoice) => void;
   readonly listStrategy?: LumenAuthListStrategy | undefined;
   readonly className?: string;
+  readonly indicator?: 'lamp' | 'none' | undefined;
 }) {
   const uniqueProviders = uniqueLumenAuthItems(providers);
   return (
@@ -335,8 +357,8 @@ export function AuthProviderButtons({
       data-hbar-app-ui-list-strategy={listStrategy?.kind}
     >
       {uniqueProviders.map((provider) => (
-        <AuthButton key={provider.id} type="button" onClick={() => onSelect(provider)}>
-          <AuthProviderIcon kind={provider.icon} label={provider.label} />
+        <AuthButton key={provider.id} type="button" indicator={indicator} onClick={() => onSelect(provider)}>
+          <AuthProviderIcon kind={provider.icon} />
           {provider.label}
         </AuthButton>
       ))}

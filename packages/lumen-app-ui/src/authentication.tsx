@@ -23,6 +23,7 @@ import {
 import type { LumenAuthContent } from './authentication/content';
 import { AuthFrame, type LumenAuthCompositionProps } from './authentication/primitives';
 import './authentication.css';
+import './authentication-sign-in-reference.css';
 
 export interface LumenAuthenticationAction {
   readonly actionId: string;
