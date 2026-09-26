@@ -395,6 +395,11 @@ export interface LumenAuthAccount {
   readonly email: string;
   readonly status: string;
   readonly statusTone: 'neutral' | 'warning';
+  readonly continuation?: {
+    readonly label: string;
+    readonly hint: string;
+    readonly kind: 'resume' | 'reauth';
+  } | undefined;
 }
 
 export interface LumenAuthAccountContent {
@@ -414,6 +419,10 @@ export interface LumenAuthAccountContent {
   readonly workspaceName: string;
   readonly initialAccountId: string;
   readonly listStrategy: LumenAuthListStrategy;
+  readonly referenceFlow?: {
+    readonly selectedId: string;
+    readonly onSelect: (id: string) => void;
+  } | undefined;
 }
 
 export interface LumenAuthWorkspace {

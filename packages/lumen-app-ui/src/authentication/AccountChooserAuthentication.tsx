@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { ArrowRight, Check as CheckIcon, Plus as PlusIcon, RotateCcw } from 'lucide-react';
 import { LumenButton } from '../primitives';
 import { Check, Plus } from './glyphs';
 import type { LumenAuthCompositionProps } from './primitives';
@@ -13,6 +14,70 @@ export type AccountChooserAuthenticationProps = LumenAuthCompositionProps & {
 };
 
 export function AccountChooserAuthentication({
+  spec,
+  onAction,
+  content,
+}: AccountChooserAuthenticationProps) {
+  if (content.referenceFlow) {
+    return <ReferenceAccountChooserAuthentication spec={spec} onAction={onAction} content={content} />;
+  }
+  return <LegacyAccountChooserAuthentication spec={spec} onAction={onAction} content={content} />;
+}
+
+function ReferenceAccountChooserAuthentication({ spec, onAction, content }: AccountChooserAuthenticationProps) {
+  const flow = content.referenceFlow;
+  if (!flow) {
+    return null;
+  }
+  const accounts = uniqueLumenAuthItems(content.accounts);
+  const selected = selectLumenAuthItem(accounts, flow.selectedId);
+  const continuation = selected?.continuation ?? (selected ? {
+    label: content.labels.continueWith(content.workspaceName),
+    hint: content.labels.signingInAs(selected.email),
+    kind: 'resume' as const,
+  } : undefined);
+  return (
+    <AuthFrame spec={spec} onAction={onAction} className="hbar-app-ui-auth-account-reference">
+      <div className="hbar-app-ui-auth-centered hbar-app-ui-full-canvas-owner">
+        <AuthCard className="hbar-app-ui-auth-account-reference-card">
+          <span className="hbar-app-ui-auth-account-reference-brand">{content.labels.brand.slice(0, 1)}</span>
+          <h1>{content.labels.title}</h1>
+          <p className="hbar-app-ui-auth-account-reference-description">{content.labels.description}</p>
+          <div className="hbar-app-ui-auth-account-reference-list" data-hbar-app-ui-list-strategy={content.listStrategy.kind}>
+            {accounts.map((account) => (
+              <LumenButton type="button" indicator="none" className={`hbar-app-ui-auth-account-row hbar-app-ui-auth-account-reference-row ${account.id === selected?.id ? 'is-selected' : ''}`} aria-pressed={account.id === selected?.id} key={account.id} onClick={() => flow.onSelect(account.id)}>
+                <span className="hbar-app-ui-auth-account-reference-avatar">{account.initials}</span>
+                <span className="hbar-app-ui-auth-account-reference-copy">
+                  <span>{account.name}</span>
+                  <small>{account.email}</small>
+                  <span className={`hbar-app-ui-auth-account-reference-status is-${account.statusTone}`}><i aria-hidden="true" />{account.status}</span>
+                </span>
+                {account.id === selected?.id && <AuthIcon tier="sm"><CheckIcon /></AuthIcon>}
+              </LumenButton>
+            ))}
+            <LumenButton type="button" indicator="none" className="hbar-app-ui-auth-account-row hbar-app-ui-auth-account-reference-row hbar-app-ui-auth-account-reference-another" onClick={() => onAction?.({ variantId: spec.id, actionId: 'use-another' })}>
+              <span className="hbar-app-ui-auth-account-reference-avatar"><AuthIcon tier="sm"><PlusIcon /></AuthIcon></span>
+              <span className="hbar-app-ui-auth-account-reference-copy"><span>{content.labels.useAnother}</span><small>{content.labels.useAnotherDescription}</small></span>
+            </LumenButton>
+            {!accounts.length && <p className="hbar-app-ui-auth-account-reference-empty">{content.labels.emptyAccounts}</p>}
+          </div>
+          <LumenButton type="button" indicator="none" className="hbar-app-ui-auth-account-reference-primary" disabled={!selected} onClick={() => selected && onAction?.({ variantId: spec.id, actionId: 'continue', value: selected.id })}>
+            {continuation?.kind === 'reauth' && <AuthIcon tier="sm"><RotateCcw /></AuthIcon>}
+            <span>{continuation?.label ?? content.labels.useAnother}</span>
+            {continuation?.kind === 'resume' && <AuthIcon tier="sm"><ArrowRight /></AuthIcon>}
+          </LumenButton>
+          <p className="hbar-app-ui-auth-account-reference-hint">{continuation?.hint ?? content.labels.useAnotherDescription}</p>
+        </AuthCard>
+        <p className="hbar-app-ui-auth-account-reference-footer">
+          {content.labels.finished}
+          <LumenButton type="button" indicator="none" onClick={() => onAction?.({ variantId: spec.id, actionId: 'sign-out-all' })}>{content.labels.signOutAll}</LumenButton>
+        </p>
+      </div>
+    </AuthFrame>
+  );
+}
+
+function LegacyAccountChooserAuthentication({
   spec,
   onAction,
   content,
