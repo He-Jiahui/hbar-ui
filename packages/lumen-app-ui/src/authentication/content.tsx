@@ -279,6 +279,25 @@ export interface LumenAuthSignUpContent {
   };
   readonly initialName: string;
   readonly initialEmail: string;
+  /** The host owns draft, password feedback and disclosure in the reference form. */
+  readonly referenceFlow?: {
+    readonly labels: {
+      readonly strength: readonly [string, string, string, string];
+      readonly agreementEnd: string;
+    };
+    readonly name: string;
+    readonly email: string;
+    readonly password: string;
+    readonly visible: boolean;
+    readonly agreed: boolean;
+    readonly requirementsMet: readonly boolean[];
+    readonly canSubmit: boolean;
+    readonly onNameChange: (value: string) => void;
+    readonly onEmailChange: (value: string) => void;
+    readonly onPasswordChange: (value: string) => void;
+    readonly onVisibleChange: (value: boolean) => void;
+    readonly onAgreedChange: (value: boolean) => void;
+  } | undefined;
 }
 
 export interface LumenAuthEnterpriseContent {
