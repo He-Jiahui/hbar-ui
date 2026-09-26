@@ -1664,6 +1664,8 @@ export type {
   LumenCompactUsageProps,
   LumenComposerAttachment,
   LumenConversationProps,
+  LumenConversationScrollTarget,
+  LumenConversationScrollTargetResult,
   LumenDecisionState,
   LumenFailureMessage,
   LumenMessageProps,

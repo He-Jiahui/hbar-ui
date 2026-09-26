@@ -9,6 +9,15 @@ import sharedConfig from '../../vitest.shared.mts';
 const require = createRequire(new URL('../../package.json', import.meta.url));
 
 export default mergeConfig(await sharedConfig(import.meta.url, { jsdom: true }), {
+  test: {
+    server: {
+      deps: {
+        // A linked consumer may supply this peer from another React installation.
+        // Transform it so the renderer aliases below apply to its React imports too.
+        inline: ['@tanstack/react-virtual'],
+      },
+    },
+  },
   resolve: {
     alias: {
       react: dirname(require.resolve('react/package.json')),

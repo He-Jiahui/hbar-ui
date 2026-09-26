@@ -1,7 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import { useConversationViewport } from './conversation-viewport';
+import {
+  useConversationViewport,
+  type LumenConversationScrollTarget,
+  type LumenConversationScrollTargetResult,
+} from './conversation-viewport';
 import { LumenDisclosure } from './disclosure';
 import { LumenInput, LumenTextarea } from './forms';
 import { LumenFilePicker } from './file-picker';
@@ -10,6 +14,11 @@ import LumenSurface, { type LumenSurfaceProps } from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { LumenCompactMetrics } from './workspace-components';
 import './session-components.css';
+
+export type {
+  LumenConversationScrollTarget,
+  LumenConversationScrollTargetResult,
+} from './conversation-viewport';
 
 function uniqueById<Item extends { id: string }>(items: readonly Item[]): readonly Item[] {
   const seen = new Set<string>();
@@ -153,6 +162,11 @@ export interface LumenConversationProps {
   scrollKey?: string | undefined;
   contentRevision?: string | number | undefined;
   latestLabel?: string | undefined;
+  /** Controlled one-shot message navigation; cancelled by a new source/intent or user scrolling. */
+  scrollTarget?: LumenConversationScrollTarget | null | undefined;
+  onScrollTargetResult?: ((result: LumenConversationScrollTargetResult) => void) | undefined;
+  /** Defaults to true. False preserves reading position even at the geometric end while finding. */
+  followLatest?: boolean | undefined;
 }
 
 /** Pane-owned timeline; measured virtualization above 40 messages, host-owned data and copy. */
@@ -167,6 +181,9 @@ export function LumenConversation({
   scrollKey = 'conversation',
   contentRevision,
   latestLabel,
+  scrollTarget,
+  onScrollTargetResult,
+  followLatest,
 }: LumenConversationProps) {
   const {
     viewport,
@@ -179,7 +196,14 @@ export function LumenConversation({
     hasNewContent,
     onScroll,
     showLatest,
-  } = useConversationViewport({ messages: sourceMessages, scrollKey, contentRevision });
+  } = useConversationViewport({
+    messages: sourceMessages,
+    scrollKey,
+    contentRevision,
+    scrollTarget,
+    onScrollTargetResult,
+    followLatest,
+  });
   let messageContent: React.ReactNode = empty;
   if (messages.length > 0) {
     if (virtualized) {
