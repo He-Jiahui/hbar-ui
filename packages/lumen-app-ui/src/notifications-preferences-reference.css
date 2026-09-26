@@ -101,6 +101,7 @@
   font-weight: 500;
 }
 .hbar-app-ui-notifications-variant-3 .lumen-preferences-group button {
+  min-block-size: 0;
   padding: 0.125rem 0.25rem;
   border: 0;
   border-radius: 0.25rem;
@@ -137,8 +138,10 @@
   display: flex;
   inline-size: var(--hbar-app-ui-switch-width, 2.25rem);
   block-size: var(--hbar-app-ui-switch-height, 1.25rem);
+  min-block-size: 0;
   flex: 0 0 auto;
   align-items: center;
+  justify-content: flex-start;
   padding: 0.1875rem;
   border: 0;
   border-radius: 99rem;
@@ -279,11 +282,14 @@
     margin-inline-end: -1.25rem;
   }
   .hbar-app-ui-notifications-variant-3 .lumen-notifications-save button:last-child {
-    max-inline-size: 6rem;
+    max-inline-size: 8rem;
   }
 }
 @media (max-width: 20rem) {
   .hbar-app-ui-notifications-variant-3 .lumen-preferences-matrix {
     min-inline-size: 31.75rem;
+  }
+  .hbar-app-ui-notifications-variant-3 .lumen-notifications-save button:last-child {
+    max-inline-size: 6rem;
   }
 }

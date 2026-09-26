@@ -641,8 +641,10 @@ function PreferenceSwitch({
   readonly onToggle: () => void;
 }) {
   return (
-    <button
+    <LumenButton
       type="button"
+      variant="text"
+      indicator="none"
       role="switch"
       aria-label={label}
       aria-checked={checked}
@@ -652,7 +654,7 @@ function PreferenceSwitch({
       onClick={onToggle}
     >
       <span aria-hidden="true" />
-    </button>
+    </LumenButton>
   );
 }
 
@@ -829,8 +831,10 @@ function Preferences(
                         );
                         return (
                           <span key={channel.id}>
-                            <button
+                            <LumenButton
                               type="button"
+                              variant="text"
+                              indicator="none"
                               disabled={busy}
                               data-hbar-app-ui-action={`group:${group.id}:${channel.id}`}
                               onClick={() => {
@@ -845,7 +849,7 @@ function Preferences(
                               }}
                             >
                               {all ? content.labels.none : content.labels.all}
-                            </button>
+                            </LumenButton>
                           </span>
                         );
                       })}
@@ -906,9 +910,11 @@ function Preferences(
             {quiet ? (
               <div className="lumen-notifications-days" aria-label={content.labels.days}>
                 {daysOfWeek.map((day) => (
-                  <button
+                  <LumenButton
                     key={day.id}
                     type="button"
+                    variant="text"
+                    indicator="none"
                     aria-pressed={days.has(day.id)}
                     data-hbar-app-ui-action={`day:${day.id}`}
                     disabled={busy}
@@ -924,7 +930,7 @@ function Preferences(
                     }}
                   >
                     {day.label}
-                  </button>
+                  </LumenButton>
                 ))}
               </div>
             ) : null}
@@ -934,11 +940,13 @@ function Preferences(
       <footer className="lumen-notifications-save" role="contentinfo">
         <span aria-live="polite">{statusLabel}</span>
         <div>
-          <button type="button" data-hbar-app-ui-action="reset" disabled={busy} onClick={reset}>
+          <LumenButton type="button" variant="outlined" indicator="none" data-hbar-app-ui-action="reset" disabled={busy} onClick={reset}>
             {content.labels.reset}
-          </button>
-          <button
+          </LumenButton>
+          <LumenButton
             type="button"
+            tone="primary"
+            indicator="none"
             data-hbar-app-ui-action="save"
             disabled={busy || saveStatus === 'saved' || !content.savePreferences}
             onClick={() => {
@@ -946,7 +954,7 @@ function Preferences(
             }}
           >
             {content.labels.save}
-          </button>
+          </LumenButton>
         </div>
       </footer>
     </Root>
