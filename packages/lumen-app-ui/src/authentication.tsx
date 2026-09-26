@@ -33,6 +33,7 @@ import './authentication-sign-up-reference.css';
 import './authentication-enterprise-reference.css';
 import './authentication-passkey-reference.css';
 import './authentication-account-reference.css';
+import './authentication-workspace-reference.css';
 
 export interface LumenAuthenticationAction {
   readonly actionId: string;

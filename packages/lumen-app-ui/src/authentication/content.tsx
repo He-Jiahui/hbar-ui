@@ -431,6 +431,7 @@ export interface LumenAuthWorkspace {
   readonly name: string;
   readonly summary: string;
   readonly invitation?: string | undefined;
+  readonly invitationSummary?: string | undefined;
 }
 
 export interface LumenAuthWorkspaceContent {
@@ -451,6 +452,17 @@ export interface LumenAuthWorkspaceContent {
   readonly workspaces: readonly LumenAuthWorkspace[];
   readonly initialWorkspaceId: string;
   readonly listStrategy: LumenAuthListStrategy;
+  readonly referenceFlow?: {
+    readonly selectedId: string;
+    readonly query: string;
+    readonly labels: {
+      readonly acceptAndOpen: (name: string) => string;
+      readonly emptyForQuery: (query: string) => string;
+      readonly emptyHint: string;
+    };
+    readonly onSelect: (id: string) => void;
+    readonly onQueryChange: (query: string) => void;
+  } | undefined;
 }
 
 export interface LumenAuthProject {
