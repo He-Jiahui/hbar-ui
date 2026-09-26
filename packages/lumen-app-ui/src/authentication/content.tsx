@@ -474,6 +474,7 @@ export interface LumenAuthProject {
 export interface LumenAuthMember {
   readonly id: string;
   readonly initials: string;
+  readonly kind?: 'person' | 'count' | undefined;
 }
 
 export interface LumenAuthInvitationContent {
@@ -510,6 +511,28 @@ export interface LumenAuthInvitationContent {
   readonly memberCount: string;
   readonly projects: readonly LumenAuthProject[];
   readonly listStrategy: LumenAuthListStrategy;
+  readonly referenceFlow?: {
+    readonly labels: {
+      readonly invitationAfterName: (role: string) => string;
+      readonly descriptionBeforeEmail: string;
+      readonly descriptionAfterEmail: (expiry: string) => string;
+      readonly declinePrompt: string;
+      readonly declineAction: string;
+      readonly successTitle: string;
+      readonly successDescription: (workspace: string) => string;
+      readonly openWorkspace: (workspace: string) => string;
+      readonly review: string;
+    };
+    readonly phase: 'form' | 'success';
+    readonly fullName: string;
+    readonly password: string;
+    readonly passwordVisible: boolean;
+    readonly onFullNameChange: (name: string) => void;
+    readonly onPasswordChange: (password: string) => void;
+    readonly onTogglePassword: () => void;
+    readonly onSubmit: () => void;
+    readonly onReview: () => void;
+  } | undefined;
 }
 
 export interface LumenAuthDevice {
