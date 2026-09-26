@@ -66,13 +66,17 @@ export interface LumenAuthProviderFirstContent {
     readonly emailPlaceholder: string;
     readonly ssoLabel: string;
     readonly ssoPlaceholder: string;
+    readonly ssoSuffix: string;
+    readonly ssoHelper: string;
     readonly singleSignOn: string;
+    readonly useEmailInstead: string;
     readonly helper: string;
     readonly continueLabel: string;
     readonly termsPrefix: string;
     readonly terms: string;
     readonly privacyPrefix: string;
     readonly privacy: string;
+    readonly termsSuffix: string;
     readonly trouble: string;
     readonly systemNormal: string;
   };

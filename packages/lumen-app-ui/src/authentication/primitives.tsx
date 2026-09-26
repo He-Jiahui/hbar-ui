@@ -1,8 +1,8 @@
+import { Apple } from 'lucide-react';
 import { LumenInput } from '../forms';
 import LumenSurface from '../LumenSurface';
 import { LumenButton } from '../primitives';
 import {
-  Apple,
   ArrowLeft,
   ArrowRight,
   Check,
@@ -10,7 +10,6 @@ import {
   CircleHelp,
   Eye,
   EyeOff,
-  GitBranch,
   KeyRound,
   Laptop,
   Link2,
@@ -74,9 +73,9 @@ export function AuthFrame({
     .join(' ');
   return (
     <LumenSurface
-      as="section"
-      boundary={spec.variant === 1 ? 'none' : 'horizontal'}
-      glassStrength={spec.variant === 1 ? 0 : 65}
+      as={spec.variant === 2 ? 'div' : 'section'}
+      boundary={spec.variant === 1 || spec.variant === 2 ? 'none' : 'horizontal'}
+      glassStrength={spec.variant === 1 || spec.variant === 2 ? 0 : 65}
       className="lumen-authentication-root-surface"
       contentClassName={contentClassName}
       data-lumen-component="authentication"
@@ -175,7 +174,7 @@ export function AuthBrand({
       role={plain ? undefined : 'img'}
     >
       <span aria-hidden={plain ? undefined : true}>{label.slice(0, 1)}</span>
-      <strong>{label}</strong>
+      {plain ? <span className="hbar-app-ui-auth-brand-label">{label}</span> : <strong>{label}</strong>}
     </div>
   );
 }
@@ -307,7 +306,9 @@ export function AuthProviderIcon({
     case 'github':
       return (
         <AuthIcon>
-          <GitBranch />
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3.1-.4 6.4-1.6 6.4-7A5.4 5.4 0 0 0 20 4.8 5.1 5.1 0 0 0 19.9 1S18.7.7 16 2.5a13.4 13.4 0 0 0-7 0C6.3.7 5.1 1 5.1 1A5.1 5.1 0 0 0 5 4.8a5.4 5.4 0 0 0-1.5 3.8c0 5.4 3.3 6.6 6.4 7a3.4 3.4 0 0 0-.9 2.6V22" />
+          </svg>
         </AuthIcon>
       );
     case 'mail':

@@ -34,7 +34,7 @@
 .hbar-app-ui-auth-sign-in-surface .hbar-app-ui-auth-sign-in-intro .hbar-app-ui-auth-brand {
   margin-block-end: 1rem;
 }
-.hbar-app-ui-auth-sign-in-surface .hbar-app-ui-auth-sign-in-intro .hbar-app-ui-auth-brand.is-compact > span {
+.hbar-app-ui-auth-sign-in-surface .hbar-app-ui-auth-sign-in-intro .hbar-app-ui-auth-brand.is-compact > span:first-child {
   inline-size: 2.25rem;
   block-size: 2.25rem;
   border: 0.0625rem solid light-dark(#e5e5e5, #292929);
