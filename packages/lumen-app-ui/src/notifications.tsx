@@ -7,6 +7,7 @@ import './notifications.css';
 import './notifications-center-reference.css';
 import './notifications-toast-reference.css';
 import './notifications-preferences-reference.css';
+import './notifications-activity-reference.css';
 
 export interface LumenNotificationsListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -138,31 +139,45 @@ export interface LumenNotificationFact {
 }
 export interface LumenNotificationActivityEntry {
   readonly id: string;
+  readonly viewId: string;
+  readonly icon: 'access' | 'review' | 'alert' | 'comment' | 'member';
   readonly person: string;
   readonly time: string;
   readonly summary: string;
+  readonly introduction: string;
   readonly title: string;
   readonly detail: string;
+  readonly primaryAction: { readonly id: string; readonly label: string };
   readonly facts: readonly LumenNotificationFact[];
+  readonly link: { readonly label: string; readonly href: string };
 }
 export interface LumenNotificationActivityContent {
   readonly labels: {
     readonly title: string;
     readonly views: string;
-    readonly list: string;
     readonly back: string;
-    readonly grant: string;
     readonly snooze: string;
     readonly archive: string;
-    readonly console: string;
-    readonly empty: string;
+    readonly emptyList: string;
+    readonly emptyTitle: string;
+    readonly emptyDetail: string;
     readonly emptyFacts: string;
+    readonly unavailable: string;
+    readonly moving: string;
+    readonly moveFailed: string;
+    readonly count: (count: number) => string;
   };
   readonly views: readonly LumenNotificationsChoice[];
+  readonly inboxViewId: string;
+  readonly snoozedViewId: string;
+  readonly archivedViewId: string;
+  readonly snoozeChoices: readonly LumenNotificationsChoice[];
   readonly initialViewId: string;
   readonly initialEntryId: string;
   readonly entries: readonly LumenNotificationActivityEntry[];
   readonly listStrategy: LumenNotificationsListStrategy;
+  /** Confirm the move in the owning host before changing the visible projection. */
+  readonly moveEntry?: ((entryId: string, viewId: string, optionId: string | undefined, signal: AbortSignal) => Promise<void>) | undefined;
 }
 export interface LumenNotificationSystemMessage {
   readonly id: string;
@@ -278,6 +293,7 @@ function Glyph({
     | 'clock'
     | 'archive'
     | 'external'
+    | 'down'
     | 'restore'
     | 'chevron'
     | 'info';
@@ -297,6 +313,8 @@ function Glyph({
                 ? 'M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2Zm0 3v3l2 2'
                 : name === 'archive'
                   ? 'M2.5 5h11v8h-11zM2 3h12v2H2zm4 5h4'
+                  : name === 'down'
+                    ? 'm4 6 4 4 4-4'
                   : name === 'external'
                     ? 'M8 3h5v5m0-5L7 9M6 4H3v9h9v-3'
                     : name === 'restore'
@@ -334,8 +352,8 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary={variant <= 3 ? 'none' : 'horizontal'}
-      shape={variant <= 3 ? 'square' : 'rounded'}
+      boundary={variant <= 4 ? 'none' : 'horizontal'}
+      shape={variant <= 4 ? 'square' : 'rounded'}
       className="lumen-notifications-surface"
       contentClassName={contentClassName}
       data-lumen-component="notifications"
@@ -963,96 +981,175 @@ function Preferences(
 function Activity(
   props: Omit<LumenNotificationsProps, 'content'> & { content: LumenNotificationActivityContent },
 ) {
-  const views = uniqueLumenNotificationsItems(props.content.views);
-  const entries = uniqueLumenNotificationsItems(props.content.entries);
-  const [viewId, setViewId] = React.useState(props.content.initialViewId);
-  const [entryId, setEntryId] = React.useState(props.content.initialEntryId);
+  const { content } = props;
+  const views = uniqueLumenNotificationsItems(content.views);
+  const entries = uniqueLumenNotificationsItems(content.entries);
+  const [viewId, setViewId] = React.useState(content.initialViewId);
+  const [entryId, setEntryId] = React.useState<string | null>(content.initialEntryId);
   const [showDetail, setShowDetail] = React.useState(true);
-  const entry = selectLumenNotificationsItem(entries, entryId);
+  const [locations, setLocations] = React.useState<ReadonlyMap<string, string>>(() => new Map());
+  const [menuOpen, setMenuOpen] = React.useState(false);
+  const [busy, setBusy] = React.useState(false);
+  const [moveFailed, setMoveFailed] = React.useState(false);
+  const menuRef = React.useRef<HTMLDivElement>(null);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const moveRef = React.useRef<AbortController | null>(null);
+  React.useEffect(() => {
+    setLocations(new Map());
+  }, [content.entries]);
+  React.useEffect(() => () => moveRef.current?.abort(), []);
+  React.useEffect(() => {
+    if (!menuOpen) return undefined;
+    const onPointer = (event: PointerEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMenuOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+    document.addEventListener('pointerdown', onPointer);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', onPointer);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [menuOpen]);
+  const visible = entries.filter((item) => (locations.get(item.id) ?? item.viewId) === viewId);
+  const entry = visible.find((item) => item.id === entryId);
+  const move = async (destination: string, optionId?: string) => {
+    if (!entry || !content.moveEntry || busy) return;
+    const controller = new AbortController();
+    moveRef.current = controller;
+    setBusy(true);
+    setMoveFailed(false);
+    setMenuOpen(false);
+    try {
+      await content.moveEntry(entry.id, destination, optionId, controller.signal);
+      if (controller.signal.aborted) return;
+      setLocations((previous) => new Map(previous).set(entry.id, destination));
+      setEntryId(null);
+      setShowDetail(false);
+      report(props.onAction, destination === content.archivedViewId ? 'archive' : 'snooze', entry.id);
+    } catch {
+      if (!controller.signal.aborted) setMoveFailed(true);
+    } finally {
+      if (!controller.signal.aborted) setBusy(false);
+      if (moveRef.current === controller) moveRef.current = null;
+    }
+  };
   return (
     <Root {...props}>
-      <Header
-        title={props.content.labels.title}
-        detail={selectLumenNotificationsItem(views, viewId)?.label ?? ''}
-      />
-      <Tabs
-        choices={views}
-        selectedId={viewId}
-        label={props.content.labels.views}
-        onChange={(id) => {
-          setViewId(id);
-          report(props.onAction, 'filter', id);
-        }}
-      />
-      <div
-        className={
-          showDetail ? 'lumen-notifications-activity is-detail' : 'lumen-notifications-activity'
-        }
-      >
-        <nav
-          aria-label={props.content.labels.list}
-          data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
-        >
-          {entries.length ? (
-            entries.map((item) => (
-              <LumenButton
-                key={item.id}
-                variant="text"
-                aria-current={entry?.id === item.id ? 'true' : undefined}
-                onClick={() => {
-                  setEntryId(item.id);
-                  setShowDetail(true);
-                  report(props.onAction, 'open', item.id);
-                }}
-              >
-                <span className="lumen-notifications-kind">{item.person.slice(0, 1)}</span>
-                <span>
-                  <strong>{item.person}</strong>
-                  <small>{item.summary}</small>
-                </span>
-                <time>{item.time}</time>
-              </LumenButton>
-            ))
-          ) : (
-            <Empty>{props.content.labels.empty}</Empty>
-          )}
-        </nav>
-        <article>
-          {entry ? (
+      <header className="lumen-activity-header" role="banner">
+        <LumenText as="h2" variant="title">{content.labels.title}</LumenText>
+        <div className="lumen-activity-tabs" role="tablist" aria-label={content.labels.views}>
+          {views.map((view) => (
+            <LumenButton
+              key={view.id}
+              role="tab"
+              variant="text"
+              indicator="none"
+              aria-selected={viewId === view.id}
+              disabled={view.disabled}
+              onClick={() => {
+                setViewId(view.id);
+                setShowDetail(entries.some((item) => item.id === entryId && (locations.get(item.id) ?? item.viewId) === view.id));
+                setMenuOpen(false);
+                setMoveFailed(false);
+                report(props.onAction, 'filter', view.id);
+              }}
+            >
+              {view.label}<span className="lumen-activity-count">{content.labels.count(entries.filter((item) => (locations.get(item.id) ?? item.viewId) === view.id).length)}</span>
+            </LumenButton>
+          ))}
+        </div>
+      </header>
+      <div className={showDetail ? 'lumen-activity-layout is-detail' : 'lumen-activity-layout'}>
+        <div className="lumen-activity-list" data-hbar-app-ui-list-strategy={content.listStrategy.kind}>
+          {visible.length ? (
+            <ul>
+              {visible.map((item) => (
+                <li key={item.id}>
+                  <LumenButton
+                    variant="text"
+                    indicator="none"
+                    aria-current={entry?.id === item.id ? 'true' : undefined}
+                    onClick={() => {
+                      setEntryId(item.id);
+                      setShowDetail(true);
+                      setMoveFailed(false);
+                      report(props.onAction, 'open', item.id);
+                    }}
+                  >
+                    <ActivityGlyph name={item.icon} />
+                    <span className="lumen-activity-row-copy">
+                      <span className="lumen-activity-row-top"><span>{item.person}</span><span className="lumen-activity-time">{item.time}</span></span>
+                      <span className="lumen-activity-summary">{item.summary}</span>
+                    </span>
+                  </LumenButton>
+                </li>
+              ))}
+            </ul>
+          ) : <p className="lumen-activity-list-empty">{content.labels.emptyList}</p>}
+        </div>
+        <article className="lumen-activity-detail">
+          {entry && showDetail ? (
             <>
               <LumenButton
-                className="lumen-notifications-back"
-                variant="text"
+                className="lumen-activity-back"
+                variant="outlined"
+                indicator="none"
                 onClick={() => setShowDetail(false)}
               >
                 <Glyph name="back" />
-                {props.content.labels.back}
+                {content.labels.back}
               </LumenButton>
-              <Header title={entry.title} detail={entry.detail} />
-              <div className="lumen-notifications-actions">
+              <p className="lumen-activity-intro"><span>{entry.person}</span> {entry.introduction}</p>
+              <h3>{entry.title}</h3>
+              <div className="lumen-activity-actions">
                 <LumenButton
                   tone="primary"
-                  onClick={() => report(props.onAction, 'grant', entry.id)}
+                  indicator="none"
+                  onClick={() => report(props.onAction, entry.primaryAction.id, entry.id)}
                 >
                   <Glyph name="check" />
-                  {props.content.labels.grant}
+                  {entry.primaryAction.label}
                 </LumenButton>
+                <div className="lumen-activity-snooze" ref={menuRef}>
+                  <LumenButton
+                    ref={triggerRef}
+                    variant="outlined"
+                    indicator="none"
+                    aria-haspopup="menu"
+                    aria-expanded={menuOpen}
+                    disabled={!content.moveEntry || busy}
+                    onClick={() => setMenuOpen((open) => !open)}
+                  >
+                    <Glyph name="clock" />{content.labels.snooze}<Glyph name="down" />
+                  </LumenButton>
+                  {menuOpen ? (
+                    <div className="lumen-activity-menu" role="menu">
+                      {uniqueLumenNotificationsItems(content.snoozeChoices).map((choice) => (
+                        <LumenButton key={choice.id} role="menuitem" variant="text" indicator="none" disabled={choice.disabled} onClick={() => { void move(content.snoozedViewId, choice.id); }}>
+                          {choice.label}
+                        </LumenButton>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
                 <LumenButton
                   variant="outlined"
-                  onClick={() => report(props.onAction, 'snooze', entry.id)}
-                >
-                  <Glyph name="clock" />
-                  {props.content.labels.snooze}
-                </LumenButton>
-                <LumenButton
-                  variant="outlined"
-                  onClick={() => report(props.onAction, 'archive', entry.id)}
+                  indicator="none"
+                  disabled={!content.moveEntry || busy}
+                  onClick={() => { void move(content.archivedViewId); }}
                 >
                   <Glyph name="archive" />
-                  {props.content.labels.archive}
+                  {content.labels.archive}
                 </LumenButton>
               </div>
-              <dl className="lumen-notifications-facts">
+              <p className="lumen-activity-description">{entry.detail}</p>
+              <dl className="lumen-activity-facts">
                 {uniqueLumenNotificationsItems(entry.facts).length ? (
                   uniqueLumenNotificationsItems(entry.facts).map((fact) => (
                     <div key={fact.id}>
@@ -1061,24 +1158,26 @@ function Activity(
                     </div>
                   ))
                 ) : (
-                  <Empty>{props.content.labels.emptyFacts}</Empty>
+                  <p>{content.labels.emptyFacts}</p>
                 )}
               </dl>
-              <LumenButton
-                variant="text"
-                onClick={() => report(props.onAction, 'console', entry.id)}
-              >
-                {props.content.labels.console}
+              <a href={entry.link.href} onClick={() => report(props.onAction, 'link', entry.id)}>
+                {entry.link.label}
                 <Glyph name="external" />
-              </LumenButton>
+              </a>
+              <p className="lumen-activity-status" role="status" aria-live="polite">{busy ? content.labels.moving : moveFailed ? content.labels.moveFailed : !content.moveEntry ? content.labels.unavailable : null}</p>
             </>
           ) : (
-            <Empty>{props.content.labels.empty}</Empty>
+            <div className="lumen-activity-empty"><h3>{content.labels.emptyTitle}</h3><p>{content.labels.emptyDetail}</p></div>
           )}
         </article>
       </div>
     </Root>
   );
+}
+function ActivityGlyph({ name }: { name: LumenNotificationActivityEntry['icon'] }) {
+  const path = name === 'access' ? 'M8 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm-4 5v-1a4 4 0 0 1 6-3.45M12 9v5m-2.5-2.5h5' : name === 'review' ? 'M6 3H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2m4-10h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2M8 5v6m0 0-2-2m2 2 2-2' : name === 'alert' ? 'M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2Zm0 3v4m0 2h.01' : name === 'comment' ? 'M2 3h12v8H7l-3 3v-3H2zM5 6h6m-6 2h4' : 'M6 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm-4 5v-1a4 4 0 0 1 8 0v1m1-8h3m-1.5-1.5v3';
+  return <span className={`lumen-activity-icon lumen-activity-icon-${name}`} aria-hidden="true"><svg viewBox="0 0 16 16"><path d={path} /></svg></span>;
 }
 function SystemMessages(
   props: Omit<LumenNotificationsProps, 'content'> & { content: LumenNotificationSystemContent },
