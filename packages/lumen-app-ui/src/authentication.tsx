@@ -25,6 +25,7 @@ import { AuthFrame, type LumenAuthCompositionProps } from './authentication/prim
 import './authentication.css';
 import './authentication-sign-in-reference.css';
 import './authentication-provider-first-reference.css';
+import './authentication-quote-reference.css';
 
 export interface LumenAuthenticationAction {
   readonly actionId: string;

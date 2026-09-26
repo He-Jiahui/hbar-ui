@@ -73,9 +73,9 @@ export function AuthFrame({
     .join(' ');
   return (
     <LumenSurface
-      as={spec.variant === 2 ? 'div' : 'section'}
-      boundary={spec.variant === 1 || spec.variant === 2 ? 'none' : 'horizontal'}
-      glassStrength={spec.variant === 1 || spec.variant === 2 ? 0 : 65}
+      as={spec.variant === 2 || spec.variant === 3 ? 'div' : 'section'}
+      boundary={spec.variant <= 3 ? 'none' : 'horizontal'}
+      glassStrength={spec.variant <= 3 ? 0 : 65}
       className="lumen-authentication-root-surface"
       contentClassName={contentClassName}
       data-lumen-component="authentication"

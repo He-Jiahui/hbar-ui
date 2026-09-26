@@ -114,6 +114,7 @@ export interface LumenAuthQuoteContent {
     readonly newAccount: string;
     readonly createAccount: string;
     readonly quoteEyebrow: string;
+    readonly emptyQuotes: string;
     readonly previousQuote: string;
     readonly nextQuote: string;
     readonly showQuote: (name: string) => string;
@@ -126,6 +127,8 @@ export interface LumenAuthQuoteContent {
   readonly quoteListStrategy: LumenAuthListStrategy;
   readonly initialEmail: string;
   readonly initialQuoteId: string;
+  /** Host-owned interval for the reference's automatic quote rotation; 0 disables it. */
+  readonly autoAdvanceMs: number;
 }
 
 export interface LumenAuthTwoStepContent {
