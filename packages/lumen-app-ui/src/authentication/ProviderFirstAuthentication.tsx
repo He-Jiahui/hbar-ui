@@ -111,7 +111,7 @@ export function ProviderFirstAuthentication({
               </AuthButton>
             </form>
             <p className="hbar-app-ui-auth-footer-note">
-              {content.labels.termsPrefix}{' '}
+              {content.labels.termsPrefix}{content.labels.inlineSeparator}
               <LumenButton
                 type="button"
                 indicator="none"
@@ -125,7 +125,7 @@ export function ProviderFirstAuthentication({
               >
                 {content.labels.terms}
               </LumenButton>
-              {' '}{content.labels.privacyPrefix}{' '}
+              {content.labels.inlineSeparator}{content.labels.privacyPrefix}{content.labels.inlineSeparator}
               <LumenButton
                 type="button"
                 indicator="none"

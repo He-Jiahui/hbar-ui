@@ -123,7 +123,7 @@ export function QuoteAuthentication({
             </div>
           </div>
           <p className="hbar-app-ui-auth-quote-sign-in-footer">
-            {content.labels.newAccount}{' '}
+            {content.labels.newAccount}{content.labels.inlineSeparator}
             <LumenButton
               type="button"
               indicator="none"

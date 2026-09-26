@@ -73,6 +73,7 @@ export interface LumenAuthProviderFirstContent {
     readonly helper: string;
     readonly continueLabel: string;
     readonly termsPrefix: string;
+    readonly inlineSeparator: string;
     readonly terms: string;
     readonly privacyPrefix: string;
     readonly privacy: string;
@@ -112,6 +113,7 @@ export interface LumenAuthQuoteContent {
     readonly signIn: string;
     readonly divider: string;
     readonly newAccount: string;
+    readonly inlineSeparator: string;
     readonly createAccount: string;
     readonly quoteEyebrow: string;
     readonly emptyQuotes: string;
