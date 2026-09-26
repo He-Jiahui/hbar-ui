@@ -9,6 +9,7 @@ import './notifications-toast-reference.css';
 import './notifications-preferences-reference.css';
 import './notifications-activity-reference.css';
 import './notifications-system-reference.css';
+import './notifications-bell-reference.css';
 
 export interface LumenNotificationsListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -218,8 +219,8 @@ export interface LumenNotificationBellMessage {
 }
 export interface LumenNotificationBellContent {
   readonly labels: {
+    readonly brandMark: string;
     readonly brand: string;
-    readonly navigation: string;
     readonly bell: (count: number) => string;
     readonly dialog: string;
     readonly close: string;
@@ -228,7 +229,7 @@ export interface LumenNotificationBellContent {
     readonly hint: string;
     readonly empty: string;
   };
-  readonly navItems: readonly LumenNotificationsChoice[];
+  readonly navItems: readonly (LumenNotificationsChoice & { readonly href: string })[];
   readonly selectedNavId: string;
   readonly messages: readonly LumenNotificationBellMessage[];
   readonly avatar: string;
@@ -358,8 +359,8 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary={variant <= 5 ? 'none' : 'horizontal'}
-      shape={variant <= 5 ? 'square' : 'rounded'}
+      boundary={variant <= 6 ? 'none' : 'horizontal'}
+      shape={variant <= 6 ? 'square' : 'rounded'}
       className="lumen-notifications-surface"
       contentClassName={contentClassName}
       data-lumen-component="notifications"
@@ -1317,20 +1318,16 @@ function Bell(
   const unread = messages.filter((item) => !readIds.has(item.id)).length;
   return (
     <Root {...props}>
-      <header className="lumen-notifications-appbar">
-        <strong>{props.content.labels.brand}</strong>
-        <nav aria-label={props.content.labels.navigation}>
-          {navItems.map((item) => (
-            <LumenButton
-              key={item.id}
-              variant="text"
-              aria-current={item.id === props.content.selectedNavId ? 'page' : undefined}
-            >
-              {item.label}
-            </LumenButton>
-          ))}
-        </nav>
-        <div>
+      <header className="lumen-notifications-appbar" role="banner">
+        <div className="lumen-bell-leading">
+          <span className="lumen-bell-brand"><span className="lumen-bell-mark">{props.content.labels.brandMark}</span><span>{props.content.labels.brand}</span></span>
+          <nav>
+            {navItems.map((item) => (
+              <a key={item.id} href={item.href} aria-current={item.id === props.content.selectedNavId ? 'page' : undefined}>{item.label}</a>
+            ))}
+          </nav>
+        </div>
+        <div className="lumen-bell-trailing">
           <div className="lumen-notifications-bell">
             <LumenIconButton
               label={props.content.labels.bell(unread)}
@@ -1341,7 +1338,7 @@ function Bell(
               }}
             >
               <Glyph name="bell" />
-              {unread ? <span>{unread}</span> : null}
+              {unread ? <span className="lumen-bell-badge">{unread}</span> : null}
             </LumenIconButton>
             {open ? (
               <aside role="dialog" aria-label={props.content.labels.dialog}>
@@ -1388,14 +1385,11 @@ function Bell(
           <span className="lumen-notifications-avatar">{props.content.avatar}</span>
         </div>
       </header>
-      <main
-        className="lumen-notifications-hint"
-        data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
-      >
+      <div className="lumen-notifications-hint">
         <LumenText as="p" tone="muted">
           {props.content.labels.hint}
         </LumenText>
-      </main>
+      </div>
     </Root>
   );
 }
