@@ -599,6 +599,7 @@ export interface LumenAuthRecentSignIn {
   readonly device: string;
   readonly location: string;
   readonly time: string;
+  readonly attention?: boolean | undefined;
 }
 
 export interface LumenAuthApprovalContent {
@@ -625,6 +626,24 @@ export interface LumenAuthApprovalContent {
   };
   readonly recent: readonly LumenAuthRecentSignIn[];
   readonly listStrategy: LumenAuthListStrategy;
+  readonly referenceFlow?: {
+    readonly phase: 'pending' | 'approved' | 'blocked';
+    readonly labels: {
+      readonly descriptionBeforeEmail: string;
+      readonly descriptionAfterEmail: string;
+      readonly approvedTitle: string;
+      readonly approvedDescription: string;
+      readonly blockedTitle: string;
+      readonly blockedDescription: string;
+      readonly blockedSteps: readonly [string, string];
+      readonly changePassword: string;
+      readonly backToRequest: string;
+    };
+    readonly onApprove: () => void;
+    readonly onDeny: () => void;
+    readonly onBack: () => void;
+    readonly onChangePassword: () => void;
+  } | undefined;
 }
 
 export interface LumenAuthContent {
