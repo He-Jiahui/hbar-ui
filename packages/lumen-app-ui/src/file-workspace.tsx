@@ -156,6 +156,9 @@ export interface LumenFileDocumentProps {
   contentAvailable?: boolean | undefined;
   refreshDisabled?: boolean | undefined;
   errorAction?: React.ReactNode;
+  headerActions?: React.ReactNode;
+  /** Keep confirmed content mounted during a host-owned revalidation. */
+  retainContentWhileLoading?: boolean | undefined;
   children: React.ReactNode;
 }
 
@@ -171,10 +174,12 @@ export function LumenFileDocument({
   contentAvailable = true,
   refreshDisabled = false,
   errorAction,
+  headerActions,
+  retainContentWhileLoading = false,
   children,
 }: LumenFileDocumentProps) {
   let body: React.ReactNode = null;
-  if (loading) {
+  if (loading && !(retainContentWhileLoading && contentAvailable)) {
     body = (
       <LumenText as="p" tone="muted" role="status">
         {labels.loading}
@@ -207,6 +212,7 @@ export function LumenFileDocument({
         >
           <FileGlyph name="refresh" />
         </LumenIconButton>
+        {headerActions}
       </header>
       {error ? (
         <div className="lumen-file-error" role="alert">
