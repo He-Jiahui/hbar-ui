@@ -1,12 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import { LumenToggleControl } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
 import './notifications.css';
 import './notifications-center-reference.css';
 import './notifications-toast-reference.css';
+import './notifications-preferences-reference.css';
 
 export interface LumenNotificationsListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -90,18 +90,32 @@ export interface LumenNotificationPreferenceGroup {
   readonly id: string;
   readonly label: string;
 }
+export interface LumenNotificationPreferencesDraft {
+  readonly deliveries: readonly {
+    readonly preferenceId: string;
+    readonly channelId: string;
+    readonly enabled: boolean;
+  }[];
+  readonly quiet: boolean;
+  readonly dayIds: readonly string[];
+}
 export interface LumenNotificationPreferencesContent {
   readonly labels: {
     readonly title: string;
     readonly detail: (enabled: number, total: number) => string;
     readonly event: string;
     readonly toggle: (event: string, channel: string) => string;
+    readonly all: string;
+    readonly none: string;
     readonly quietTitle: string;
     readonly quietDetail: string;
     readonly quietToggle: string;
     readonly days: string;
     readonly saved: string;
     readonly unsaved: string;
+    readonly saving: string;
+    readonly saveFailed: string;
+    readonly saveUnavailable: string;
     readonly reset: string;
     readonly save: string;
     readonly empty: string;
@@ -113,6 +127,9 @@ export interface LumenNotificationPreferencesContent {
   readonly initialDayIds: readonly string[];
   readonly initialQuiet: boolean;
   readonly listStrategy: LumenNotificationsListStrategy;
+  /** The owning host confirms persistence; an absent handler cannot claim a successful save. */
+  readonly savePreferences?:
+    ((draft: LumenNotificationPreferencesDraft, signal: AbortSignal) => Promise<void>) | undefined;
 }
 export interface LumenNotificationFact {
   readonly id: string;
@@ -317,8 +334,8 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary={variant <= 2 ? 'none' : 'horizontal'}
-      shape={variant <= 2 ? 'square' : 'rounded'}
+      boundary={variant <= 3 ? 'none' : 'horizontal'}
+      shape={variant <= 3 ? 'square' : 'rounded'}
       className="lumen-notifications-surface"
       contentClassName={contentClassName}
       data-lumen-component="notifications"
@@ -607,150 +624,329 @@ function ToastGlyph({ tone }: { readonly tone: LumenNotificationToastChoice['ton
         ? <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.5" /><path d="M8 4.6v4.2m0 2.3h.01" /></svg>
         : <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.5" /><path d="M8 7v4m0-6h.01" /></svg>;
 }
+const deliveryKey = (preferenceId: string, channelId: string) =>
+  JSON.stringify([preferenceId, channelId]);
+
+function PreferenceSwitch({
+  checked,
+  label,
+  disabled,
+  action,
+  onToggle,
+}: {
+  readonly checked: boolean;
+  readonly label: string;
+  readonly disabled: boolean;
+  readonly action: string;
+  readonly onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-label={label}
+      aria-checked={checked}
+      disabled={disabled}
+      data-hbar-app-ui-action={action}
+      className="lumen-preferences-switch"
+      onClick={onToggle}
+    >
+      <span aria-hidden="true" />
+    </button>
+  );
+}
+
+function ChannelGlyph({ id }: { readonly id: string }) {
+  const path =
+    id === 'in-app' ? (
+      <path d="M4 11V7a4 4 0 0 1 8 0v4l1 2H3zm2 2a2 2 0 0 0 4 0" />
+    ) : id === 'email' ? (
+      <>
+        <rect x="2" y="3.5" width="12" height="9" rx="1" />
+        <path d="m2 4 6 5 6-5" />
+      </>
+    ) : (
+      <>
+        <rect x="4.5" y="1.5" width="7" height="13" rx="1" />
+        <path d="M7 12h2" />
+      </>
+    );
+  return (
+    <svg
+      className="lumen-preferences-channel-icon"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      aria-hidden="true"
+    >
+      {path}
+    </svg>
+  );
+}
+
 function Preferences(
   props: Omit<LumenNotificationsProps, 'content'> & {
     content: LumenNotificationPreferencesContent;
   },
 ) {
-  const channels = uniqueLumenNotificationsItems(props.content.channels);
-  const groups = uniqueLumenNotificationsItems(props.content.groups);
-  const preferences = uniqueLumenNotificationsItems(props.content.preferences);
-  const initial = () =>
-    Object.fromEntries(
-      preferences.flatMap((item) =>
-        channels.map((channel) => [
-          `${item.id}:${channel.id}`,
-          item.enabledChannelIds.includes(channel.id),
-        ]),
+  const { content } = props;
+  const channels = uniqueLumenNotificationsItems(content.channels);
+  const groups = uniqueLumenNotificationsItems(content.groups);
+  const preferences = uniqueLumenNotificationsItems(content.preferences);
+  const daysOfWeek = uniqueLumenNotificationsItems(content.days);
+  const defaults = React.useMemo(
+    () =>
+      Object.fromEntries(
+        uniqueLumenNotificationsItems(content.preferences).flatMap((item) =>
+          uniqueLumenNotificationsItems(content.channels).map((channel) => [
+            deliveryKey(item.id, channel.id),
+            item.enabledChannelIds.includes(channel.id),
+          ]),
+        ),
       ),
-    );
-  const [values, setValues] = React.useState<Readonly<Record<string, boolean>>>(initial);
-  const [quiet, setQuiet] = React.useState(props.content.initialQuiet);
-  const [days, setDays] = React.useState<ReadonlySet<string>>(
-    () => new Set(props.content.initialDayIds),
+    [content.preferences, content.channels],
   );
-  const [saved, setSaved] = React.useState(true);
-  const enabled = Object.values(values).filter(Boolean).length;
+  const [values, setValues] = React.useState<Readonly<Record<string, boolean>>>(defaults);
+  const [quiet, setQuiet] = React.useState(content.initialQuiet);
+  const [days, setDays] = React.useState<ReadonlySet<string>>(() => new Set(content.initialDayIds));
+  const [saveStatus, setSaveStatus] = React.useState<'saved' | 'dirty' | 'saving' | 'error'>(
+    'saved',
+  );
+  const pendingSave = React.useRef<AbortController | null>(null);
+  const revision = React.useRef(0);
+  React.useEffect(() => {
+    pendingSave.current?.abort();
+    revision.current += 1;
+    setValues(defaults);
+    setQuiet(content.initialQuiet);
+    setDays(new Set(content.initialDayIds));
+    setSaveStatus('saved');
+    return () => {
+      pendingSave.current?.abort();
+    };
+  }, [defaults, content.initialDayIds, content.initialQuiet]);
+  const markDirty = () => {
+    revision.current += 1;
+    setSaveStatus('dirty');
+  };
+  const busy = saveStatus === 'saving';
+  const enabled = preferences.reduce(
+    (count, item) =>
+      count + channels.filter((channel) => values[deliveryKey(item.id, channel.id)]).length,
+    0,
+  );
+  const updateDelivery = (preferenceId: string, channelId: string) => {
+    const key = deliveryKey(preferenceId, channelId);
+    setValues((current) => ({ ...current, [key]: !current[key] }));
+    markDirty();
+    report(props.onAction, 'delivery', key);
+  };
+  const reset = () => {
+    pendingSave.current?.abort();
+    revision.current += 1;
+    setValues(defaults);
+    setQuiet(content.initialQuiet);
+    setDays(new Set(content.initialDayIds));
+    setSaveStatus('saved');
+    report(props.onAction, 'reset');
+  };
+  const save = async () => {
+    if (!content.savePreferences || busy || saveStatus === 'saved') return;
+    const controller = new AbortController();
+    pendingSave.current = controller;
+    const currentRevision = revision.current;
+    const draft: LumenNotificationPreferencesDraft = {
+      deliveries: preferences.flatMap((item) =>
+        channels.map((channel) => ({
+          preferenceId: item.id,
+          channelId: channel.id,
+          enabled: values[deliveryKey(item.id, channel.id)] ?? false,
+        })),
+      ),
+      quiet,
+      dayIds: daysOfWeek.filter((day) => days.has(day.id)).map((day) => day.id),
+    };
+    setSaveStatus('saving');
+    try {
+      await content.savePreferences(draft, controller.signal);
+      if (controller.signal.aborted || currentRevision !== revision.current) return;
+      setSaveStatus('saved');
+      report(props.onAction, 'save');
+    } catch {
+      if (controller.signal.aborted || currentRevision !== revision.current) return;
+      setSaveStatus('error');
+      report(props.onAction, 'save-failed');
+    } finally {
+      if (pendingSave.current === controller) pendingSave.current = null;
+    }
+  };
+  const statusLabel =
+    saveStatus === 'saved'
+      ? content.labels.saved
+      : saveStatus === 'saving'
+        ? content.labels.saving
+        : saveStatus === 'error'
+          ? content.labels.saveFailed
+          : content.savePreferences
+            ? content.labels.unsaved
+            : content.labels.saveUnavailable;
+
   return (
     <Root {...props}>
-      <Header
-        title={props.content.labels.title}
-        detail={props.content.labels.detail(enabled, preferences.length * channels.length)}
-      />
+      <header className="lumen-preferences-header" role="banner">
+        <h2>{content.labels.title}</h2>
+        <p>{content.labels.detail(enabled, preferences.length * channels.length)}</p>
+      </header>
       <div
         className="lumen-notifications-preferences"
-        data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
+        data-hbar-app-ui-list-strategy={content.listStrategy.kind}
+        data-hbar-app-ui-region="preferences"
+        data-hbar-app-ui-state={saveStatus}
       >
-        <div role="table">
-          <div role="row">
-            <span role="columnheader">{props.content.labels.event}</span>
-            {channels.map((channel) => (
-              <span role="columnheader" key={channel.id}>
-                {channel.label}
-              </span>
-            ))}
-          </div>
-          {preferences.length ? (
-            groups.map((group) => (
-              <React.Fragment key={group.id}>
-                <div role="row" className="is-group">
-                  <strong role="cell">{group.label}</strong>
-                </div>
-                {preferences
-                  .filter((item) => item.groupId === group.id)
-                  .map((item) => (
-                    <div role="row" key={item.id}>
-                      <span role="cell">
-                        <strong>{item.label}</strong>
-                        <small>{item.detail}</small>
-                      </span>
+        <div className="lumen-preferences-matrix-viewport">
+          <div className="lumen-preferences-matrix">
+            <div className="lumen-preferences-columns">
+              <span>{content.labels.event}</span>
+              {channels.map((channel) => (
+                <span key={channel.id}>
+                  <ChannelGlyph id={channel.id} />
+                  {channel.label}
+                </span>
+              ))}
+            </div>
+            {preferences.length ? (
+              groups.map((group) => {
+                const entries = preferences.filter((item) => item.groupId === group.id);
+                if (!entries.length) return null;
+                return (
+                  <section key={group.id} data-hbar-app-ui-region={group.id}>
+                    <div className="lumen-preferences-group">
+                      <span>{group.label}</span>
                       {channels.map((channel) => {
-                        const key = `${item.id}:${channel.id}`;
+                        const all = entries.every(
+                          (item) => values[deliveryKey(item.id, channel.id)],
+                        );
                         return (
-                          <span role="cell" key={channel.id}>
-                            <LumenToggleControl
-                              aria-label={props.content.labels.toggle(item.label, channel.label)}
-                              checked={values[key] ?? false}
-                              onChange={(event) => {
-                                const next = event.currentTarget.checked;
-                                setValues((current) => ({ ...current, [key]: next }));
-                                setSaved(false);
-                                report(props.onAction, 'delivery', key);
+                          <span key={channel.id}>
+                            <button
+                              type="button"
+                              disabled={busy}
+                              data-hbar-app-ui-action={`group:${group.id}:${channel.id}`}
+                              onClick={() => {
+                                setValues((current) => {
+                                  const next = { ...current };
+                                  for (const item of entries)
+                                    next[deliveryKey(item.id, channel.id)] = !all;
+                                  return next;
+                                });
+                                markDirty();
+                                report(props.onAction, 'group', deliveryKey(group.id, channel.id));
                               }}
-                            />
+                            >
+                              {all ? content.labels.none : content.labels.all}
+                            </button>
                           </span>
                         );
                       })}
                     </div>
-                  ))}
-              </React.Fragment>
-            ))
-          ) : (
-            <Empty>{props.content.labels.empty}</Empty>
-          )}
-        </div>
-        <section className="lumen-notifications-quiet">
-          <div>
-            <strong>{props.content.labels.quietTitle}</strong>
-            <LumenText as="p" tone="muted">
-              {props.content.labels.quietDetail}
-            </LumenText>
+                    <ul>
+                      {entries.map((item) => (
+                        <li key={item.id}>
+                          <div className="lumen-preferences-event">
+                            <p>{item.label}</p>
+                            <p>{item.detail}</p>
+                          </div>
+                          {channels.map((channel) => (
+                            <span className="lumen-preferences-cell" key={channel.id}>
+                              <PreferenceSwitch
+                                checked={values[deliveryKey(item.id, channel.id)] ?? false}
+                                disabled={busy}
+                                label={content.labels.toggle(item.label, channel.label)}
+                                action={`delivery:${item.id}:${channel.id}`}
+                                onToggle={() => updateDelivery(item.id, channel.id)}
+                              />
+                            </span>
+                          ))}
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                );
+              })
+            ) : (
+              <Empty>{content.labels.empty}</Empty>
+            )}
           </div>
-          <LumenToggleControl
-            aria-label={props.content.labels.quietToggle}
-            checked={quiet}
-            onChange={(event) => {
-              setQuiet(event.currentTarget.checked);
-              setSaved(false);
-            }}
-          />
-          <div className="lumen-notifications-days" aria-label={props.content.labels.days}>
-            {props.content.days.map((day) => (
-              <LumenButton
-                key={day.id}
-                size="s"
-                variant={days.has(day.id) ? 'solid' : 'outlined'}
-                onClick={() => {
-                  setDays((current) => {
-                    const next = new Set(current);
-                    if (next.has(day.id)) next.delete(day.id);
-                    else next.add(day.id);
-                    return next;
-                  });
-                  setSaved(false);
+        </div>
+        <section className="lumen-notifications-quiet" data-hbar-app-ui-region="quiet-hours">
+          <div className="lumen-preferences-quiet-card">
+            <div className="lumen-preferences-quiet-heading">
+              <span className="lumen-preferences-quiet-icon" aria-hidden="true">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3">
+                  <path d="M12.9 10.8A5.5 5.5 0 0 1 5.2 3.1a5.5 5.5 0 1 0 7.7 7.7Z" />
+                </svg>
+              </span>
+              <div>
+                <p>{content.labels.quietTitle}</p>
+                <p>{content.labels.quietDetail}</p>
+              </div>
+              <PreferenceSwitch
+                checked={quiet}
+                disabled={busy}
+                label={content.labels.quietToggle}
+                action="quiet-hours"
+                onToggle={() => {
+                  setQuiet(!quiet);
+                  markDirty();
+                  report(props.onAction, 'quiet-hours');
                 }}
-              >
-                {day.label}
-              </LumenButton>
-            ))}
+              />
+            </div>
+            {quiet ? (
+              <div className="lumen-notifications-days" aria-label={content.labels.days}>
+                {daysOfWeek.map((day) => (
+                  <button
+                    key={day.id}
+                    type="button"
+                    aria-pressed={days.has(day.id)}
+                    data-hbar-app-ui-action={`day:${day.id}`}
+                    disabled={busy}
+                    onClick={() => {
+                      setDays((current) => {
+                        const next = new Set(current);
+                        if (next.has(day.id)) next.delete(day.id);
+                        else next.add(day.id);
+                        return next;
+                      });
+                      markDirty();
+                      report(props.onAction, 'day', day.id);
+                    }}
+                  >
+                    {day.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
           </div>
         </section>
       </div>
-      <footer className="lumen-notifications-save">
-        <span>{saved ? props.content.labels.saved : props.content.labels.unsaved}</span>
+      <footer className="lumen-notifications-save" role="contentinfo">
+        <span aria-live="polite">{statusLabel}</span>
         <div>
-          <LumenButton
-            variant="outlined"
+          <button type="button" data-hbar-app-ui-action="reset" disabled={busy} onClick={reset}>
+            {content.labels.reset}
+          </button>
+          <button
+            type="button"
+            data-hbar-app-ui-action="save"
+            disabled={busy || saveStatus === 'saved' || !content.savePreferences}
             onClick={() => {
-              setValues(initial());
-              setQuiet(props.content.initialQuiet);
-              setDays(new Set(props.content.initialDayIds));
-              setSaved(true);
-              report(props.onAction, 'reset');
+              void save();
             }}
           >
-            {props.content.labels.reset}
-          </LumenButton>
-          <LumenButton
-            tone="primary"
-            disabled={saved}
-            onClick={() => {
-              setSaved(true);
-              report(props.onAction, 'save');
-            }}
-          >
-            {props.content.labels.save}
-          </LumenButton>
+            {content.labels.save}
+          </button>
         </div>
       </footer>
     </Root>
