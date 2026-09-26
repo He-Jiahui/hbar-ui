@@ -8,6 +8,7 @@ import './notifications-center-reference.css';
 import './notifications-toast-reference.css';
 import './notifications-preferences-reference.css';
 import './notifications-activity-reference.css';
+import './notifications-system-reference.css';
 
 export interface LumenNotificationsListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -183,11 +184,10 @@ export interface LumenNotificationSystemMessage {
   readonly id: string;
   readonly title: string;
   readonly detail: string;
-  readonly primary: string;
-  readonly secondary?: string | undefined;
+  readonly primary: { readonly id: string; readonly label: string; readonly variant: 'solid' | 'outlined' };
+  readonly secondary?: { readonly id: string; readonly label: string } | undefined;
   readonly tone: 'info' | 'warning' | 'danger' | 'success' | 'usage';
-  readonly expandable?: boolean | undefined;
-  readonly expandedDetail?: string | undefined;
+  readonly details?: readonly { readonly id: string; readonly text: string }[] | undefined;
   readonly usage?: { readonly value: number; readonly label: string } | undefined;
 }
 export interface LumenNotificationSystemContent {
@@ -198,11 +198,17 @@ export interface LumenNotificationSystemContent {
     readonly dismiss: (title: string) => string;
     readonly show: string;
     readonly hide: string;
-    readonly progress: (title: string) => string;
     readonly empty: string;
+    readonly emptyDetail: string;
+    readonly pending: string;
+    readonly actionFailed: string;
+    readonly restoreFailed: string;
+    readonly unavailable: string;
   };
   readonly messages: readonly LumenNotificationSystemMessage[];
   readonly listStrategy: LumenNotificationsListStrategy;
+  /** The host confirms whether an action dismissed a message, restored all, or left it visible. */
+  readonly performAction?: ((messageId: string | null, actionId: string, signal: AbortSignal) => Promise<'dismiss' | 'restore' | 'retain'>) | undefined;
 }
 export interface LumenNotificationBellMessage {
   readonly id: string;
@@ -352,8 +358,8 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary={variant <= 4 ? 'none' : 'horizontal'}
-      shape={variant <= 4 ? 'square' : 'rounded'}
+      boundary={variant <= 5 ? 'none' : 'horizontal'}
+      shape={variant <= 5 ? 'square' : 'rounded'}
       className="lumen-notifications-surface"
       contentClassName={contentClassName}
       data-lumen-component="notifications"
@@ -363,29 +369,6 @@ function Root({
     >
       {children}
     </LumenSurface>
-  );
-}
-function Header({
-  title,
-  detail,
-  actions,
-}: {
-  readonly title: string;
-  readonly detail: string;
-  readonly actions?: React.ReactNode;
-}) {
-  return (
-    <header className="lumen-notifications-header">
-      <div>
-        <LumenText as="h2" variant="title">
-          {title}
-        </LumenText>
-        <LumenText as="p" variant="supporting" tone="muted">
-          {detail}
-        </LumenText>
-      </div>
-      {actions}
-    </header>
   );
 }
 function Empty({ children }: { readonly children: string }) {
@@ -1182,115 +1165,145 @@ function ActivityGlyph({ name }: { name: LumenNotificationActivityEntry['icon'] 
 function SystemMessages(
   props: Omit<LumenNotificationsProps, 'content'> & { content: LumenNotificationSystemContent },
 ) {
-  const messages = uniqueLumenNotificationsItems(props.content.messages);
+  const { content } = props;
+  const messages = uniqueLumenNotificationsItems(content.messages);
   const [dismissed, setDismissed] = React.useState<ReadonlySet<string>>(() => new Set());
   const [expanded, setExpanded] = React.useState<ReadonlySet<string>>(() => new Set());
+  const [pending, setPending] = React.useState<string | null>(null);
+  const [failure, setFailure] = React.useState<string | null>(null);
+  const pendingRef = React.useRef<AbortController | null>(null);
+  React.useEffect(() => () => pendingRef.current?.abort(), []);
+  React.useEffect(() => {
+    pendingRef.current?.abort();
+    pendingRef.current = null;
+    setDismissed(new Set());
+    setExpanded(new Set());
+    setPending(null);
+    setFailure(null);
+  }, [content.messages]);
   const visible = messages.filter((item) => !dismissed.has(item.id));
+  const perform = async (messageId: string | null, actionId: string) => {
+    if (!content.performAction || pendingRef.current) return;
+    const controller = new AbortController();
+    pendingRef.current = controller;
+    setPending(messageId ?? 'restore-all');
+    setFailure(null);
+    try {
+      const effect = await content.performAction(messageId, actionId, controller.signal);
+      if (controller.signal.aborted) return;
+      if (effect === 'dismiss' && messageId) setDismissed((current) => new Set(current).add(messageId));
+      if (effect === 'restore') setDismissed(new Set());
+      report(props.onAction, actionId, messageId ?? undefined);
+    } catch {
+      if (!controller.signal.aborted) setFailure(messageId ?? 'restore-all');
+    } finally {
+      if (!controller.signal.aborted) setPending(null);
+      if (pendingRef.current === controller) pendingRef.current = null;
+    }
+  };
   return (
     <Root {...props}>
-      <Header
-        title={props.content.labels.title}
-        detail={props.content.labels.detail}
-        actions={
+      <header className="lumen-system-header" role="banner">
+        <div>
+          <LumenText as="h2" variant="title">{content.labels.title}</LumenText>
+          <LumenText as="p" tone="muted">{content.labels.detail}</LumenText>
+        </div>
+        <div className="lumen-system-restore">
           <LumenButton
             variant="outlined"
-            disabled={!dismissed.size}
-            onClick={() => {
-              setDismissed(new Set());
-              report(props.onAction, 'restore-all');
-            }}
+            indicator="none"
+            data-hbar-app-ui-action="restore-all"
+            disabled={!dismissed.size || !content.performAction || pending !== null}
+            onClick={() => { void perform(null, 'restore-all'); }}
           >
-            <Glyph name="restore" />
-            {props.content.labels.restore}
+            <Glyph name="restore" />{content.labels.restore}
           </LumenButton>
-        }
-      />
-      <div
-        className="lumen-notifications-system"
-        data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
-      >
+          {failure === 'restore-all' ? <p role="alert">{content.labels.restoreFailed}</p> : null}
+          {!content.performAction ? <p role="status">{content.labels.unavailable}</p> : null}
+        </div>
+      </header>
+      <div className="lumen-system-scroll" data-hbar-app-ui-list-strategy={content.listStrategy.kind}>
         {visible.length ? (
-          visible.map((message) => (
-            <article key={message.id} data-tone={message.tone}>
-              <Glyph name="info" />
-              <div>
-                <strong>{message.title}</strong>
-                <LumenText as="p" tone="muted">
-                  {message.detail}
-                </LumenText>
-                {message.expandable ? (
-                  <LumenButton
-                    variant="text"
-                    aria-expanded={expanded.has(message.id)}
-                    onClick={() =>
-                      setExpanded((current) => {
-                        const next = new Set(current);
-                        if (next.has(message.id)) next.delete(message.id);
-                        else next.add(message.id);
-                        return next;
-                      })
-                    }
-                  >
-                    {expanded.has(message.id)
-                      ? props.content.labels.hide
-                      : props.content.labels.show}
-                    <Glyph name="chevron" />
-                  </LumenButton>
-                ) : null}
-                {expanded.has(message.id) && message.expandedDetail ? (
-                  <LumenText as="p" tone="muted">
-                    {message.expandedDetail}
-                  </LumenText>
-                ) : null}
-                <div className="lumen-notifications-actions">
-                  <LumenButton
-                    tone={message.tone === 'danger' ? 'danger' : 'neutral'}
-                    onClick={() => report(props.onAction, 'action', message.id)}
-                  >
-                    {message.primary}
-                  </LumenButton>
-                  {message.secondary ? (
-                    <LumenButton
-                      variant="outlined"
-                      onClick={() => report(props.onAction, 'secondary', message.id)}
-                    >
-                      {message.secondary}
-                    </LumenButton>
+          <ul className="lumen-system-list">
+            {visible.map((message) => (
+              <li key={message.id} className="lumen-system-message" data-tone={message.tone}>
+                <SystemGlyph name={message.tone} />
+                <div className="lumen-system-copy">
+                  <p className="lumen-system-title">{message.title}</p>
+                  <p className="lumen-system-description">{message.detail}</p>
+                  {message.details?.length ? (
+                    <>
+                      <LumenButton
+                        className="lumen-system-disclosure"
+                        variant="text"
+                        indicator="none"
+                        data-hbar-app-ui-action="toggle-details"
+                        aria-expanded={expanded.has(message.id)}
+                        onClick={() => setExpanded((current) => {
+                          const next = new Set(current);
+                          if (next.has(message.id)) next.delete(message.id);
+                          else next.add(message.id);
+                          return next;
+                        })}
+                      >
+                        {expanded.has(message.id) ? content.labels.hide : content.labels.show}<Glyph name="chevron" />
+                      </LumenButton>
+                      {expanded.has(message.id) ? (
+                        <ul className="lumen-system-details">
+                          {uniqueLumenNotificationsItems(message.details).map((detail) => <li key={detail.id}>{detail.text}</li>)}
+                        </ul>
+                      ) : null}
+                    </>
                   ) : null}
+                  {message.usage ? (
+                    <div className="lumen-system-usage">
+                      <span aria-hidden="true"><i style={{ inlineSize: `${Math.max(0, Math.min(100, message.usage.value))}%` }} /></span>
+                      <p>{message.usage.label}</p>
+                    </div>
+                  ) : null}
+                  <div className="lumen-system-actions">
+                    <LumenButton
+                      variant={message.primary.variant}
+                      indicator="none"
+                      data-hbar-app-ui-action={message.primary.id}
+                      disabled={!content.performAction || pending !== null}
+                      onClick={() => { void perform(message.id, message.primary.id); }}
+                    >{message.primary.label}</LumenButton>
+                    {message.secondary ? (
+                      <LumenButton
+                        variant="outlined"
+                        indicator="none"
+                        data-hbar-app-ui-action={message.secondary.id}
+                        disabled={!content.performAction || pending !== null}
+                        onClick={() => { if (message.secondary) void perform(message.id, message.secondary.id); }}
+                      >{message.secondary.label}</LumenButton>
+                    ) : null}
+                  </div>
+                  {pending === message.id ? <p className="lumen-system-status" role="status">{content.labels.pending}</p> : null}
+                  {failure === message.id ? <p className="lumen-system-status" role="alert">{content.labels.actionFailed}</p> : null}
                 </div>
-                {message.usage ? (
-                  <span
-                    className="lumen-notifications-progress"
-                    role="progressbar"
-                    aria-label={props.content.labels.progress(message.title)}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                    aria-valuenow={message.usage.value}
-                  >
-                    <i
-                      style={{ inlineSize: `${Math.max(0, Math.min(100, message.usage.value))}%` }}
-                    />
-                    <small>{message.usage.label}</small>
-                  </span>
-                ) : null}
-              </div>
-              <LumenIconButton
-                label={props.content.labels.dismiss(message.title)}
-                onClick={() => {
-                  setDismissed((current) => new Set([...current, message.id]));
-                  report(props.onAction, 'dismiss', message.id);
-                }}
-              >
-                <Glyph name="close" />
-              </LumenIconButton>
-            </article>
-          ))
+                <LumenButton
+                  className="lumen-system-dismiss"
+                  variant="text"
+                  indicator="none"
+                  aria-label={content.labels.dismiss(message.title)}
+                  data-hbar-app-ui-action="dismiss"
+                  disabled={!content.performAction || pending !== null}
+                  onClick={() => { void perform(message.id, 'dismiss'); }}
+                ><Glyph name="close" /></LumenButton>
+              </li>
+            ))}
+          </ul>
         ) : (
-          <Empty>{props.content.labels.empty}</Empty>
+          <div className="lumen-system-empty"><p>{content.labels.empty}</p><p>{content.labels.emptyDetail}</p></div>
         )}
       </div>
     </Root>
   );
+}
+function SystemGlyph({ name }: { name: LumenNotificationSystemMessage['tone'] }) {
+  const path = name === 'warning' ? 'M8 2 15 14H1L8 2Zm0 4v3m0 2h.01' : name === 'danger' ? 'M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13Zm0 3v4m0 2.5h.01' : name === 'success' ? 'M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM5 8l2 2 4-4' : name === 'usage' ? 'm9 1-6 8h4l-1 6 7-9H9l1-5Z' : 'M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13Zm0 5v4m0-6h.01';
+  return <svg className="lumen-system-icon" viewBox="0 0 16 16" aria-hidden="true"><path d={path} /></svg>;
 }
 function Bell(
   props: Omit<LumenNotificationsProps, 'content'> & { content: LumenNotificationBellContent },
