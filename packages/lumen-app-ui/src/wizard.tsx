@@ -6,9 +6,11 @@ import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import InformationReference from './wizard/InformationReference';
 import InvoiceReference from './wizard/InvoiceReference';
+import UpgradeReference from './wizard/UpgradeReference';
 import './wizard.css';
 import './wizard-information-reference.css';
 import './wizard-invoice-reference.css';
+import './wizard-upgrade-reference.css';
 
 export interface LumenWizardListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -45,6 +47,16 @@ export interface LumenWizardReferenceInvoiceField {
   readonly icon?: 'building' | 'hash' | 'calendar' | undefined;
   readonly information?: boolean | undefined;
   readonly clear?: boolean | undefined;
+}
+export interface LumenWizardReferenceUpgradePlan extends LumenWizardChoice {
+  readonly price: string;
+  readonly badge?: string | undefined;
+}
+export interface LumenWizardReferenceUpgradeRow {
+  readonly id: string;
+  readonly label: string;
+  readonly detail?: string | undefined;
+  readonly value: string;
 }
 export interface LumenWizardInformationContent {
   readonly labels: {
@@ -171,6 +183,31 @@ export interface LumenWizardShippingContent {
   readonly listStrategy: LumenWizardListStrategy;
 }
 export interface LumenWizardContent {
+  readonly referenceUpgrade?: {
+    readonly labels: {
+      readonly title: string;
+      readonly detail: string;
+      readonly draft: string;
+      readonly plan: string;
+      readonly seatNote: string;
+      readonly invoice: string;
+      readonly annual: string;
+      readonly due: string;
+      readonly totalDetail: string;
+      readonly footer: string;
+      readonly next: string;
+    };
+    readonly steps: readonly LumenWizardStep[];
+    readonly plans: readonly LumenWizardReferenceUpgradePlan[];
+    readonly summaryRows: readonly LumenWizardReferenceUpgradeRow[];
+    readonly metadataRows: readonly LumenWizardReferenceUpgradeRow[];
+    readonly total: string;
+    readonly listStrategy: LumenWizardListStrategy;
+    readonly stepId: string;
+    readonly selectedPlanId: string;
+    readonly onStepChange: (stepId: string) => void;
+    readonly onPlanChange: (planId: string) => void;
+  } | undefined;
   readonly referenceInvoice?: {
     readonly labels: {
       readonly title: string;
@@ -293,7 +330,7 @@ function Root({
   className,
   children,
 }: Omit<LumenWizardProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
-  const plain = variant === 1 || Boolean(className?.includes('hbar-app-ui-wizard-invoice-reference'));
+  const plain = variant === 1 || Boolean(className?.includes('hbar-app-ui-wizard-invoice-reference')) || Boolean(className?.includes('hbar-app-ui-wizard-upgrade-reference'));
   const contentClassName = [
     'lumen-wizard-stage',
     `hbar-app-ui-wizard-variant-${variant}`,
@@ -946,6 +983,9 @@ export function LumenWizard(props: LumenWizardProps) {
     return content?.invoice ? <Invoice {...props} content={content.invoice} /> : empty(props);
   }
   if (props.variant === 3) {
+    if (content?.referenceUpgrade) {
+      return <Root {...props} className={[props.className, 'hbar-app-ui-wizard-upgrade-reference'].filter(Boolean).join(' ')}><UpgradeReference content={content} /></Root>;
+    }
     return content?.upgrade ? <Upgrade {...props} content={content.upgrade} /> : empty(props);
   }
   if (props.variant === 4) {
