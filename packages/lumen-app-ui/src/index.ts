@@ -256,6 +256,9 @@ export type {LumenRichEditorBlock, LumenRichEditorReferenceContent} from './edit
 export {countLumenMarkdownWords, parseLumenReferenceMarkdown} from './editor-markdown-model';
 export type {LumenMarkdownBlock, LumenMarkdownInline} from './editor-markdown-model';
 export type {LumenMarkdownReferenceContent} from './editor-markdown-reference';
+export {tokenizeLumenCodeLine, uniqueLumenCodeFiles} from './editor-code-model';
+export type {LumenCodeToken} from './editor-code-model';
+export type {LumenCodeReferenceContent} from './editor-code-reference';
 export type {
   LumenCodeFile,
   LumenCodeWorkspaceContent,
