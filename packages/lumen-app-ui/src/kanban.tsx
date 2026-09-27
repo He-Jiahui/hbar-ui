@@ -5,8 +5,10 @@ import { LumenSelect } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { BoardReference } from './kanban/BoardReference';
+import SwimlanesReference from './kanban/SwimlanesReference';
 import './kanban.css';
 import './kanban-reference.css';
+import './kanban-swimlanes-reference.css';
 
 export interface LumenKanbanListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -48,6 +50,18 @@ export interface LumenKanbanReferenceCard {
   readonly priority: 'high' | 'medium' | 'low';
   readonly comments?: number | undefined;
   readonly files?: number | undefined;
+}
+export interface LumenKanbanSwimlaneCard {
+  readonly id: string;
+  readonly label: string;
+  readonly points: number;
+  readonly stageId: string;
+}
+export interface LumenKanbanReferenceLane {
+  readonly id: string;
+  readonly label: string;
+  readonly avatar: string;
+  readonly cards: readonly LumenKanbanSwimlaneCard[];
 }
 export interface LumenKanbanContent {
   readonly labels: {
@@ -100,35 +114,64 @@ export interface LumenKanbanContent {
   readonly compactColumns: readonly LumenKanbanColumn[];
   readonly initialCompactColumnId: string;
   readonly listStrategy: LumenKanbanListStrategy;
-  readonly referenceBoard?: {
-    readonly labels: {
-      readonly detail: (count: number) => string;
-      readonly card: (card: LumenKanbanReferenceCard) => string;
-      readonly newCardIn: (column: string) => string;
-      readonly placeholder: string;
-      readonly add: string;
-      readonly cancel: string;
-      readonly newCardTag: string;
-      readonly grabbed: (cardId: string) => string;
-      readonly dropped: (cardId: string, column: string) => string;
-      readonly added: (title: string) => string;
-    };
-    readonly columns: readonly LumenKanbanColumn[];
-    readonly cards: readonly LumenKanbanReferenceCard[];
-    readonly composerColumnId: string | null;
-    readonly draft: string;
-    readonly grabbedCardId: string | null;
-    readonly targetColumnId: string | null;
-    readonly announcement: string;
-    readonly onOpenComposer: (columnId: string) => void;
-    readonly onDraftChange: (value: string) => void;
-    readonly onCancelComposer: () => void;
-    readonly onAddCard: () => void;
-    readonly onGrab: (cardId: string, columnId: string) => void;
-    readonly onTargetChange: (columnId: string) => void;
-    readonly onDrop: (cardId: string, columnId: string) => void;
-    readonly onCancelGrab: () => void;
-  } | undefined;
+  readonly referenceBoard?:
+    | {
+        readonly labels: {
+          readonly detail: (count: number) => string;
+          readonly card: (card: LumenKanbanReferenceCard) => string;
+          readonly newCardIn: (column: string) => string;
+          readonly placeholder: string;
+          readonly add: string;
+          readonly cancel: string;
+          readonly newCardTag: string;
+          readonly grabbed: (cardId: string) => string;
+          readonly dropped: (cardId: string, column: string) => string;
+          readonly added: (title: string) => string;
+        };
+        readonly columns: readonly LumenKanbanColumn[];
+        readonly cards: readonly LumenKanbanReferenceCard[];
+        readonly composerColumnId: string | null;
+        readonly draft: string;
+        readonly grabbedCardId: string | null;
+        readonly targetColumnId: string | null;
+        readonly announcement: string;
+        readonly onOpenComposer: (columnId: string) => void;
+        readonly onDraftChange: (value: string) => void;
+        readonly onCancelComposer: () => void;
+        readonly onAddCard: () => void;
+        readonly onGrab: (cardId: string, columnId: string) => void;
+        readonly onTargetChange: (columnId: string) => void;
+        readonly onDrop: (cardId: string, columnId: string) => void;
+        readonly onCancelGrab: () => void;
+      }
+    | undefined;
+  readonly referenceSwimlanes?:
+    | {
+        readonly labels: {
+          readonly title: string;
+          readonly detail: string;
+          readonly collapseAll: string;
+          readonly expandAll: string;
+          readonly shipped: (done: number, total: number) => string;
+          readonly points: (count: number) => string;
+          readonly card: (card: LumenKanbanSwimlaneCard, lane: string, stage: string) => string;
+          readonly draggableCard: string;
+          readonly grabbed: (cardId: string) => string;
+          readonly dropped: (cardId: string) => string;
+        };
+        readonly stages: readonly LumenKanbanChoice[];
+        readonly lanes: readonly LumenKanbanReferenceLane[];
+        readonly collapsedLaneIds: readonly string[];
+        readonly grabbedCardId: string | null;
+        readonly announcement: string;
+        readonly onToggleLane: (laneId: string) => void;
+        readonly onToggleAll: () => void;
+        readonly onGrab: (cardId: string) => void;
+        readonly onMove: (cardId: string, laneId: string, stageId: string) => void;
+        readonly onDrop: (cardId: string) => void;
+        readonly onCancelGrab: () => void;
+      }
+    | undefined;
 }
 export interface LumenKanbanProviderProps {
   readonly content: LumenKanbanContent;
@@ -218,8 +261,8 @@ function Root({
     .join(' ');
   return (
     <LumenSurface
-      as={variant === 1 ? 'div' : 'section'}
-      boundary={variant === 1 ? 'none' : 'horizontal'}
+      as={variant <= 2 ? 'div' : 'section'}
+      boundary={variant <= 2 ? 'none' : 'horizontal'}
       className="lumen-kanban-stage-surface"
       contentClassName={contentClassName}
       data-lumen-component="kanban"
@@ -321,7 +364,14 @@ function Card({
 }
 function Board(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
   if (props.content.referenceBoard) {
-    return <Root {...props} className={[props.className, 'hbar-app-ui-kanban-reference'].filter(Boolean).join(' ')}><BoardReference content={props.content} onAction={props.onAction} /></Root>;
+    return (
+      <Root
+        {...props}
+        className={[props.className, 'hbar-app-ui-kanban-reference'].filter(Boolean).join(' ')}
+      >
+        <BoardReference content={props.content} onAction={props.onAction} />
+      </Root>
+    );
   }
   return <LegacyBoard {...props} />;
 }
@@ -414,6 +464,23 @@ function LegacyBoard(props: Omit<LumenKanbanProps, 'content'> & { content: Lumen
   );
 }
 function Swimlanes(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
+  if (props.content.referenceSwimlanes) {
+    return (
+      <Root
+        {...props}
+        className={[props.className, 'hbar-app-ui-kanban-swimlanes-reference']
+          .filter(Boolean)
+          .join(' ')}
+      >
+        <SwimlanesReference content={props.content} />
+      </Root>
+    );
+  }
+  return <LegacySwimlanes {...props} />;
+}
+function LegacySwimlanes(
+  props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent },
+) {
   const lanes = uniqueLumenKanbanItems(props.content.lanes);
   const cards = uniqueLumenKanbanItems(props.content.cards);
   const [closed, setClosed] = React.useState<ReadonlySet<string>>(new Set());
