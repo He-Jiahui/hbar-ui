@@ -6,6 +6,7 @@ import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus } from './primitives';
 import './editor.css';
 import {LumenRichEditorReference, type LumenRichEditorReferenceContent} from './editor-rich-reference';
+import {LumenMarkdownReference, type LumenMarkdownReferenceContent} from './editor-markdown-reference';
 
 export type LumenEditorFormattingAction =
   'bold' | 'italic' | 'strikethrough' | 'inline-code' | 'link';
@@ -178,6 +179,7 @@ export interface LumenLongDocumentReaderContent {
 }
 export interface LumenEditorContent {
   readonly referenceRichText?: LumenRichEditorReferenceContent | undefined;
+  readonly referenceMarkdown?: LumenMarkdownReferenceContent | undefined;
   readonly richText?: LumenRichTextEditorContent | undefined;
   readonly markdown?: LumenMarkdownWorkspaceContent | undefined;
   readonly code?: LumenCodeWorkspaceContent | undefined;
@@ -837,6 +839,8 @@ export function LumenEditor(props: LumenEditorProps) {
   const content = props.content ?? inheritedContent;
   if (props.variant === 1 && content?.referenceRichText)
     return <Root {...props} boundary="none" className="hbar-app-ui-editor-rich-text lumen-rich-editor-reference"><LumenRichEditorReference content={content.referenceRichText} onAction={props.onAction} /></Root>;
+  if (props.variant === 2 && content?.referenceMarkdown)
+    return <Root {...props} boundary="none" className={`hbar-app-ui-editor-markdown hbar-app-ui-editor-markdown-mode-${content.referenceMarkdown.mode} lumen-markdown-reference`}><LumenMarkdownReference content={content.referenceMarkdown} onAction={props.onAction} /></Root>;
   if (props.variant === 1)
     return content?.richText ? <RichText {...props} content={content.richText} /> : empty(props);
   if (props.variant === 2)
