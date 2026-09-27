@@ -8,6 +8,7 @@ import './comments.css';
 import './comments-discussion.css';
 import { LumenCommentsAnnotationReference, type LumenCommentsAnnotationReferenceContent } from './comments-annotation-reference';
 import { LumenCommentsCodeReviewReference, type LumenCommentsCodeReviewReferenceContent } from './comments-code-review-reference';
+import { LumenCommentsComposerReference, type LumenCommentsComposerReferenceContent } from './comments-composer-reference';
 
 export interface LumenCommentsListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -167,6 +168,7 @@ export interface LumenCommentsCanvasContent {
   readonly listStrategy: LumenCommentsListStrategy;
 }
 export interface LumenCommentsContent {
+  readonly referenceComposer?: LumenCommentsComposerReferenceContent | undefined;
   readonly referenceReview?: LumenCommentsCodeReviewReferenceContent | undefined;
   readonly referenceAnnotation?: LumenCommentsAnnotationReferenceContent | undefined;
   readonly referenceDiscussion?: LumenCommentsDiscussionReferenceContent | undefined;
@@ -264,7 +266,7 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary={className?.includes('comments-code-review-reference') || className?.includes('comments-annotation-reference') || className?.includes('comments-discussion-reference') ? 'none' : 'horizontal'}
+      boundary={className?.includes('comments-composer-reference') || className?.includes('comments-code-review-reference') || className?.includes('comments-annotation-reference') || className?.includes('comments-discussion-reference') ? 'none' : 'horizontal'}
       className="lumen-comments-surface"
       contentClassName={contentClassName}
       data-lumen-component="comments"
@@ -746,6 +748,11 @@ export function LumenComments(props: LumenCommentsProps) {
     return c?.review ? <Review {...props} content={c.review} /> : empty(props);
   }
   if (props.variant === 4) {
+    if (c?.referenceComposer) {
+      return <Root {...props} className={['lumen-comments-composer-reference', 'hbar-app-ui-stage-padding-owner', 'hbar-app-ui-full-canvas-owner', props.className].filter(Boolean).join(' ')}>
+        <LumenCommentsComposerReference content={c.referenceComposer} onAction={props.onAction} />
+      </Root>;
+    }
     return c?.composer ? <Composer {...props} content={c.composer} /> : empty(props);
   }
   if (props.variant === 5) { return c?.inbox ? <Inbox {...props} content={c.inbox} /> : empty(props); }
