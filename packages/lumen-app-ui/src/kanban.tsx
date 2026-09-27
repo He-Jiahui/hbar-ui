@@ -7,10 +7,12 @@ import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitiv
 import { BoardReference } from './kanban/BoardReference';
 import SwimlanesReference from './kanban/SwimlanesReference';
 import RegroupReference from './kanban/RegroupReference';
+import DetailReference from './kanban/DetailReference';
 import './kanban.css';
 import './kanban-reference.css';
 import './kanban-swimlanes-reference.css';
 import './kanban-regroup-reference.css';
+import './kanban-detail-reference.css';
 
 export interface LumenKanbanListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -77,6 +79,25 @@ export interface LumenKanbanRegroupCard {
 export interface LumenKanbanRegroupColumn extends LumenKanbanChoice {
   readonly avatar?: string | undefined;
   readonly tone?: 'strong' | 'medium' | 'soft' | undefined;
+}
+export interface LumenKanbanDetailActivity {
+  readonly id: string;
+  readonly avatar: string;
+  readonly name: string;
+  readonly time: string;
+  readonly text: string;
+}
+export interface LumenKanbanDetailCard {
+  readonly id: string;
+  readonly label: string;
+  readonly statusId: string;
+  readonly tone: 'strong' | 'medium' | 'soft';
+  readonly points: number;
+  readonly assignee: string;
+  readonly assigneeName: string;
+  readonly priority: string;
+  readonly description: string;
+  readonly activity: readonly LumenKanbanDetailActivity[];
 }
 export interface LumenKanbanContent {
   readonly labels: {
@@ -208,6 +229,34 @@ export interface LumenKanbanContent {
     readonly onDrop: (cardId: string, columnId: string) => void;
     readonly onCancelGrab: () => void;
   } | undefined;
+  readonly referenceDetail?: {
+    readonly labels: {
+      readonly title: string;
+      readonly detail: (count: number) => string;
+      readonly card: (card: LumenKanbanDetailCard) => string;
+      readonly details: (cardId: string) => string;
+      readonly close: string;
+      readonly assignee: string;
+      readonly priority: string;
+      readonly estimate: string;
+      readonly points: (count: number) => string;
+      readonly shortPoints: (count: number) => string;
+      readonly moveTo: string;
+      readonly activity: string;
+      readonly noActivity: string;
+      readonly moved: (cardId: string, column: string) => string;
+    };
+    readonly columns: readonly LumenKanbanChoice[];
+    readonly cards: readonly LumenKanbanDetailCard[];
+    readonly selectedCardId: string | null;
+    readonly grabbedCardId: string | null;
+    readonly announcement: string;
+    readonly onSelect: (cardId: string) => void;
+    readonly onClose: () => void;
+    readonly onGrab: (cardId: string) => void;
+    readonly onMove: (cardId: string, columnId: string) => void;
+    readonly onCancelGrab: () => void;
+  } | undefined;
 }
 export interface LumenKanbanProviderProps {
   readonly content: LumenKanbanContent;
@@ -297,8 +346,8 @@ function Root({
     .join(' ');
   return (
     <LumenSurface
-      as={variant <= 3 ? 'div' : 'section'}
-      boundary={variant <= 3 ? 'none' : 'horizontal'}
+      as={variant <= 4 ? 'div' : 'section'}
+      boundary={variant <= 4 ? 'none' : 'horizontal'}
       className="lumen-kanban-stage-surface"
       contentClassName={contentClassName}
       data-lumen-component="kanban"
@@ -648,6 +697,12 @@ function LegacyRegroup(props: Omit<LumenKanbanProps, 'content'> & { content: Lum
   );
 }
 function Detail(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
+  if (props.content.referenceDetail) {
+    return <Root {...props} className={[props.className, 'hbar-app-ui-kanban-detail-reference'].filter(Boolean).join(' ')}><DetailReference content={props.content} /></Root>;
+  }
+  return <LegacyDetail {...props} />;
+}
+function LegacyDetail(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
   const cards = uniqueLumenKanbanItems(props.content.cards);
   const assignees = uniqueLumenKanbanItems(props.content.assignees);
   const priorities = uniqueLumenKanbanItems(props.content.priorities);
