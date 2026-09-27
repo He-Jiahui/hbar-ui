@@ -602,6 +602,7 @@ export type {
   LumenSchedulingVariantProps,
 } from './scheduling';
 export type { LumenSchedulingMonthReferenceContent, LumenSchedulingMonthReferenceDay, LumenSchedulingMonthReferenceEvent } from './scheduling-month-reference';
+export type { LumenSchedulingRangeReferenceContent } from './scheduling-range-reference';
 export {
   LumenChat,
   LumenChat01,
