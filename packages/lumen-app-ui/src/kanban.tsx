@@ -6,9 +6,11 @@ import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { BoardReference } from './kanban/BoardReference';
 import SwimlanesReference from './kanban/SwimlanesReference';
+import RegroupReference from './kanban/RegroupReference';
 import './kanban.css';
 import './kanban-reference.css';
 import './kanban-swimlanes-reference.css';
+import './kanban-regroup-reference.css';
 
 export interface LumenKanbanListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -62,6 +64,19 @@ export interface LumenKanbanReferenceLane {
   readonly label: string;
   readonly avatar: string;
   readonly cards: readonly LumenKanbanSwimlaneCard[];
+}
+export interface LumenKanbanRegroupCard {
+  readonly id: string;
+  readonly label: string;
+  readonly tag: string;
+  readonly statusId: string;
+  readonly assigneeId: string;
+  readonly priorityId: string;
+  readonly priorityTone: 'strong' | 'medium' | 'soft';
+}
+export interface LumenKanbanRegroupColumn extends LumenKanbanChoice {
+  readonly avatar?: string | undefined;
+  readonly tone?: 'strong' | 'medium' | 'soft' | undefined;
 }
 export interface LumenKanbanContent {
   readonly labels: {
@@ -172,6 +187,27 @@ export interface LumenKanbanContent {
         readonly onCancelGrab: () => void;
       }
     | undefined;
+  readonly referenceRegroup?: {
+    readonly labels: {
+      readonly title: string;
+      readonly detail: string;
+      readonly groupBy: string;
+      readonly card: (card: LumenKanbanRegroupCard, group: string, column: string) => string;
+      readonly grabbed: (cardId: string, group: string) => string;
+      readonly dropped: (cardId: string, column: string) => string;
+    };
+    readonly groups: readonly LumenKanbanChoice[];
+    readonly columns: Readonly<Record<string, readonly LumenKanbanRegroupColumn[]>>;
+    readonly cards: readonly LumenKanbanRegroupCard[];
+    readonly groupId: string;
+    readonly grabbedCardId: string | null;
+    readonly announcement: string;
+    readonly onGroupChange: (groupId: string) => void;
+    readonly onGrab: (cardId: string) => void;
+    readonly onMove: (cardId: string, groupId: string, columnId: string) => void;
+    readonly onDrop: (cardId: string, columnId: string) => void;
+    readonly onCancelGrab: () => void;
+  } | undefined;
 }
 export interface LumenKanbanProviderProps {
   readonly content: LumenKanbanContent;
@@ -261,8 +297,8 @@ function Root({
     .join(' ');
   return (
     <LumenSurface
-      as={variant <= 2 ? 'div' : 'section'}
-      boundary={variant <= 2 ? 'none' : 'horizontal'}
+      as={variant <= 3 ? 'div' : 'section'}
+      boundary={variant <= 3 ? 'none' : 'horizontal'}
       className="lumen-kanban-stage-surface"
       contentClassName={contentClassName}
       data-lumen-component="kanban"
@@ -546,6 +582,12 @@ function LegacySwimlanes(
   );
 }
 function Regroup(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
+  if (props.content.referenceRegroup) {
+    return <Root {...props} className={[props.className, 'hbar-app-ui-kanban-regroup-reference'].filter(Boolean).join(' ')}><RegroupReference content={props.content} /></Root>;
+  }
+  return <LegacyRegroup {...props} />;
+}
+function LegacyRegroup(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
   const groups = uniqueLumenKanbanItems(props.content.groups);
   const cards = uniqueLumenKanbanItems(props.content.cards);
   const [groupId, setGroupId] = React.useState(props.content.initialGroupId);
