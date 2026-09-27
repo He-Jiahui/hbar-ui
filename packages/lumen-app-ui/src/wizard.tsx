@@ -4,7 +4,9 @@ import * as React from 'react';
 import { LumenFormField, LumenInput, LumenSelect } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
+import InformationReference from './wizard/InformationReference';
 import './wizard.css';
+import './wizard-information-reference.css';
 
 export interface LumenWizardListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -22,6 +24,15 @@ export interface LumenWizardFieldValue {
   readonly value: string;
   readonly type?: 'text' | 'email' | 'tel' | 'date' | undefined;
   readonly required?: boolean | undefined;
+}
+export interface LumenWizardReferenceField {
+  readonly id: string;
+  readonly label: string;
+  readonly value: string;
+  readonly kind: 'text' | 'email' | 'tel' | 'select';
+  readonly required?: boolean | undefined;
+  readonly prefix?: string | undefined;
+  readonly options?: readonly LumenWizardChoice[] | undefined;
 }
 export interface LumenWizardInformationContent {
   readonly labels: {
@@ -148,6 +159,23 @@ export interface LumenWizardShippingContent {
   readonly listStrategy: LumenWizardListStrategy;
 }
 export interface LumenWizardContent {
+  readonly referenceInformation?: {
+    readonly labels: {
+      readonly title: string;
+      readonly detail: string;
+      readonly emailHint: string;
+      readonly back: string;
+      readonly next: string;
+      readonly steps: string;
+      readonly required: string;
+      readonly empty: string;
+    };
+    readonly steps: readonly LumenWizardStep[];
+    readonly fields: readonly LumenWizardReferenceField[];
+    readonly stepId: string;
+    readonly onStepChange: (stepId: string) => void;
+    readonly onFieldChange: (fieldId: string, value: string) => void;
+  } | undefined;
   readonly information?: LumenWizardInformationContent | undefined;
   readonly invoice?: LumenWizardInvoiceContent | undefined;
   readonly upgrade?: LumenWizardUpgradeContent | undefined;
@@ -240,8 +268,8 @@ function Root({
     .join(' ');
   return (
     <LumenSurface
-      as="section"
-      boundary="horizontal"
+      as={variant === 1 ? 'div' : 'section'}
+      boundary={variant === 1 ? 'none' : 'horizontal'}
       className="lumen-wizard-stage-surface"
       contentClassName={contentClassName}
       data-lumen-component="wizard"
@@ -863,6 +891,9 @@ export function LumenWizard(props: LumenWizardProps) {
   const providerContent = useLumenWizardContent();
   const content = props.content ?? providerContent;
   if (props.variant === 1) {
+    if (content?.referenceInformation) {
+      return <Root {...props} className={[props.className, 'hbar-app-ui-wizard-information-reference'].filter(Boolean).join(' ')}><InformationReference content={content} /></Root>;
+    }
     return content?.information ? (
       <Information {...props} content={content.information} />
     ) : (
