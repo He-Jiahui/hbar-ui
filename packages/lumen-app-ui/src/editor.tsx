@@ -5,6 +5,7 @@ import { LumenInput, LumenTextarea } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus } from './primitives';
 import './editor.css';
+import {LumenRichEditorReference, type LumenRichEditorReferenceContent} from './editor-rich-reference';
 
 export type LumenEditorFormattingAction =
   'bold' | 'italic' | 'strikethrough' | 'inline-code' | 'link';
@@ -176,6 +177,7 @@ export interface LumenLongDocumentReaderContent {
   readonly onOutlineOpenChange?: ((open: boolean) => void) | undefined;
 }
 export interface LumenEditorContent {
+  readonly referenceRichText?: LumenRichEditorReferenceContent | undefined;
   readonly richText?: LumenRichTextEditorContent | undefined;
   readonly markdown?: LumenMarkdownWorkspaceContent | undefined;
   readonly code?: LumenCodeWorkspaceContent | undefined;
@@ -262,8 +264,9 @@ function Root({
   state,
   visualMode,
   className,
+  boundary = 'horizontal',
   children,
-}: Omit<LumenEditorProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
+}: Omit<LumenEditorProps, 'content' | 'onAction'> & { readonly children: React.ReactNode; readonly boundary?: 'none' | 'horizontal' }) {
   const contentClassName = [
     'lumen-editor',
     'hbar-app-ui-editor-surface',
@@ -279,7 +282,7 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary="horizontal"
+      boundary={boundary}
       className="lumen-editor-root-surface"
       contentClassName={contentClassName}
       data-lumen-component="editor"
@@ -832,6 +835,8 @@ function empty(props: LumenEditorProps) {
 export function LumenEditor(props: LumenEditorProps) {
   const inheritedContent = useLumenEditorContent();
   const content = props.content ?? inheritedContent;
+  if (props.variant === 1 && content?.referenceRichText)
+    return <Root {...props} boundary="none" className="hbar-app-ui-editor-rich-text lumen-rich-editor-reference"><LumenRichEditorReference content={content.referenceRichText} onAction={props.onAction} /></Root>;
   if (props.variant === 1)
     return content?.richText ? <RichText {...props} content={content.richText} /> : empty(props);
   if (props.variant === 2)

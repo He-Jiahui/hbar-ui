@@ -251,6 +251,8 @@ export {
   uniqueLumenEditorItems,
   useLumenEditorContent,
 } from './editor';
+export {uniqueLumenRichEditorBlocks} from './editor-rich-reference';
+export type {LumenRichEditorBlock, LumenRichEditorReferenceContent} from './editor-rich-reference';
 export type {
   LumenCodeFile,
   LumenCodeWorkspaceContent,
