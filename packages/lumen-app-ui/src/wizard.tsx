@@ -5,8 +5,10 @@ import { LumenFormField, LumenInput, LumenSelect } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import InformationReference from './wizard/InformationReference';
+import InvoiceReference from './wizard/InvoiceReference';
 import './wizard.css';
 import './wizard-information-reference.css';
+import './wizard-invoice-reference.css';
 
 export interface LumenWizardListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -33,6 +35,16 @@ export interface LumenWizardReferenceField {
   readonly required?: boolean | undefined;
   readonly prefix?: string | undefined;
   readonly options?: readonly LumenWizardChoice[] | undefined;
+}
+export interface LumenWizardReferenceInvoiceField {
+  readonly id: string;
+  readonly label: string;
+  readonly value: string;
+  readonly kind: 'text' | 'select';
+  readonly options?: readonly LumenWizardChoice[] | undefined;
+  readonly icon?: 'building' | 'hash' | 'calendar' | undefined;
+  readonly information?: boolean | undefined;
+  readonly clear?: boolean | undefined;
 }
 export interface LumenWizardInformationContent {
   readonly labels: {
@@ -159,6 +171,32 @@ export interface LumenWizardShippingContent {
   readonly listStrategy: LumenWizardListStrategy;
 }
 export interface LumenWizardContent {
+  readonly referenceInvoice?: {
+    readonly labels: {
+      readonly title: string;
+      readonly progress: (step: number, total: number) => string;
+      readonly progressBar: string;
+      readonly close: string;
+      readonly customer: string;
+      readonly customerDetail: string;
+      readonly customerGroup: string;
+      readonly customerGroupDetail: string;
+      readonly required: string;
+      readonly terms: string;
+      readonly termsDetail: string;
+      readonly currencyBadge: string;
+      readonly termsBadge: string;
+      readonly clearCustomer: string;
+      readonly save: string;
+      readonly next: string;
+    };
+    readonly step: number;
+    readonly totalSteps: number;
+    readonly listStrategy: LumenWizardListStrategy;
+    readonly customerFields: readonly LumenWizardReferenceInvoiceField[];
+    readonly termsFields: readonly LumenWizardReferenceInvoiceField[];
+    readonly onFieldChange: (fieldId: string, value: string) => void;
+  } | undefined;
   readonly referenceInformation?: {
     readonly labels: {
       readonly title: string;
@@ -255,6 +293,7 @@ function Root({
   className,
   children,
 }: Omit<LumenWizardProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
+  const plain = variant === 1 || Boolean(className?.includes('hbar-app-ui-wizard-invoice-reference'));
   const contentClassName = [
     'lumen-wizard-stage',
     `hbar-app-ui-wizard-variant-${variant}`,
@@ -268,8 +307,8 @@ function Root({
     .join(' ');
   return (
     <LumenSurface
-      as={variant === 1 ? 'div' : 'section'}
-      boundary={variant === 1 ? 'none' : 'horizontal'}
+      as={plain ? 'div' : 'section'}
+      boundary={plain ? 'none' : 'horizontal'}
       className="lumen-wizard-stage-surface"
       contentClassName={contentClassName}
       data-lumen-component="wizard"
@@ -901,6 +940,9 @@ export function LumenWizard(props: LumenWizardProps) {
     );
   }
   if (props.variant === 2) {
+    if (content?.referenceInvoice) {
+      return <Root {...props} className={[props.className, 'hbar-app-ui-wizard-invoice-reference'].filter(Boolean).join(' ')}><InvoiceReference content={content} /></Root>;
+    }
     return content?.invoice ? <Invoice {...props} content={content.invoice} /> : empty(props);
   }
   if (props.variant === 3) {
