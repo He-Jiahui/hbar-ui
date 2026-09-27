@@ -41,7 +41,7 @@ export interface LumenAuthCompositionProps {
       readonly visualMode?: string | undefined;
     };
   };
-  // eslint-disable-next-line react/no-unused-prop-types -- Shared by composition implementations; AuthFrame uses only spec.
+  // Shared by composition implementations; AuthFrame uses only spec.
   readonly onAction?:
     | ((event: {
         readonly variantId: string;
