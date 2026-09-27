@@ -603,6 +603,7 @@ export type {
 } from './scheduling';
 export type { LumenSchedulingMonthReferenceContent, LumenSchedulingMonthReferenceDay, LumenSchedulingMonthReferenceEvent } from './scheduling-month-reference';
 export type { LumenSchedulingRangeReferenceContent } from './scheduling-range-reference';
+export type { LumenSchedulingFormReferenceContent } from './scheduling-form-reference';
 export {
   LumenChat,
   LumenChat01,

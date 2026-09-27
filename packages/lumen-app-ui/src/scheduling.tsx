@@ -13,6 +13,7 @@ import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitiv
 import './scheduling.css';
 import { LumenSchedulingMonthReference, type LumenSchedulingMonthReferenceContent } from './scheduling-month-reference';
 import { LumenSchedulingRangeReference, type LumenSchedulingRangeReferenceContent } from './scheduling-range-reference';
+import { LumenSchedulingFormReference, type LumenSchedulingFormReferenceContent } from './scheduling-form-reference';
 import { selectLumenSchedulingItem, uniqueLumenSchedulingItems } from './scheduling-model';
 
 export { selectLumenSchedulingItem, uniqueLumenSchedulingItems } from './scheduling-model';
@@ -208,6 +209,7 @@ export interface LumenSchedulingBookingContent {
 export interface LumenSchedulingContent {
   readonly referenceMonth?: LumenSchedulingMonthReferenceContent | undefined;
   readonly referenceRange?: LumenSchedulingRangeReferenceContent | undefined;
+  readonly referenceForm?: LumenSchedulingFormReferenceContent | undefined;
   readonly month?: LumenSchedulingMonthContent | undefined;
   readonly timeRange?: LumenSchedulingTimeRangeContent | undefined;
   readonly form?: LumenSchedulingFormContent | undefined;
@@ -291,7 +293,7 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary={className?.includes('scheduling-month-reference') || className?.includes('scheduling-range-reference') ? 'none' : 'horizontal'}
+      boundary={className?.includes('scheduling-month-reference') || className?.includes('scheduling-range-reference') || className?.includes('scheduling-form-reference') ? 'none' : 'horizontal'}
       className="lumen-scheduling-surface"
       contentClassName={contentClassName}
       data-lumen-component="scheduling"
@@ -964,6 +966,11 @@ export function LumenScheduling(props: LumenSchedulingProps) {
   if (props.variant === 2 && content?.referenceRange) {
     return <Root {...props} className={['lumen-scheduling-range-reference', 'hbar-app-ui-stage-padding-owner', 'hbar-app-ui-full-canvas-owner', props.className].filter(Boolean).join(' ')}>
       <LumenSchedulingRangeReference content={content.referenceRange} onAction={props.onAction} />
+    </Root>;
+  }
+  if (props.variant === 3 && content?.referenceForm) {
+    return <Root {...props} className={['lumen-scheduling-form-reference', 'hbar-app-ui-stage-padding-owner', 'hbar-app-ui-full-canvas-owner', props.className].filter(Boolean).join(' ')}>
+      <LumenSchedulingFormReference content={content.referenceForm} onAction={props.onAction} />
     </Root>;
   }
   if (props.variant === 1)
