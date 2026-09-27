@@ -551,6 +551,11 @@ export type {
   LumenCommentsDocumentAnnotation,
   LumenCommentsDocumentSegment,
 } from './comments-annotation-reference';
+export type {
+  LumenCommentsCodeReviewReferenceContent,
+  LumenCommentsReviewLine,
+  LumenCommentsReviewMessage,
+} from './comments-code-review-reference';
 export {
   LumenScheduling,
   LumenScheduling01,

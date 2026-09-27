@@ -7,6 +7,7 @@ import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitiv
 import './comments.css';
 import './comments-discussion.css';
 import { LumenCommentsAnnotationReference, type LumenCommentsAnnotationReferenceContent } from './comments-annotation-reference';
+import { LumenCommentsCodeReviewReference, type LumenCommentsCodeReviewReferenceContent } from './comments-code-review-reference';
 
 export interface LumenCommentsListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -166,6 +167,7 @@ export interface LumenCommentsCanvasContent {
   readonly listStrategy: LumenCommentsListStrategy;
 }
 export interface LumenCommentsContent {
+  readonly referenceReview?: LumenCommentsCodeReviewReferenceContent | undefined;
   readonly referenceAnnotation?: LumenCommentsAnnotationReferenceContent | undefined;
   readonly referenceDiscussion?: LumenCommentsDiscussionReferenceContent | undefined;
   readonly discussion?: LumenCommentsDiscussionContent | undefined;
@@ -262,7 +264,7 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary={className?.includes('comments-annotation-reference') || className?.includes('comments-discussion-reference') ? 'none' : 'horizontal'}
+      boundary={className?.includes('comments-code-review-reference') || className?.includes('comments-annotation-reference') || className?.includes('comments-discussion-reference') ? 'none' : 'horizontal'}
       className="lumen-comments-surface"
       contentClassName={contentClassName}
       data-lumen-component="comments"
@@ -736,6 +738,11 @@ export function LumenComments(props: LumenCommentsProps) {
     return c?.annotation ? <Annotation {...props} content={c.annotation} /> : empty(props);
   }
   if (props.variant === 3) {
+    if (c?.referenceReview) {
+      return <Root {...props} className={['lumen-comments-code-review-reference', 'hbar-app-ui-stage-padding-owner', 'hbar-app-ui-full-canvas-owner', props.className].filter(Boolean).join(' ')}>
+        <LumenCommentsCodeReviewReference content={c.referenceReview} onAction={props.onAction} />
+      </Root>;
+    }
     return c?.review ? <Review {...props} content={c.review} /> : empty(props);
   }
   if (props.variant === 4) {
