@@ -535,6 +535,7 @@ export type {
   LumenCommentsComposerContent,
   LumenCommentsContent,
   LumenCommentsDiscussionContent,
+  LumenCommentsDiscussionReferenceContent,
   LumenCommentsInboxContent,
   LumenCommentsInboxItem,
   LumenCommentsListStrategy,
