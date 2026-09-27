@@ -562,6 +562,9 @@ export { filterLumenCommentsComposerMentions, insertLumenCommentsComposerMention
 export type { LumenCommentsInboxReferenceContent } from './comments-inbox-reference';
 export type { LumenCommentsInboxReferenceItem, LumenCommentsInboxFilter } from './comments-inbox-model';
 export { projectLumenCommentsInbox } from './comments-inbox-model';
+export type { LumenCommentsCanvasReferenceContent } from './comments-canvas-reference';
+export type { LumenCommentsCanvasReferencePin, LumenCommentsCanvasProjection } from './comments-canvas-model';
+export { projectLumenCommentsCanvas, normalizeLumenCommentsCanvasCoordinate } from './comments-canvas-model';
 export {
   LumenScheduling,
   LumenScheduling01,

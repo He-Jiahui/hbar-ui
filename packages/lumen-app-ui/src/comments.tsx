@@ -10,6 +10,7 @@ import { LumenCommentsAnnotationReference, type LumenCommentsAnnotationReference
 import { LumenCommentsCodeReviewReference, type LumenCommentsCodeReviewReferenceContent } from './comments-code-review-reference';
 import { LumenCommentsComposerReference, type LumenCommentsComposerReferenceContent } from './comments-composer-reference';
 import { LumenCommentsInboxReference, type LumenCommentsInboxReferenceContent } from './comments-inbox-reference';
+import { LumenCommentsCanvasReference, type LumenCommentsCanvasReferenceContent } from './comments-canvas-reference';
 
 export interface LumenCommentsListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -169,6 +170,7 @@ export interface LumenCommentsCanvasContent {
   readonly listStrategy: LumenCommentsListStrategy;
 }
 export interface LumenCommentsContent {
+  readonly referenceCanvas?: LumenCommentsCanvasReferenceContent | undefined;
   readonly referenceInbox?: LumenCommentsInboxReferenceContent | undefined;
   readonly referenceComposer?: LumenCommentsComposerReferenceContent | undefined;
   readonly referenceReview?: LumenCommentsCodeReviewReferenceContent | undefined;
@@ -268,7 +270,7 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary={className?.includes('comments-inbox-reference') || className?.includes('comments-composer-reference') || className?.includes('comments-code-review-reference') || className?.includes('comments-annotation-reference') || className?.includes('comments-discussion-reference') ? 'none' : 'horizontal'}
+      boundary={className?.includes('comments-canvas-reference') || className?.includes('comments-inbox-reference') || className?.includes('comments-composer-reference') || className?.includes('comments-code-review-reference') || className?.includes('comments-annotation-reference') || className?.includes('comments-discussion-reference') ? 'none' : 'horizontal'}
       className="lumen-comments-surface"
       contentClassName={contentClassName}
       data-lumen-component="comments"
@@ -766,6 +768,11 @@ export function LumenComments(props: LumenCommentsProps) {
     return c?.inbox ? <Inbox {...props} content={c.inbox} /> : empty(props);
   }
   if (props.variant === 6) {
+    if (c?.referenceCanvas) {
+      return <Root {...props} className={['lumen-comments-canvas-reference', 'hbar-app-ui-stage-padding-owner', 'hbar-app-ui-full-canvas-owner', props.className].filter(Boolean).join(' ')}>
+        <LumenCommentsCanvasReference content={c.referenceCanvas} onAction={props.onAction} />
+      </Root>;
+    }
     return c?.canvas ? <Canvas {...props} content={c.canvas} /> : empty(props);
   }
   return empty(props);
