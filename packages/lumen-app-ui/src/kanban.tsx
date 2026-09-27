@@ -9,12 +9,14 @@ import SwimlanesReference from './kanban/SwimlanesReference';
 import RegroupReference from './kanban/RegroupReference';
 import DetailReference from './kanban/DetailReference';
 import SprintReference from './kanban/SprintReference';
+import CompactReference from './kanban/CompactReference';
 import './kanban.css';
 import './kanban-reference.css';
 import './kanban-swimlanes-reference.css';
 import './kanban-regroup-reference.css';
 import './kanban-detail-reference.css';
 import './kanban-sprint-reference.css';
+import './kanban-compact-reference.css';
 
 export interface LumenKanbanListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -111,6 +113,15 @@ export interface LumenKanbanSprintCard {
 }
 export interface LumenKanbanSprintStage extends LumenKanbanChoice {
   readonly capacity?: number | undefined;
+}
+export interface LumenKanbanCompactCard {
+  readonly id: string;
+  readonly label: string;
+  readonly tag: string;
+  readonly assignee: string;
+  readonly completed: number;
+  readonly total: number;
+  readonly columnId: string;
 }
 export interface LumenKanbanContent {
   readonly labels: {
@@ -295,6 +306,25 @@ export interface LumenKanbanContent {
     readonly onDrop: (cardId: string, stageId: string) => void;
     readonly onCancelGrab: () => void;
   } | undefined;
+  readonly referenceCompact?: {
+    readonly labels: {
+      readonly title: string;
+      readonly detail: (count: number) => string;
+      readonly column: string;
+      readonly progress: (completed: number, total: number) => string;
+      readonly shortProgress: (completed: number, total: number) => string;
+      readonly card: (card: LumenKanbanCompactCard) => string;
+      readonly movePrevious: (card: string, column: string) => string;
+      readonly moveNext: (card: string, column: string) => string;
+      readonly moved: (card: string, column: string) => string;
+    };
+    readonly columns: readonly LumenKanbanChoice[];
+    readonly cards: readonly LumenKanbanCompactCard[];
+    readonly selectedColumnId: string;
+    readonly announcement: string;
+    readonly onSelectColumn: (columnId: string) => void;
+    readonly onMove: (cardId: string, columnId: string) => void;
+  } | undefined;
 }
 export interface LumenKanbanProviderProps {
   readonly content: LumenKanbanContent;
@@ -384,8 +414,8 @@ function Root({
     .join(' ');
   return (
     <LumenSurface
-      as={variant <= 5 ? 'div' : 'section'}
-      boundary={variant <= 5 ? 'none' : 'horizontal'}
+      as={variant <= 6 ? 'div' : 'section'}
+      boundary={variant <= 6 ? 'none' : 'horizontal'}
       className="lumen-kanban-stage-surface"
       contentClassName={contentClassName}
       data-lumen-component="kanban"
@@ -883,6 +913,12 @@ function LegacySprint(props: Omit<LumenKanbanProps, 'content'> & { content: Lume
   );
 }
 function Compact(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
+  if (props.content.referenceCompact) {
+    return <Root {...props} className={[props.className, 'hbar-app-ui-kanban-compact-reference'].filter(Boolean).join(' ')}><CompactReference content={props.content} /></Root>;
+  }
+  return <LegacyCompact {...props} />;
+}
+function LegacyCompact(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
   const columns = uniqueLumenKanbanItems(props.content.compactColumns);
   const cards = uniqueLumenKanbanItems(props.content.cards);
   const [columnId, setColumnId] = React.useState(props.content.initialCompactColumnId);
