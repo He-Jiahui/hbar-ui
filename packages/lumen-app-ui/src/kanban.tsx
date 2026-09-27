@@ -8,11 +8,13 @@ import { BoardReference } from './kanban/BoardReference';
 import SwimlanesReference from './kanban/SwimlanesReference';
 import RegroupReference from './kanban/RegroupReference';
 import DetailReference from './kanban/DetailReference';
+import SprintReference from './kanban/SprintReference';
 import './kanban.css';
 import './kanban-reference.css';
 import './kanban-swimlanes-reference.css';
 import './kanban-regroup-reference.css';
 import './kanban-detail-reference.css';
+import './kanban-sprint-reference.css';
 
 export interface LumenKanbanListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -98,6 +100,17 @@ export interface LumenKanbanDetailCard {
   readonly priority: string;
   readonly description: string;
   readonly activity: readonly LumenKanbanDetailActivity[];
+}
+export interface LumenKanbanSprintCard {
+  readonly id: string;
+  readonly label: string;
+  readonly points: number;
+  readonly assignee: string;
+  readonly blocked: boolean;
+  readonly stageId: string;
+}
+export interface LumenKanbanSprintStage extends LumenKanbanChoice {
+  readonly capacity?: number | undefined;
 }
 export interface LumenKanbanContent {
   readonly labels: {
@@ -257,6 +270,31 @@ export interface LumenKanbanContent {
     readonly onMove: (cardId: string, columnId: string) => void;
     readonly onCancelGrab: () => void;
   } | undefined;
+  readonly referenceSprint?: {
+    readonly labels: {
+      readonly title: string;
+      readonly detail: string;
+      readonly committed: string;
+      readonly accepted: string;
+      readonly burned: string;
+      readonly points: (count: number) => string;
+      readonly capacity: (stage: string) => string;
+      readonly capacityPoints: (points: number, capacity: number) => string;
+      readonly burnedValue: (percent: number) => string;
+      readonly blocked: string;
+      readonly card: (card: LumenKanbanSprintCard) => string;
+      readonly grabbed: (cardId: string) => string;
+      readonly dropped: (cardId: string, stage: string) => string;
+    };
+    readonly stages: readonly LumenKanbanSprintStage[];
+    readonly cards: readonly LumenKanbanSprintCard[];
+    readonly grabbedCardId: string | null;
+    readonly announcement: string;
+    readonly onGrab: (cardId: string) => void;
+    readonly onMove: (cardId: string, stageId: string) => void;
+    readonly onDrop: (cardId: string, stageId: string) => void;
+    readonly onCancelGrab: () => void;
+  } | undefined;
 }
 export interface LumenKanbanProviderProps {
   readonly content: LumenKanbanContent;
@@ -346,8 +384,8 @@ function Root({
     .join(' ');
   return (
     <LumenSurface
-      as={variant <= 4 ? 'div' : 'section'}
-      boundary={variant <= 4 ? 'none' : 'horizontal'}
+      as={variant <= 5 ? 'div' : 'section'}
+      boundary={variant <= 5 ? 'none' : 'horizontal'}
       className="lumen-kanban-stage-surface"
       contentClassName={contentClassName}
       data-lumen-component="kanban"
@@ -781,6 +819,12 @@ function LegacyDetail(props: Omit<LumenKanbanProps, 'content'> & { content: Lume
   );
 }
 function Sprint(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
+  if (props.content.referenceSprint) {
+    return <Root {...props} className={[props.className, 'hbar-app-ui-kanban-sprint-reference'].filter(Boolean).join(' ')}><SprintReference content={props.content} /></Root>;
+  }
+  return <LegacySprint {...props} />;
+}
+function LegacySprint(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
   const cards = uniqueLumenKanbanItems(props.content.cards);
   const columns = uniqueLumenKanbanItems(props.content.columns).slice(0, 3);
   const [movedId, setMovedId] = React.useState<string>();
