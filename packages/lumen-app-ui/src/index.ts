@@ -605,6 +605,7 @@ export type { LumenSchedulingMonthReferenceContent, LumenSchedulingMonthReferenc
 export type { LumenSchedulingRangeReferenceContent } from './scheduling-range-reference';
 export type { LumenSchedulingFormReferenceContent } from './scheduling-form-reference';
 export type { LumenSchedulingDeadlineReferenceContent, LumenSchedulingDeadlineReferenceDay, LumenSchedulingDeadlineReferencePreset } from './scheduling-deadline-reference';
+export type { LumenSchedulingAvailabilityReferenceContent, LumenSchedulingAvailabilityReferenceDay, LumenSchedulingAvailabilityReferenceInterval } from './scheduling-availability-reference';
 export {
   LumenChat,
   LumenChat01,

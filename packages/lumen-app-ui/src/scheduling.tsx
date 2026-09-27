@@ -15,6 +15,7 @@ import { LumenSchedulingMonthReference, type LumenSchedulingMonthReferenceConten
 import { LumenSchedulingRangeReference, type LumenSchedulingRangeReferenceContent } from './scheduling-range-reference';
 import { LumenSchedulingFormReference, type LumenSchedulingFormReferenceContent } from './scheduling-form-reference';
 import { LumenSchedulingDeadlineReference, type LumenSchedulingDeadlineReferenceContent } from './scheduling-deadline-reference';
+import { LumenSchedulingAvailabilityReference, type LumenSchedulingAvailabilityReferenceContent } from './scheduling-availability-reference';
 import { selectLumenSchedulingItem, uniqueLumenSchedulingItems } from './scheduling-model';
 
 export { selectLumenSchedulingItem, uniqueLumenSchedulingItems } from './scheduling-model';
@@ -212,6 +213,7 @@ export interface LumenSchedulingContent {
   readonly referenceRange?: LumenSchedulingRangeReferenceContent | undefined;
   readonly referenceForm?: LumenSchedulingFormReferenceContent | undefined;
   readonly referenceDeadline?: LumenSchedulingDeadlineReferenceContent | undefined;
+  readonly referenceAvailability?: LumenSchedulingAvailabilityReferenceContent | undefined;
   readonly month?: LumenSchedulingMonthContent | undefined;
   readonly timeRange?: LumenSchedulingTimeRangeContent | undefined;
   readonly form?: LumenSchedulingFormContent | undefined;
@@ -295,7 +297,7 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary={className?.includes('scheduling-month-reference') || className?.includes('scheduling-range-reference') || className?.includes('scheduling-form-reference') || className?.includes('scheduling-deadline-reference') ? 'none' : 'horizontal'}
+      boundary={className?.includes('scheduling-month-reference') || className?.includes('scheduling-range-reference') || className?.includes('scheduling-form-reference') || className?.includes('scheduling-deadline-reference') || className?.includes('scheduling-availability-reference') ? 'none' : 'horizontal'}
       className="lumen-scheduling-surface"
       contentClassName={contentClassName}
       data-lumen-component="scheduling"
@@ -978,6 +980,11 @@ export function LumenScheduling(props: LumenSchedulingProps) {
   if (props.variant === 4 && content?.referenceDeadline) {
     return <Root {...props} className={['lumen-scheduling-deadline-reference', 'hbar-app-ui-stage-padding-owner', 'hbar-app-ui-full-canvas-owner', props.className].filter(Boolean).join(' ')}>
       <LumenSchedulingDeadlineReference content={content.referenceDeadline} onAction={props.onAction} />
+    </Root>;
+  }
+  if (props.variant === 5 && content?.referenceAvailability) {
+    return <Root {...props} className={['lumen-scheduling-availability-reference', 'hbar-app-ui-stage-padding-owner', 'hbar-app-ui-full-canvas-owner', props.className].filter(Boolean).join(' ')}>
+      <LumenSchedulingAvailabilityReference content={content.referenceAvailability} onAction={props.onAction} />
     </Root>;
   }
   if (props.variant === 1)
