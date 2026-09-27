@@ -9,12 +9,14 @@ import InvoiceReference from './wizard/InvoiceReference';
 import UpgradeReference from './wizard/UpgradeReference';
 import EnvironmentReference from './wizard/EnvironmentReference';
 import ReviewReference from './wizard/ReviewReference';
+import MigrationReference from './wizard/MigrationReference';
 import './wizard.css';
 import './wizard-information-reference.css';
 import './wizard-invoice-reference.css';
 import './wizard-upgrade-reference.css';
 import './wizard-environment-reference.css';
 import './wizard-review-reference.css';
+import './wizard-migration-reference.css';
 
 export interface LumenWizardListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -70,6 +72,10 @@ export interface LumenWizardReferenceReviewSection {
   readonly id: string;
   readonly title: string;
   readonly rows: readonly { readonly id: string; readonly label: string; readonly value: string }[];
+}
+export interface LumenWizardReferenceMigrationTask extends LumenWizardChoice {
+  readonly status: 'complete' | 'running' | 'queued' | 'warning';
+  readonly action?: string | undefined;
 }
 export interface LumenWizardInformationContent {
   readonly labels: {
@@ -196,6 +202,25 @@ export interface LumenWizardShippingContent {
   readonly listStrategy: LumenWizardListStrategy;
 }
 export interface LumenWizardContent {
+  readonly referenceMigration?: {
+    readonly labels: {
+      readonly title: string;
+      readonly detail: string;
+      readonly remaining: string;
+      readonly progress: (value: number) => string;
+      readonly progressBar: string;
+      readonly safety: string;
+      readonly cancel: string;
+      readonly background: string;
+      readonly empty: string;
+    };
+    readonly tasks: readonly LumenWizardReferenceMigrationTask[];
+    readonly progress: number;
+    readonly progressStep: number;
+    readonly progressIntervalMs: number;
+    readonly progressCeiling: number;
+    readonly listStrategy: LumenWizardListStrategy;
+  } | undefined;
   readonly referenceReview?: {
     readonly labels: {
       readonly title: string;
@@ -385,7 +410,7 @@ function Root({
   className,
   children,
 }: Omit<LumenWizardProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
-  const plain = variant === 1 || Boolean(className?.includes('hbar-app-ui-wizard-invoice-reference')) || Boolean(className?.includes('hbar-app-ui-wizard-upgrade-reference')) || Boolean(className?.includes('hbar-app-ui-wizard-environment-reference')) || Boolean(className?.includes('hbar-app-ui-wizard-review-reference'));
+  const plain = variant === 1 || Boolean(className?.includes('hbar-app-ui-wizard-invoice-reference')) || Boolean(className?.includes('hbar-app-ui-wizard-upgrade-reference')) || Boolean(className?.includes('hbar-app-ui-wizard-environment-reference')) || Boolean(className?.includes('hbar-app-ui-wizard-review-reference')) || Boolean(className?.includes('hbar-app-ui-wizard-migration-reference'));
   const contentClassName = [
     'lumen-wizard-stage',
     `hbar-app-ui-wizard-variant-${variant}`,
@@ -1060,6 +1085,9 @@ export function LumenWizard(props: LumenWizardProps) {
     return content?.review ? <Review {...props} content={content.review} /> : empty(props);
   }
   if (props.variant === 6) {
+    if (content?.referenceMigration) {
+      return <Root {...props} className={[props.className, 'hbar-app-ui-wizard-migration-reference', 'hbar-app-ui-stage-padding-owner'].filter(Boolean).join(' ')}><MigrationReference content={content} /></Root>;
+    }
     return content?.migration ? <Migration {...props} content={content.migration} /> : empty(props);
   }
   if (props.variant === 7) {
