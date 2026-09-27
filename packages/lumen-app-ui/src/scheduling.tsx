@@ -11,6 +11,10 @@ import {
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './scheduling.css';
+import { LumenSchedulingMonthReference, type LumenSchedulingMonthReferenceContent } from './scheduling-month-reference';
+import { selectLumenSchedulingItem, uniqueLumenSchedulingItems } from './scheduling-model';
+
+export { selectLumenSchedulingItem, uniqueLumenSchedulingItems } from './scheduling-model';
 
 export interface LumenSchedulingListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -201,6 +205,7 @@ export interface LumenSchedulingBookingContent {
 }
 
 export interface LumenSchedulingContent {
+  readonly referenceMonth?: LumenSchedulingMonthReferenceContent | undefined;
   readonly month?: LumenSchedulingMonthContent | undefined;
   readonly timeRange?: LumenSchedulingTimeRangeContent | undefined;
   readonly form?: LumenSchedulingFormContent | undefined;
@@ -244,38 +249,15 @@ export function useLumenSchedulingContent() {
   return React.useContext(SchedulingContext);
 }
 
-export function uniqueLumenSchedulingItems<T extends { readonly id: string }>(
-  items: readonly T[],
-): readonly T[] {
-  const seen = new Set<string>();
-  return items.filter((item) => {
-    if (seen.has(item.id)) return false;
-    seen.add(item.id);
-    return true;
-  });
-}
-
-export function selectLumenSchedulingItem<T extends { readonly id: string }>(
-  items: readonly T[],
-  id: string | undefined,
-): T | undefined {
-  return items.find((item) => item.id === id) ?? items[0];
-}
-
 const report = (fn: LumenSchedulingProps['onAction'], actionId: string, value?: string) =>
   fn?.(value === undefined ? { actionId } : { actionId, value });
 
 function Glyph({ name }: { readonly name: 'left' | 'right' | 'filter' | 'plus' | 'close' }) {
-  const path =
-    name === 'left'
-      ? 'm10 3-5 5 5 5'
-      : name === 'right'
-        ? 'm6 3 5 5-5 5'
-        : name === 'filter'
-          ? 'M2 3h12L9.5 8v4l-3 1V8Z'
-          : name === 'plus'
-            ? 'M8 3v10M3 8h10'
-            : 'm4 4 8 8m0-8-8 8';
+  const paths = {
+    left: 'm10 3-5 5 5 5', right: 'm6 3 5 5-5 5', filter: 'M2 3h12L9.5 8v4l-3 1V8Z',
+    plus: 'M8 3v10M3 8h10', close: 'm4 4 8 8m0-8-8 8',
+  };
+  const path = paths[name];
   return (
     <svg className="lumen-scheduling-glyph" viewBox="0 0 16 16" aria-hidden="true">
       <path d={path} />
@@ -307,7 +289,7 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary="horizontal"
+      boundary={className?.includes('scheduling-month-reference') ? 'none' : 'horizontal'}
       className="lumen-scheduling-surface"
       contentClassName={contentClassName}
       data-lumen-component="scheduling"
@@ -569,7 +551,7 @@ function Form(
               disabled={!next || atCapacity}
               title={atCapacity ? props.content.labels.capacityReached : undefined}
               onClick={() => {
-                if (!next || atCapacity) return;
+                if (!next || atCapacity) {return;}
                 setSelectedIds((current) => [...current, next.id]);
                 report(props.onAction, 'add-attendee', next.id);
               }}
@@ -756,7 +738,7 @@ function Availability(
                   {day.label}
                 </LumenText>
                 {active ? (
-                  <>
+                  <React.Fragment>
                     <LumenInput
                       type="time"
                       defaultValue={day.start}
@@ -776,7 +758,7 @@ function Availability(
                     >
                       <Glyph name="plus" />
                     </LumenIconButton>
-                  </>
+                  </React.Fragment>
                 ) : (
                   <LumenText as="span" tone="muted">
                     {props.content.labels.unavailable}
@@ -972,24 +954,29 @@ function empty(props: LumenSchedulingProps) {
 export function LumenScheduling(props: LumenSchedulingProps) {
   const inheritedContent = useLumenSchedulingContent();
   const content = props.content ?? inheritedContent;
+  if (props.variant === 1 && content?.referenceMonth) {
+    return <Root {...props} className={['lumen-scheduling-month-reference', 'hbar-app-ui-stage-padding-owner', 'hbar-app-ui-full-canvas-owner', props.className].filter(Boolean).join(' ')}>
+      <LumenSchedulingMonthReference content={content.referenceMonth} onAction={props.onAction} />
+    </Root>;
+  }
   if (props.variant === 1)
-    return content?.month ? <Month {...props} content={content.month} /> : empty(props);
+    {return content?.month ? <Month {...props} content={content.month} /> : empty(props);}
   if (props.variant === 2)
-    return content?.timeRange ? <TimeRange {...props} content={content.timeRange} /> : empty(props);
+    {return content?.timeRange ? <TimeRange {...props} content={content.timeRange} /> : empty(props);}
   if (props.variant === 3)
-    return content?.form ? <Form {...props} content={content.form} /> : empty(props);
+    {return content?.form ? <Form {...props} content={content.form} /> : empty(props);}
   if (props.variant === 4)
-    return content?.deadline ? <Deadline {...props} content={content.deadline} /> : empty(props);
+    {return content?.deadline ? <Deadline {...props} content={content.deadline} /> : empty(props);}
   if (props.variant === 5)
-    return content?.availability ? (
+    {return content?.availability ? (
       <Availability {...props} content={content.availability} />
     ) : (
       empty(props)
-    );
+    );}
   if (props.variant === 6)
-    return content?.timeline ? <Timeline {...props} content={content.timeline} /> : empty(props);
+    {return content?.timeline ? <Timeline {...props} content={content.timeline} /> : empty(props);}
   if (props.variant === 7)
-    return content?.booking ? <Booking {...props} content={content.booking} /> : empty(props);
+    {return content?.booking ? <Booking {...props} content={content.booking} /> : empty(props);}
   return empty(props);
 }
 
