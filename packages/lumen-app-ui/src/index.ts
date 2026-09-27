@@ -546,6 +546,11 @@ export type {
   LumenCommentsReviewContent,
   LumenCommentsVariantProps,
 } from './comments';
+export type {
+  LumenCommentsAnnotationReferenceContent,
+  LumenCommentsDocumentAnnotation,
+  LumenCommentsDocumentSegment,
+} from './comments-annotation-reference';
 export {
   LumenScheduling,
   LumenScheduling01,

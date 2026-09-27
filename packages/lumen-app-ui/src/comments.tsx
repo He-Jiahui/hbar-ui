@@ -6,6 +6,7 @@ import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './comments.css';
 import './comments-discussion.css';
+import { LumenCommentsAnnotationReference, type LumenCommentsAnnotationReferenceContent } from './comments-annotation-reference';
 
 export interface LumenCommentsListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -165,6 +166,7 @@ export interface LumenCommentsCanvasContent {
   readonly listStrategy: LumenCommentsListStrategy;
 }
 export interface LumenCommentsContent {
+  readonly referenceAnnotation?: LumenCommentsAnnotationReferenceContent | undefined;
   readonly referenceDiscussion?: LumenCommentsDiscussionReferenceContent | undefined;
   readonly discussion?: LumenCommentsDiscussionContent | undefined;
   readonly annotation?: LumenCommentsAnnotationContent | undefined;
@@ -260,7 +262,7 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary={className?.includes('lumen-comments-discussion-reference') ? 'none' : 'horizontal'}
+      boundary={className?.includes('comments-annotation-reference') || className?.includes('comments-discussion-reference') ? 'none' : 'horizontal'}
       className="lumen-comments-surface"
       contentClassName={contentClassName}
       data-lumen-component="comments"
@@ -726,6 +728,11 @@ export function LumenComments(props: LumenCommentsProps) {
     return c?.discussion ? <LegacyDiscussion {...props} content={c.discussion} /> : empty(props);
   }
   if (props.variant === 2) {
+    if (c?.referenceAnnotation) {
+      return <Root {...props} className={['lumen-comments-annotation-reference', 'hbar-app-ui-stage-padding-owner', props.className].filter(Boolean).join(' ')}>
+        <LumenCommentsAnnotationReference content={c.referenceAnnotation} onAction={props.onAction} />
+      </Root>;
+    }
     return c?.annotation ? <Annotation {...props} content={c.annotation} /> : empty(props);
   }
   if (props.variant === 3) {
