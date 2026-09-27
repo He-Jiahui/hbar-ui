@@ -559,6 +559,9 @@ export type {
 export type { LumenCommentsComposerAttachment, LumenCommentsComposerReferenceContent } from './comments-composer-reference';
 export type { LumenCommentsComposerMention } from './comments-composer-model';
 export { filterLumenCommentsComposerMentions, insertLumenCommentsComposerMention } from './comments-composer-model';
+export type { LumenCommentsInboxReferenceContent } from './comments-inbox-reference';
+export type { LumenCommentsInboxReferenceItem, LumenCommentsInboxFilter } from './comments-inbox-model';
+export { projectLumenCommentsInbox } from './comments-inbox-model';
 export {
   LumenScheduling,
   LumenScheduling01,
