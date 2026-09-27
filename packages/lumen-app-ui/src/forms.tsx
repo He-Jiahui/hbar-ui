@@ -6,7 +6,7 @@ import LumenField from './LumenField';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
 
-export type LumenFieldVariant = 'boundary' | 'outlined' | 'plain';
+export type LumenFieldVariant = 'boundary' | 'outlined' | 'plain' | 'boxed';
 
 export interface LumenControlOption {
   id: string;
@@ -166,8 +166,8 @@ function controlClass(className: string | undefined): string {
   return [className, 'lumen-control'].filter(Boolean).join(' ');
 }
 
-function normalizedVariant(variant: LumenFieldVariant): 'boundary' | 'plain' {
-  return variant === 'plain' ? 'plain' : 'boundary';
+function normalizedVariant(variant: LumenFieldVariant): 'boundary' | 'plain' | 'boxed' {
+  return variant === 'outlined' ? 'boundary' : variant;
 }
 
 function isInvalid(value: React.AriaAttributes['aria-invalid']): boolean {
@@ -185,10 +185,10 @@ function withBoundary(
     boundary: 'horizontal' | 'vertical';
     disabled: boolean;
     invalid: boolean;
-    variant: 'boundary' | 'plain';
+    variant: 'boundary' | 'plain' | 'boxed';
   },
 ): React.ReactElement {
-  if (variant === 'plain') return control;
+  if (variant !== 'boundary') return control;
   return (
     <LumenField boundary={boundary} invalid={invalid} state={disabled ? 'disabled' : 'idle'}>
       {control}
@@ -669,7 +669,7 @@ export function LumenComboBox({
         }
       }}
     >
-      {lumenVariant === 'plain' ? (
+      {lumenVariant !== 'boundary' ? (
         control
       ) : (
         <LumenField boundary={boundary} invalid={invalid} state={disabled ? 'disabled' : 'idle'}>

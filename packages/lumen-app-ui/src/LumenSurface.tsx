@@ -11,7 +11,7 @@ export type LumenSurfaceElement = 'article' | 'aside' | 'div' | 'form' | 'main' 
 interface LumenSurfaceOwnProps {
   boundary?: 'none' | 'horizontal' | 'vertical' | undefined;
   contentClassName?: string | undefined;
-  material?: 'glass' | 'frost' | undefined;
+  material?: 'glass' | 'frost' | 'solid' | undefined;
   glassStrength?: number | undefined;
   interactive?: boolean | undefined;
   shape?: LumenShape | undefined;
@@ -81,10 +81,10 @@ export default function LumenSurface<Element extends LumenSurfaceElement = 'div'
       cancelAnimationFrame(frame);
     };
   }, [id, material]);
-  const lensStyle =
-    map && glassStrength > 0
-      ? { backdropFilter: `url(#${id}) blur(${0.12 + glassStrength * 0.002}rem)` }
-      : undefined;
+  const hasLens = material === 'glass' && Boolean(map) && glassStrength > 0;
+  const lensStyle = hasLens
+    ? { backdropFilter: `url(#${id}) blur(${0.12 + glassStrength * 0.002}rem)` }
+    : undefined;
   let edges: readonly ['top', 'bottom'] | readonly ['left', 'right'] | undefined;
   if (boundary === 'horizontal') {
     edges = ['top', 'bottom'];
@@ -102,9 +102,9 @@ export default function LumenSurface<Element extends LumenSurfaceElement = 'div'
       data-material={material}
       data-interactive={interactive}
       data-shape={shape}
-      data-lens={map && glassStrength > 0 ? 'refractive' : 'frost'}
+      data-lens={material === 'solid' ? 'none' : hasLens ? 'refractive' : 'frost'}
     >
-      {map && (
+      {hasLens && (
         <svg className={styles.filter} aria-hidden="true" focusable="false">
           <defs>
             <filter

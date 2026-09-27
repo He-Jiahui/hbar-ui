@@ -66,6 +66,60 @@ textarea.lumen-control {
   opacity: 0.48;
 }
 
+.lumen-control[data-lumen-variant='boxed'],
+.lumen-combobox-control[data-variant='boxed'] {
+  box-sizing: border-box;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-control, 0.375rem);
+  background: var(--lumen-contrast);
+}
+
+.lumen-control[data-lumen-variant='boxed']:not(:disabled):not([readonly]):not(
+    [aria-invalid='true']
+  ):hover,
+.lumen-combobox-control[data-variant='boxed']:not(:has(:disabled)):not(
+    [data-invalid='true']
+  ):hover {
+  border-color: color-mix(in srgb, var(--lumen-ink) 45%, var(--lumen-contrast));
+}
+
+.lumen-control[data-lumen-variant='boxed'][readonly] {
+  background: color-mix(in srgb, var(--lumen-ink) 4%, var(--lumen-contrast));
+}
+
+.lumen-control[data-lumen-variant='boxed'][aria-invalid='true'],
+.lumen-combobox-control[data-variant='boxed'][data-invalid='true'] {
+  border-color: var(--lumen-danger);
+}
+
+.lumen-control[data-lumen-variant='boxed']:focus-visible,
+.lumen-combobox-control[data-variant='boxed']:has(:focus-visible) {
+  outline: 0.125rem solid var(--lumen-info);
+  outline-offset: 0.125rem;
+}
+
+@media (forced-colors: active) {
+  .lumen-control[data-lumen-variant='boxed'],
+  .lumen-control[data-lumen-variant='boxed']:is([readonly], [aria-invalid='true'], :hover),
+  .lumen-combobox-control[data-variant='boxed'],
+  .lumen-combobox-control[data-variant='boxed']:is([data-invalid='true'], :hover) {
+    border-color: CanvasText;
+    background: Canvas;
+  }
+
+  .lumen-control[data-lumen-variant='boxed']:disabled,
+  .lumen-combobox-control[data-variant='boxed']:has(:disabled) {
+    border-color: GrayText;
+    color: GrayText;
+    opacity: 1;
+  }
+
+  .lumen-control[data-lumen-variant='boxed']:focus-visible,
+  .lumen-combobox-control[data-variant='boxed']:has(:focus-visible) {
+    outline-color: Highlight;
+  }
+}
+
 .lumen-checkbox,
 .lumen-toggle {
   display: flex;

@@ -14,6 +14,8 @@ export interface LumenDialogProps {
   children: React.ReactNode;
   footer?: React.ReactNode;
   className?: string | undefined;
+  /** Solid, undecorated panel chrome is opt-in; glass preserves the existing lamp appearance. */
+  appearance?: 'glass' | 'panel' | undefined;
   chromeless?: boolean | undefined;
   initialFocus?: React.RefObject<HTMLElement | null> | undefined;
 }
@@ -63,6 +65,7 @@ export function LumenDialog({
   children,
   footer,
   className,
+  appearance = 'glass',
   chromeless = false,
   initialFocus,
 }: LumenDialogProps) {
@@ -97,6 +100,7 @@ export function LumenDialog({
         .join(' ')}
       aria-label={title}
       data-open={open || undefined}
+      data-appearance={appearance}
       onKeyDown={retainDialogFocus}
       onCancel={(event) => {
         event.preventDefault();
@@ -119,10 +123,10 @@ export function LumenDialog({
       }}
     >
       <LumenSurface
-        boundary="horizontal"
+        boundary={appearance === 'panel' ? 'none' : 'horizontal'}
         className="lumen-dialog-surface"
         contentClassName="lumen-dialog-content"
-        material="glass"
+        material={appearance === 'panel' ? 'solid' : 'glass'}
       >
         {!chromeless ? (
           <React.Fragment>
@@ -134,13 +138,13 @@ export function LumenDialog({
                 <CloseGlyph />
               </LumenIconButton>
             </header>
-            <LumenDivider />
+            {appearance === 'glass' ? <LumenDivider /> : null}
           </React.Fragment>
         ) : null}
         <div className="lumen-dialog-body hbar-app-ui-native-dialog-body">{children}</div>
         {footer ? (
           <React.Fragment>
-            <LumenDivider />
+            {appearance === 'glass' ? <LumenDivider /> : null}
             <footer>{footer}</footer>
           </React.Fragment>
         ) : null}
