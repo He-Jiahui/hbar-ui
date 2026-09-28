@@ -1608,6 +1608,8 @@ export {uniqueLumenFeedbackRatingOptions, uniqueLumenFeedbackRatingReasons} from
 export type {LumenFeedbackRatingReferenceContent, LumenFeedbackRatingReferenceOption, LumenFeedbackRatingReferenceReason} from './feedback-rating-reference';
 export {uniqueLumenFeedbackBoardRequests, visibleLumenFeedbackBoardRequests} from './feedback-board-reference';
 export type {LumenFeedbackBoardReferenceContent, LumenFeedbackBoardReferenceRequest} from './feedback-board-reference';
+export {uniqueLumenFeedbackInboxThreads, selectLumenFeedbackInboxThread} from './feedback-inbox-reference';
+export type {LumenFeedbackInboxReferenceContent, LumenFeedbackInboxReferenceThread, LumenFeedbackInboxReferenceDetail} from './feedback-inbox-reference';
 export { LumenDisclosure } from './disclosure';
 export type { LumenDisclosureProps } from './disclosure';
 export {
