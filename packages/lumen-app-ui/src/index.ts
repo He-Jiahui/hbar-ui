@@ -196,6 +196,17 @@ export type {
   LumenSettingsForm1Value,
   LumenSettingsForm1ViewModel,
 } from './settings-form-1-reference';
+export { LumenSettingsForm2Reference } from './settings-form-2-reference';
+export type {
+  LumenSettingsForm2BioField,
+  LumenSettingsForm2Content,
+  LumenSettingsForm2FieldId,
+  LumenSettingsForm2PhotoMimeType,
+  LumenSettingsForm2ReferenceProps,
+  LumenSettingsForm2TextField,
+  LumenSettingsForm2UsernameField,
+  LumenSettingsForm2ViewModel,
+} from './settings-form-2-reference';
 export type {
   LumenPreferenceAction,
   LumenPreferencePersistence,

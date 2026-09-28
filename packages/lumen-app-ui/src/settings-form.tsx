@@ -11,6 +11,10 @@ import {
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus } from './primitives';
 import { LumenSettingsForm1Reference, type LumenSettingsForm1ViewModel } from './settings-form-1-reference';
+import {
+  LumenSettingsForm2Reference,
+  type LumenSettingsForm2ViewModel,
+} from './settings-form-2-reference';
 import './settings-form.css';
 
 export type LumenPreferenceAction =
@@ -240,6 +244,7 @@ export interface LumenSettingsDangerContent {
 
 export interface LumenSettingsFormContent {
   readonly workspaceReference?: LumenSettingsForm1ViewModel | undefined;
+  readonly profileReference?: LumenSettingsForm2ViewModel | undefined;
   readonly workspace?: LumenSettingsWorkspaceContent | undefined;
   readonly profile?: LumenSettingsProfileContent | undefined;
   readonly preferences?: LumenSettingsPreferencesContent | undefined;
@@ -1212,11 +1217,13 @@ export function LumenSettingsForm(props: LumenSettingsFormProps) {
         emptySettings(props)
       );
     case 2:
-      return content.profile ? (
-        <ProfileSettings {...props} content={content.profile} />
-      ) : (
-        emptySettings(props)
-      );
+      if (content.profileReference) {
+        return <LumenSettingsForm2Reference {...content.profileReference} instanceId={props.variantId} />;
+      }
+      if (content.profile) {
+        return <ProfileSettings {...props} content={content.profile} />;
+      }
+      return emptySettings(props);
     case 3:
       return content.preferences ? (
         <PreferencesSettings {...props} content={content.preferences} />
