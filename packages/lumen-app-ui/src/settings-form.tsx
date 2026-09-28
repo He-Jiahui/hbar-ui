@@ -22,6 +22,10 @@ import {
   LumenSettingsForm3Reference,
   type LumenSettingsForm3ViewModel,
 } from './settings-form-3-reference';
+import {
+  LumenSettingsForm4Reference,
+  type LumenSettingsForm4ViewModel,
+} from './settings-form-4-reference';
 import './settings-form.css';
 
 export type LumenPreferenceAction =
@@ -253,6 +257,7 @@ export interface LumenSettingsFormContent {
   readonly workspaceReference?: LumenSettingsForm1ViewModel | undefined;
   readonly profileReference?: LumenSettingsForm2ViewModel | undefined;
   readonly preferencesReference?: LumenSettingsForm3ViewModel | undefined;
+  readonly membersReference?: LumenSettingsForm4ViewModel | undefined;
   readonly workspace?: LumenSettingsWorkspaceContent | undefined;
   readonly profile?: LumenSettingsProfileContent | undefined;
   readonly preferences?: LumenSettingsPreferencesContent | undefined;
@@ -1249,11 +1254,10 @@ export function LumenSettingsForm(props: LumenSettingsFormProps) {
         emptySettings(props)
       );
     case 4:
-      return content.members ? (
-        <MembersSettings {...props} content={content.members} />
-      ) : (
-        emptySettings(props)
-      );
+      if (content.membersReference) {
+        return <LumenSettingsForm4Reference {...content.membersReference} instanceId={props.variantId} />;
+      }
+      return content.members ? <MembersSettings {...props} content={content.members} /> : emptySettings(props);
     case 5:
       return content.apiKeys ? (
         <ApiKeysSettings {...props} content={content.apiKeys} />

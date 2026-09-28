@@ -222,6 +222,16 @@ export type {
   LumenSettingsForm3Theme,
   LumenSettingsForm3ViewModel,
 } from './settings-form-3-reference';
+export { LumenSettingsForm4Reference } from './settings-form-4-reference';
+export type {
+  LumenSettingsForm4Labels,
+  LumenSettingsForm4MemberView,
+  LumenSettingsForm4PreviewContent,
+  LumenSettingsForm4ReferenceProps,
+  LumenSettingsForm4RoleId,
+  LumenSettingsForm4RoleOption,
+  LumenSettingsForm4ViewModel,
+} from './settings-form-4-reference';
 export type {
   LumenPreferenceAction,
   LumenPreferencePersistence,
