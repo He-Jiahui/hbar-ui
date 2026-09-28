@@ -1604,6 +1604,8 @@ export {uniqueLumenFeedbackReferenceTypes} from './feedback-widget-reference';
 export type {LumenFeedbackReferenceType, LumenFeedbackWidgetReferenceContent} from './feedback-widget-reference';
 export {uniqueLumenFeedbackSurveyReasons, uniqueLumenFeedbackSurveyScores} from './feedback-survey-reference';
 export type {LumenFeedbackSurveyReferenceContent, LumenFeedbackSurveyReferenceReason} from './feedback-survey-reference';
+export {uniqueLumenFeedbackRatingOptions, uniqueLumenFeedbackRatingReasons} from './feedback-rating-reference';
+export type {LumenFeedbackRatingReferenceContent, LumenFeedbackRatingReferenceOption, LumenFeedbackRatingReferenceReason} from './feedback-rating-reference';
 export { LumenDisclosure } from './disclosure';
 export type { LumenDisclosureProps } from './disclosure';
 export {
