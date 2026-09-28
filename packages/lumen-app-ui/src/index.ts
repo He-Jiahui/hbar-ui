@@ -261,6 +261,8 @@ export type {LumenCodeToken} from './editor-code-model';
 export type {LumenCodeReferenceContent} from './editor-code-reference';
 export {uniqueLumenReferenceSuggestions} from './editor-suggestions-reference';
 export type {LumenSuggestionsReferenceContent} from './editor-suggestions-reference';
+export {uniqueLumenReaderReferenceSections} from './editor-reader-reference';
+export type {LumenReaderReferenceContent, LumenReaderReferenceSection} from './editor-reader-reference';
 export type {
   LumenCodeFile,
   LumenCodeWorkspaceContent,

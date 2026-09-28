@@ -9,6 +9,7 @@ import {LumenRichEditorReference, type LumenRichEditorReferenceContent} from './
 import {LumenMarkdownReference, type LumenMarkdownReferenceContent} from './editor-markdown-reference';
 import {LumenCodeReference, type LumenCodeReferenceContent} from './editor-code-reference';
 import {LumenSuggestionsReference, type LumenSuggestionsReferenceContent} from './editor-suggestions-reference';
+import {LumenReaderReference, type LumenReaderReferenceContent} from './editor-reader-reference';
 
 export type LumenEditorFormattingAction =
   'bold' | 'italic' | 'strikethrough' | 'inline-code' | 'link';
@@ -184,6 +185,7 @@ export interface LumenEditorContent {
   readonly referenceMarkdown?: LumenMarkdownReferenceContent | undefined;
   readonly referenceCode?: LumenCodeReferenceContent | undefined;
   readonly referenceSuggestions?: LumenSuggestionsReferenceContent | undefined;
+  readonly referenceReader?: LumenReaderReferenceContent | undefined;
   readonly richText?: LumenRichTextEditorContent | undefined;
   readonly markdown?: LumenMarkdownWorkspaceContent | undefined;
   readonly code?: LumenCodeWorkspaceContent | undefined;
@@ -849,6 +851,8 @@ export function LumenEditor(props: LumenEditorProps) {
     return <Root {...props} boundary="none" className="hbar-app-ui-editor-code lumen-code-reference"><LumenCodeReference content={content.referenceCode} onAction={props.onAction} /></Root>;
   if (props.variant === 4 && content?.referenceSuggestions)
     return <Root {...props} boundary="none" className="hbar-app-ui-editor-suggestions lumen-suggestions-reference"><LumenSuggestionsReference content={content.referenceSuggestions} onAction={props.onAction} /></Root>;
+  if (props.variant === 5 && content?.referenceReader)
+    return <Root {...props} boundary="none" className="hbar-app-ui-editor-reader lumen-reader-reference"><LumenReaderReference content={content.referenceReader} onAction={props.onAction} /></Root>;
   if (props.variant === 1)
     return content?.richText ? <RichText {...props} content={content.richText} /> : empty(props);
   if (props.variant === 2)
