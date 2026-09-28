@@ -51,6 +51,7 @@ export function LumenCodeReference({
             <button
               type="button"
               className="lumen-code-reference-file"
+              aria-current={active?.id === file.id ? 'true' : undefined}
               onClick={() => {
                 content.onSelectFile?.(file.id);
                 onAction?.({ actionId: 'file', value: file.id });
