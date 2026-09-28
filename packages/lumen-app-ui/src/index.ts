@@ -259,6 +259,8 @@ export type {LumenMarkdownReferenceContent} from './editor-markdown-reference';
 export {tokenizeLumenCodeLine, uniqueLumenCodeFiles} from './editor-code-model';
 export type {LumenCodeToken} from './editor-code-model';
 export type {LumenCodeReferenceContent} from './editor-code-reference';
+export {uniqueLumenReferenceSuggestions} from './editor-suggestions-reference';
+export type {LumenSuggestionsReferenceContent} from './editor-suggestions-reference';
 export type {
   LumenCodeFile,
   LumenCodeWorkspaceContent,
