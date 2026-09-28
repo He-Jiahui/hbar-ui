@@ -232,6 +232,15 @@ export type {
   LumenSettingsForm4RoleOption,
   LumenSettingsForm4ViewModel,
 } from './settings-form-4-reference';
+export { LumenSettingsForm5Reference } from './settings-form-5-reference';
+export type {
+  LumenSettingsForm5Content,
+  LumenSettingsForm5IntegrationRow,
+  LumenSettingsForm5KeyAction,
+  LumenSettingsForm5KeyRow,
+  LumenSettingsForm5Props,
+  LumenSettingsForm5ViewModel,
+} from './settings-form-5-reference';
 export type {
   LumenPreferenceAction,
   LumenPreferencePersistence,

@@ -26,6 +26,10 @@ import {
   LumenSettingsForm4Reference,
   type LumenSettingsForm4ViewModel,
 } from './settings-form-4-reference';
+import {
+  LumenSettingsForm5Reference,
+  type LumenSettingsForm5ViewModel,
+} from './settings-form-5-reference';
 import './settings-form.css';
 
 export type LumenPreferenceAction =
@@ -258,6 +262,7 @@ export interface LumenSettingsFormContent {
   readonly profileReference?: LumenSettingsForm2ViewModel | undefined;
   readonly preferencesReference?: LumenSettingsForm3ViewModel | undefined;
   readonly membersReference?: LumenSettingsForm4ViewModel | undefined;
+  readonly apiKeysReference?: LumenSettingsForm5ViewModel | undefined;
   readonly workspace?: LumenSettingsWorkspaceContent | undefined;
   readonly profile?: LumenSettingsProfileContent | undefined;
   readonly preferences?: LumenSettingsPreferencesContent | undefined;
@@ -1255,10 +1260,21 @@ export function LumenSettingsForm(props: LumenSettingsFormProps) {
       );
     case 4:
       if (content.membersReference) {
-        return <LumenSettingsForm4Reference {...content.membersReference} instanceId={props.variantId} />;
+        return (
+          <LumenSettingsForm4Reference {...content.membersReference} instanceId={props.variantId} />
+        );
       }
-      return content.members ? <MembersSettings {...props} content={content.members} /> : emptySettings(props);
+      return content.members ? (
+        <MembersSettings {...props} content={content.members} />
+      ) : (
+        emptySettings(props)
+      );
     case 5:
+      if (content.apiKeysReference) {
+        return (
+          <LumenSettingsForm5Reference {...content.apiKeysReference} instanceId={props.variantId} />
+        );
+      }
       return content.apiKeys ? (
         <ApiKeysSettings {...props} content={content.apiKeys} />
       ) : (
