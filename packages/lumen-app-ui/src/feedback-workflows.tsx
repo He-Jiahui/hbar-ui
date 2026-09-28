@@ -11,6 +11,10 @@ import {LumenFeedbackRatingReference, type LumenFeedbackRatingReferenceContent} 
 import {LumenFeedbackBoardReference, type LumenFeedbackBoardReferenceContent} from './feedback-board-reference';
 import {LumenFeedbackInboxReference, type LumenFeedbackInboxReferenceContent} from './feedback-inbox-reference';
 import {
+  LumenFeedbackInsightsReference,
+  type LumenFeedbackInsightsReferenceContent,
+} from './feedback-insights-reference';
+import {
   HbarAppUiFeedback01,
   HbarAppUiFeedback02,
   HbarAppUiFeedback03,
@@ -258,6 +262,7 @@ export interface LumenFeedbackContent {
   readonly referenceRating?: LumenFeedbackRatingReferenceContent | undefined;
   readonly referenceBoard?: LumenFeedbackBoardReferenceContent | undefined;
   readonly referenceInbox?: LumenFeedbackInboxReferenceContent | undefined;
+  readonly referenceInsights?: LumenFeedbackInsightsReferenceContent | undefined;
   readonly widget?: LumenFeedbackWidgetContent | undefined;
   readonly survey?: LumenFeedbackSurveyContent | undefined;
   readonly postResolution?: LumenFeedbackPostResolutionContent | undefined;
@@ -828,6 +833,21 @@ export function LumenFeedback(props: LumenFeedbackProps) {
     );
   if (props.variant === 5 && content?.inbox)
     view = <Inbox content={content.inbox} onAction={props.onAction} />;
+  if (props.variant === 6 && content?.referenceInsights)
+    return (
+      <FeedbackRoot
+        {...props}
+        boundary="none"
+        className={[
+          props.className,
+          'lumen-feedback-insights-reference',
+          'hbar-app-ui-full-canvas-owner',
+          'hbar-app-ui-stage-padding-owner',
+        ].filter(Boolean).join(' ')}
+      >
+        <LumenFeedbackInsightsReference content={content.referenceInsights} onAction={props.onAction} />
+      </FeedbackRoot>
+    );
   if (props.variant === 6 && content?.insights)
     view = <Insights content={content.insights} onAction={props.onAction} />;
   return <FeedbackRoot {...props}>{view}</FeedbackRoot>;

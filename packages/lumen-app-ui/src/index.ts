@@ -1610,6 +1610,20 @@ export {uniqueLumenFeedbackBoardRequests, visibleLumenFeedbackBoardRequests} fro
 export type {LumenFeedbackBoardReferenceContent, LumenFeedbackBoardReferenceRequest} from './feedback-board-reference';
 export {uniqueLumenFeedbackInboxThreads, selectLumenFeedbackInboxThread} from './feedback-inbox-reference';
 export type {LumenFeedbackInboxReferenceContent, LumenFeedbackInboxReferenceThread, LumenFeedbackInboxReferenceDetail} from './feedback-inbox-reference';
+export {
+  uniqueLumenFeedbackInsightsReferencePeriods,
+  selectLumenFeedbackInsightsReferencePeriod,
+} from './feedback-insights-reference';
+export type {
+  LumenFeedbackInsightsReferenceAction,
+  LumenFeedbackInsightsReferenceContent,
+  LumenFeedbackInsightsReferenceListStrategy,
+  LumenFeedbackInsightsReferenceMetric,
+  LumenFeedbackInsightsReferencePeriod,
+  LumenFeedbackInsightsReferenceSentiment,
+  LumenFeedbackInsightsReferenceTheme,
+  LumenFeedbackInsightsReferenceVolumePoint,
+} from './feedback-insights-reference';
 export { LumenDisclosure } from './disclosure';
 export type { LumenDisclosureProps } from './disclosure';
 export {
