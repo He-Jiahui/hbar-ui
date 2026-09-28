@@ -30,6 +30,10 @@ import {
   LumenSettingsForm5Reference,
   type LumenSettingsForm5ViewModel,
 } from './settings-form-5-reference';
+import {
+  LumenSettingsForm6Reference,
+  type LumenSettingsForm6ViewModel,
+} from './settings-form-6-reference';
 import './settings-form.css';
 
 export type LumenPreferenceAction =
@@ -263,6 +267,7 @@ export interface LumenSettingsFormContent {
   readonly preferencesReference?: LumenSettingsForm3ViewModel | undefined;
   readonly membersReference?: LumenSettingsForm4ViewModel | undefined;
   readonly apiKeysReference?: LumenSettingsForm5ViewModel | undefined;
+  readonly dangerReference?: LumenSettingsForm6ViewModel | undefined;
   readonly workspace?: LumenSettingsWorkspaceContent | undefined;
   readonly profile?: LumenSettingsProfileContent | undefined;
   readonly preferences?: LumenSettingsPreferencesContent | undefined;
@@ -1281,6 +1286,9 @@ export function LumenSettingsForm(props: LumenSettingsFormProps) {
         emptySettings(props)
       );
     case 6:
+      if (content.dangerReference) {
+        return <LumenSettingsForm6Reference {...content.dangerReference} instanceId={props.variantId} />;
+      }
       return content.danger ? (
         <DangerSettings {...props} content={content.danger} />
       ) : (

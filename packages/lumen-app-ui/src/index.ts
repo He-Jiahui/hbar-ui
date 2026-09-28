@@ -241,6 +241,14 @@ export type {
   LumenSettingsForm5Props,
   LumenSettingsForm5ViewModel,
 } from './settings-form-5-reference';
+export { LumenSettingsForm6Reference } from './settings-form-6-reference';
+export type {
+  LumenSettingsForm6ActionIntent,
+  LumenSettingsForm6Labels,
+  LumenSettingsForm6ReferenceProps,
+  LumenSettingsForm6ViewModel,
+  LumenSettingsForm6Workspace,
+} from './settings-form-6-reference';
 export type {
   LumenPreferenceAction,
   LumenPreferencePersistence,
