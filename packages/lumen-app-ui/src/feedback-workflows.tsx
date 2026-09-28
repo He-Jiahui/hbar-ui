@@ -3,6 +3,10 @@
 import * as React from 'react';
 import LumenSurface from './LumenSurface';
 import {
+  LumenFeedbackWidgetReference,
+  type LumenFeedbackWidgetReferenceContent,
+} from './feedback-widget-reference';
+import {
   HbarAppUiFeedback01,
   HbarAppUiFeedback02,
   HbarAppUiFeedback03,
@@ -245,6 +249,7 @@ export interface LumenFeedbackInsightsContent {
 }
 
 export interface LumenFeedbackContent {
+  readonly referenceWidget?: LumenFeedbackWidgetReferenceContent | undefined;
   readonly widget?: LumenFeedbackWidgetContent | undefined;
   readonly survey?: LumenFeedbackSurveyContent | undefined;
   readonly postResolution?: LumenFeedbackPostResolutionContent | undefined;
@@ -709,8 +714,12 @@ function FeedbackRoot({
   state,
   visualMode,
   className,
+  boundary = 'horizontal',
   children,
-}: Omit<LumenFeedbackProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
+}: Omit<LumenFeedbackProps, 'content' | 'onAction'> & {
+  readonly children: React.ReactNode;
+  readonly boundary?: 'horizontal' | 'none';
+}) {
   const contentClassName = [
     'lumen-feedback-workflow',
     'hbar-app-ui-feedback-surface',
@@ -726,7 +735,7 @@ function FeedbackRoot({
   return (
     <LumenSurface
       as="section"
-      boundary="horizontal"
+      boundary={boundary}
       className="lumen-feedback-workflow-surface"
       contentClassName={contentClassName}
       data-lumen-component="feedback"
@@ -744,6 +753,21 @@ export function LumenFeedback(props: LumenFeedbackProps) {
   const providerContent = useLumenFeedbackContent();
   const content = props.content ?? providerContent;
   let view: React.ReactNode = null;
+  if (props.variant === 1 && content?.referenceWidget)
+    return (
+      <FeedbackRoot
+        {...props}
+        boundary="none"
+        className={[
+          props.className,
+          'lumen-feedback-widget-reference',
+          'hbar-app-ui-stage-padding-owner',
+          'hbar-app-ui-full-canvas-owner',
+        ].filter(Boolean).join(' ')}
+      >
+        <LumenFeedbackWidgetReference content={content.referenceWidget} onAction={props.onAction} />
+      </FeedbackRoot>
+    );
   if (props.variant === 1 && content?.widget)
     view = <Widget content={content.widget} onAction={props.onAction} />;
   if (props.variant === 2 && content?.survey)

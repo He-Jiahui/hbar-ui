@@ -1600,6 +1600,8 @@ export type {
   LumenFeedbackVolumePoint,
   LumenFeedbackWidgetContent,
 } from './feedback-workflows';
+export {uniqueLumenFeedbackReferenceTypes} from './feedback-widget-reference';
+export type {LumenFeedbackReferenceType, LumenFeedbackWidgetReferenceContent} from './feedback-widget-reference';
 export { LumenDisclosure } from './disclosure';
 export type { LumenDisclosureProps } from './disclosure';
 export {
