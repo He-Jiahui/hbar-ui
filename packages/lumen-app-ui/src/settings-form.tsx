@@ -10,11 +10,18 @@ import {
 } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus } from './primitives';
-import { LumenSettingsForm1Reference, type LumenSettingsForm1ViewModel } from './settings-form-1-reference';
+import {
+  LumenSettingsForm1Reference,
+  type LumenSettingsForm1ViewModel,
+} from './settings-form-1-reference';
 import {
   LumenSettingsForm2Reference,
   type LumenSettingsForm2ViewModel,
 } from './settings-form-2-reference';
+import {
+  LumenSettingsForm3Reference,
+  type LumenSettingsForm3ViewModel,
+} from './settings-form-3-reference';
 import './settings-form.css';
 
 export type LumenPreferenceAction =
@@ -245,6 +252,7 @@ export interface LumenSettingsDangerContent {
 export interface LumenSettingsFormContent {
   readonly workspaceReference?: LumenSettingsForm1ViewModel | undefined;
   readonly profileReference?: LumenSettingsForm2ViewModel | undefined;
+  readonly preferencesReference?: LumenSettingsForm3ViewModel | undefined;
   readonly workspace?: LumenSettingsWorkspaceContent | undefined;
   readonly profile?: LumenSettingsProfileContent | undefined;
   readonly preferences?: LumenSettingsPreferencesContent | undefined;
@@ -1218,13 +1226,23 @@ export function LumenSettingsForm(props: LumenSettingsFormProps) {
       );
     case 2:
       if (content.profileReference) {
-        return <LumenSettingsForm2Reference {...content.profileReference} instanceId={props.variantId} />;
+        return (
+          <LumenSettingsForm2Reference {...content.profileReference} instanceId={props.variantId} />
+        );
       }
       if (content.profile) {
         return <ProfileSettings {...props} content={content.profile} />;
       }
       return emptySettings(props);
     case 3:
+      if (content.preferencesReference) {
+        return (
+          <LumenSettingsForm3Reference
+            {...content.preferencesReference}
+            instanceId={props.variantId}
+          />
+        );
+      }
       return content.preferences ? (
         <PreferencesSettings {...props} content={content.preferences} />
       ) : (

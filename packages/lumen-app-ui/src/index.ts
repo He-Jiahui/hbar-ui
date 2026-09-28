@@ -207,6 +207,21 @@ export type {
   LumenSettingsForm2UsernameField,
   LumenSettingsForm2ViewModel,
 } from './settings-form-2-reference';
+export { LumenSettingsForm3Reference } from './settings-form-3-reference';
+export type {
+  LumenSettingsForm3CheckboxField,
+  LumenSettingsForm3ChoiceField,
+  LumenSettingsForm3Content,
+  LumenSettingsForm3Density,
+  LumenSettingsForm3Language,
+  LumenSettingsForm3Option,
+  LumenSettingsForm3PreferenceChange,
+  LumenSettingsForm3Props,
+  LumenSettingsForm3SaveState,
+  LumenSettingsForm3SwitchField,
+  LumenSettingsForm3Theme,
+  LumenSettingsForm3ViewModel,
+} from './settings-form-3-reference';
 export type {
   LumenPreferenceAction,
   LumenPreferencePersistence,
