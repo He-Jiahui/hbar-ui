@@ -10,6 +10,7 @@ import {
 } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
+import { LumenFormsForm1Reference, type LumenFormsForm1ViewModel } from './forms-1-reference';
 import './form-workflows.css';
 
 export interface LumenFormsListStrategy {
@@ -258,6 +259,7 @@ export interface LumenFormsQuoteContent {
   readonly listStrategy: LumenFormsListStrategy;
 }
 export interface LumenFormsContent {
+  readonly surveyDeploymentReference?: LumenFormsForm1ViewModel | undefined;
   readonly record?: LumenFormsRecordContent | undefined;
   readonly submission?: LumenFormsSubmissionContent | undefined;
   readonly booking?: LumenFormsBookingContent | undefined;
@@ -1103,8 +1105,13 @@ function empty(props: LumenFormsProps) {
 export function LumenForms(props: LumenFormsProps) {
   const inheritedContent = useLumenFormsContent();
   const content = props.content ?? inheritedContent;
-  if (props.variant === 1)
-    return content?.record ? <RecordForm {...props} content={content.record} /> : empty(props);
+  if (props.variant === 1) {
+    if (content?.surveyDeploymentReference) {
+      return <LumenFormsForm1Reference instanceId={props.variantId} {...content.surveyDeploymentReference} />;
+    }
+    if (content?.record) return <RecordForm {...props} content={content.record} />;
+    return empty(props);
+  }
   if (props.variant === 2)
     return content?.submission ? (
       <Submission {...props} content={content.submission} />
