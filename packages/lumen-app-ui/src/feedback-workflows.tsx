@@ -6,6 +6,7 @@ import {
   LumenFeedbackWidgetReference,
   type LumenFeedbackWidgetReferenceContent,
 } from './feedback-widget-reference';
+import {LumenFeedbackSurveyReference, type LumenFeedbackSurveyReferenceContent} from './feedback-survey-reference';
 import {
   HbarAppUiFeedback01,
   HbarAppUiFeedback02,
@@ -250,6 +251,7 @@ export interface LumenFeedbackInsightsContent {
 
 export interface LumenFeedbackContent {
   readonly referenceWidget?: LumenFeedbackWidgetReferenceContent | undefined;
+  readonly referenceSurvey?: LumenFeedbackSurveyReferenceContent | undefined;
   readonly widget?: LumenFeedbackWidgetContent | undefined;
   readonly survey?: LumenFeedbackSurveyContent | undefined;
   readonly postResolution?: LumenFeedbackPostResolutionContent | undefined;
@@ -770,6 +772,21 @@ export function LumenFeedback(props: LumenFeedbackProps) {
     );
   if (props.variant === 1 && content?.widget)
     view = <Widget content={content.widget} onAction={props.onAction} />;
+  if (props.variant === 2 && content?.referenceSurvey)
+    return (
+      <FeedbackRoot
+        {...props}
+        boundary="none"
+        className={[
+          props.className,
+          'lumen-feedback-survey-reference',
+          'hbar-app-ui-full-canvas-owner',
+          'hbar-app-ui-stage-padding-owner',
+        ].filter(Boolean).join(' ')}
+      >
+        <LumenFeedbackSurveyReference content={content.referenceSurvey} onAction={props.onAction} />
+      </FeedbackRoot>
+    );
   if (props.variant === 2 && content?.survey)
     view = <Survey content={content.survey} onAction={props.onAction} />;
   if (props.variant === 3 && content?.postResolution)
