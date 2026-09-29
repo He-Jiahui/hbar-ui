@@ -1134,6 +1134,18 @@ export type {
   LumenForms10ReferenceProps,
   LumenForms10ViewModel,
 } from './forms-10-reference';
+export { LumenForms11Reference } from './forms-11-reference';
+export type {
+  LumenForms11Content,
+  LumenForms11Copy,
+  LumenForms11CopyVariableSourceOption,
+  LumenForms11EnvironmentKindId,
+  LumenForms11EnvironmentKindOption,
+  LumenForms11ReferenceProps,
+  LumenForms11RegionId,
+  LumenForms11RegionOption,
+  LumenForms11ViewModel,
+} from './forms-11-reference';
 export {
   LumenAppDialog,
   LumenAppDialog01,
