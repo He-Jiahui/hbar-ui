@@ -21,6 +21,7 @@ import { LumenForms8Reference, type LumenForms8ViewModel } from './forms-8-refer
 import { LumenForms9Reference, type LumenForms9ViewModel } from './forms-9-reference';
 import { LumenForms10Reference, type LumenForms10ViewModel } from './forms-10-reference';
 import { LumenForms11Reference, type LumenForms11ViewModel } from './forms-11-reference';
+import { LumenForms12Reference, type LumenForms12ViewModel } from './forms-12-reference';
 import './form-workflows.css';
 
 export interface LumenFormsListStrategy {
@@ -280,6 +281,7 @@ export interface LumenFormsContent {
   readonly weeklyOpeningHoursReference?: LumenForms9ViewModel | undefined;
   readonly guestSurveyReference?: LumenForms10ViewModel | undefined;
   readonly environmentDialogReference?: LumenForms11ViewModel | undefined;
+  readonly quoteReviewReference?: LumenForms12ViewModel | undefined;
   readonly record?: LumenFormsRecordContent | undefined;
   readonly submission?: LumenFormsSubmissionContent | undefined;
   readonly booking?: LumenFormsBookingContent | undefined;
@@ -1216,8 +1218,12 @@ export function LumenForms(props: LumenFormsProps) {
       empty(props)
     );
   }
-  if (props.variant === 12)
+  if (props.variant === 12) {
+    if (content?.quoteReviewReference) {
+      return <LumenForms12Reference instanceId={props.variantId} {...content.quoteReviewReference} />;
+    }
     return content?.quote ? <Quote {...props} content={content.quote} /> : empty(props);
+  }
   return empty(props);
 }
 function variant(value: number, props: LumenFormsVariantProps) {

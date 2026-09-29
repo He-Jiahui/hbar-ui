@@ -1146,6 +1146,20 @@ export type {
   LumenForms11RegionOption,
   LumenForms11ViewModel,
 } from './forms-11-reference';
+export { LumenForms12Reference } from './forms-12-reference';
+export type {
+  LumenForms12Consent,
+  LumenForms12ConsentId,
+  LumenForms12Content,
+  LumenForms12FieldId,
+  LumenForms12ReferenceProps,
+  LumenForms12ReviewField,
+  LumenForms12ReviewSection,
+  LumenForms12SectionId,
+  LumenForms12Step,
+  LumenForms12StepId,
+  LumenForms12ViewModel,
+} from './forms-12-reference';
 export {
   LumenAppDialog,
   LumenAppDialog01,
