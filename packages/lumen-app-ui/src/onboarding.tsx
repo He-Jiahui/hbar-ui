@@ -8,6 +8,10 @@ import {
   LumenOnboarding1Reference,
   type LumenOnboarding1ReferenceViewModel,
 } from './onboarding-1-reference';
+import {
+  LumenOnboarding2Reference,
+  type LumenOnboarding2ReferenceViewModel,
+} from './onboarding-2-reference';
 import './onboarding.css';
 
 export interface LumenOnboardingListStrategy {
@@ -144,6 +148,7 @@ export interface LumenOnboardingSlugContent {
 export interface LumenOnboardingContent {
   readonly profile?: LumenOnboardingProfileContent | undefined;
   readonly profileReference?: LumenOnboarding1ReferenceViewModel | undefined;
+  readonly stepperReference?: LumenOnboarding2ReferenceViewModel | undefined;
   readonly steps?: LumenOnboardingStepsContent | undefined;
   readonly checklist?: LumenOnboardingChecklistContent | undefined;
   readonly useCase?: LumenOnboardingUseCaseContent | undefined;
@@ -714,8 +719,22 @@ export function LumenOnboarding(props: LumenOnboardingProps) {
     }
     return content?.profile ? <Profile {...props} content={content.profile} /> : empty(props);
   }
-  if (props.variant === 2)
+  if (props.variant === 2) {
+    if (content?.stepperReference) {
+      return (
+        <LumenOnboarding2Reference
+          variantId={props.variantId}
+          density={props.density}
+          surface={props.surface}
+          state={props.state}
+          visualMode={props.visualMode}
+          className={props.className}
+          viewModel={content.stepperReference}
+        />
+      );
+    }
     return content?.steps ? <Steps {...props} content={content.steps} /> : empty(props);
+  }
   if (props.variant === 3)
     return content?.checklist ? <Checklist {...props} content={content.checklist} /> : empty(props);
   if (props.variant === 4)

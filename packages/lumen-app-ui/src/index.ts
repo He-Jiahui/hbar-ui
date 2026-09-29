@@ -1587,6 +1587,15 @@ export type {
   LumenOnboarding1ReferenceTimezoneOption,
   LumenOnboarding1ReferenceViewModel,
 } from './onboarding-1-reference';
+export { LumenOnboarding2Reference } from './onboarding-2-reference';
+export type {
+  LumenOnboarding2ReferenceContent,
+  LumenOnboarding2ReferenceProfileFieldId,
+  LumenOnboarding2ReferenceProps,
+  LumenOnboarding2ReferenceStep,
+  LumenOnboarding2ReferenceStepStatus,
+  LumenOnboarding2ReferenceViewModel,
+} from './onboarding-2-reference';
 export {
   LumenList,
   LumenList01,
