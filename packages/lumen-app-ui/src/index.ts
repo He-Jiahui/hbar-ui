@@ -1107,6 +1107,18 @@ export type {
   LumenForms8ValueKind,
   LumenForms8ViewModel,
 } from './forms-8-reference';
+export { LumenForms9Reference } from './forms-9-reference';
+export type {
+  LumenForms9Content,
+  LumenForms9Copy,
+  LumenForms9Day,
+  LumenForms9Draft,
+  LumenForms9Option,
+  LumenForms9ReferenceProps,
+  LumenForms9TimeInterval,
+  LumenForms9TimeOption,
+  LumenForms9ViewModel,
+} from './forms-9-reference';
 export {
   LumenAppDialog,
   LumenAppDialog01,
