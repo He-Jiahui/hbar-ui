@@ -1603,6 +1603,14 @@ export type {
   LumenOnboarding3ReferenceTask,
   LumenOnboarding3ReferenceViewModel,
 } from './onboarding-3-reference';
+export { LumenOnboarding4Reference } from './onboarding-4-reference';
+export type {
+  LumenOnboarding4ReferenceContent,
+  LumenOnboarding4ReferenceProps,
+  LumenOnboarding4ReferenceTeamSize,
+  LumenOnboarding4ReferenceUseCase,
+  LumenOnboarding4ReferenceViewModel,
+} from './onboarding-4-reference';
 export {
   LumenList,
   LumenList01,
