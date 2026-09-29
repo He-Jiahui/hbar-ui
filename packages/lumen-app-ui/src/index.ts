@@ -1033,6 +1033,26 @@ export type {
   LumenForms3TextFieldId,
   LumenForms3ViewModel,
 } from './forms-3-reference';
+export { LumenForms4Reference } from './forms-4-reference';
+export type {
+  LumenForms4Badge,
+  LumenForms4Choice,
+  LumenForms4ChoiceProperty,
+  LumenForms4ChoicePropertyId,
+  LumenForms4Content,
+  LumenForms4Copy,
+  LumenForms4DateProperty,
+  LumenForms4DatePropertyId,
+  LumenForms4Editing,
+  LumenForms4Property,
+  LumenForms4PropertyIcon,
+  LumenForms4PropertyId,
+  LumenForms4ReferenceProps,
+  LumenForms4SaveRequest,
+  LumenForms4TextProperty,
+  LumenForms4TextPropertyId,
+  LumenForms4ViewModel,
+} from './forms-4-reference';
 export {
   LumenAppDialog,
   LumenAppDialog01,
