@@ -5,6 +5,10 @@ import { LumenInput, LumenTextarea } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
 import {
+  LumenPaywall3Reference,
+  type LumenPaywall3ReferenceViewModel,
+} from './paywall-3-reference';
+import {
   LumenPaywall4Reference,
   type LumenPaywall4ReferenceViewModel,
 } from './paywall-4-reference';
@@ -171,6 +175,7 @@ export interface LumenPaywallContent {
   readonly article?: LumenPaywallArticleContent | undefined;
   readonly featureGate?: LumenPaywallFeatureGateContent | undefined;
   readonly plans?: LumenPaywallPlanContent | undefined;
+  readonly plansReference?: LumenPaywall3ReferenceViewModel | undefined;
   readonly usage?: LumenPaywallUsageContent | undefined;
   readonly usageReference?: LumenPaywall4ReferenceViewModel | undefined;
   readonly trial?: LumenPaywallTrialContent | undefined;
@@ -823,8 +828,22 @@ export function LumenPaywall(props: LumenPaywallProps) {
     ) : (
       empty(props)
     );
-  if (props.variant === 3)
+  if (props.variant === 3) {
+    if (content?.plansReference) {
+      return (
+        <LumenPaywall3Reference
+          variantId={props.variantId}
+          density={props.density}
+          surface={props.surface}
+          state={props.state}
+          visualMode={props.visualMode}
+          className={props.className}
+          viewModel={content.plansReference}
+        />
+      );
+    }
     return content?.plans ? <Plans {...props} content={content.plans} /> : empty(props);
+  }
   if (props.variant === 4) {
     if (content?.usageReference) {
       return (

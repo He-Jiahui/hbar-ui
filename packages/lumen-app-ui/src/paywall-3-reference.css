@@ -100,8 +100,8 @@
 }
 
 .lumen-paywall3-plans {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   min-inline-size: 0;
   align-items: stretch;
   gap: 0.25rem;
@@ -118,8 +118,8 @@
 }
 
 .lumen-paywall3-plan {
-  position: relative;
   display: flex;
+  flex: 0 0 calc((100% - 0.5rem) / 3);
   min-inline-size: 0;
   flex-direction: column;
   align-items: stretch;
@@ -362,8 +362,11 @@
   }
 
   .lumen-paywall3-plans {
-    grid-template-columns: minmax(0, 1fr);
     overflow: visible;
+  }
+
+  .lumen-paywall3-plan {
+    flex-basis: 100%;
   }
 
   .lumen-paywall3-plans[data-hbar-app-ui-list-strategy='pane-scroll'] {
