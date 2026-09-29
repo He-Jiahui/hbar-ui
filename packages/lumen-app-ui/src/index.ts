@@ -1619,6 +1619,13 @@ export type {
   LumenOnboarding5ReferenceRole,
   LumenOnboarding5ReferenceViewModel,
 } from './onboarding-5-reference';
+export { LumenOnboarding6Reference } from './onboarding-6-reference';
+export type {
+  LumenOnboarding6ReferenceContent,
+  LumenOnboarding6ReferenceProps,
+  LumenOnboarding6ReferenceSummaryRow,
+  LumenOnboarding6ReferenceViewModel,
+} from './onboarding-6-reference';
 export {
   LumenList,
   LumenList01,
