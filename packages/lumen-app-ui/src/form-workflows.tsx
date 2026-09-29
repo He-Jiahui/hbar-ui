@@ -19,6 +19,7 @@ import { LumenForms6Reference, type LumenForms6ViewModel } from './forms-6-refer
 import { LumenForms7Reference, type LumenForms7ViewModel } from './forms-7-reference';
 import { LumenForms8Reference, type LumenForms8ViewModel } from './forms-8-reference';
 import { LumenForms9Reference, type LumenForms9ViewModel } from './forms-9-reference';
+import { LumenForms10Reference, type LumenForms10ViewModel } from './forms-10-reference';
 import './form-workflows.css';
 
 export interface LumenFormsListStrategy {
@@ -276,6 +277,7 @@ export interface LumenFormsContent {
   readonly communityArtsApplicationReference?: LumenForms7ViewModel | undefined;
   readonly inboundPalletRoutingReference?: LumenForms8ViewModel | undefined;
   readonly weeklyOpeningHoursReference?: LumenForms9ViewModel | undefined;
+  readonly guestSurveyReference?: LumenForms10ViewModel | undefined;
   readonly record?: LumenFormsRecordContent | undefined;
   readonly submission?: LumenFormsSubmissionContent | undefined;
   readonly booking?: LumenFormsBookingContent | undefined;
@@ -1191,8 +1193,12 @@ export function LumenForms(props: LumenFormsProps) {
     ) : (
       empty(props)
     );
-  if (props.variant === 10)
+  if (props.variant === 10) {
+    if (content?.guestSurveyReference) {
+      return <LumenForms10Reference instanceId={props.variantId} {...content.guestSurveyReference} />;
+    }
     return content?.survey ? <Survey {...props} content={content.survey} /> : empty(props);
+  }
   if (props.variant === 11)
     return content?.environment ? (
       <Environment {...props} content={content.environment} />

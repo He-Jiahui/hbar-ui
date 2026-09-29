@@ -1119,6 +1119,21 @@ export type {
   LumenForms9TimeOption,
   LumenForms9ViewModel,
 } from './forms-9-reference';
+export { LumenForms10Reference } from './forms-10-reference';
+export type {
+  LumenForms10Content,
+  LumenForms10Copy,
+  LumenForms10Highlight,
+  LumenForms10HighlightId,
+  LumenForms10MatrixCriterion,
+  LumenForms10MatrixCriterionId,
+  LumenForms10MatrixRatingId,
+  LumenForms10NpsScore,
+  LumenForms10Option,
+  LumenForms10PropertyCatalog,
+  LumenForms10ReferenceProps,
+  LumenForms10ViewModel,
+} from './forms-10-reference';
 export {
   LumenAppDialog,
   LumenAppDialog01,
