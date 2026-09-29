@@ -20,6 +20,10 @@ import {
   LumenOnboarding4Reference,
   type LumenOnboarding4ReferenceViewModel,
 } from './onboarding-4-reference';
+import {
+  LumenOnboarding5Reference,
+  type LumenOnboarding5ReferenceViewModel,
+} from './onboarding-5-reference';
 import './onboarding.css';
 
 export interface LumenOnboardingListStrategy {
@@ -159,6 +163,7 @@ export interface LumenOnboardingContent {
   readonly stepperReference?: LumenOnboarding2ReferenceViewModel | undefined;
   readonly checklistReference?: LumenOnboarding3ReferenceViewModel | undefined;
   readonly useCaseReference?: LumenOnboarding4ReferenceViewModel | undefined;
+  readonly invitationReference?: LumenOnboarding5ReferenceViewModel | undefined;
   readonly steps?: LumenOnboardingStepsContent | undefined;
   readonly checklist?: LumenOnboardingChecklistContent | undefined;
   readonly useCase?: LumenOnboardingUseCaseContent | undefined;
@@ -777,8 +782,22 @@ export function LumenOnboarding(props: LumenOnboardingProps) {
     }
     return content?.useCase ? <UseCase {...props} content={content.useCase} /> : empty(props);
   }
-  if (props.variant === 5)
+  if (props.variant === 5) {
+    if (content?.invitationReference) {
+      return (
+        <LumenOnboarding5Reference
+          variantId={props.variantId}
+          density={props.density}
+          surface={props.surface}
+          state={props.state}
+          visualMode={props.visualMode}
+          className={props.className}
+          viewModel={content.invitationReference}
+        />
+      );
+    }
     return content?.invite ? <Invite {...props} content={content.invite} /> : empty(props);
+  }
   if (props.variant === 6)
     return content?.complete ? <Complete {...props} content={content.complete} /> : empty(props);
   if (props.variant === 7)

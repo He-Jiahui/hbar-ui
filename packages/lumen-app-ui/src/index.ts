@@ -1611,6 +1611,14 @@ export type {
   LumenOnboarding4ReferenceUseCase,
   LumenOnboarding4ReferenceViewModel,
 } from './onboarding-4-reference';
+export { LumenOnboarding5Reference } from './onboarding-5-reference';
+export type {
+  LumenOnboarding5ReferenceContent,
+  LumenOnboarding5ReferenceInvitation,
+  LumenOnboarding5ReferenceProps,
+  LumenOnboarding5ReferenceRole,
+  LumenOnboarding5ReferenceViewModel,
+} from './onboarding-5-reference';
 export {
   LumenList,
   LumenList01,
