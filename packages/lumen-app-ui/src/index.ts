@@ -1005,6 +1005,19 @@ export type {
   LumenFormsForm1TextFieldId,
   LumenFormsForm1ViewModel,
 } from './forms-1-reference';
+export { LumenForms2Reference } from './forms-2-reference';
+export type {
+  LumenForms2Choice,
+  LumenForms2Content,
+  LumenForms2Copy,
+  LumenForms2Field,
+  LumenForms2FormatChoice,
+  LumenForms2FormatId,
+  LumenForms2ReadinessItemId,
+  LumenForms2ReferenceProps,
+  LumenForms2ReferenceViewModel,
+  LumenForms2TextFieldId,
+} from './forms-2-reference';
 export {
   LumenAppDialog,
   LumenAppDialog01,
