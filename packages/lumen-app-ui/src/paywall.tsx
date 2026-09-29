@@ -30,6 +30,7 @@ export interface LumenPaywallArticleContent {
   };
   readonly paragraphs: readonly string[];
   readonly benefits: readonly string[];
+  readonly listStrategy?: LumenPaywallListStrategy | undefined;
 }
 
 export interface LumenPaywallFeatureGateContent {
@@ -297,29 +298,33 @@ function Article(
           <LumenText as="p" variant="label" tone="muted" className="hbar-app-ui-paywall-eyebrow">
             {content.labels.eyebrow}
           </LumenText>
-          <LumenText as="h1" variant="title">
+          <LumenText as="h2" variant="title">
             {content.labels.title}
           </LumenText>
           <LumenText as="p" tone="muted" className="hbar-app-ui-paywall-byline">
             {content.labels.byline}
           </LumenText>
         </header>
-        <div className="hbar-app-ui-paywall-article-copy">
+        <div className="hbar-app-ui-paywall-article-copy" aria-hidden="true">
           {content.paragraphs.map((paragraph, index) => (
             <p key={`${index}-${paragraph}`}>{paragraph}</p>
           ))}
         </div>
         <section className="hbar-app-ui-paywall-member" aria-label={content.labels.memberTitle}>
           <span className="hbar-app-ui-paywall-icon" aria-label={content.labels.lockLabel}>
-            <Glyph name="lock" tier="md" />
+            <Glyph name="lock" tier="sm" />
           </span>
-          <LumenText as="h2" variant="heading">
+          <LumenText as="h3" variant="heading">
             {content.labels.memberTitle}
           </LumenText>
           <LumenText as="p" tone="muted">
             {content.labels.memberDescription}
           </LumenText>
-          <ul>
+          <ul
+            data-hbar-app-ui-list-strategy={content.listStrategy?.kind ?? 'content-grown'}
+            tabIndex={content.listStrategy?.kind === 'pane-scroll' ? 0 : undefined}
+            aria-label={content.listStrategy?.kind === 'pane-scroll' ? content.labels.memberTitle : undefined}
+          >
             {content.benefits.map((benefit, index) => (
               <li key={`${index}-${benefit}`}>
                 <Glyph name="check" tier="xs" />
@@ -331,7 +336,7 @@ function Article(
             <LumenButton tone="primary" onClick={() => report(onAction, 'upgrade')}>
               {content.labels.memberAction}
             </LumenButton>
-            <LumenButton variant="text" onClick={() => report(onAction, 'sign-in')}>
+            <LumenButton variant="outlined" onClick={() => report(onAction, 'sign-in')}>
               {content.labels.alreadyAction}
             </LumenButton>
           </div>
