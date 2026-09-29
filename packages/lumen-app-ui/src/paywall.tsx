@@ -39,7 +39,9 @@ export interface LumenPaywallFeatureGateContent {
     readonly description: string;
     readonly dismiss: string;
     readonly seeIncluded: string;
-    readonly price: string;
+    readonly emptyFeatures: string;
+    readonly priceAmount: string;
+    readonly priceDetails: string;
     readonly defer: string;
     readonly upgrade: string;
   };
@@ -323,7 +325,9 @@ function Article(
           <ul
             data-hbar-app-ui-list-strategy={content.listStrategy?.kind ?? 'content-grown'}
             tabIndex={content.listStrategy?.kind === 'pane-scroll' ? 0 : undefined}
-            aria-label={content.listStrategy?.kind === 'pane-scroll' ? content.labels.memberTitle : undefined}
+            aria-label={
+              content.listStrategy?.kind === 'pane-scroll' ? content.labels.memberTitle : undefined
+            }
           >
             {content.benefits.map((benefit, index) => (
               <li key={`${index}-${benefit}`}>
@@ -350,67 +354,90 @@ function FeatureGate(
   props: Omit<LumenPaywallProps, 'content'> & { content: LumenPaywallFeatureGateContent },
 ) {
   const { content, onAction } = props;
-  const [open, setOpen] = React.useState(true);
-  const close = () => {
-    setOpen(false);
-    report(onAction, 'dismiss');
-  };
   const features = uniqueLumenPaywallItems(content.features);
   return (
     <Root {...props} className="hbar-app-ui-paywall-feature-gate-surface">
-      {open ? (
-        <section
-          className="hbar-app-ui-paywall-feature-gate"
-          role="dialog"
-          aria-label={content.labels.title}
-        >
-          <div className="hbar-app-ui-paywall-feature-card">
-            <header className="hbar-app-ui-paywall-feature-head">
-              <span className="hbar-app-ui-paywall-icon" aria-label={content.labels.seeIncluded}>
-                <Glyph name="sparkles" tier="md" />
-              </span>
-              <div>
-                <LumenText as="h2" variant="heading">
-                  {content.labels.title}
-                </LumenText>
-                <LumenText as="p" tone="muted">
-                  {content.labels.description}
-                </LumenText>
-              </div>
-              <LumenIconButton label={content.labels.dismiss} onClick={close}>
-                <Glyph name="close" />
-              </LumenIconButton>
-            </header>
-            <ul
-              className="hbar-app-ui-paywall-feature-list"
-              data-hbar-app-ui-list-strategy={content.listStrategy.kind}
-            >
-              {features.map((feature) => (
-                <li className="hbar-app-ui-paywall-feature-row" key={feature.id}>
-                  <Glyph name="check" />
-                  <div>
-                    <strong>{feature.title}</strong>
-                    <p>{feature.description}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <footer className="hbar-app-ui-paywall-feature-footer">
-              <LumenText as="p" variant="label">
-                {content.labels.price}
-              </LumenText>
-              <div className="hbar-app-ui-paywall-feature-actions">
-                <LumenButton variant="text" onClick={close}>
-                  {content.labels.defer}
-                </LumenButton>
-                <LumenButton tone="primary" onClick={() => report(onAction, 'upgrade')}>
-                  {content.labels.upgrade}
-                </LumenButton>
-              </div>
-            </footer>
+      <div
+        className="hbar-app-ui-paywall-feature-gate hbar-app-ui-paywall-feature-card"
+        role="dialog"
+        aria-label={content.labels.title}
+        data-paywall2-dialog
+      >
+        <header className="hbar-app-ui-paywall-feature-head">
+          <span className="hbar-app-ui-paywall-icon" aria-hidden="true">
+            <Glyph name="sparkles" tier="sm" />
+          </span>
+          <div>
+            <LumenText as="h2" variant="heading">
+              {content.labels.title}
+            </LumenText>
+            <LumenText as="p" tone="muted">
+              {content.labels.description}
+            </LumenText>
           </div>
-        </section>
-      ) : null}
+          <LumenIconButton
+            label={content.labels.dismiss}
+            data-paywall2-action="dismiss"
+            onClick={() => report(onAction, 'dismiss-request')}
+          >
+            <Glyph name="close" />
+          </LumenIconButton>
+        </header>
+        {features.length ? (
+          <div
+            className="hbar-app-ui-paywall-feature-list"
+            data-hbar-app-ui-list-strategy={content.listStrategy.kind}
+            data-paywall2-feature-list
+            tabIndex={content.listStrategy.kind === 'pane-scroll' ? 0 : undefined}
+            aria-label={
+              content.listStrategy.kind === 'pane-scroll' ? content.labels.seeIncluded : undefined
+            }
+          >
+            {features.map((feature) => (
+              <div
+                className="hbar-app-ui-paywall-feature-row"
+                key={feature.id}
+                data-paywall2-feature-id={feature.id}
+              >
+                <Glyph name="check" tier="xs" />
+                <div>
+                  <LumenText as="p" variant="label">
+                    {feature.title}
+                  </LumenText>
+                  <LumenText as="p" tone="muted">
+                    {feature.description}
+                  </LumenText>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <LumenText as="p" className="hbar-app-ui-paywall-feature-empty" tone="muted">
+            {content.labels.emptyFeatures}
+          </LumenText>
+        )}
+        <footer className="hbar-app-ui-paywall-feature-footer">
+          <LumenText as="p" className="hbar-app-ui-paywall-feature-price">
+            <strong>{content.labels.priceAmount}</strong> <span>{content.labels.priceDetails}</span>
+          </LumenText>
+          <div className="hbar-app-ui-paywall-feature-actions">
+            <LumenButton
+              variant="text"
+              data-paywall2-action="defer"
+              onClick={() => report(onAction, 'defer-request')}
+            >
+              {content.labels.defer}
+            </LumenButton>
+            <LumenButton
+              tone="primary"
+              data-paywall2-action="upgrade"
+              onClick={() => report(onAction, 'upgrade-request')}
+            >
+              {content.labels.upgrade}
+            </LumenButton>
+          </div>
+        </footer>
+      </div>
     </Root>
   );
 }
