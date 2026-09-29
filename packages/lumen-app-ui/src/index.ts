@@ -1626,6 +1626,13 @@ export type {
   LumenOnboarding6ReferenceSummaryRow,
   LumenOnboarding6ReferenceViewModel,
 } from './onboarding-6-reference';
+export { LumenOnboarding7Reference } from './onboarding-7-reference';
+export type {
+  LumenOnboarding7ReferenceContent,
+  LumenOnboarding7ReferenceProps,
+  LumenOnboarding7ReferenceRegion,
+  LumenOnboarding7ReferenceViewModel,
+} from './onboarding-7-reference';
 export {
   LumenList,
   LumenList01,
