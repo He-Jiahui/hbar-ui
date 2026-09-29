@@ -4,6 +4,10 @@ import * as React from 'react';
 import { LumenFormField, LumenInput, LumenSelect } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
+import {
+  LumenOnboarding1Reference,
+  type LumenOnboarding1ReferenceViewModel,
+} from './onboarding-1-reference';
 import './onboarding.css';
 
 export interface LumenOnboardingListStrategy {
@@ -139,6 +143,7 @@ export interface LumenOnboardingSlugContent {
 }
 export interface LumenOnboardingContent {
   readonly profile?: LumenOnboardingProfileContent | undefined;
+  readonly profileReference?: LumenOnboarding1ReferenceViewModel | undefined;
   readonly steps?: LumenOnboardingStepsContent | undefined;
   readonly checklist?: LumenOnboardingChecklistContent | undefined;
   readonly useCase?: LumenOnboardingUseCaseContent | undefined;
@@ -693,8 +698,22 @@ function empty(props: LumenOnboardingProps) {
 export function LumenOnboarding(props: LumenOnboardingProps) {
   const inheritedContent = useLumenOnboardingContent();
   const content = props.content ?? inheritedContent;
-  if (props.variant === 1)
+  if (props.variant === 1) {
+    if (content?.profileReference) {
+      return (
+        <LumenOnboarding1Reference
+          variantId={props.variantId}
+          density={props.density}
+          surface={props.surface}
+          state={props.state}
+          visualMode={props.visualMode}
+          className={props.className}
+          viewModel={content.profileReference}
+        />
+      );
+    }
     return content?.profile ? <Profile {...props} content={content.profile} /> : empty(props);
+  }
   if (props.variant === 2)
     return content?.steps ? <Steps {...props} content={content.steps} /> : empty(props);
   if (props.variant === 3)

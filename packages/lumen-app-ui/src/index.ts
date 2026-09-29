@@ -1580,6 +1580,13 @@ export type {
   LumenOnboardingUseCaseContent,
   LumenOnboardingVariantProps,
 } from './onboarding';
+export { LumenOnboarding1Reference } from './onboarding-1-reference';
+export type {
+  LumenOnboarding1ReferenceContent,
+  LumenOnboarding1ReferenceProps,
+  LumenOnboarding1ReferenceTimezoneOption,
+  LumenOnboarding1ReferenceViewModel,
+} from './onboarding-1-reference';
 export {
   LumenList,
   LumenList01,
