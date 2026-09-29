@@ -1091,6 +1091,22 @@ export type {
   LumenForms7ReferenceProps,
   LumenForms7ViewModel,
 } from './forms-7-reference';
+export { LumenForms8Reference } from './forms-8-reference';
+export type {
+  LumenForms8Action,
+  LumenForms8Condition,
+  LumenForms8ConditionValue,
+  LumenForms8Content,
+  LumenForms8Copy,
+  LumenForms8Draft,
+  LumenForms8Field,
+  LumenForms8MatchMode,
+  LumenForms8Operator,
+  LumenForms8Option,
+  LumenForms8ReferenceProps,
+  LumenForms8ValueKind,
+  LumenForms8ViewModel,
+} from './forms-8-reference';
 export {
   LumenAppDialog,
   LumenAppDialog01,

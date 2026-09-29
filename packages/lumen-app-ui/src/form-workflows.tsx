@@ -17,6 +17,7 @@ import { LumenForms4Reference, type LumenForms4ViewModel } from './forms-4-refer
 import { LumenForms5Reference, type LumenForms5ViewModel } from './forms-5-reference';
 import { LumenForms6Reference, type LumenForms6ViewModel } from './forms-6-reference';
 import { LumenForms7Reference, type LumenForms7ViewModel } from './forms-7-reference';
+import { LumenForms8Reference, type LumenForms8ViewModel } from './forms-8-reference';
 import './form-workflows.css';
 
 export interface LumenFormsListStrategy {
@@ -272,6 +273,7 @@ export interface LumenFormsContent {
   readonly workspaceProvisionReference?: LumenForms5ViewModel | undefined;
   readonly checkoutReference?: LumenForms6ViewModel | undefined;
   readonly communityArtsApplicationReference?: LumenForms7ViewModel | undefined;
+  readonly inboundPalletRoutingReference?: LumenForms8ViewModel | undefined;
   readonly record?: LumenFormsRecordContent | undefined;
   readonly submission?: LumenFormsSubmissionContent | undefined;
   readonly booking?: LumenFormsBookingContent | undefined;
@@ -1172,7 +1174,13 @@ export function LumenForms(props: LumenFormsProps) {
     );
   }
   if (props.variant === 8)
-    return content?.rule ? <Rule {...props} content={content.rule} /> : empty(props);
+    return content?.inboundPalletRoutingReference ? (
+      <LumenForms8Reference instanceId={props.variantId} {...content.inboundPalletRoutingReference} />
+    ) : content?.rule ? (
+      <Rule {...props} content={content.rule} />
+    ) : (
+      empty(props)
+    );
   if (props.variant === 9)
     return content?.hours ? <Hours {...props} content={content.hours} /> : empty(props);
   if (props.variant === 10)
