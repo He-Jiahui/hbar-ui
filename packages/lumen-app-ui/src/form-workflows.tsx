@@ -12,6 +12,7 @@ import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { LumenFormsForm1Reference, type LumenFormsForm1ViewModel } from './forms-1-reference';
 import { LumenForms2Reference, type LumenForms2ReferenceViewModel } from './forms-2-reference';
+import { LumenForms3Reference, type LumenForms3ViewModel } from './forms-3-reference';
 import './form-workflows.css';
 
 export interface LumenFormsListStrategy {
@@ -262,6 +263,7 @@ export interface LumenFormsQuoteContent {
 export interface LumenFormsContent {
   readonly surveyDeploymentReference?: LumenFormsForm1ViewModel | undefined;
   readonly sessionSubmissionReference?: LumenForms2ReferenceViewModel | undefined;
+  readonly freightBookingReference?: LumenForms3ViewModel | undefined;
   readonly record?: LumenFormsRecordContent | undefined;
   readonly submission?: LumenFormsSubmissionContent | undefined;
   readonly booking?: LumenFormsBookingContent | undefined;
@@ -1123,7 +1125,13 @@ export function LumenForms(props: LumenFormsProps) {
       empty(props)
     );
   if (props.variant === 3)
-    return content?.booking ? <Booking {...props} content={content.booking} /> : empty(props);
+    return content?.freightBookingReference ? (
+      <LumenForms3Reference instanceId={props.variantId} {...content.freightBookingReference} />
+    ) : content?.booking ? (
+      <Booking {...props} content={content.booking} />
+    ) : (
+      empty(props)
+    );
   if (props.variant === 4)
     return content?.properties ? (
       <Properties {...props} content={content.properties} />
