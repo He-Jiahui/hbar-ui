@@ -457,6 +457,10 @@ export type {
 } from './authentication';
 export { LumenCodeVerification } from './authentication/CodeVerification';
 export type { LumenCodeVerificationProps } from './authentication/CodeVerification';
+export {
+  canContinueProviderFirst as canContinueLumenProviderFirst,
+} from './authentication/ProviderFirstAuthentication';
+export { selectQuote as selectLumenAuthQuote } from './authentication/QuoteAuthentication';
 export type {
   LumenAuthAccount,
   LumenAuthAccountContent,
@@ -475,7 +479,10 @@ export type {
   LumenAuthPasswordResetContent,
   LumenAuthProject,
   LumenAuthProviderChoice,
+  LumenAuthProviderFirstContinuationRequest,
   LumenAuthProviderFirstContent,
+  LumenAuthProviderFirstMode,
+  LumenAuthProviderFirstReferenceFlow,
   LumenAuthProviderProps,
   LumenAuthQuote,
   LumenAuthQuoteContent,

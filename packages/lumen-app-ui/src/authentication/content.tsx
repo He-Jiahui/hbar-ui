@@ -85,12 +85,36 @@ export interface LumenAuthProviderFirstContent {
   };
   /** Providers shown in the social/provider button group. */
   readonly socialProviders: readonly LumenAuthProviderChoice[];
-  /** Social providers remain a short, content-grown action group. */
+  /** The provider group can grow with short content or scroll inside a bounded pane. */
   readonly providerListStrategy: LumenAuthListStrategy;
+  /** Accessible name for the provider group when its strategy owns a scroll region. */
+  readonly providerListLabel?: string | undefined;
   /** Stable technical IDs used for the email and enterprise branches. */
   readonly emailProviderId: string;
   readonly ssoProviderId: string;
   readonly initialProviderId: string;
+  /** Optional Host-owned projection for controlled reference implementations. */
+  readonly referenceFlow?: LumenAuthProviderFirstReferenceFlow | undefined;
+}
+
+export type LumenAuthProviderFirstMode = 'email' | 'sso';
+
+export interface LumenAuthProviderFirstContinuationRequest {
+  readonly mode: LumenAuthProviderFirstMode;
+  readonly providerId: string;
+  readonly draft: string;
+}
+
+export interface LumenAuthProviderFirstReferenceFlow {
+  readonly mode: LumenAuthProviderFirstMode;
+  readonly email: string;
+  readonly domain: string;
+  readonly onEmailChange: (value: string) => void;
+  readonly onDomainChange: (value: string) => void;
+  readonly onModeChange: (mode: LumenAuthProviderFirstMode) => void;
+  readonly onContinueRequest: (request: LumenAuthProviderFirstContinuationRequest) => void;
+  readonly onProviderRequest: (providerId: string) => void;
+  readonly onNavigationRequest: (action: 'create-account' | 'terms' | 'privacy') => void;
 }
 
 export interface LumenAuthQuote {
