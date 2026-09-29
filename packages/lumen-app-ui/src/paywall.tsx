@@ -20,6 +20,10 @@ import {
   LumenPaywall6Reference,
   type LumenPaywall6ReferenceViewModel,
 } from './paywall-6-reference';
+import {
+  LumenPaywall7Reference,
+  type LumenPaywall7ReferenceViewModel,
+} from './paywall-7-reference';
 import './paywall.css';
 
 export type LumenPaywallListStrategy =
@@ -187,6 +191,7 @@ export interface LumenPaywallContent {
   readonly reads?: LumenPaywallReadsContent | undefined;
   readonly readsReference?: LumenPaywall6ReferenceViewModel | undefined;
   readonly seat?: LumenPaywallSeatContent | undefined;
+  readonly adminReference?: LumenPaywall7ReferenceViewModel | undefined;
 }
 
 export interface LumenPaywallProviderProps {
@@ -897,8 +902,22 @@ export function LumenPaywall(props: LumenPaywallProps) {
     }
     return content?.reads ? <Reads {...props} content={content.reads} /> : empty(props);
   }
-  if (props.variant === 7)
+  if (props.variant === 7) {
+    if (content?.adminReference) {
+      return (
+        <LumenPaywall7Reference
+          variantId={props.variantId}
+          density={props.density}
+          surface={props.surface}
+          state={props.state}
+          visualMode={props.visualMode}
+          className={props.className}
+          viewModel={content.adminReference}
+        />
+      );
+    }
     return content?.seat ? <Seat {...props} content={content.seat} /> : empty(props);
+  }
   return empty(props);
 }
 

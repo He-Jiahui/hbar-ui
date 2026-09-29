@@ -422,6 +422,13 @@ export type {
   LumenPaywall6ReferenceSegment,
   LumenPaywall6ReferenceViewModel,
 } from './paywall-6-reference';
+export { LumenPaywall7Reference } from './paywall-7-reference';
+export type {
+  LumenPaywall7ReferenceContent,
+  LumenPaywall7ReferenceProps,
+  LumenPaywall7ReferenceRecipient,
+  LumenPaywall7ReferenceViewModel,
+} from './paywall-7-reference';
 export {
   LumenAuthentication,
   LumenAuthentication01,
