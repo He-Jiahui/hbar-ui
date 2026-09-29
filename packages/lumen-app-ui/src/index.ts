@@ -400,6 +400,13 @@ export type {
   LumenPaywall4ReferenceProps,
   LumenPaywall4ReferenceViewModel,
 } from './paywall-4-reference';
+export { LumenPaywall5Reference, uniqueLumenPaywall5Rows } from './paywall-5-reference';
+export type {
+  LumenPaywall5ReferenceContent,
+  LumenPaywall5ReferenceProps,
+  LumenPaywall5ReferenceRow,
+  LumenPaywall5ReferenceViewModel,
+} from './paywall-5-reference';
 export {
   LumenAuthentication,
   LumenAuthentication01,

@@ -8,6 +8,10 @@ import {
   LumenPaywall4Reference,
   type LumenPaywall4ReferenceViewModel,
 } from './paywall-4-reference';
+import {
+  LumenPaywall5Reference,
+  type LumenPaywall5ReferenceViewModel,
+} from './paywall-5-reference';
 import './paywall.css';
 
 export type LumenPaywallListStrategy =
@@ -170,6 +174,7 @@ export interface LumenPaywallContent {
   readonly usage?: LumenPaywallUsageContent | undefined;
   readonly usageReference?: LumenPaywall4ReferenceViewModel | undefined;
   readonly trial?: LumenPaywallTrialContent | undefined;
+  readonly trialReference?: LumenPaywall5ReferenceViewModel | undefined;
   readonly reads?: LumenPaywallReadsContent | undefined;
   readonly seat?: LumenPaywallSeatContent | undefined;
 }
@@ -836,8 +841,22 @@ export function LumenPaywall(props: LumenPaywallProps) {
     }
     return content?.usage ? <Usage {...props} content={content.usage} /> : empty(props);
   }
-  if (props.variant === 5)
+  if (props.variant === 5) {
+    if (content?.trialReference) {
+      return (
+        <LumenPaywall5Reference
+          variantId={props.variantId}
+          density={props.density}
+          surface={props.surface}
+          state={props.state}
+          visualMode={props.visualMode}
+          className={props.className}
+          viewModel={content.trialReference}
+        />
+      );
+    }
     return content?.trial ? <Trial {...props} content={content.trial} /> : empty(props);
+  }
   if (props.variant === 6)
     return content?.reads ? <Reads {...props} content={content.reads} /> : empty(props);
   if (props.variant === 7)
