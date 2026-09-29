@@ -14,6 +14,7 @@ import { LumenFormsForm1Reference, type LumenFormsForm1ViewModel } from './forms
 import { LumenForms2Reference, type LumenForms2ReferenceViewModel } from './forms-2-reference';
 import { LumenForms3Reference, type LumenForms3ViewModel } from './forms-3-reference';
 import { LumenForms4Reference, type LumenForms4ViewModel } from './forms-4-reference';
+import { LumenForms5Reference, type LumenForms5ViewModel } from './forms-5-reference';
 import './form-workflows.css';
 
 export interface LumenFormsListStrategy {
@@ -266,6 +267,7 @@ export interface LumenFormsContent {
   readonly sessionSubmissionReference?: LumenForms2ReferenceViewModel | undefined;
   readonly freightBookingReference?: LumenForms3ViewModel | undefined;
   readonly equipmentRecordReference?: LumenForms4ViewModel | undefined;
+  readonly workspaceProvisionReference?: LumenForms5ViewModel | undefined;
   readonly record?: LumenFormsRecordContent | undefined;
   readonly submission?: LumenFormsSubmissionContent | undefined;
   readonly booking?: LumenFormsBookingContent | undefined;
@@ -1142,8 +1144,13 @@ export function LumenForms(props: LumenFormsProps) {
     ) : (
       empty(props)
     );
-  if (props.variant === 5)
-    return content?.provision ? <Provision {...props} content={content.provision} /> : empty(props);
+  if (props.variant === 5) {
+    if (content?.workspaceProvisionReference) {
+      return <LumenForms5Reference instanceId={props.variantId} {...content.workspaceProvisionReference} />;
+    }
+    if (content?.provision) return <Provision {...props} content={content.provision} />;
+    return empty(props);
+  }
   if (props.variant === 6)
     return content?.checkout ? <Checkout {...props} content={content.checkout} /> : empty(props);
   if (props.variant === 7)

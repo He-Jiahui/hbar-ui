@@ -1053,6 +1053,18 @@ export type {
   LumenForms4TextPropertyId,
   LumenForms4ViewModel,
 } from './forms-4-reference';
+export { LumenForms5Reference } from './forms-5-reference';
+export type {
+  LumenForms5Content,
+  LumenForms5Copy,
+  LumenForms5PasswordRequirementId,
+  LumenForms5PasswordRequirements,
+  LumenForms5PlanChoice,
+  LumenForms5ReferenceProps,
+  LumenForms5RegionChoice,
+  LumenForms5TextFieldId,
+  LumenForms5ViewModel,
+} from './forms-5-reference';
 export {
   LumenAppDialog,
   LumenAppDialog01,
