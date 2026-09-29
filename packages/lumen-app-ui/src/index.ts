@@ -1596,6 +1596,13 @@ export type {
   LumenOnboarding2ReferenceStepStatus,
   LumenOnboarding2ReferenceViewModel,
 } from './onboarding-2-reference';
+export { LumenOnboarding3Reference } from './onboarding-3-reference';
+export type {
+  LumenOnboarding3ReferenceContent,
+  LumenOnboarding3ReferenceProps,
+  LumenOnboarding3ReferenceTask,
+  LumenOnboarding3ReferenceViewModel,
+} from './onboarding-3-reference';
 export {
   LumenList,
   LumenList01,
