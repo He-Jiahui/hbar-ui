@@ -235,7 +235,9 @@ export function uniqueLumenPaywallItems<Item extends { readonly id: string }>(
 ): readonly Item[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -245,32 +247,27 @@ function report(onAction: LumenPaywallProps['onAction'], actionId: string, value
   onAction?.(value === undefined ? { actionId } : { actionId, value });
 }
 
+const PAYWALL_GLYPH_PATHS = {
+  check: 'm5 12 4 4 10-10',
+  close: 'm6 6 12 12m0-12L6 18',
+  sparkles:
+    'm12 3 1.4 4.1L17.5 8.5l-4.1 1.4L12 14l-1.4-4.1-4.1-1.4 4.1-1.4L12 3Zm6 10 .8 2.2L21 16l-2.2.8L18 19l-.8-2.2L15 16l2.2-.8L18 13Z',
+  card: 'M3 6.5h18v12H3zM3 10h18M7 15h4',
+  building: 'M4 21V5l8-3 8 3v16M8 8h1m6 0h1M8 12h1m6 0h1M8 16h1m6 0h1M10 21v-3h4v3',
+  alert: 'M12 3 2.8 20h18.4L12 3Zm0 6v5m0 3h.01',
+  lock: 'M7 10V8a5 5 0 0 1 10 0v2m-12 0h14v11H5z',
+};
+
 function Glyph({
   name,
   tier = 'sm',
 }: {
-  readonly name: string;
-  readonly tier?: 'xs' | 'sm' | 'md' | 'lg';
+  readonly name: keyof typeof PAYWALL_GLYPH_PATHS;
+  readonly tier?: 'xs' | 'sm' | 'md' | 'lg' | undefined;
 }) {
   return (
     <svg className="lumen-paywall-glyph" data-tier={tier} viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d={
-          name === 'check'
-            ? 'm5 12 4 4 10-10'
-            : name === 'close'
-              ? 'm6 6 12 12m0-12L6 18'
-              : name === 'sparkles'
-                ? 'm12 3 1.4 4.1L17.5 8.5l-4.1 1.4L12 14l-1.4-4.1-4.1-1.4 4.1-1.4L12 3Zm6 10 .8 2.2L21 16l-2.2.8L18 19l-.8-2.2L15 16l2.2-.8L18 13Z'
-                : name === 'card'
-                  ? 'M3 6.5h18v12H3zM3 10h18M7 15h4'
-                  : name === 'building'
-                    ? 'M4 21V5l8-3 8 3v16M8 8h1m6 0h1M8 12h1m6 0h1M8 16h1m6 0h1M10 21v-3h4v3'
-                    : name === 'alert'
-                      ? 'M12 3 2.8 20h18.4L12 3Zm0 6v5m0 3h.01'
-                      : 'M7 10V8a5 5 0 0 1 10 0v2m-12 0h14v11H5z'
-        }
-      />
+      <path d={PAYWALL_GLYPH_PATHS[name]} />
     </svg>
   );
 }
@@ -470,7 +467,6 @@ function FeatureGate(
 function Plans(props: Omit<LumenPaywallProps, 'content'> & { content: LumenPaywallPlanContent }) {
   const { content, onAction } = props;
   const [period, setPeriod] = React.useState(content.initialPeriod);
-  React.useEffect(() => setPeriod(content.initialPeriod), [content.initialPeriod]);
   const plans = uniqueLumenPaywallItems(content.plans);
   return (
     <Root {...props} className="hbar-app-ui-paywall-plans-surface">
@@ -704,7 +700,9 @@ function Reads(props: Omit<LumenPaywallProps, 'content'> & { content: LumenPaywa
           className="hbar-app-ui-paywall-reads-form"
           onSubmit={(event) => {
             event.preventDefault();
-            if (email.trim()) report(onAction, 'keep-reading', email.trim());
+            if (email.trim()) {
+              report(onAction, 'keep-reading', email.trim());
+            }
           }}
         >
           <LumenInput
@@ -830,14 +828,16 @@ function empty(props: LumenPaywallProps) {
 export function LumenPaywall(props: LumenPaywallProps) {
   const inheritedContent = useLumenPaywallContent();
   const content = props.content ?? inheritedContent;
-  if (props.variant === 1)
+  if (props.variant === 1) {
     return content?.article ? <Article {...props} content={content.article} /> : empty(props);
-  if (props.variant === 2)
+  }
+  if (props.variant === 2) {
     return content?.featureGate ? (
       <FeatureGate {...props} content={content.featureGate} />
     ) : (
       empty(props)
     );
+  }
   if (props.variant === 3) {
     if (content?.plansReference) {
       return (
@@ -852,7 +852,11 @@ export function LumenPaywall(props: LumenPaywallProps) {
         />
       );
     }
-    return content?.plans ? <Plans {...props} content={content.plans} /> : empty(props);
+    return content?.plans ? (
+      <Plans key={content.plans.initialPeriod} {...props} content={content.plans} />
+    ) : (
+      empty(props)
+    );
   }
   if (props.variant === 4) {
     if (content?.usageReference) {
