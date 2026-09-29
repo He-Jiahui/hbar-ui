@@ -1065,6 +1065,21 @@ export type {
   LumenForms5TextFieldId,
   LumenForms5ViewModel,
 } from './forms-5-reference';
+export { LumenForms6Reference } from './forms-6-reference';
+export type {
+  LumenForms6AddressContent,
+  LumenForms6AddressFieldId,
+  LumenForms6AddressId,
+  LumenForms6CartLine,
+  LumenForms6Choice,
+  LumenForms6Content,
+  LumenForms6Copy,
+  LumenForms6PaymentFieldId,
+  LumenForms6ReferenceProps,
+  LumenForms6RegionContent,
+  LumenForms6ShippingOption,
+  LumenForms6ViewModel,
+} from './forms-6-reference';
 export {
   LumenAppDialog,
   LumenAppDialog01,
