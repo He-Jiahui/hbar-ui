@@ -393,6 +393,13 @@ export type {
   LumenPaywallUsageMeter,
   LumenPaywallVariantProps,
 } from './paywall';
+export { LumenPaywall4Reference, uniqueLumenPaywall4Meters } from './paywall-4-reference';
+export type {
+  LumenPaywall4ReferenceContent,
+  LumenPaywall4ReferenceMeter,
+  LumenPaywall4ReferenceProps,
+  LumenPaywall4ReferenceViewModel,
+} from './paywall-4-reference';
 export {
   LumenAuthentication,
   LumenAuthentication01,
