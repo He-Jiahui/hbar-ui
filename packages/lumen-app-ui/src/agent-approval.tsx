@@ -10,6 +10,7 @@ import './agent-approval-queue.css';
 import './agent-approval-permission.css';
 import './agent-approval-cost.css';
 import './agent-approval-history.css';
+import './agent-approval-practical-flow.css';
 
 export type LumenAgentApprovalListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -26,6 +27,11 @@ export type LumenAgentApprovalState =
   | 'rejected';
 
 export interface LumenAgentApprovalInlineContent {
+  readonly requestId?: string | undefined;
+  readonly state?: 'pending' | 'approved' | 'rejected' | undefined;
+  readonly busy?: boolean | undefined;
+  readonly onDecision?:
+    ((requestId: string, decision: 'approved' | 'rejected') => void) | undefined;
   readonly labels: {
     readonly day: string;
     readonly showRequest: string;
@@ -62,6 +68,11 @@ export interface LumenAgentApprovalChange {
 }
 
 export interface LumenAgentApprovalDiffContent {
+  readonly requestId?: string | undefined;
+  readonly state?: 'pending' | 'approved' | 'rejected' | 'always-allow' | undefined;
+  readonly busy?: boolean | undefined;
+  readonly onDecision?:
+    ((requestId: string, decision: 'approved' | 'rejected' | 'always-allow') => void) | undefined;
   readonly labels: {
     readonly headerTitle: string;
     readonly agent: string;
@@ -262,6 +273,9 @@ export interface LumenAgentApprovalHistoryContent {
 }
 
 export interface LumenAgentApprovalContent {
+  /** Opt-in content-grown presentation with feedback supplied by the owning Host. */
+  readonly presentation?:
+    { readonly ownerId: string; readonly notice?: string | undefined } | undefined;
   readonly inline?: LumenAgentApprovalInlineContent | undefined;
   readonly diff?: LumenAgentApprovalDiffContent | undefined;
   readonly queue?: LumenAgentApprovalQueueContent | undefined;
@@ -294,6 +308,8 @@ export type LumenAgentApprovalVariantProps = Omit<LumenAgentApprovalProps, 'vari
 const ApprovalContentContext = React.createContext<LumenAgentApprovalContent | undefined>(
   undefined,
 );
+const ApprovalPresentationContext =
+  React.createContext<LumenAgentApprovalContent['presentation']>(undefined);
 
 export function LumenAgentApprovalProvider({ content, children }: LumenAgentApprovalProviderProps) {
   return (
@@ -310,7 +326,7 @@ export function uniqueLumenAgentApprovalItems<Item extends { readonly id: string
 ): readonly Item[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (!item.id.trim() || seen.has(item.id)) return false;
     seen.add(item.id);
     return true;
   });
@@ -374,8 +390,10 @@ function ApprovalRoot({
   className,
   children,
 }: Omit<LumenAgentApprovalProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
+  const presentation = React.useContext(ApprovalPresentationContext);
   const contentClassName = [
     'lumen-agent-approval',
+    presentation ? 'lumen-agent-approval-preview' : '',
     'hbar-app-ui-agent-approval-surface',
     `hbar-app-ui-agent-approval-variant-${variant}`,
     variant === 5 ? 'hbar-app-ui-stage-padding-owner' : '',
@@ -391,7 +409,7 @@ function ApprovalRoot({
     <LumenSurface
       as="section"
       boundary="none"
-      className="lumen-agent-approval-surface"
+      className={`lumen-agent-approval-surface${presentation ? ' lumen-agent-approval-preview-root' : ''}`}
       contentClassName={contentClassName}
       data-lumen-component="agent-approval"
       data-lumen-variant={variant}
@@ -399,6 +417,11 @@ function ApprovalRoot({
       data-hbar-app-ui-surface={surface}
       data-hbar-app-ui-state={state}
     >
+      {presentation?.notice ? (
+        <p className="lumen-agent-approval-preview-notice" role="status">
+          {presentation.notice}
+        </p>
+      ) : null}
       {children}
     </LumenSurface>
   );
@@ -436,11 +459,21 @@ function InlineApproval(
   props: Omit<LumenAgentApprovalProps, 'content'> & { content: LumenAgentApprovalInlineContent },
 ) {
   const { content, onAction } = props;
-  const [decision, setDecision] = React.useState<'pending' | 'approved' | 'rejected'>('pending');
+  const [localDecision, setDecision] = React.useState<'pending' | 'approved' | 'rejected'>(
+    'pending',
+  );
+  const decision = content.state ?? localDecision;
+  const disabled =
+    Boolean(content.busy) ||
+    decision !== 'pending' ||
+    (content.state !== undefined && (!content.onDecision || !content.requestId?.trim()));
   const [requestOpen, setRequestOpen] = React.useState(false);
   const { scrollPane, scrollEdges } = useApprovalScrollEdges();
   const decide = (value: 'approved' | 'rejected') => {
-    setDecision(value);
+    if (disabled) return;
+    if (content.state !== undefined) {
+      if (content.requestId) content.onDecision?.(content.requestId, value);
+    } else setDecision(value);
     report(onAction, 'decide-inline-approval', value);
   };
   const outcome = decision === 'pending' ? undefined : content.outcomes[decision];
@@ -500,10 +533,14 @@ function InlineApproval(
                     {requestOpen ? content.labels.hideRequest : content.labels.showRequest}
                   </LumenButton>
                   <div>
-                    <LumenButton variant="outlined" onClick={() => decide('rejected')}>
+                    <LumenButton
+                      variant="outlined"
+                      disabled={disabled}
+                      onClick={() => decide('rejected')}
+                    >
                       {content.labels.reject}
                     </LumenButton>
-                    <LumenButton onClick={() => decide('approved')}>
+                    <LumenButton disabled={disabled} onClick={() => decide('approved')}>
                       {content.labels.approve}
                     </LumenButton>
                   </div>
@@ -541,13 +578,21 @@ function DiffApproval(
   const { content, onAction } = props;
   const changes = uniqueLumenAgentApprovalItems(content.changes);
   const [open, setOpen] = React.useState(false);
-  const [decision, setDecision] = React.useState<
+  const [localDecision, setDecision] = React.useState<
     'pending' | 'approved' | 'rejected' | 'always-allow'
   >('pending');
+  const decision = content.state ?? localDecision;
+  const disabled =
+    Boolean(content.busy) ||
+    decision !== 'pending' ||
+    (content.state !== undefined && (!content.onDecision || !content.requestId?.trim()));
   const { scrollPane, scrollEdges } = useApprovalScrollEdges();
   const outcome = decision === 'pending' ? undefined : content.outcomes[decision];
   const decide = (value: 'approved' | 'rejected' | 'always-allow') => {
-    setDecision(value);
+    if (disabled) return;
+    if (content.state !== undefined) {
+      if (content.requestId) content.onDecision?.(content.requestId, value);
+    } else setDecision(value);
     report(onAction, 'decide-diff-approval', value);
   };
   return (
@@ -625,13 +670,21 @@ function DiffApproval(
                         {open ? content.labels.hideDiff : content.labels.showDiff}
                       </LumenButton>
                       <div>
-                        <LumenButton variant="outlined" onClick={() => decide('rejected')}>
+                        <LumenButton
+                          variant="outlined"
+                          disabled={disabled}
+                          onClick={() => decide('rejected')}
+                        >
                           {content.labels.reject}
                         </LumenButton>
-                        <LumenButton variant="outlined" onClick={() => decide('always-allow')}>
+                        <LumenButton
+                          variant="outlined"
+                          disabled={disabled}
+                          onClick={() => decide('always-allow')}
+                        >
                           {content.labels.alwaysAllow}
                         </LumenButton>
-                        <LumenButton onClick={() => decide('approved')}>
+                        <LumenButton disabled={disabled} onClick={() => decide('approved')}>
                           {content.labels.approve}
                         </LumenButton>
                       </div>
@@ -1227,11 +1280,16 @@ export function LumenAgentApproval(props: LumenAgentApprovalProps) {
   if (props.variant === 6 && content?.history)
     view = <HistoryApproval {...props} content={content.history} />;
   return (
-    view ?? (
-      <ApprovalRoot {...props} className="hbar-app-ui-agent-approval-empty">
-        {null}
-      </ApprovalRoot>
-    )
+    <ApprovalPresentationContext.Provider
+      key={content?.presentation?.ownerId ?? props.variantId}
+      value={content?.presentation}
+    >
+      {view ?? (
+        <ApprovalRoot {...props} className="hbar-app-ui-agent-approval-empty">
+          {null}
+        </ApprovalRoot>
+      )}
+    </ApprovalPresentationContext.Provider>
   );
 }
 
