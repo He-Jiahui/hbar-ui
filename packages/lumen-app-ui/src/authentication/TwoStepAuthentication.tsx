@@ -3,8 +3,11 @@
 import * as React from 'react';
 import { LumenInput } from '../forms';
 import { LumenButton } from '../primitives';
-import type { LumenAuthTwoStepContent } from './content';
-import { Mail } from './glyphs';
+import type {
+  LumenAuthTwoStepContent,
+  LumenAuthTwoStepReferenceFlow,
+} from './content';
+import { ArrowRight, Mail } from './glyphs';
 import type { LumenAuthCompositionProps } from './primitives';
 import {
   AuthArrow,
@@ -15,13 +18,203 @@ import {
   AuthPasswordButton,
 } from './primitives';
 
-export function TwoStepAuthentication({
+export interface TwoStepAuthenticationProps extends LumenAuthCompositionProps {
+  readonly content: LumenAuthTwoStepContent;
+}
+
+export function TwoStepAuthentication(props: TwoStepAuthenticationProps) {
+  const { referenceFlow } = props.content;
+  return referenceFlow ? (
+    <ControlledTwoStepAuthentication {...props} flow={referenceFlow} />
+  ) : (
+    <LegacyTwoStepAuthentication {...props} />
+  );
+}
+
+function ControlledTwoStepAuthentication({
   spec,
   onAction,
   content,
-}: LumenAuthCompositionProps & {
-  readonly content: LumenAuthTwoStepContent;
-}) {
+  flow,
+}: TwoStepAuthenticationProps & { readonly flow: LumenAuthTwoStepReferenceFlow }) {
+  const emailId = React.useId();
+  const passwordId = React.useId();
+  const emailErrorId = React.useId();
+  const emailStep = flow.phase === 'email' || flow.phase === 'email-pending';
+  const continuePending = flow.phase === 'email-pending';
+  const signInPending = flow.phase === 'sign-in-pending';
+
+  return (
+    <AuthFrame spec={spec} onAction={onAction} className="hbar-app-ui-auth-two-step-surface">
+      <div
+        className="hbar-app-ui-auth-centered hbar-app-ui-full-canvas-owner"
+        data-auth4-phase={flow.phase}
+      >
+        <AuthCard>
+          <div className="hbar-app-ui-auth-step-head">
+            <AuthBrand label={content.labels.brand} compact plain />
+            <small>{content.labels.step(emailStep ? 1 : 2, 2)}</small>
+          </div>
+          {emailStep ? (
+            <div className="hbar-app-ui-auth-two-step-body">
+              <h1>{content.labels.title}</h1>
+              <p>{content.labels.description}</p>
+              <form
+                noValidate
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  flow.onContinueRequest();
+                }}
+              >
+                <div className="hbar-app-ui-auth-field">
+                  <label htmlFor={emailId}>{content.labels.emailLabel}</label>
+                  <LumenInput
+                    variant="plain"
+                    id={emailId}
+                    data-auth4-field="email"
+                    type="email"
+                    autoComplete="email"
+                    value={flow.email}
+                    placeholder={content.labels.emailPlaceholder}
+                    aria-invalid={flow.invalidEmail}
+                    aria-describedby={flow.invalidEmail ? emailErrorId : undefined}
+                    onChange={(event) => flow.onEmailChange(event.currentTarget.value)}
+                  />
+                  {flow.invalidEmail ? (
+                    <small id={emailErrorId} role="alert">
+                      {content.labels.invalidEmail}
+                    </small>
+                  ) : null}
+                </div>
+                <LumenButton
+                  type="submit"
+                  data-auth4-action="continue"
+                  indicator="none"
+                  loading={continuePending}
+                  className="hbar-app-ui-auth-two-step-primary"
+                >
+                  {continuePending ? (
+                    <span className="hbar-app-ui-auth-two-step-spinner" aria-hidden="true" />
+                  ) : null}
+                  {continuePending ? content.labels.continuing : content.labels.continueLabel}
+                  {continuePending ? null : (
+                    <AuthIcon tier="md">
+                      <ArrowRight />
+                    </AuthIcon>
+                  )}
+                </LumenButton>
+              </form>
+              <LumenButton
+                type="button"
+                data-auth4-action="magic-link"
+                indicator="none"
+                className="hbar-app-ui-auth-two-step-secondary"
+                onClick={() => flow.onNavigationRequest('magic-link')}
+              >
+                <AuthIcon tier="md">
+                  <Mail />
+                </AuthIcon>
+                {content.labels.magicLink}
+              </LumenButton>
+            </div>
+          ) : (
+            <div className="hbar-app-ui-auth-two-step-body hbar-app-ui-auth-two-step-password">
+              <LumenButton
+                type="button"
+                data-auth4-action="back"
+                indicator="none"
+                className="hbar-app-ui-auth-two-step-back"
+                onClick={flow.onBack}
+              >
+                <AuthArrow back />
+                {content.labels.back}
+              </LumenButton>
+              <div className="hbar-app-ui-auth-two-step-account">
+                <span className="hbar-app-ui-auth-two-step-avatar" aria-hidden="true">
+                  {content.account.initials}
+                </span>
+                <div>
+                  <p title={content.account.name}>{content.account.name}</p>
+                  <p title={content.account.organization}>{content.account.organization}</p>
+                </div>
+              </div>
+              <form
+                noValidate
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  flow.onSignInRequest();
+                }}
+              >
+                <div className="hbar-app-ui-auth-two-step-label-row">
+                  <label htmlFor={passwordId}>{content.labels.passwordLabel}</label>
+                  <LumenButton
+                    type="button"
+                    data-auth4-action="forgot-password"
+                    indicator="none"
+                    onClick={() => flow.onNavigationRequest('forgot-password')}
+                  >
+                    {content.labels.forgotPassword}
+                  </LumenButton>
+                </div>
+                <div className="hbar-app-ui-auth-input-wrap">
+                  <LumenInput
+                    variant="plain"
+                    id={passwordId}
+                    data-auth4-field="password"
+                    type={flow.passwordVisible ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    autoFocus
+                    value={flow.password}
+                    placeholder={content.labels.passwordPlaceholder}
+                    onChange={(event) => flow.onPasswordChange(event.currentTarget.value)}
+                  />
+                  <AuthPasswordButton
+                    visible={flow.passwordVisible}
+                    showLabel={content.labels.showPassword}
+                    hideLabel={content.labels.hidePassword}
+                    plain
+                    onToggle={() => flow.onPasswordVisibleChange(!flow.passwordVisible)}
+                  />
+                </div>
+                <LumenButton
+                  type="submit"
+                  data-auth4-action="sign-in"
+                  indicator="none"
+                  loading={signInPending}
+                  className="hbar-app-ui-auth-two-step-primary"
+                >
+                  {signInPending ? (
+                    <span className="hbar-app-ui-auth-two-step-spinner" aria-hidden="true" />
+                  ) : null}
+                  {signInPending ? content.labels.signingIn : content.labels.signIn}
+                </LumenButton>
+              </form>
+              <p className="hbar-app-ui-auth-two-step-hint">{content.labels.securityNote}</p>
+            </div>
+          )}
+        </AuthCard>
+        <p className="hbar-app-ui-auth-footer-note">
+          {content.labels.needAccount}
+          <LumenButton
+            type="button"
+            data-auth4-action="create-account"
+            indicator="none"
+            className="hbar-app-ui-auth-inline-link"
+            onClick={() => flow.onNavigationRequest('create-account')}
+          >
+            {content.labels.createAccount}
+          </LumenButton>
+        </p>
+      </div>
+    </AuthFrame>
+  );
+}
+
+function LegacyTwoStepAuthentication({
+  spec,
+  onAction,
+  content,
+}: TwoStepAuthenticationProps) {
   const [step, setStep] = React.useState<1 | 2>(1);
   const [email, setEmail] = React.useState(content.initialEmail);
   const [password, setPassword] = React.useState('');
@@ -31,11 +224,15 @@ export function TwoStepAuthentication({
   const timeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   React.useEffect(() => () => {
-    if (timeout.current) clearTimeout(timeout.current);
+    if (timeout.current) {
+      clearTimeout(timeout.current);
+    }
   }, []);
 
   const schedule = (action: () => void, delay: number) => {
-    if (timeout.current) clearTimeout(timeout.current);
+    if (timeout.current) {
+      clearTimeout(timeout.current);
+    }
     timeout.current = setTimeout(() => {
       timeout.current = null;
       action();
@@ -116,7 +313,9 @@ export function TwoStepAuthentication({
                 indicator="none"
                 className="hbar-app-ui-auth-two-step-back"
                 onClick={() => {
-                  if (timeout.current) clearTimeout(timeout.current);
+                  if (timeout.current) {
+                    clearTimeout(timeout.current);
+                  }
                   timeout.current = null;
                   setBusy(null);
                   setStep(1);

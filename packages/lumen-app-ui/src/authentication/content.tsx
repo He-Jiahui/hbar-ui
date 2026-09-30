@@ -213,6 +213,27 @@ export interface LumenAuthTwoStepContent {
     readonly name: string;
     readonly organization: string;
   };
+  /** Optional Host-owned projection for the controlled two-step reference flow. */
+  readonly referenceFlow?: LumenAuthTwoStepReferenceFlow | undefined;
+}
+
+export type LumenAuthTwoStepPhase = 'email' | 'email-pending' | 'password' | 'sign-in-pending';
+
+export type LumenAuthTwoStepNavigationIntent = 'magic-link' | 'forgot-password' | 'create-account';
+
+export interface LumenAuthTwoStepReferenceFlow {
+  readonly phase: LumenAuthTwoStepPhase;
+  readonly email: string;
+  readonly password: string;
+  readonly passwordVisible: boolean;
+  readonly invalidEmail: boolean;
+  readonly onEmailChange: (value: string) => void;
+  readonly onPasswordChange: (value: string) => void;
+  readonly onPasswordVisibleChange: (visible: boolean) => void;
+  readonly onContinueRequest: () => void;
+  readonly onSignInRequest: () => void;
+  readonly onBack: () => void;
+  readonly onNavigationRequest: (intent: LumenAuthTwoStepNavigationIntent) => void;
 }
 
 export interface LumenAuthMagicLinkContent {

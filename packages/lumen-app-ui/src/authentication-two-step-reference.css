@@ -297,3 +297,58 @@
     padding: 1.5rem;
   }
 }
+
+.hbar-app-ui-auth-two-step-surface [data-auth4-phase] .hbar-app-ui-auth-two-step-primary,
+.hbar-app-ui-auth-two-step-surface [data-auth4-phase] .hbar-app-ui-auth-two-step-secondary {
+  block-size: auto;
+  min-block-size: 2.5rem;
+  padding-block: 0;
+  white-space: normal;
+}
+.hbar-app-ui-auth-two-step-surface [data-auth4-phase] .hbar-app-ui-auth-two-step-primary {
+  padding-inline: 1rem;
+}
+.hbar-app-ui-auth-two-step-surface [data-auth4-phase] .hbar-app-ui-auth-two-step-secondary {
+  padding-inline: 1rem;
+  font-weight: 500;
+}
+.hbar-app-ui-auth-two-step-surface [data-auth4-phase] .hbar-app-ui-auth-footer-note {
+  flex-wrap: wrap;
+}
+.hbar-app-ui-auth-two-step-surface [data-auth4-phase] .hbar-app-ui-auth-inline-link {
+  max-inline-size: 100%;
+  white-space: normal;
+}
+.hbar-app-ui-auth-two-step-surface [data-auth4-phase] .hbar-app-ui-auth-two-step-label-row {
+  flex-wrap: wrap;
+}
+.hbar-app-ui-auth-two-step-surface [data-auth4-phase] .hbar-app-ui-auth-two-step-label-row > button {
+  max-inline-size: 100%;
+  white-space: normal;
+}
+.hbar-app-ui-auth-two-step-surface [data-auth4-phase] .hbar-app-ui-auth-two-step-back {
+  block-size: auto;
+  max-inline-size: 100%;
+  white-space: normal;
+}
+.hbar-app-ui-auth-two-step-surface [data-auth4-phase] .hbar-app-ui-auth-two-step-account > div {
+  overflow: visible;
+}
+.hbar-app-ui-auth-two-step-surface [data-auth4-phase] .hbar-app-ui-auth-two-step-account > div > p {
+  overflow: hidden;
+  margin: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hbar-app-ui-auth-two-step-surface [data-auth4-phase] .hbar-app-ui-auth-two-step-account > div > p:first-child {
+  color: inherit;
+  font-weight: 500;
+}
+.hbar-app-ui-auth-two-step-surface [data-auth4-phase] .hbar-app-ui-auth-two-step-account > div > p:nth-child(2) {
+  color: light-dark(#777, #aaa);
+}
+.hbar-app-ui-auth-two-step-surface [data-auth4-phase] .hbar-app-ui-auth-input-wrap > .hbar-app-ui-auth-icon-button {
+  inline-size: 2rem;
+  block-size: 2rem;
+  padding: 0.5rem;
+}

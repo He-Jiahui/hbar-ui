@@ -493,6 +493,9 @@ export type {
   LumenAuthSignInContent,
   LumenAuthSignUpContent,
   LumenAuthTwoStepContent,
+  LumenAuthTwoStepNavigationIntent,
+  LumenAuthTwoStepPhase,
+  LumenAuthTwoStepReferenceFlow,
   LumenAuthWorkspace,
   LumenAuthWorkspaceContent,
 } from './authentication/content';
