@@ -5,6 +5,7 @@ import { LumenFormField, LumenInput, LumenSelect, LumenTextarea } from './forms'
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './support.css';
+import './support-thread-reference.css';
 
 export interface LumenSupportListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -141,6 +142,35 @@ export interface LumenSupportThreadContent {
   readonly timeline: readonly LumenSupportTicketContext[];
   readonly relatedArticle: LumenSupportArticle;
   readonly listStrategy: LumenSupportListStrategy;
+  readonly ownMessage?: {
+    readonly sender: string;
+    readonly avatar: string;
+    readonly time: string;
+    readonly role?: string | undefined;
+  } | undefined;
+  readonly referenceFlow?: {
+    readonly resolved: boolean;
+    readonly reply: string;
+    readonly replyPhase: 'idle' | 'pending' | 'confirmed' | 'failed';
+    readonly resolvePhase: 'idle' | 'pending' | 'confirmed' | 'failed';
+    readonly replyErrorCode: 'unavailable' | 'limit-reached' | null;
+    readonly resolveErrorCode: 'unavailable' | null;
+    readonly replyLimitReached: boolean;
+    readonly showResolutionControl?: boolean | undefined;
+    readonly labels: {
+      readonly replyLabel: string;
+      readonly replyPending: string;
+      readonly replyConfirmed: string;
+      readonly replyErrorUnavailable: string;
+      readonly replyLimitReached: string;
+      readonly resolvePending: string;
+      readonly resolveConfirmed: string;
+      readonly resolveErrorUnavailable: string;
+    };
+    readonly onReplyChange: (reply: string) => void;
+    readonly onSubmitReply: () => void;
+    readonly onToggleResolution: (resolved: boolean) => void;
+  } | undefined;
 }
 export interface LumenSupportChatMessage {
   readonly id: string;
@@ -754,30 +784,94 @@ function Ticket(
 function Thread(
   props: Omit<LumenSupportProps, 'content'> & { content: LumenSupportThreadContent },
 ) {
+  const flow = props.content.referenceFlow;
+  const replyControlId = `${React.useId()}-reply`;
   const messages = uniqueLumenSupportItems(props.content.messages);
   const timeline = uniqueLumenSupportItems(props.content.timeline);
-  const [resolved, setResolved] = React.useState(false);
-  const [reply, setReply] = React.useState('');
+  const [localResolved, setLocalResolved] = React.useState(false);
+  const [localReply, setLocalReply] = React.useState('');
   const [sent, setSent] = React.useState<string>();
+  const resolved = flow?.resolved ?? localResolved;
+  const reply = flow?.reply ?? localReply;
+  const replyPending = flow?.replyPhase === 'pending';
+  const resolutionPending = flow?.resolvePhase === 'pending';
+  const replyLocked = Boolean(flow && (replyPending || resolutionPending || resolved));
+  const showResolutionControl = flow
+    ? flow.showResolutionControl ?? false
+    : true;
+  const ownMessage = props.content.ownMessage;
+  const contentClassName = [
+    props.className,
+    flow ? 'lumen-support-thread-reference' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  function changeReply(nextReply: string): void {
+    if (flow) {
+      if (!replyLocked) flow.onReplyChange(nextReply);
+    } else {
+      setLocalReply(nextReply);
+    }
+  }
+
+  function submitReply(): void {
+    if (flow) {
+      if (!replyLocked && !flow.replyLimitReached) flow.onSubmitReply();
+      return;
+    }
+    const next = reply.trim();
+    if (!next) return;
+    setSent(next);
+    setLocalReply('');
+    report(props.onAction, 'reply', next);
+  }
+
+  function toggleResolution(): void {
+    if (flow) {
+      if (!resolutionPending) flow.onToggleResolution(!resolved);
+      return;
+    }
+    setLocalResolved((value) => !value);
+    report(props.onAction, resolved ? 'reopen' : 'resolve');
+  }
+
   return (
-    <Root {...props}>
-      <Header
-        title={props.content.labels.title}
-        detail={props.content.labels.detail}
-        actions={
-          <LumenButton
-            variant="outlined"
-            onClick={() => {
-              setResolved((value) => !value);
-              report(props.onAction, resolved ? 'reopen' : 'resolve');
-            }}
-          >
-            <Glyph name="check" />
-            {resolved ? props.content.labels.reopen : props.content.labels.resolve}
-          </LumenButton>
-        }
-      />
-      {!resolved ? <LumenStatus value={props.content.labels.awaiting} tone="warning" /> : null}
+    <Root {...props} className={contentClassName}>
+      {showResolutionControl ? (
+        <Header
+          title={props.content.labels.title}
+          detail={props.content.labels.detail}
+          actions={
+            <LumenButton
+              variant="outlined"
+              disabled={resolutionPending || replyPending}
+              onClick={toggleResolution}
+            >
+              <Glyph name="check" />
+              {resolved ? props.content.labels.reopen : props.content.labels.resolve}
+            </LumenButton>
+          }
+        />
+      ) : null}
+      {!resolved && showResolutionControl ? (
+        <LumenStatus value={props.content.labels.awaiting} tone="warning" />
+      ) : null}
+      {flow?.showResolutionControl && flow.resolvePhase === 'pending' ? (
+        <LumenText as="p" role="status" aria-live="polite">
+          {flow.labels.resolvePending}
+        </LumenText>
+      ) : null}
+      {flow?.showResolutionControl && flow.resolvePhase === 'confirmed' ? (
+        <LumenText as="p" role="status" aria-live="polite">
+          {flow.labels.resolveConfirmed}
+        </LumenText>
+      ) : null}
+      {flow?.showResolutionControl && flow.resolvePhase === 'failed' ? (
+        <LumenText as="p" role="alert">
+          {flow.labels.resolveErrorUnavailable}
+        </LumenText>
+      ) : null}
       <div className="lumen-support-thread">
         <section>
           <ol
@@ -811,11 +905,19 @@ function Thread(
             ) : (
               <Empty>{props.content.labels.empty}</Empty>
             )}
-            {sent ? (
+            {!flow && sent ? (
               <li>
-                <span className="lumen-support-avatar is-own">You</span>
+                {ownMessage ? (
+                  <span className="lumen-support-avatar is-own">{ownMessage.avatar}</span>
+                ) : null}
                 <article>
-                  <strong>You</strong>
+                  {ownMessage ? (
+                    <header>
+                      <strong>{ownMessage.sender}</strong>
+                      {ownMessage.role ? <small>{ownMessage.role}</small> : null}
+                      <time>{ownMessage.time}</time>
+                    </header>
+                  ) : null}
                   <p>{sent}</p>
                 </article>
               </li>
@@ -823,34 +925,70 @@ function Thread(
           </ol>
           <form
             className="lumen-support-reply"
+            aria-busy={replyPending || undefined}
             onSubmit={(event) => {
               event.preventDefault();
-              const next = reply.trim();
-              if (!next) {
-                return;
-              }
-              setSent(next);
-              setReply('');
-              report(props.onAction, 'reply', next);
+              submitReply();
             }}
           >
-            <LumenTextarea
-              value={reply}
-              onChange={(event) => setReply(event.target.value)}
-              placeholder={props.content.labels.reply}
-            />
+            {flow ? (
+              <LumenFormField controlId={replyControlId} label={flow.labels.replyLabel}>
+                <LumenTextarea
+                  id={replyControlId}
+                  value={reply}
+                  onChange={(event) => changeReply(event.target.value)}
+                  placeholder={props.content.labels.reply}
+                  disabled={replyLocked}
+                />
+              </LumenFormField>
+            ) : (
+              <LumenTextarea
+                value={reply}
+                onChange={(event) => changeReply(event.target.value)}
+                placeholder={props.content.labels.reply}
+              />
+            )}
             <footer>
               <LumenIconButton
                 label={props.content.labels.attach}
+                disabled={replyLocked}
                 onClick={() => report(props.onAction, 'attach')}
               >
                 <Glyph name="attach" />
               </LumenIconButton>
-              <LumenButton type="submit" tone="primary" disabled={!reply.trim()}>
+              <LumenButton
+                type="submit"
+                tone="primary"
+                disabled={
+                  !reply.trim() ||
+                  replyLocked ||
+                  Boolean(flow?.replyLimitReached)
+                }
+              >
                 <Glyph name="send" />
                 {props.content.labels.send}
               </LumenButton>
             </footer>
+            {flow?.replyPhase === 'pending' ? (
+              <LumenText as="p" role="status" aria-live="polite">
+                {flow.labels.replyPending}
+              </LumenText>
+            ) : null}
+            {flow?.replyPhase === 'confirmed' ? (
+              <LumenText as="p" role="status" aria-live="polite">
+                {flow.labels.replyConfirmed}
+              </LumenText>
+            ) : null}
+            {flow?.replyPhase === 'failed' && flow.replyErrorCode === 'unavailable' ? (
+              <LumenText as="p" role="alert">
+                {flow.labels.replyErrorUnavailable}
+              </LumenText>
+            ) : null}
+            {flow?.replyLimitReached || flow?.replyErrorCode === 'limit-reached' ? (
+              <LumenText as="p" role="status">
+                {flow.labels.replyLimitReached}
+              </LumenText>
+            ) : null}
           </form>
         </section>
         <aside>
