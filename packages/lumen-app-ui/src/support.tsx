@@ -6,6 +6,17 @@ import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './support.css';
 import './support-thread-reference.css';
+import { LumenSupportHelpReference } from './support-help-reference';
+import { LumenSupportAssistantReference } from './support-assistant-reference';
+import { LumenSupportRequestsReference } from './support-requests-reference';
+import type {
+  LumenSupportHelpReferenceLayout,
+  LumenSupportHelpReferenceFlow,
+  LumenSupportAssistantReferenceLayout,
+  LumenSupportAssistantReferenceFlow,
+  LumenSupportRequestsReferenceLayout,
+  LumenSupportRequestsReferenceFlow,
+} from './support/reference-content';
 
 export interface LumenSupportListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -44,6 +55,8 @@ export interface LumenSupportHelpContent {
   readonly topics: readonly LumenSupportTopic[];
   readonly articles: readonly LumenSupportArticle[];
   readonly listStrategy: LumenSupportListStrategy;
+  readonly referenceLayout?: LumenSupportHelpReferenceLayout | undefined;
+  readonly referenceFlow?: LumenSupportHelpReferenceFlow | undefined;
 }
 export interface LumenSupportTicketContext {
   readonly id: string;
@@ -176,6 +189,7 @@ export interface LumenSupportChatMessage {
   readonly id: string;
   readonly body: string;
   readonly own: boolean;
+  readonly status?: string | undefined;
 }
 export interface LumenSupportAssistantAction {
   readonly id: string;
@@ -199,6 +213,8 @@ export interface LumenSupportAssistantContent {
   readonly articles: readonly LumenSupportArticle[];
   readonly actions: readonly LumenSupportAssistantAction[];
   readonly listStrategy: LumenSupportListStrategy;
+  readonly referenceLayout?: LumenSupportAssistantReferenceLayout | undefined;
+  readonly referenceFlow?: LumenSupportAssistantReferenceFlow | undefined;
 }
 export interface LumenSupportRequest {
   readonly id: string;
@@ -230,6 +246,8 @@ export interface LumenSupportRequestsContent {
   readonly initialStatusId: string;
   readonly requests: readonly LumenSupportRequest[];
   readonly listStrategy: LumenSupportListStrategy;
+  readonly referenceLayout?: LumenSupportRequestsReferenceLayout | undefined;
+  readonly referenceFlow?: LumenSupportRequestsReferenceFlow | undefined;
 }
 export interface LumenSupportContent {
   readonly help?: LumenSupportHelpContent | undefined;
@@ -417,6 +435,17 @@ function Tabs({
 }
 
 function Help(props: Omit<LumenSupportProps, 'content'> & { content: LumenSupportHelpContent }) {
+  if (!props.content.referenceLayout) {
+    return <LegacyHelp {...props} />;
+  }
+  return (
+    <Root {...props} className={['lumen-support-help-reference-root', props.className].filter(Boolean).join(' ')}>
+      <LumenSupportHelpReference content={props.content} layout={props.content.referenceLayout} onAction={props.onAction} />
+    </Root>
+  );
+}
+
+function LegacyHelp(props: Omit<LumenSupportProps, 'content'> & { content: LumenSupportHelpContent }) {
   const topics = uniqueLumenSupportItems(props.content.topics);
   const articles = uniqueLumenSupportItems(props.content.articles);
   const [query, setQuery] = React.useState('');
@@ -1029,6 +1058,19 @@ function Thread(
 function Assistant(
   props: Omit<LumenSupportProps, 'content'> & { content: LumenSupportAssistantContent },
 ) {
+  if (!props.content.referenceLayout) {
+    return <LegacyAssistant {...props} />;
+  }
+  return (
+    <Root {...props} className={['lumen-support-assistant-reference-root', props.className].filter(Boolean).join(' ')}>
+      <LumenSupportAssistantReference content={props.content} layout={props.content.referenceLayout} onAction={props.onAction} />
+    </Root>
+  );
+}
+
+function LegacyAssistant(
+  props: Omit<LumenSupportProps, 'content'> & { content: LumenSupportAssistantContent },
+) {
   const messages = uniqueLumenSupportItems(props.content.messages);
   const articles = uniqueLumenSupportItems(props.content.articles);
   const actions = uniqueLumenSupportItems(props.content.actions);
@@ -1160,6 +1202,19 @@ function Assistant(
   );
 }
 function Requests(
+  props: Omit<LumenSupportProps, 'content'> & { content: LumenSupportRequestsContent },
+) {
+  if (!props.content.referenceLayout) {
+    return <LegacyRequests {...props} />;
+  }
+  return (
+    <Root {...props} className={['lumen-support-requests-reference-root', props.className].filter(Boolean).join(' ')}>
+      <LumenSupportRequestsReference content={props.content} layout={props.content.referenceLayout} onAction={props.onAction} />
+    </Root>
+  );
+}
+
+function LegacyRequests(
   props: Omit<LumenSupportProps, 'content'> & { content: LumenSupportRequestsContent },
 ) {
   const statuses = uniqueLumenSupportItems(props.content.statuses);

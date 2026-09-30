@@ -1366,6 +1366,14 @@ export type {
   LumenSupportTopic,
   LumenSupportVariantProps,
 } from './support';
+export type {
+  LumenSupportHelpReferenceLayout,
+  LumenSupportHelpReferenceFlow,
+  LumenSupportAssistantReferenceLayout,
+  LumenSupportAssistantReferenceFlow,
+  LumenSupportRequestsReferenceLayout,
+  LumenSupportRequestsReferenceFlow,
+} from './support/reference-content';
 export {
   LumenWizard,
   LumenWizard01,
