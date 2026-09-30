@@ -551,6 +551,25 @@ export type {
   LumenBillingValueRow,
   LumenBillingWorkflowStep,
 } from './billing/content';
+export type {
+  LumenBillingReferenceFeedback,
+  LumenBillingPlanReferenceFlag,
+  LumenBillingStatementReferenceLayout,
+  LumenBillingStatementReferenceFlow,
+  LumenBillingPlansReferenceLayout,
+  LumenBillingPlansReferenceFlow,
+  LumenBillingInvoiceComposerReferenceLayout,
+  LumenBillingInvoiceComposerReferenceFlow,
+  LumenBillingRecoveryReferenceLayout,
+  LumenBillingRecoveryReferenceFlow,
+  LumenBillingChangePlanReferenceLayout,
+  LumenBillingChangePlanReferenceFlow,
+  LumenBillingPaymentMethodsReferenceLayout,
+  LumenBillingPaymentMethodsReferenceFlow,
+  LumenBillingUsageReferenceLayout,
+  LumenBillingUsageReferenceFlow,
+  LumenBillingInvoiceDetailReferenceLayout,
+} from './billing/reference-content';
 export {
   LumenIntegrations,
   LumenIntegrations01,

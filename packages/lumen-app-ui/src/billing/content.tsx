@@ -1,4 +1,23 @@
-import { createContext, type ReactNode, useContext } from 'react';
+'use client';
+
+import * as React from 'react';
+import type {
+  LumenBillingStatementReferenceLayout,
+  LumenBillingStatementReferenceFlow,
+  LumenBillingPlansReferenceLayout,
+  LumenBillingPlansReferenceFlow,
+  LumenBillingInvoiceComposerReferenceLayout,
+  LumenBillingInvoiceComposerReferenceFlow,
+  LumenBillingRecoveryReferenceLayout,
+  LumenBillingRecoveryReferenceFlow,
+  LumenBillingChangePlanReferenceLayout,
+  LumenBillingChangePlanReferenceFlow,
+  LumenBillingPaymentMethodsReferenceLayout,
+  LumenBillingPaymentMethodsReferenceFlow,
+  LumenBillingUsageReferenceLayout,
+  LumenBillingUsageReferenceFlow,
+  LumenBillingInvoiceDetailReferenceLayout,
+} from './reference-content';
 
 /**
  * Billing data is supplied by the host. Short product lists may grow with
@@ -46,6 +65,8 @@ export interface LumenBillingStatementInvoice {
 }
 
 export interface LumenBillingStatementContent {
+  readonly referenceLayout?: LumenBillingStatementReferenceLayout | undefined;
+  readonly referenceFlow?: LumenBillingStatementReferenceFlow | undefined;
   readonly labels: {
     readonly pageTitle: string;
     readonly pageDescription: string;
@@ -106,6 +127,8 @@ export interface LumenBillingPlan {
 }
 
 export interface LumenBillingPlansContent {
+  readonly referenceLayout?: LumenBillingPlansReferenceLayout | undefined;
+  readonly referenceFlow?: LumenBillingPlansReferenceFlow | undefined;
   readonly labels: {
     readonly pageTitle: string;
     readonly pageDescription: string;
@@ -159,6 +182,8 @@ export interface LumenBillingInvoiceSection {
 }
 
 export interface LumenBillingInvoiceComposerContent {
+  readonly referenceLayout?: LumenBillingInvoiceComposerReferenceLayout | undefined;
+  readonly referenceFlow?: LumenBillingInvoiceComposerReferenceFlow | undefined;
   readonly labels: {
     readonly pageTitle: string;
     readonly pageDescription: string;
@@ -204,6 +229,8 @@ export interface LumenBillingSubscription {
 }
 
 export interface LumenBillingRecoveryContent {
+  readonly referenceLayout?: LumenBillingRecoveryReferenceLayout | undefined;
+  readonly referenceFlow?: LumenBillingRecoveryReferenceFlow | undefined;
   readonly labels: {
     readonly pageTitle: string;
     readonly pageDescriptionLeading: string;
@@ -253,6 +280,8 @@ export interface LumenBillingChangePlanSummary {
 }
 
 export interface LumenBillingChangePlanContent {
+  readonly referenceLayout?: LumenBillingChangePlanReferenceLayout | undefined;
+  readonly referenceFlow?: LumenBillingChangePlanReferenceFlow | undefined;
   readonly labels: {
     readonly pageTitle: string;
     readonly pageDescription: string;
@@ -288,6 +317,8 @@ export interface LumenBillingContact {
 }
 
 export interface LumenBillingPaymentMethodsContent {
+  readonly referenceLayout?: LumenBillingPaymentMethodsReferenceLayout | undefined;
+  readonly referenceFlow?: LumenBillingPaymentMethodsReferenceFlow | undefined;
   readonly labels: {
     readonly pageTitle: string;
     readonly pageDescription: string;
@@ -331,6 +362,8 @@ export interface LumenBillingUsagePeriod {
 }
 
 export interface LumenBillingUsageContent {
+  readonly referenceLayout?: LumenBillingUsageReferenceLayout | undefined;
+  readonly referenceFlow?: LumenBillingUsageReferenceFlow | undefined;
   readonly labels: {
     readonly pageTitle: string;
     readonly pageDescription: string;
@@ -368,6 +401,7 @@ export interface LumenBillingInvoiceActivity {
 }
 
 export interface LumenBillingInvoiceDetailContent {
+  readonly referenceLayout?: LumenBillingInvoiceDetailReferenceLayout | undefined;
   readonly labels: {
     readonly print: string;
     readonly pdf: string;
@@ -410,7 +444,7 @@ export interface LumenBillingContent {
 
 export interface LumenBillingProviderProps {
   readonly content: LumenBillingContent;
-  readonly children: ReactNode;
+  readonly children: React.ReactNode;
 }
 
 export function uniqueLumenBillingItems<T extends { readonly id: string }>(
@@ -418,7 +452,9 @@ export function uniqueLumenBillingItems<T extends { readonly id: string }>(
 ): readonly T[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (!item.id.trim() || seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -432,7 +468,7 @@ export function selectLumenBillingItem<T extends { readonly id: string }>(
   return uniqueItems.find((item) => item.id === activeId) ?? uniqueItems[0];
 }
 
-const billingContentContext = createContext<LumenBillingContent | undefined>(undefined);
+const billingContentContext = React.createContext<LumenBillingContent | undefined>(undefined);
 
 export function LumenBillingProvider({ content, children }: LumenBillingProviderProps) {
   return (
@@ -441,5 +477,5 @@ export function LumenBillingProvider({ content, children }: LumenBillingProvider
 }
 
 export function useLumenBillingContent(): LumenBillingContent | undefined {
-  return useContext(billingContentContext);
+  return React.useContext(billingContentContext);
 }
