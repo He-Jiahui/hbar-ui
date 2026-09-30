@@ -13,6 +13,7 @@ import { AppSidebarTree, type LumenAppSidebarTreeContent } from './app-sidebar-t
 import { AppSidebarDrawer, type LumenAppSidebarDrawerContent } from './app-sidebar-drawer';
 import { AppSidebarFull, type LumenAppSidebarFullContent } from './app-sidebar-full';
 import './app-sidebar-workflows.css';
+import './app-sidebar-practical-flow.css';
 
 export interface LumenAppSidebarListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -33,6 +34,13 @@ export interface LumenAppSidebarTreeNode extends LumenAppSidebarItem {
   readonly children?: readonly LumenAppSidebarTreeNode[] | undefined;
 }
 export interface LumenAppSidebarContent {
+  readonly presentation?:
+    | {
+        readonly ownerId: string;
+        readonly notice?: string | undefined;
+        readonly onAction?: ((event: LumenAppSidebarWorkflowAction) => void) | undefined;
+      }
+    | undefined;
   readonly primary?: LumenAppSidebarPrimaryContent | undefined;
   readonly railPreview?: LumenAppSidebarRailContent | undefined;
   readonly workspacePreview?: LumenAppSidebarWorkspaceContent | undefined;
@@ -113,7 +121,7 @@ export function useLumenAppSidebarWorkflowsContent() {
 export function uniqueLumenAppSidebarItems<T extends { readonly id: string }>(items: readonly T[]) {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) {
+    if (!item.id.trim() || seen.has(item.id)) {
       return false;
     }
     seen.add(item.id);
@@ -124,7 +132,8 @@ export function selectLumenAppSidebarItem<T extends { readonly id: string }>(
   items: readonly T[],
   id: string | undefined,
 ) {
-  return items.find((item) => item.id === id) ?? items[0];
+  const validItems = uniqueLumenAppSidebarItems(items);
+  return validItems.find((item) => item.id === id) ?? validItems[0];
 }
 const report = (fn: LumenAppSidebarWorkflowsProps['onAction'], actionId: string, value?: string) =>
   fn?.(value === undefined ? { actionId } : { actionId, value });
@@ -618,6 +627,30 @@ export function LumenAppSidebarWorkflows(props: LumenAppSidebarWorkflowsProps) {
   if (!content) {
     return empty(props);
   }
+  const view = (
+    <AppSidebarWorkflowView
+      {...props}
+      content={content}
+      onAction={content.presentation?.onAction ?? props.onAction}
+    />
+  );
+  return content.presentation ? (
+    <div className="lumen-app-sidebar-preview" key={content.presentation.ownerId}>
+      {content.presentation.notice && (
+        <p className="lumen-app-sidebar-preview-notice" role="status">
+          {content.presentation.notice}
+        </p>
+      )}
+      {view}
+    </div>
+  ) : (
+    view
+  );
+}
+function AppSidebarWorkflowView(
+  props: LumenAppSidebarWorkflowsProps & { readonly content: LumenAppSidebarContent },
+) {
+  const { content } = props;
   if (props.variant === 1) {
     if (content.primary) {
       return (
