@@ -197,12 +197,12 @@ import {
   LumenFiltering09,
 } from './filtering';
 import {
-  HbarAppUiEmptyState01,
-  HbarAppUiEmptyState02,
-  HbarAppUiEmptyState03,
-  HbarAppUiEmptyState04,
-  HbarAppUiEmptyState05,
-} from './variants';
+  LumenEmptyState01,
+  LumenEmptyState02,
+  LumenEmptyState03,
+  LumenEmptyState04,
+  LumenEmptyState05,
+} from './empty-state';
 import {
   LumenFileManager01,
   LumenFileManager02,
@@ -883,11 +883,11 @@ const migratedComponents: Readonly<Partial<Record<LumenMigratedVariantId, React.
   'hbar-app-ui-monitoring-8': LumenMonitoring08,
   'hbar-app-ui-monitoring-9': LumenMonitoring09,
   'hbar-app-ui-monitoring-10': LumenMonitoring10,
-  'hbar-app-ui-empty-state-1': HbarAppUiEmptyState01,
-  'hbar-app-ui-empty-state-2': HbarAppUiEmptyState02,
-  'hbar-app-ui-empty-state-3': HbarAppUiEmptyState03,
-  'hbar-app-ui-empty-state-4': HbarAppUiEmptyState04,
-  'hbar-app-ui-empty-state-5': HbarAppUiEmptyState05,
+  'hbar-app-ui-empty-state-1': LumenEmptyState01,
+  'hbar-app-ui-empty-state-2': LumenEmptyState02,
+  'hbar-app-ui-empty-state-3': LumenEmptyState03,
+  'hbar-app-ui-empty-state-4': LumenEmptyState04,
+  'hbar-app-ui-empty-state-5': LumenEmptyState05,
   'hbar-app-ui-settings-form-1': LumenSettingsForm01,
   'hbar-app-ui-settings-form-2': LumenSettingsForm02,
   'hbar-app-ui-settings-form-3': LumenSettingsForm03,
