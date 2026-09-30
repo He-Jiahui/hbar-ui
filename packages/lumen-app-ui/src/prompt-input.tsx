@@ -11,6 +11,8 @@ import {
   type LumenPromptLabels,
 } from './session-components';
 import './prompt-input.css';
+import type { LumenPromptReferenceViewModel } from './prompt-input/reference-content';
+import { ReferencePromptInput } from './prompt-input/ReferencePromptInput';
 
 export interface LumenPromptInputListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -144,6 +146,7 @@ export interface LumenPromptInputModeContent {
 }
 
 export interface LumenPromptInputContent {
+  readonly referenceViewModel?: LumenPromptReferenceViewModel | undefined;
   readonly composerLabels: LumenPromptLabels;
   readonly tools?: LumenPromptInputToolContent | undefined;
   readonly hero?: LumenPromptInputHeroContent | undefined;
@@ -193,7 +196,9 @@ export function uniqueLumenPromptInputItems<T extends { readonly id: string }>(
 ): readonly T[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -214,23 +219,18 @@ function Glyph({
 }: {
   name: 'sparkle' | 'wand' | 'check' | 'plus' | 'file' | 'mention' | 'close';
 }) {
-  const path =
-    name === 'sparkle'
-      ? 'm8 1 1.2 4.2L13 7l-3.8 1.8L8 13l-1.2-4.2L3 7l3.8-1.8Z'
-      : name === 'wand'
-        ? 'm3 13 8-8 2 2-8 8Zm7-11v2m3-1.5-1.5 1.5M14 6h-2'
-        : name === 'check'
-          ? 'm3 8 3 3 7-7'
-          : name === 'plus'
-            ? 'M8 3v10M3 8h10'
-            : name === 'file'
-              ? 'M4 2h5l3 3v9H4Zm5 0v3h3'
-              : name === 'mention'
-                ? 'M11 11c-1 1-3 1-3-1V7a2 2 0 1 1 4 0v4c3 0 3-7-3-8a6 6 0 1 0 3 10'
-                : 'm4 4 8 8m0-8-8 8';
+  const paths = {
+    sparkle: 'm8 1 1.2 4.2L13 7l-3.8 1.8L8 13l-1.2-4.2L3 7l3.8-1.8Z',
+    wand: 'm3 13 8-8 2 2-8 8Zm7-11v2m3-1.5-1.5 1.5M14 6h-2',
+    check: 'm3 8 3 3 7-7',
+    plus: 'M8 3v10M3 8h10',
+    file: 'M4 2h5l3 3v9H4Zm5 0v3h3',
+    mention: 'M11 11c-1 1-3 1-3-1V7a2 2 0 1 1 4 0v4c3 0 3-7-3-8a6 6 0 1 0 3 10',
+    close: 'm4 4 8 8m0-8-8 8',
+  };
   return (
     <svg className="lumen-prompt-input-glyph" viewBox="0 0 16 16" aria-hidden="true">
-      <path d={path} />
+      <path d={paths[name]} />
     </svg>
   );
 }
@@ -306,7 +306,7 @@ function LocalComposer({
 }: {
   labels: LumenPromptLabels;
   placeholder: string;
-  actionId?: string;
+  actionId?: string | undefined;
   onAction: LumenPromptInputProps['onAction'];
 }) {
   const [value, setValue] = React.useState('');
@@ -323,7 +323,9 @@ function LocalComposer({
       onRemoveAttachment={() => undefined}
       onSubmit={() => {
         const next = value.trim();
-        if (!next) return;
+        if (!next) {
+          return;
+        }
         report(onAction, actionId ?? 'send', next);
         setValue('');
       }}
@@ -823,40 +825,60 @@ function empty(props: LumenPromptInputProps) {
 export function LumenPromptInput(props: LumenPromptInputProps) {
   const inheritedContent = useLumenPromptInputContent();
   const content = props.content ?? inheritedContent;
-  if (props.variant === 1) return <Controlled {...props} />;
-  if (!content) return empty(props);
-  if (props.variant === 2)
+  if (content?.referenceViewModel?.content.variant === props.variant) {
+    return (
+      <ReferencePromptInput
+        variantId={props.variantId}
+        className={props.className}
+        viewModel={content.referenceViewModel}
+        onAction={props.onAction}
+      />
+    );
+  }
+  if (props.variant === 1) {
+    return <Controlled {...props} />;
+  }
+  if (!content) {
+    return empty(props);
+  }
+  if (props.variant === 2) {
     return content.tools ? (
       <Tools {...props} content={content.tools} composerLabels={content.composerLabels} />
     ) : (
       empty(props)
     );
-  if (props.variant === 3)
+  }
+  if (props.variant === 3) {
     return content.hero ? (
       <Hero {...props} content={content.hero} composerLabels={content.composerLabels} />
     ) : (
       empty(props)
     );
-  if (props.variant === 4)
+  }
+  if (props.variant === 4) {
     return content.template ? <Template {...props} content={content.template} /> : empty(props);
-  if (props.variant === 5)
+  }
+  if (props.variant === 5) {
     return content.upload ? (
       <Upload {...props} content={content.upload} composerLabels={content.composerLabels} />
     ) : (
       empty(props)
     );
-  if (props.variant === 6)
+  }
+  if (props.variant === 6) {
     return content.scope ? (
       <Scope {...props} content={content.scope} composerLabels={content.composerLabels} />
     ) : (
       empty(props)
     );
-  if (props.variant === 7)
+  }
+  if (props.variant === 7) {
     return content.modes ? (
       <Modes {...props} content={content.modes} composerLabels={content.composerLabels} />
     ) : (
       empty(props)
     );
+  }
   return empty(props);
 }
 

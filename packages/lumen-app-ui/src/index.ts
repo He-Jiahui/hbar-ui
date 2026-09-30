@@ -857,6 +857,23 @@ export type {
   LumenPromptInputVariable,
   LumenPromptInputVariantProps,
 } from './prompt-input';
+export type {
+  LumenPromptReferenceChoice,
+  LumenPromptReferenceAttachment,
+  LumenPromptReferenceComposer,
+  LumenPromptReferenceBaseContent,
+  LumenPromptRichReferenceContent,
+  LumenPromptToolsReferenceContent,
+  LumenPromptHeroReferenceContent,
+  LumenPromptTemplatePart,
+  LumenPromptTemplateReferenceContent,
+  LumenPromptUploadReferenceContent,
+  LumenPromptScopeReferenceContent,
+  LumenPromptModesReferenceContent,
+  LumenPromptReferenceContent,
+  LumenPromptReferenceViewModel,
+  LumenPromptReferenceViewProps,
+} from './prompt-input/reference-content';
 export {
   LumenCard,
   LumenCard01,
