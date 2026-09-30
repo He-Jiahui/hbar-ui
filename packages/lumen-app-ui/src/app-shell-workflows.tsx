@@ -15,6 +15,7 @@ import { AppShellDocuments, type LumenAppShellDocumentsContent } from './app-she
 import { AppShellScope, type LumenAppShellScopeContent } from './app-shell-scope';
 import { AppShellAdaptive, type LumenAppShellAdaptiveContent } from './app-shell-adaptive';
 import { AppShellChat, type LumenAppShellChatContent } from './app-shell-chat';
+import './app-shell-practical-flow.css';
 
 export interface LumenAppShellListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -41,6 +42,9 @@ export interface LumenAppShellScope {
   readonly initialOptionId: string;
 }
 export interface LumenAppShellContent {
+  /** Optional owned preview feedback; production data and pane sizing remain unchanged. */
+  readonly presentation?:
+    { readonly ownerId: string; readonly notice?: string | undefined } | undefined;
   /** Reference sidebar/records contract. Other variants retain their existing contract. */
   readonly sidebar?: LumenAppShellSidebarContent | undefined;
   readonly rail?: LumenAppShellRailContent | undefined;
@@ -137,7 +141,7 @@ export function useLumenAppShellWorkflowsContent() {
 export function uniqueLumenAppShellItems<T extends { readonly id: string }>(items: readonly T[]) {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) {
+    if (!item.id.trim() || seen.has(item.id)) {
       return false;
     }
     seen.add(item.id);
@@ -148,7 +152,9 @@ export function selectLumenAppShellItem<T extends { readonly id: string }>(
   items: readonly T[],
   id: string | undefined,
 ) {
-  return items.find((item) => item.id === id) ?? items[0];
+  return (
+    items.find((item) => item.id.trim() && item.id === id) ?? items.find((item) => item.id.trim())
+  );
 }
 const report = (fn: LumenAppShellWorkflowsProps['onAction'], actionId: string, value?: string) =>
   fn?.(value === undefined ? { actionId } : { actionId, value });
@@ -833,6 +839,24 @@ export function LumenAppShellWorkflows(props: LumenAppShellWorkflowsProps) {
   if (!content) {
     return empty(props);
   }
+  const view = <AppShellWorkflowView {...props} content={content} />;
+  return content.presentation ? (
+    <div className="lumen-app-shell-preview" key={content.presentation.ownerId}>
+      {content.presentation.notice ? (
+        <p className="lumen-app-shell-preview-notice" role="status">
+          {content.presentation.notice}
+        </p>
+      ) : null}
+      {view}
+    </div>
+  ) : (
+    view
+  );
+}
+function AppShellWorkflowView(
+  props: LumenAppShellWorkflowsProps & { readonly content: LumenAppShellContent },
+) {
+  const content = props.content;
   if (props.variant === 1) {
     if (content.sidebar) {
       return (
