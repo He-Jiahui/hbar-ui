@@ -14,6 +14,7 @@ import { UsageOveragePanel, type LumenUsageOveragePanelContent } from './usage-o
 import { UsageRequestTable, type LumenUsageRequestTableContent } from './usage-request-table';
 import { UsageCompactWidget, type LumenUsageCompactWidgetContent } from './usage-compact-widget';
 import './usage.css';
+import './usage-practical-flow.css';
 
 export interface LumenUsageMetric {
   readonly id?: string | undefined;
@@ -197,6 +198,9 @@ export interface LumenUsageCompactContent extends LumenUsageHeading {
 }
 
 export interface LumenUsageContent {
+  /** Preview sizing and nearby feedback are resolved by the owning Host. */
+  readonly presentation?:
+    { readonly ownerId: string; readonly notice?: string | undefined } | undefined;
   readonly overview?: LumenUsageOverviewContent | undefined;
   readonly modelSpend?: LumenUsageModelSpendContent | undefined;
   readonly rateLimits?: LumenUsageRateLimitsContent | undefined;
@@ -239,7 +243,9 @@ export function useLumenUsageContent(): LumenUsageContent {
 export function uniqueLumenUsageItems<Item extends { readonly id: string }>(
   items: readonly Item[],
 ): readonly Item[] {
-  return [...new Map(items.map((item) => [item.id, item])).values()];
+  return [
+    ...new Map(items.filter((item) => item.id.trim()).map((item) => [item.id, item])).values(),
+  ];
 }
 
 function usageTone(
@@ -759,6 +765,7 @@ export function LumenUsageCompact(content: LumenUsageCompactContent) {
 }
 
 export interface UsageRootProps extends Omit<LumenUsageProps, 'content'> {
+  readonly presentation?: LumenUsageContent['presentation'] | undefined;
   readonly children: React.ReactNode;
   readonly chartOverview: boolean;
   readonly modelTable: boolean;
@@ -787,6 +794,7 @@ function UsageRoot({
   overagePanel,
   requestTable,
   compactWidget,
+  presentation,
 }: UsageRootProps) {
   const detailed =
     chartOverview ||
@@ -799,6 +807,7 @@ function UsageRoot({
     compactWidget;
   const contentClassName = [
     'lumen-usage',
+    presentation ? 'lumen-usage-preview' : '',
     'hbar-app-ui-usage-catalog',
     compactWidget
       ? 'lumen-usage-widget-stage hbar-app-ui-stage-padding-owner hbar-app-ui-full-canvas-owner'
@@ -833,7 +842,7 @@ function UsageRoot({
     <LumenSurface
       as={detailed ? 'div' : 'section'}
       boundary={detailed ? 'none' : 'horizontal'}
-      className={`lumen-usage-root-surface${chartOverview ? ' lumen-usage-chart-surface' : ''}${modelTable ? ' lumen-usage-model-surface' : ''}${ratePanel ? ' lumen-usage-rate-surface' : ''}${memberList ? ' lumen-usage-member-surface' : ''}${budgetPanel ? ' lumen-usage-budget-surface' : ''}${overagePanel ? ' lumen-usage-overage-surface' : ''}${requestTable ? ' lumen-usage-request-surface' : ''}${compactWidget ? ' lumen-usage-widget-surface' : ''}`}
+      className={`lumen-usage-root-surface${presentation ? ' lumen-usage-preview-root' : ''}${chartOverview ? ' lumen-usage-chart-surface' : ''}${modelTable ? ' lumen-usage-model-surface' : ''}${ratePanel ? ' lumen-usage-rate-surface' : ''}${memberList ? ' lumen-usage-member-surface' : ''}${budgetPanel ? ' lumen-usage-budget-surface' : ''}${overagePanel ? ' lumen-usage-overage-surface' : ''}${requestTable ? ' lumen-usage-request-surface' : ''}${compactWidget ? ' lumen-usage-widget-surface' : ''}`}
       contentClassName={contentClassName}
       data-lumen-component="usage"
       data-lumen-variant={variant}
@@ -841,6 +850,11 @@ function UsageRoot({
       data-hbar-app-ui-surface={surface}
       data-hbar-app-ui-state={state}
     >
+      {presentation?.notice ? (
+        <p className="lumen-usage-preview-notice" role="status">
+          {presentation.notice}
+        </p>
+      ) : null}
       {children}
     </LumenSurface>
   );
@@ -877,6 +891,8 @@ export function LumenUsage(props: LumenUsageProps) {
   return (
     <UsageRoot
       {...props}
+      key={content.presentation?.ownerId ?? props.variantId}
+      presentation={content.presentation}
       chartOverview={props.variant === 1 && Boolean(content.overview?.chart)}
       modelTable={props.variant === 2 && Boolean(content.modelSpend?.table)}
       ratePanel={props.variant === 3 && Boolean(content.rateLimits?.panel)}
