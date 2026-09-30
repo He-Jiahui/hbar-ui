@@ -4,6 +4,8 @@ import * as React from 'react';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './agent-activity.css';
+import type { LumenAgentActivityViewModel } from './agent-activity/view-model';
+import './agent-activity/controlled-flow.css';
 
 export type LumenAgentActivityListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -213,6 +215,7 @@ export interface LumenAgentActivityFailureContent {
 }
 
 export interface LumenAgentActivityContent {
+  readonly viewModel?: LumenAgentActivityViewModel | undefined;
   readonly live?: LumenAgentActivityLiveContent | undefined;
   readonly nested?: LumenAgentActivityNestedContent | undefined;
   readonly deployment?: LumenAgentActivityDeploymentContent | undefined;
@@ -236,6 +239,7 @@ export interface LumenAgentActivityProps {
   readonly variant: number;
   readonly variantId: string;
   readonly content?: LumenAgentActivityContent | undefined;
+  readonly viewModel?: LumenAgentActivityViewModel | undefined;
   readonly onAction?: ((event: LumenAgentActivityAction) => void) | undefined;
   readonly className?: string | undefined;
   readonly density?: string | undefined;
@@ -247,6 +251,9 @@ export interface LumenAgentActivityProps {
 export type LumenAgentActivityVariantProps = Omit<LumenAgentActivityProps, 'variant' | 'variantId'>;
 
 const AgentActivityContentContext = React.createContext<LumenAgentActivityContent | undefined>(
+  undefined,
+);
+const AgentActivityViewModelContext = React.createContext<LumenAgentActivityViewModel | undefined>(
   undefined,
 );
 
@@ -267,7 +274,7 @@ export function uniqueLumenAgentActivityItems<Item extends { readonly id: string
 ): readonly Item[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) {
+    if (!item.id.trim() || seen.has(item.id)) {
       return false;
     }
     seen.add(item.id);
@@ -307,7 +314,11 @@ function logLevelState(level: LumenAgentActivityLogLevel): LumenAgentActivitySta
   return 'complete';
 }
 
-function ActivityGlyph({ name }: { readonly name: 'close' | 'download' | 'down' | 'retry' | 'stop' }) {
+function ActivityGlyph({
+  name,
+}: {
+  readonly name: 'close' | 'download' | 'down' | 'retry' | 'stop';
+}) {
   return (
     <svg className="lumen-agent-activity-glyph" viewBox="0 0 16 16" aria-hidden="true">
       {name === 'stop' ? <path d="M4.5 4.5h7v7h-7z" /> : null}
@@ -377,6 +388,7 @@ function ActivityFrame({
 }: Omit<LumenAgentActivityProps, 'content' | 'onAction'> & {
   readonly children: React.ReactNode;
 }) {
+  const viewModel = React.useContext(AgentActivityViewModelContext);
   const contentClassName = [
     'lumen-agent-activity',
     'hbar-app-ui-agent-activity-surface',
@@ -393,7 +405,7 @@ function ActivityFrame({
     <LumenSurface
       as={variant === 1 || variant === 2 || variant === 3 ? 'div' : 'section'}
       boundary={variant <= 7 ? 'none' : 'horizontal'}
-      className="lumen-agent-activity-root-surface"
+      className={`lumen-agent-activity-root-surface${viewModel ? ' lumen-agent-activity-controlled' : ''}`}
       contentClassName={contentClassName}
       data-lumen-component="agent-activity"
       data-lumen-variant={variant}
@@ -402,6 +414,11 @@ function ActivityFrame({
       data-hbar-app-ui-state={state}
     >
       {children}
+      {viewModel?.notice ? (
+        <p className="lumen-agent-activity-notice" role="status">
+          {viewModel.notice}
+        </p>
+      ) : null}
     </LumenSurface>
   );
 }
@@ -439,16 +456,21 @@ function reportAction(
 function LiveActivity(
   props: Omit<LumenAgentActivityProps, 'content'> & { content: LumenAgentActivityLiveContent },
 ) {
-  const { content, onAction } = props;
+  const { content } = props;
+  const viewModel = React.useContext(AgentActivityViewModelContext);
+  const onAction = viewModel?.onAction ?? props.onAction;
   const steps = uniqueLumenAgentActivityItems(content.steps);
   const activeStep = selectLumenAgentActivityItem(steps, content.activeStepId);
-  const [stopped, setStopped] = React.useState(false);
+  const [localStopped, setStopped] = React.useState(false);
+  const stopped = viewModel ? viewModel.liveStopped : localStopped;
 
   return (
     <ActivityFrame {...props} className="hbar-app-ui-agent-activity-live">
       <header className="lumen-agent-activity-heading hbar-app-ui-agent-activity-live-heading">
         <div>
-          <LumenText as="h2" variant="heading">{content.labels.title}</LumenText>
+          <LumenText as="h2" variant="heading">
+            {content.labels.title}
+          </LumenText>
           <div className="hbar-app-ui-agent-activity-live-status">
             <ActivityStateMark state={stopped ? 'cancelled' : 'running'} />
             <span>{stopped ? content.labels.stopped : content.labels.status}</span>
@@ -459,9 +481,11 @@ function LiveActivity(
         <LumenButton
           variant="outlined"
           size="s"
-          disabled={stopped}
+          disabled={stopped || Boolean(viewModel && !onAction)}
           onClick={() => {
-            setStopped(true);
+            if (!viewModel) {
+              setStopped(true);
+            }
             reportAction(onAction, 'stop-live');
           }}
         >
@@ -491,7 +515,9 @@ function LiveActivity(
 function NestedActivity(
   props: Omit<LumenAgentActivityProps, 'content'> & { content: LumenAgentActivityNestedContent },
 ) {
-  const { content, onAction } = props;
+  const { content } = props;
+  const viewModel = React.useContext(AgentActivityViewModelContext);
+  const onAction = viewModel?.onAction ?? props.onAction;
   const groups = React.useMemo(
     () => uniqueLumenAgentActivityItems(content.groups),
     [content.groups],
@@ -500,15 +526,20 @@ function NestedActivity(
     () => groups.filter((group) => group.openByDefault).map((group) => group.id),
     [groups],
   );
-  const [openIds, setOpenIds] = React.useState<readonly string[]>(defaultOpenIds);
+  const [localOpenIds, setOpenIds] = React.useState<readonly string[]>(defaultOpenIds);
+  const openIds = viewModel?.openGroupIds ?? localOpenIds;
   return (
     <ActivityFrame {...props} className="hbar-app-ui-agent-activity-nested">
       <header className="lumen-agent-activity-heading hbar-app-ui-agent-activity-nested-heading">
-        <LumenText as="h2" variant="heading">{content.labels.title}</LumenText>
+        <LumenText as="h2" variant="heading">
+          {content.labels.title}
+        </LumenText>
         <div className="hbar-app-ui-agent-activity-nested-status">
           <ActivityStateMark state="complete" />
           <span>{content.labels.status}</span>
-          <span className="hbar-app-ui-agent-activity-nested-elapsed">{content.labels.elapsed}</span>
+          <span className="hbar-app-ui-agent-activity-nested-elapsed">
+            {content.labels.elapsed}
+          </span>
         </div>
       </header>
       <div className="hbar-app-ui-agent-activity-nested-panel">
@@ -525,12 +556,15 @@ function NestedActivity(
                       type="button"
                       className="hbar-app-ui-agent-activity-group-row"
                       aria-expanded={open}
+                      disabled={Boolean(viewModel && !onAction)}
                       onClick={() => {
-                        setOpenIds((current) =>
-                          current.includes(group.id)
-                            ? current.filter((id) => id !== group.id)
-                            : [...current, group.id],
-                        );
+                        if (!viewModel) {
+                          setOpenIds((current) =>
+                            current.includes(group.id)
+                              ? current.filter((id) => id !== group.id)
+                              : [...current, group.id],
+                          );
+                        }
                         reportAction(onAction, 'toggle-nested-group', group.id);
                       }}
                     >
@@ -543,8 +577,14 @@ function NestedActivity(
                         {children.map((child) => (
                           <li key={child.id}>
                             <span>{child.label}</span>
-                            <ActivityProgress decorative label={child.label} value={child.progress} />
-                            <span className="hbar-app-ui-agent-activity-duration">{child.duration}</span>
+                            <ActivityProgress
+                              decorative
+                              label={child.label}
+                              value={child.progress}
+                            />
+                            <span className="hbar-app-ui-agent-activity-duration">
+                              {child.duration}
+                            </span>
                           </li>
                         ))}
                       </ol>
@@ -565,26 +605,39 @@ function DeploymentActivity(
     content: LumenAgentActivityDeploymentContent;
   },
 ) {
-  const { content, onAction } = props;
+  const { content } = props;
+  const viewModel = React.useContext(AgentActivityViewModelContext);
+  const onAction = viewModel?.onAction ?? props.onAction;
   const steps = uniqueLumenAgentActivityItems(content.steps);
   const activeStep = selectLumenAgentActivityItem(steps, content.activeStepId);
-  const [stopped, setStopped] = React.useState(false);
+  const [localStopped, setStopped] = React.useState(false);
+  const stopped = viewModel ? viewModel.deploymentStopped : localStopped;
 
   return (
     <ActivityFrame {...props} className="hbar-app-ui-agent-activity-deployment">
       <header className="lumen-agent-activity-heading hbar-app-ui-agent-activity-deployment-heading">
-        <LumenText as="h2" variant="heading">{content.labels.title}</LumenText>
+        <LumenText as="h2" variant="heading">
+          {content.labels.title}
+        </LumenText>
         <div className="hbar-app-ui-agent-activity-deployment-summary">
           <ActivityStateMark state={stopped ? 'cancelled' : 'running'} />
           <span>{stopped ? content.labels.stopped : content.labels.status}</span>
-          <span className="hbar-app-ui-agent-activity-deployment-step-count">{content.labels.currentStep}</span>
+          <span className="hbar-app-ui-agent-activity-deployment-step-count">
+            {content.labels.currentStep}
+          </span>
         </div>
       </header>
       <div className="hbar-app-ui-agent-activity-deployment-run">
-        <ActivityPane strategy={content.listStrategy} className="hbar-app-ui-agent-activity-deployment-pane">
+        <ActivityPane
+          strategy={content.listStrategy}
+          className="hbar-app-ui-agent-activity-deployment-pane"
+        >
           <ol className="lumen-agent-activity-list hbar-app-ui-agent-activity-deployment-list">
             {steps.map((step) => (
-              <li className={step.id === activeStep?.id && !stopped ? 'is-active' : ''} key={step.id}>
+              <li
+                className={step.id === activeStep?.id && !stopped ? 'is-active' : ''}
+                key={step.id}
+              >
                 <ActivityStateMark state={step.state} />
                 <span className="hbar-app-ui-agent-activity-deployment-label">{step.label}</span>
                 <span className="hbar-app-ui-agent-activity-deployment-state">
@@ -602,8 +655,11 @@ function DeploymentActivity(
               variant="outlined"
               size="s"
               aria-label={stopped ? content.labels.runAgain : content.labels.stop}
+              disabled={Boolean(viewModel && !onAction)}
               onClick={() => {
-                setStopped(!stopped);
+                if (!viewModel) {
+                  setStopped(!stopped);
+                }
                 reportAction(onAction, stopped ? 'run-again' : 'stop');
               }}
             >
@@ -620,61 +676,100 @@ function DeploymentActivity(
 function HistoryActivity(
   props: Omit<LumenAgentActivityProps, 'content'> & { content: LumenAgentActivityHistoryContent },
 ) {
-  const { content, onAction } = props;
+  const { content } = props;
+  const viewModel = React.useContext(AgentActivityViewModelContext);
+  const onAction = viewModel?.onAction ?? props.onAction;
   const rows = React.useMemo(() => uniqueLumenAgentActivityItems(content.rows), [content.rows]);
   const rerun = (id: string) => reportAction(onAction, 'rerun-history', id);
 
   return (
     <ActivityFrame {...props} className="hbar-app-ui-agent-activity-history">
       <div className="hbar-app-ui-agent-activity-history-heading">
-        <LumenText as="h2" variant="heading">{content.labels.title}</LumenText>
+        <LumenText as="h2" variant="heading">
+          {content.labels.title}
+        </LumenText>
         <span>{content.labels.count}</span>
       </div>
       <div className="hbar-app-ui-agent-activity-history-run">
-        <ActivityPane strategy={content.listStrategy} className="hbar-app-ui-agent-activity-history-pane">
-        <ul className="hbar-app-ui-agent-activity-history-cards">
-          {rows.map((row) => (
-            <li key={row.id}>
-              <div className="hbar-app-ui-agent-activity-history-card-top">
-                <span>{row.name}</span>
-                <LumenIconButton size="s" label={`${content.labels.rerun} ${row.name}`} onClick={() => rerun(row.id)}>
-                  <ActivityGlyph name="retry" />
-                </LumenIconButton>
-              </div>
-              <dl>
-                <div><dt>{content.labels.status}</dt><dd><ActivityStatus state={row.state} label={row.stateLabel} /></dd></div>
-                <div><dt>{content.labels.duration}</dt><dd>{row.duration}</dd></div>
-                <div><dt>{content.labels.cost}</dt><dd>{row.cost}</dd></div>
-                <div><dt>{content.labels.started}</dt><dd>{row.started}</dd></div>
-              </dl>
-            </li>
-          ))}
-        </ul>
-        <table className="hbar-app-ui-agent-activity-history-table">
-          <caption>{content.labels.description}</caption>
-          <thead><tr>
-            <th scope="col">{content.labels.run}</th>
-            <th scope="col">{content.labels.status}</th>
-            <th scope="col">{content.labels.duration}</th>
-            <th scope="col">{content.labels.cost}</th>
-            <th scope="col">{content.labels.started}</th>
-            <th scope="col" className="hbar-app-ui-agent-activity-history-action-label">{content.labels.actions}</th>
-          </tr></thead>
-          <tbody>{rows.map((row) => (
-            <tr key={row.id}>
-              <td>{row.name}</td>
-              <td><ActivityStatus state={row.state} label={row.stateLabel} /></td>
-              <td>{row.duration}</td>
-              <td>{row.cost}</td>
-              <td>{row.started}</td>
-              <td className="hbar-app-ui-agent-activity-history-action-cell">
-                <LumenIconButton size="s" label={`${content.labels.rerun} ${row.name}`} onClick={() => rerun(row.id)}>
-                  <ActivityGlyph name="retry" />
-                </LumenIconButton>
-              </td>
-            </tr>
-          ))}</tbody>
-        </table>
+        <ActivityPane
+          strategy={content.listStrategy}
+          className="hbar-app-ui-agent-activity-history-pane"
+        >
+          <ul className="hbar-app-ui-agent-activity-history-cards">
+            {rows.map((row) => (
+              <li key={row.id}>
+                <div className="hbar-app-ui-agent-activity-history-card-top">
+                  <span>{row.name}</span>
+                  <LumenIconButton
+                    size="s"
+                    label={`${content.labels.rerun} ${row.name}`}
+                    disabled={Boolean(viewModel && !onAction)}
+                    onClick={() => rerun(row.id)}
+                  >
+                    <ActivityGlyph name="retry" />
+                  </LumenIconButton>
+                </div>
+                <dl>
+                  <div>
+                    <dt>{content.labels.status}</dt>
+                    <dd>
+                      <ActivityStatus state={row.state} label={row.stateLabel} />
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>{content.labels.duration}</dt>
+                    <dd>{row.duration}</dd>
+                  </div>
+                  <div>
+                    <dt>{content.labels.cost}</dt>
+                    <dd>{row.cost}</dd>
+                  </div>
+                  <div>
+                    <dt>{content.labels.started}</dt>
+                    <dd>{row.started}</dd>
+                  </div>
+                </dl>
+              </li>
+            ))}
+          </ul>
+          <table className="hbar-app-ui-agent-activity-history-table">
+            <caption>{content.labels.description}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{content.labels.run}</th>
+                <th scope="col">{content.labels.status}</th>
+                <th scope="col">{content.labels.duration}</th>
+                <th scope="col">{content.labels.cost}</th>
+                <th scope="col">{content.labels.started}</th>
+                <th scope="col" className="hbar-app-ui-agent-activity-history-action-label">
+                  {content.labels.actions}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.id}>
+                  <td>{row.name}</td>
+                  <td>
+                    <ActivityStatus state={row.state} label={row.stateLabel} />
+                  </td>
+                  <td>{row.duration}</td>
+                  <td>{row.cost}</td>
+                  <td>{row.started}</td>
+                  <td className="hbar-app-ui-agent-activity-history-action-cell">
+                    <LumenIconButton
+                      size="s"
+                      label={`${content.labels.rerun} ${row.name}`}
+                      disabled={Boolean(viewModel && !onAction)}
+                      onClick={() => rerun(row.id)}
+                    >
+                      <ActivityGlyph name="retry" />
+                    </LumenIconButton>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </ActivityPane>
       </div>
     </ActivityFrame>
@@ -684,25 +779,47 @@ function HistoryActivity(
 function LogActivity(
   props: Omit<LumenAgentActivityProps, 'content'> & { content: LumenAgentActivityLogContent },
 ) {
-  const { content, onAction } = props;
+  const { content } = props;
+  const viewModel = React.useContext(AgentActivityViewModelContext);
+  const onAction = viewModel?.onAction ?? props.onAction;
   const filters = uniqueLumenAgentActivityItems(content.filters);
   const entries = uniqueLumenAgentActivityItems(content.entries);
-  const [activeFilterId, setActiveFilterId] = React.useState(content.activeFilterId);
-  const [visibleCount, setVisibleCount] = React.useState(Math.max(0, entries.length - 2));
-  const [running, setRunning] = React.useState(entries.length > 0);
+  const [localFilterId, setActiveFilterId] = React.useState(content.activeFilterId);
+  const [localVisibleCount, setVisibleCount] = React.useState(Math.max(0, entries.length - 2));
+  const [localRunning, setRunning] = React.useState(entries.length > 0);
+  const activeFilterId = viewModel ? (viewModel.activeFilterId ?? undefined) : localFilterId;
+  const visibleCount = viewModel
+    ? Math.max(
+        0,
+        Math.min(
+          entries.length,
+          Number.isFinite(viewModel.log.visibleCount) ? Math.floor(viewModel.log.visibleCount) : 0,
+        ),
+      )
+    : localVisibleCount;
+  const running = viewModel ? viewModel.log.running : localRunning;
   const [following, setFollowing] = React.useState(true);
   const [jumpVisible, setJumpVisible] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
   const paneRef = React.useRef<HTMLDivElement>(null);
-  const stopScrollAnchor = React.useRef<{ element: HTMLElement; top: number; scrollTop: number } | null>(null);
+  const stopScrollAnchor = React.useRef<{
+    element: HTMLElement;
+    top: number;
+    scrollTop: number;
+  } | null>(null);
   const programmaticScrollTarget = React.useRef<number | null>(null);
   const activeFilter = selectLumenAgentActivityItem(filters, activeFilterId);
   const visibleEntries = activeFilter?.level
     ? entries.slice(0, visibleCount).filter((entry) => entry.level === activeFilter.level)
     : entries.slice(0, visibleCount);
+  const snapshotLineCount =
+    visibleCount === entries.length
+      ? content.labels.lineCount
+      : content.labels.lineCountTemplate.replace('{count}', String(visibleCount));
+  const lineCount = viewModel?.log.lineCount ?? snapshotLineCount;
 
   React.useEffect(() => {
-    if (!running) {
+    if (viewModel || !running) {
       return undefined;
     }
     const timer = setTimeout(() => {
@@ -713,11 +830,14 @@ function LogActivity(
       }
     }, 1200);
     return () => clearTimeout(timer);
-  }, [entries.length, running, visibleCount]);
+  }, [entries.length, running, visibleCount, viewModel]);
 
   React.useLayoutEffect(() => {
     if (following && paneRef.current) {
-      programmaticScrollTarget.current = Math.max(0, paneRef.current.scrollHeight - paneRef.current.clientHeight);
+      programmaticScrollTarget.current = Math.max(
+        0,
+        paneRef.current.scrollHeight - paneRef.current.clientHeight,
+      );
       paneRef.current.scrollTop = paneRef.current.scrollHeight;
       setScrolled(paneRef.current.scrollTop > 0);
     }
@@ -757,7 +877,9 @@ function LogActivity(
       <header className="lumen-agent-activity-heading hbar-app-ui-agent-activity-heading">
         <div className="hbar-app-ui-agent-activity-log-title">
           <ActivityStateMark state={running ? 'running' : 'queued'} />
-          <LumenText as="h2" variant="heading">{content.labels.title}</LumenText>
+          <LumenText as="h2" variant="heading">
+            {content.labels.title}
+          </LumenText>
         </div>
         <div
           aria-label={content.labels.filters}
@@ -771,11 +893,14 @@ function LogActivity(
               className={filter.id === activeFilter?.id ? 'is-selected' : ''}
               key={filter.id}
               onClick={() => {
-                setActiveFilterId(filter.id);
+                if (!viewModel) {
+                  setActiveFilterId(filter.id);
+                }
                 reportAction(onAction, 'filter-log', filter.id);
               }}
               role="radio"
               type="button"
+              disabled={Boolean(viewModel && !onAction)}
             >
               <span className="is-compact">{filter.compactLabel}</span>
               <span className="is-full">{filter.label}</span>
@@ -787,12 +912,14 @@ function LogActivity(
             variant="outlined"
             size="s"
             aria-label={content.labels.stop}
+            disabled={Boolean(viewModel && !onAction)}
             onClick={() => {
               const pane = paneRef.current;
               if (pane) {
                 const paneTop = pane.getBoundingClientRect().top;
-                const anchor = Array.from(pane.querySelectorAll<HTMLElement>('li'))
-                  .find((entry) => entry.getBoundingClientRect().bottom > paneTop);
+                const anchor = Array.from(pane.querySelectorAll<HTMLElement>('li')).find(
+                  (entry) => entry.getBoundingClientRect().bottom > paneTop,
+                );
                 if (anchor) {
                   stopScrollAnchor.current = {
                     element: anchor,
@@ -801,7 +928,9 @@ function LogActivity(
                   };
                 }
               }
-              setRunning(false);
+              if (!viewModel) {
+                setRunning(false);
+              }
               setJumpVisible(false);
               reportAction(onAction, 'stop');
             }}
@@ -809,41 +938,52 @@ function LogActivity(
             <ActivityGlyph name="stop" />
             {content.labels.stop}
           </LumenButton>
-        ) : <span className="hbar-app-ui-agent-activity-log-count">
-          {visibleCount === entries.length
-            ? content.labels.lineCount
-            : content.labels.lineCountTemplate.replace('{count}', String(visibleCount))}
-        </span>}
+        ) : (
+          <span className="hbar-app-ui-agent-activity-log-count">{lineCount}</span>
+        )}
       </header>
-      <div className="hbar-app-ui-agent-activity-log-frame" data-hbar-app-ui-log-phase={running ? 'running' : 'complete'}>
-        <ActivityPane strategy={content.listStrategy} className="hbar-app-ui-agent-activity-log-pane">
-          <div className={`hbar-app-ui-agent-activity-log-scroll${scrolled ? ' is-scrolled' : ''}`} ref={paneRef} onScroll={onScroll}>
-        <ol
-          className="lumen-agent-activity-log-list hbar-app-ui-agent-activity-log-list"
+      <div
+        className="hbar-app-ui-agent-activity-log-frame"
+        data-hbar-app-ui-log-phase={running ? 'running' : 'complete'}
+      >
+        <ActivityPane
+          strategy={content.listStrategy}
+          className="hbar-app-ui-agent-activity-log-pane"
         >
-          {visibleEntries.map((entry) => (
-            <li className={`is-${entry.level}`} key={entry.id}>
-              <span className="hbar-app-ui-agent-activity-log-time">{entry.time}</span>
-              <ActivityStateMark state={logLevelState(entry.level)} />
-              <span>{entry.message}</span>
-            </li>
-          ))}
-        </ol>
-          </div>
-          {jumpVisible && !running ? <LumenButton
-            variant="text"
-            className="hbar-app-ui-agent-activity-log-jump"
-            type="button"
-            onClick={() => {
-              paneRef.current?.scrollTo({ top: paneRef.current.scrollHeight, behavior: 'smooth' });
-              setFollowing(true);
-              setJumpVisible(false);
-              reportAction(onAction, 'jump-to-latest');
-            }}
+          <div
+            className={`hbar-app-ui-agent-activity-log-scroll${scrolled ? ' is-scrolled' : ''}`}
+            ref={paneRef}
+            onScroll={onScroll}
           >
-            <ActivityGlyph name="down" />
-            {content.labels.jumpToLatest}
-          </LumenButton> : null}
+            <ol className="lumen-agent-activity-log-list hbar-app-ui-agent-activity-log-list">
+              {visibleEntries.map((entry) => (
+                <li className={`is-${entry.level}`} key={entry.id}>
+                  <span className="hbar-app-ui-agent-activity-log-time">{entry.time}</span>
+                  <ActivityStateMark state={logLevelState(entry.level)} />
+                  <span>{entry.message}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+          {jumpVisible && !running ? (
+            <LumenButton
+              variant="text"
+              className="hbar-app-ui-agent-activity-log-jump"
+              type="button"
+              onClick={() => {
+                paneRef.current?.scrollTo({
+                  top: paneRef.current.scrollHeight,
+                  behavior: 'smooth',
+                });
+                setFollowing(true);
+                setJumpVisible(false);
+                reportAction(onAction, 'jump-to-latest');
+              }}
+            >
+              <ActivityGlyph name="down" />
+              {content.labels.jumpToLatest}
+            </LumenButton>
+          ) : null}
         </ActivityPane>
       </div>
     </ActivityFrame>
@@ -857,7 +997,10 @@ function WorkersActivity(
   const workers = uniqueLumenAgentActivityItems(content.workers);
   return (
     <ActivityFrame {...props} className="hbar-app-ui-agent-activity-workers">
-      <header className="lumen-agent-activity-heading hbar-app-ui-agent-activity-heading" role="banner">
+      <header
+        className="lumen-agent-activity-heading hbar-app-ui-agent-activity-heading"
+        role="banner"
+      >
         <LumenText as="h2" variant="heading">
           {content.labels.title}
         </LumenText>
@@ -869,7 +1012,10 @@ function WorkersActivity(
       <ActivityPane strategy={content.listStrategy}>
         <ul className="lumen-agent-activity-worker-list hbar-app-ui-agent-activity-worker-list">
           {workers.map((worker) => (
-            <li className={worker.progress > 0 ? 'has-progress' : 'without-progress'} key={worker.id}>
+            <li
+              className={worker.progress > 0 ? 'has-progress' : 'without-progress'}
+              key={worker.id}
+            >
               <ActivityStateMark state={worker.state} />
               <div className="hbar-app-ui-agent-activity-worker-body">
                 <div className="hbar-app-ui-agent-activity-worker-heading">
@@ -881,7 +1027,11 @@ function WorkersActivity(
                   <span>{worker.stateLabel}</span>
                 </div>
                 {worker.progress > 0 ? (
-                  <ActivityProgress label={worker.progressLabel} value={worker.progress} decorative />
+                  <ActivityProgress
+                    label={worker.progressLabel}
+                    value={worker.progress}
+                    decorative
+                  />
                 ) : null}
               </div>
             </li>
@@ -895,18 +1045,26 @@ function WorkersActivity(
 function FailureActivity(
   props: Omit<LumenAgentActivityProps, 'content'> & { content: LumenAgentActivityFailureContent },
 ) {
-  const { content, onAction } = props;
+  const { content } = props;
+  const viewModel = React.useContext(AgentActivityViewModelContext);
+  const onAction = viewModel?.onAction ?? props.onAction;
   const inputs = uniqueLumenAgentActivityItems(content.inputs);
   const attempts = uniqueLumenAgentActivityItems(content.attempts);
   const outputs = uniqueLumenAgentActivityItems(content.outputs);
-  const [retryQueued, setRetryQueued] = React.useState(false);
+  const [localRetryQueued, setRetryQueued] = React.useState(false);
+  const retryQueued = viewModel ? viewModel.retryQueued : localRetryQueued;
   const toggleRetry = () => {
-    setRetryQueued(!retryQueued);
+    if (!viewModel) {
+      setRetryQueued(!retryQueued);
+    }
     reportAction(onAction, retryQueued ? 'cancel-failure-retry' : 'retry-failure');
   };
   return (
     <ActivityFrame {...props} className="hbar-app-ui-agent-activity-failure">
-      <header className="lumen-agent-activity-heading hbar-app-ui-agent-activity-heading" role="banner">
+      <header
+        className="lumen-agent-activity-heading hbar-app-ui-agent-activity-heading"
+        role="banner"
+      >
         <div>
           <LumenText as="h2" variant="heading">
             {content.labels.title}
@@ -922,6 +1080,7 @@ function FailureActivity(
           variant="outlined"
           size="s"
           onClick={() => reportAction(onAction, 'view-failure-log')}
+          disabled={Boolean(viewModel && !onAction)}
         >
           {content.labels.viewLog}
         </LumenButton>
@@ -930,7 +1089,10 @@ function FailureActivity(
         strategy={content.listStrategy}
         className="hbar-app-ui-agent-activity-failure-body"
       >
-        <div className={`hbar-app-ui-agent-activity-failure-summary-frame${retryQueued ? ' is-retry-queued' : ''}`} role="alert">
+        <div
+          className={`hbar-app-ui-agent-activity-failure-summary-frame${retryQueued ? ' is-retry-queued' : ''}`}
+          role="alert"
+        >
           <section className="lumen-agent-activity-error-card hbar-app-ui-agent-activity-error-card">
             <div className="hbar-app-ui-agent-activity-error-title">
               <ActivityStateMark state={retryQueued ? 'queued' : 'failed'} />
@@ -939,7 +1101,7 @@ function FailureActivity(
             <p>{retryQueued ? content.retryQueuedDescription : content.summaryDescription}</p>
           </section>
           <div className="lumen-agent-activity-action-row hbar-app-ui-agent-activity-action-row">
-            <LumenButton onClick={toggleRetry}>
+            <LumenButton onClick={toggleRetry} disabled={Boolean(viewModel && !onAction)}>
               <ActivityGlyph name={retryQueued ? 'close' : 'retry'} />
               {retryQueued ? content.labels.cancelRetry : content.labels.retry}
             </LumenButton>
@@ -990,6 +1152,7 @@ function FailureActivity(
                   variant="outlined"
                   size="s"
                   aria-label={`${content.labels.download} ${output.name}`}
+                  disabled={Boolean(viewModel && !onAction)}
                   onClick={() => reportAction(onAction, 'download-failure-output', output.id)}
                 >
                   <ActivityGlyph name="download" />
@@ -1007,6 +1170,18 @@ function FailureActivity(
 export function LumenAgentActivity(props: LumenAgentActivityProps) {
   const providerContent = useLumenAgentActivityContent();
   const content = props.content ?? providerContent;
+  const viewModel = props.viewModel ?? content?.viewModel;
+  return (
+    <AgentActivityViewModelContext.Provider
+      key={`${props.variant}:${viewModel?.ownerId ?? 'legacy'}`}
+      value={viewModel}
+    >
+      <ActivityRouter {...props} content={content} />
+    </AgentActivityViewModelContext.Provider>
+  );
+}
+
+function ActivityRouter({ content, ...props }: LumenAgentActivityProps) {
   switch (props.variant) {
     case 1:
       return content?.live ? (

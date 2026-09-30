@@ -60,6 +60,7 @@ export type {
   LumenAgentActivityWorker,
   LumenAgentActivityWorkersContent,
 } from './agent-activity';
+export type { LumenAgentActivityViewModel } from './agent-activity/view-model';
 export {
   LumenAgentApproval,
   LumenAgentApproval01,
