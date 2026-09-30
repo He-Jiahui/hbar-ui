@@ -145,6 +145,8 @@ export {
 } from './tool-calls';
 export type {
   LumenToolCallsAction,
+  LumenToolCallsIntent,
+  LumenToolCallsViewModel,
   LumenToolCallsActivityContent,
   LumenToolCallsActivityFilter,
   LumenToolCallsActivityItem,

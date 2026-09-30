@@ -4,7 +4,11 @@ import * as React from 'react';
 import { LumenToggleControl } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
+import type { LumenToolCallsIntent, LumenToolCallsViewModel } from './tool-calls/view-model';
 import './tool-calls.css';
+import './tool-calls/controlled-flow.css';
+
+export type { LumenToolCallsIntent, LumenToolCallsViewModel } from './tool-calls/view-model';
 
 export type LumenToolCallsListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -39,6 +43,7 @@ export interface LumenToolCallsTraceContent {
     readonly duration: string;
     readonly arguments: string;
     readonly result: string;
+    readonly callCount?: string | undefined;
   };
   readonly items: readonly LumenToolCallsTraceItem[];
   readonly activeItemId: string;
@@ -132,6 +137,7 @@ export interface LumenToolCallsCommandContent {
   readonly tabs: readonly LumenToolCallsOutputTab[];
   readonly initialTabId: string;
   readonly outputStrategy: LumenToolCallsListStrategy;
+  readonly copyCommandLabel?: string | undefined;
 }
 
 export type LumenToolCallsPermissionItemKind = 'request' | 'toggle' | 'status';
@@ -151,6 +157,7 @@ export interface LumenToolCallsPermissionItem {
   readonly enabled?: boolean | undefined;
   readonly toggleLabel?: string | undefined;
   readonly actions?: readonly LumenToolCallsPermissionAction[] | undefined;
+  readonly requestDetails?: string | undefined;
 }
 
 export interface LumenToolCallsPermissionGroup {
@@ -167,6 +174,7 @@ export interface LumenToolCallsPermissionsContent {
 }
 
 export interface LumenToolCallsContent {
+  readonly viewModel?: LumenToolCallsViewModel | undefined;
   readonly trace?: LumenToolCallsTraceContent | undefined;
   readonly activity?: LumenToolCallsActivityContent | undefined;
   readonly diff?: LumenToolCallsDiffContent | undefined;
@@ -189,6 +197,7 @@ export interface LumenToolCallsProps {
   readonly variant: number;
   readonly variantId: string;
   readonly content?: LumenToolCallsContent | undefined;
+  readonly viewModel?: LumenToolCallsViewModel | undefined;
   readonly onAction?: ((event: LumenToolCallsAction) => void) | undefined;
   readonly className?: string | undefined;
   readonly density?: string | undefined;
@@ -200,6 +209,9 @@ export interface LumenToolCallsProps {
 export type LumenToolCallsVariantProps = Omit<LumenToolCallsProps, 'variant' | 'variantId'>;
 
 const ToolCallsContentContext = React.createContext<LumenToolCallsContent | undefined>(undefined);
+const ToolCallsViewModelContext = React.createContext<LumenToolCallsViewModel | undefined>(
+  undefined,
+);
 
 export function LumenToolCallsProvider({ content, children }: LumenToolCallsProviderProps) {
   return (
@@ -216,7 +228,7 @@ export function uniqueLumenToolCallsItems<Item extends { readonly id: string }>(
 ): readonly Item[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (!item.id.trim() || seen.has(item.id)) return false;
     seen.add(item.id);
     return true;
   });
@@ -231,6 +243,16 @@ export function selectLumenToolCallsItem<Item extends { readonly id: string }>(
 
 function report(onAction: LumenToolCallsProps['onAction'], actionId: string, value?: string) {
   onAction?.(value === undefined ? { actionId } : { actionId, value });
+}
+
+function dispatch(
+  viewModel: LumenToolCallsViewModel | undefined,
+  intent: LumenToolCallsIntent,
+  onAction: LumenToolCallsProps['onAction'],
+  value?: string,
+) {
+  if (viewModel) viewModel.onAction?.(intent);
+  else report(onAction, intent.actionId, value);
 }
 
 function toolStateTone(state: LumenToolCallsState): 'neutral' | 'success' | 'warning' | 'danger' {
@@ -288,8 +310,10 @@ function ToolCallsRoot({
   className,
   children,
 }: Omit<LumenToolCallsProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
+  const viewModel = React.useContext(ToolCallsViewModelContext);
   const contentClassName = [
     'lumen-tool-calls',
+    viewModel ? 'lumen-tool-calls-controlled' : '',
     'hbar-app-ui-tool-calls-surface',
     `hbar-app-ui-tool-calls-variant-${variant}`,
     density ? `hbar-app-ui-density-${density}` : '',
@@ -304,7 +328,7 @@ function ToolCallsRoot({
     <LumenSurface
       as="section"
       boundary="horizontal"
-      className="lumen-tool-calls-root-surface"
+      className={`lumen-tool-calls-root-surface${viewModel ? ' lumen-tool-calls-controlled-root' : ''}`}
       contentClassName={contentClassName}
       data-lumen-component="tool-calls"
       data-lumen-variant={variant}
@@ -312,6 +336,11 @@ function ToolCallsRoot({
       data-hbar-app-ui-surface={surface}
       data-hbar-app-ui-state={state}
     >
+      {viewModel?.notice ? (
+        <p className="lumen-tool-calls-notice" role="status">
+          {viewModel.notice}
+        </p>
+      ) : null}
       {children}
     </LumenSurface>
   );
@@ -337,13 +366,22 @@ function Pane({
   );
 }
 
-function StopButton({ label, onClick }: { readonly label: string; readonly onClick: () => void }) {
+function StopButton({
+  label,
+  onClick,
+  disabled,
+}: {
+  readonly label: string;
+  readonly onClick: () => void;
+  readonly disabled?: boolean | undefined;
+}) {
   return (
     <LumenButton
       aria-label={label}
       className="hbar-app-ui-tool-calls-button hbar-app-ui-tool-calls-stop"
       variant="outlined"
       onClick={onClick}
+      disabled={disabled}
     >
       <ToolGlyph name="stop" />
       {label}
@@ -355,6 +393,8 @@ function ToolTrace(
   props: Omit<LumenToolCallsProps, 'content'> & { content: LumenToolCallsTraceContent },
 ) {
   const { content, onAction } = props;
+  const viewModel = React.useContext(ToolCallsViewModelContext);
+  const instanceId = React.useId();
   const items = uniqueLumenToolCallsItems(content.items);
   const [openId, setOpenId] = React.useState(content.activeItemId);
   const activeItem = selectLumenToolCallsItem(items, openId);
@@ -366,13 +406,19 @@ function ToolTrace(
         <LumenText as="h2" variant="heading">
           {content.labels.title}
         </LumenText>
-        <StopButton label={content.labels.stop} onClick={() => report(onAction, 'stop')} />
+        {viewModel ? (
+          <span>{content.labels.callCount}</span>
+        ) : (
+          <StopButton label={content.labels.stop} onClick={() => report(onAction, 'stop')} />
+        )}
       </header>
       <Pane strategy={content.listStrategy} className="hbar-app-ui-tool-calls-trace-pane">
         <ol>
           {items.map((item) => {
-            const open = item.id === activeItem?.id;
-            const detailsId = `hbar-app-ui-tool-trace-${item.id}`;
+            const open = viewModel
+              ? viewModel.openTraceIds.includes(item.id)
+              : item.id === activeItem?.id;
+            const detailsId = `${instanceId}-trace-${encodeURIComponent(item.id)}`;
             return (
               <li key={item.id}>
                 <LumenButton
@@ -380,9 +426,15 @@ function ToolTrace(
                   aria-controls={detailsId}
                   aria-expanded={open}
                   className="hbar-app-ui-tool-calls-button hbar-app-ui-tool-calls-trace-row"
+                  disabled={viewModel !== undefined && !viewModel.onAction}
                   onClick={() => {
-                    setOpenId(item.id);
-                    report(onAction, 'toggle-trace-item', item.id);
+                    if (!viewModel) setOpenId(item.id);
+                    dispatch(
+                      viewModel,
+                      { actionId: 'toggle-trace-item', itemId: item.id },
+                      onAction,
+                      item.id,
+                    );
                   }}
                 >
                   <ToolGlyph name={open ? 'chevron-down' : 'chevron-right'} />
@@ -427,14 +479,50 @@ function ToolTrace(
   );
 }
 
+function ToolActivityRowContent({ item }: { readonly item: LumenToolCallsActivityItem }) {
+  return (
+    <>
+      <span className={`hbar-app-ui-tool-calls-state-mark is-${item.state}`} />
+      <span>
+        <code>{item.name}</code>
+        <small>{item.detail}</small>
+      </span>
+      <time>{item.duration}</time>
+      <ToolStatus label={item.stateLabel} state={item.state} />
+    </>
+  );
+}
+
+function moveTabFocus(event: React.KeyboardEvent<HTMLElement>) {
+  if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+  const tabs = Array.from(
+    event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]:not(:disabled)'),
+  );
+  const index = tabs.findIndex((tab) => tab === event.target);
+  if (index < 0 || !tabs.length) return;
+  event.preventDefault();
+  const next =
+    event.key === 'Home'
+      ? 0
+      : event.key === 'End'
+        ? tabs.length - 1
+        : (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+  tabs[next]?.focus();
+  tabs[next]?.click();
+}
+
 function ToolActivity(
   props: Omit<LumenToolCallsProps, 'content'> & { content: LumenToolCallsActivityContent },
 ) {
   const { content, onAction } = props;
+  const viewModel = React.useContext(ToolCallsViewModelContext);
   const filters = uniqueLumenToolCallsItems(content.filters);
   const items = uniqueLumenToolCallsItems(content.items);
   const [activeFilterId, setActiveFilterId] = React.useState(content.activeFilterId);
-  const activeFilter = selectLumenToolCallsItem(filters, activeFilterId);
+  const activeFilter = selectLumenToolCallsItem(
+    filters,
+    viewModel?.activeFilterId ?? activeFilterId,
+  );
   const visibleItems = activeFilter
     ? items.filter((item) => item.filterIds.includes(activeFilter.id))
     : items;
@@ -446,8 +534,12 @@ function ToolActivity(
         <LumenText as="h2" variant="heading">
           {content.labels.title}
         </LumenText>
-        <StopButton label={content.labels.stop} onClick={() => report(onAction, 'stop')} />
-        <nav aria-label={content.labels.filtersLabel} role="tablist">
+        <StopButton
+          label={content.labels.stop}
+          disabled={viewModel !== undefined && !viewModel.onAction}
+          onClick={() => dispatch(viewModel, { actionId: 'stop' }, onAction)}
+        />
+        <nav aria-label={content.labels.filtersLabel} role="tablist" onKeyDown={moveTabFocus}>
           {filters.map((filter) => {
             const selected = filter.id === activeFilter?.id;
             return (
@@ -456,9 +548,16 @@ function ToolActivity(
                 aria-selected={selected}
                 className={`hbar-app-ui-tool-calls-button${selected ? ' is-selected' : ''}`}
                 key={filter.id}
+                disabled={viewModel !== undefined && !viewModel.onAction}
+                tabIndex={selected ? 0 : -1}
                 onClick={() => {
-                  setActiveFilterId(filter.id);
-                  report(onAction, 'filter-tool-activity', filter.id);
+                  if (!viewModel) setActiveFilterId(filter.id);
+                  dispatch(
+                    viewModel,
+                    { actionId: 'filter-tool-activity', optionId: filter.id },
+                    onAction,
+                    filter.id,
+                  );
                 }}
                 role="tab"
               >
@@ -472,24 +571,32 @@ function ToolActivity(
         <ol>
           {visibleItems.map((item) => (
             <li key={item.id}>
-              <LumenButton
-                variant="text"
-                className="hbar-app-ui-tool-calls-button hbar-app-ui-tool-calls-activity-row"
-                onClick={() => report(onAction, 'open-tool-activity', item.id)}
-              >
-                <span className={`hbar-app-ui-tool-calls-state-mark is-${item.state}`} />
-                <span>
-                  <code>{item.name}</code>
-                  <small>{item.detail}</small>
-                </span>
-                <time>{item.duration}</time>
-                <ToolStatus label={item.stateLabel} state={item.state} />
-              </LumenButton>
+              {viewModel ? (
+                <div className="hbar-app-ui-tool-calls-activity-row">
+                  <ToolActivityRowContent item={item} />
+                </div>
+              ) : (
+                <LumenButton
+                  variant="text"
+                  className="hbar-app-ui-tool-calls-button hbar-app-ui-tool-calls-activity-row"
+                  onClick={() => report(onAction, 'open-tool-activity', item.id)}
+                >
+                  <ToolActivityRowContent item={item} />
+                </LumenButton>
+              )}
               {item.retryLabel ? (
                 <LumenIconButton
                   label={item.retryLabel}
                   className="hbar-app-ui-tool-calls-retry"
-                  onClick={() => report(onAction, 'retry-tool-activity', item.id)}
+                  disabled={viewModel !== undefined && !viewModel.onAction}
+                  onClick={() =>
+                    dispatch(
+                      viewModel,
+                      { actionId: 'retry-tool-activity', itemId: item.id },
+                      onAction,
+                      item.id,
+                    )
+                  }
                 >
                   <ToolGlyph name="retry" />
                 </LumenIconButton>
@@ -506,6 +613,8 @@ function ToolDiffResult(
   props: Omit<LumenToolCallsProps, 'content'> & { content: LumenToolCallsDiffContent },
 ) {
   const { content, onAction } = props;
+  const viewModel = React.useContext(ToolCallsViewModelContext);
+  const instanceId = React.useId();
   const files = uniqueLumenToolCallsItems(content.files);
   const [openFileId, setOpenFileId] = React.useState(content.activeFileId);
   const openFile = selectLumenToolCallsItem(files, openFileId);
@@ -521,9 +630,11 @@ function ToolDiffResult(
       <Pane strategy={content.listStrategy}>
         <ol>
           {files.map((file) => {
-            const open = file.id === openFile?.id;
+            const open = viewModel
+              ? viewModel.openDiffIds.includes(file.id)
+              : file.id === openFile?.id;
             const lines = uniqueLumenToolCallsItems(file.lines);
-            const detailsId = `hbar-app-ui-tool-diff-${file.id}`;
+            const detailsId = `${instanceId}-diff-${encodeURIComponent(file.id)}`;
             return (
               <li key={file.id}>
                 <LumenButton
@@ -531,9 +642,15 @@ function ToolDiffResult(
                   aria-controls={detailsId}
                   aria-expanded={open}
                   className="hbar-app-ui-tool-calls-button hbar-app-ui-tool-calls-diff-file"
+                  disabled={viewModel !== undefined && !viewModel.onAction}
                   onClick={() => {
-                    setOpenFileId(file.id);
-                    report(onAction, 'toggle-diff-file', file.id);
+                    if (!viewModel) setOpenFileId(file.id);
+                    dispatch(
+                      viewModel,
+                      { actionId: 'toggle-diff-file', itemId: file.id },
+                      onAction,
+                      file.id,
+                    );
                   }}
                 >
                   <ToolGlyph name={open ? 'chevron-down' : 'chevron-right'} />
@@ -565,6 +682,7 @@ function ToolSearchResults(
   props: Omit<LumenToolCallsProps, 'content'> & { content: LumenToolCallsSearchContent },
 ) {
   const { content, onAction } = props;
+  const viewModel = React.useContext(ToolCallsViewModelContext);
   const items = uniqueLumenToolCallsItems(content.items);
   return (
     <ToolCallsRoot {...props} className="hbar-app-ui-tool-calls-search">
@@ -577,19 +695,44 @@ function ToolSearchResults(
         <ol>
           {items.map((item, index) => (
             <li key={item.id}>
-              <LumenButton
-                variant="text"
-                className="hbar-app-ui-tool-calls-button"
-                onClick={() => report(onAction, 'open-search-result', item.id)}
-              >
-                <span aria-hidden="true">{index + 1}</span>
-                <span>
-                  <strong>{item.title}</strong>
-                  <small>{item.source}</small>
-                  <span className="hbar-app-ui-tool-calls-search-excerpt">{item.excerpt}</span>
-                </span>
-                <em>{item.relevance}</em>
-              </LumenButton>
+              {viewModel ? (
+                <a
+                  href={viewModel.onAction ? '#' : undefined}
+                  aria-disabled={!viewModel.onAction || undefined}
+                  className="hbar-app-ui-tool-calls-search-link"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    dispatch(
+                      viewModel,
+                      { actionId: 'open-search-result', itemId: item.id },
+                      onAction,
+                      item.id,
+                    );
+                  }}
+                >
+                  <span aria-hidden="true">{index + 1}</span>
+                  <span>
+                    <strong>{item.title}</strong>
+                    <small>{item.source}</small>
+                    <span className="hbar-app-ui-tool-calls-search-excerpt">{item.excerpt}</span>
+                  </span>
+                  <em>{item.relevance}</em>
+                </a>
+              ) : (
+                <LumenButton
+                  variant="text"
+                  className="hbar-app-ui-tool-calls-button"
+                  onClick={() => report(onAction, 'open-search-result', item.id)}
+                >
+                  <span aria-hidden="true">{index + 1}</span>
+                  <span>
+                    <strong>{item.title}</strong>
+                    <small>{item.source}</small>
+                    <span className="hbar-app-ui-tool-calls-search-excerpt">{item.excerpt}</span>
+                  </span>
+                  <em>{item.relevance}</em>
+                </LumenButton>
+              )}
             </li>
           ))}
         </ol>
@@ -602,9 +745,14 @@ function ToolCommandOutput(
   props: Omit<LumenToolCallsProps, 'content'> & { content: LumenToolCallsCommandContent },
 ) {
   const { content, onAction } = props;
+  const viewModel = React.useContext(ToolCallsViewModelContext);
+  const instanceId = React.useId();
   const tabs = uniqueLumenToolCallsItems(content.tabs);
   const [selectedTabId, setSelectedTabId] = React.useState(content.initialTabId);
-  const selectedTab = selectLumenToolCallsItem(tabs, selectedTabId);
+  const selectedTab = selectLumenToolCallsItem(
+    tabs,
+    viewModel?.selectedOutputTabId ?? selectedTabId,
+  );
   React.useEffect(() => setSelectedTabId(content.initialTabId), [content.initialTabId]);
 
   return (
@@ -619,8 +767,25 @@ function ToolCommandOutput(
           <header>
             <pre className="hbar-app-ui-tool-calls-command-line">{content.command}</pre>
             <LumenStatus value={content.exitLabel} tone="danger" />
+            {viewModel && content.copyCommandLabel ? (
+              <LumenIconButton
+                label={content.copyCommandLabel}
+                disabled={!viewModel.onAction}
+                onClick={() => dispatch(viewModel, { actionId: 'copy-command' }, onAction)}
+              >
+                <svg
+                  className="lumen-tool-calls-glyph"
+                  data-tier="sm"
+                  viewBox="0 0 16 16"
+                  aria-hidden="true"
+                >
+                  <rect x="5" y="5" width="9" height="9" rx="1" />
+                  <path d="M11 2H3a1 1 0 0 0-1 1v8" />
+                </svg>
+              </LumenIconButton>
+            ) : null}
           </header>
-          <nav aria-label={content.tabsLabel} role="tablist">
+          <nav aria-label={content.tabsLabel} role="tablist" onKeyDown={moveTabFocus}>
             {tabs.map((tab) => {
               const selected = tab.id === selectedTab?.id;
               return (
@@ -629,9 +794,18 @@ function ToolCommandOutput(
                   aria-selected={selected}
                   className={`hbar-app-ui-tool-calls-button${selected ? ' is-selected' : ''}`}
                   key={tab.id}
+                  id={`${instanceId}-tab-${encodeURIComponent(tab.id)}`}
+                  aria-controls={`${instanceId}-output`}
+                  disabled={viewModel !== undefined && !viewModel.onAction}
+                  tabIndex={selected ? 0 : -1}
                   onClick={() => {
-                    setSelectedTabId(tab.id);
-                    report(onAction, 'select-command-output', tab.id);
+                    if (!viewModel) setSelectedTabId(tab.id);
+                    dispatch(
+                      viewModel,
+                      { actionId: 'select-command-output', optionId: tab.id },
+                      onAction,
+                      tab.id,
+                    );
                   }}
                   role="tab"
                 >
@@ -641,7 +815,15 @@ function ToolCommandOutput(
             })}
           </nav>
           {selectedTab ? (
-            <pre className="hbar-app-ui-tool-calls-command-output">{selectedTab.output}</pre>
+            <pre
+              className="hbar-app-ui-tool-calls-command-output"
+              id={`${instanceId}-output`}
+              role="tabpanel"
+              tabIndex={0}
+              aria-labelledby={`${instanceId}-tab-${encodeURIComponent(selectedTab.id)}`}
+            >
+              {selectedTab.output}
+            </pre>
           ) : null}
         </section>
       </Pane>
@@ -661,6 +843,8 @@ function ToolPermissions(
   props: Omit<LumenToolCallsProps, 'content'> & { content: LumenToolCallsPermissionsContent },
 ) {
   const { content, onAction } = props;
+  const viewModel = React.useContext(ToolCallsViewModelContext);
+  const instanceId = React.useId();
   const groups = uniqueLumenToolCallsItems(content.groups);
   const [overrides, setOverrides] = React.useState<ReadonlyMap<string, boolean>>(() => new Map());
   return (
@@ -679,7 +863,20 @@ function ToolPermissions(
                   item.kind === 'request' &&
                   item.statusLabel !== undefined &&
                   (item.actions?.length ?? 0) > 0;
-                const enabled = overrides.get(item.id) ?? item.enabled;
+                const enabled = viewModel
+                  ? (viewModel.permissions.find(
+                      (permission) =>
+                        permission.groupId === group.id && permission.itemId === item.id,
+                    )?.enabled ?? item.enabled)
+                  : (overrides.get(item.id) ?? item.enabled);
+                const requestOpen =
+                  viewModel?.openRequestIds.some(
+                    (request) => request.groupId === group.id && request.itemId === item.id,
+                  ) ?? false;
+                const feedback = viewModel?.requestFeedback?.find(
+                  (request) => request.groupId === group.id && request.itemId === item.id,
+                );
+                const detailsId = `${instanceId}-request-${encodeURIComponent(group.id)}-${encodeURIComponent(item.id)}`;
                 return (
                   <li className={`is-${item.kind}`} key={item.id}>
                     <div>
@@ -691,25 +888,57 @@ function ToolPermissions(
                     </div>
                     {item.kind === 'request' && item.actions ? (
                       <nav>
-                        {item.actions.map((action) => (
-                          <LumenButton
-                            variant={action.tone === 'accent' ? 'solid' : 'outlined'}
-                            tone={permissionTone(action.tone)}
-                            className={`hbar-app-ui-tool-calls-button${action.tone ? ` is-${action.tone}` : ''}`}
-                            key={action.id}
-                            onClick={() =>
-                              report(
-                                onAction,
-                                'permission-request-action',
-                                `${item.id}:${action.id}`,
-                              )
-                            }
-                          >
-                            {action.id === 'view' ? <ToolGlyph name="chevron-right" /> : null}
-                            {action.label}
-                          </LumenButton>
-                        ))}
+                        {uniqueLumenToolCallsItems(item.actions).map((action) => {
+                          const button = (
+                            <LumenButton
+                              variant={action.tone === 'accent' ? 'solid' : 'outlined'}
+                              tone={permissionTone(action.tone)}
+                              className={`hbar-app-ui-tool-calls-button${action.tone ? ` is-${action.tone}` : ''}`}
+                              disabled={viewModel !== undefined && !viewModel.onAction}
+                              data-hbar-app-ui-action={action.id}
+                              aria-expanded={
+                                viewModel && action.id === 'view' ? requestOpen : undefined
+                              }
+                              aria-controls={
+                                viewModel && action.id === 'view' ? detailsId : undefined
+                              }
+                              onClick={() =>
+                                dispatch(
+                                  viewModel,
+                                  {
+                                    actionId: 'permission-request-action',
+                                    groupId: group.id,
+                                    itemId: item.id,
+                                    optionId: action.id,
+                                  },
+                                  onAction,
+                                  `${item.id}:${action.id}`,
+                                )
+                              }
+                            >
+                              {action.id === 'view' ? <ToolGlyph name="chevron-right" /> : null}
+                              {action.label}
+                            </LumenButton>
+                          );
+                          return viewModel && action.id === 'view' ? (
+                            <div className="lumen-tool-calls-view-request-row" key={action.id}>
+                              {button}
+                              {requestOpen && item.requestDetails ? (
+                                <pre id={detailsId} className="lumen-tool-calls-request-details">
+                                  {item.requestDetails}
+                                </pre>
+                              ) : null}
+                            </div>
+                          ) : (
+                            <React.Fragment key={action.id}>{button}</React.Fragment>
+                          );
+                        })}
                       </nav>
+                    ) : null}
+                    {feedback ? (
+                      <p className="lumen-tool-calls-request-feedback" role="status">
+                        {feedback.message}
+                      </p>
                     ) : null}
                     {statusAfterActions ? (
                       <span className="hbar-app-ui-tool-calls-request-status">
@@ -719,12 +948,25 @@ function ToolPermissions(
                     {item.kind === 'toggle' && enabled !== undefined && item.toggleLabel ? (
                       <LumenToggleControl
                         checked={enabled}
+                        aria-checked={enabled}
                         aria-label={item.toggleLabel}
                         className="hbar-app-ui-tool-calls-toggle"
+                        disabled={viewModel !== undefined && !viewModel.onAction}
                         onChange={(event) => {
                           const next = event.currentTarget.checked;
-                          setOverrides((current) => new Map(current).set(item.id, next));
-                          report(onAction, 'toggle-permission', `${item.id}:${next}`);
+                          if (!viewModel)
+                            setOverrides((current) => new Map(current).set(item.id, next));
+                          dispatch(
+                            viewModel,
+                            {
+                              actionId: 'toggle-permission',
+                              groupId: group.id,
+                              itemId: item.id,
+                              enabled: next,
+                            },
+                            onAction,
+                            `${item.id}:${next}`,
+                          );
                         }}
                       />
                     ) : null}
@@ -747,9 +989,8 @@ function emptyToolCalls(props: LumenToolCallsProps) {
   );
 }
 
-export function LumenToolCalls(props: LumenToolCallsProps) {
-  const providerContent = useLumenToolCallsContent();
-  const content = props.content ?? providerContent;
+function ToolCallsRouter(props: LumenToolCallsProps) {
+  const content = props.content;
   switch (props.variant) {
     case 1:
       return content?.trace ? (
@@ -790,6 +1031,20 @@ export function LumenToolCalls(props: LumenToolCallsProps) {
     default:
       return emptyToolCalls(props);
   }
+}
+
+export function LumenToolCalls(props: LumenToolCallsProps) {
+  const providerContent = useLumenToolCallsContent();
+  const content = props.content ?? providerContent;
+  const viewModel = props.viewModel ?? content?.viewModel;
+  return (
+    <ToolCallsViewModelContext.Provider
+      key={`${props.variant}:${viewModel?.ownerId ?? 'legacy'}`}
+      value={viewModel}
+    >
+      <ToolCallsRouter {...props} content={content} />
+    </ToolCallsViewModelContext.Provider>
+  );
 }
 
 function toolCallsVariant(variant: number, props: LumenToolCallsVariantProps) {
