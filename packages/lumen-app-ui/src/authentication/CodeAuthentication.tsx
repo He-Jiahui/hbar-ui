@@ -15,6 +15,7 @@ export function CodeAuthentication({
   content,
 }: LumenAuthCompositionProps & { readonly content: LumenAuthCodeContent }) {
   const fields = React.useRef<(HTMLInputElement | null)[]>([]);
+  const recoveryId = React.useId();
   const flow = content.referenceFlow;
 
   if (!flow) {
@@ -77,9 +78,9 @@ export function CodeAuthentication({
             <p className="hbar-app-ui-auth-code-description">{flow.phase === 'recovery' ? flow.labels.recoveryDescription : content.labels.description}</p>
             {flow.phase === 'recovery' ? (
               <div className="hbar-app-ui-auth-code-recovery-field">
-                <label htmlFor={`${spec.id}-recovery`}>{flow.labels.recoveryLabel}</label>
+                <label htmlFor={recoveryId}>{flow.labels.recoveryLabel}</label>
                 <LumenInput
-                  id={`${spec.id}-recovery`}
+                  id={recoveryId}
                   variant="plain"
                   value={flow.recoveryCode}
                   maxLength={11}

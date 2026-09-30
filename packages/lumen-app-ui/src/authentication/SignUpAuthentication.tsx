@@ -1,6 +1,6 @@
 import { LumenCheckBoxControl, LumenInput } from '../forms';
 import { LumenButton } from '../primitives';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Check, Eye, EyeOff } from './glyphs';
 import type { LumenAuthCompositionProps } from './primitives';
 import type { LumenAuthSignUpContent } from './content';
@@ -32,7 +32,12 @@ function ReferenceSignUpAuthentication({
   content,
 }: LumenAuthCompositionProps & { readonly content: LumenAuthSignUpContent }) {
   const flow = content.referenceFlow;
+  const fieldIdPrefix = useId();
   if (!flow) return null;
+  const nameId = `${fieldIdPrefix}-name`;
+  const emailId = `${fieldIdPrefix}-email`;
+  const passwordId = `${fieldIdPrefix}-password`;
+  const requirementsId = `${fieldIdPrefix}-requirements`;
   const strength = Math.min(4, flow.requirementsMet.filter(Boolean).length);
   return (
     <AuthFrame spec={spec} onAction={onAction} className="hbar-app-ui-auth-sign-up-surface hbar-app-ui-auth-sign-up-reference">
@@ -50,18 +55,18 @@ function ReferenceSignUpAuthentication({
           <p className="hbar-app-ui-auth-sign-up-description">{content.labels.description}</p>
           <div className="hbar-app-ui-auth-sign-up-fields">
             <div className="hbar-app-ui-auth-sign-up-field">
-              <label htmlFor={`${spec.id}-name`}>{content.labels.nameLabel}</label>
-              <LumenInput id={`${spec.id}-name`} variant="plain" autoComplete="name" value={flow.name} placeholder={content.labels.namePlaceholder} onChange={(event) => flow.onNameChange(event.currentTarget.value)} />
+              <label htmlFor={nameId}>{content.labels.nameLabel}</label>
+              <LumenInput id={nameId} variant="plain" autoComplete="name" value={flow.name} placeholder={content.labels.namePlaceholder} onChange={(event) => flow.onNameChange(event.currentTarget.value)} />
             </div>
             <div className="hbar-app-ui-auth-sign-up-field">
-              <label htmlFor={`${spec.id}-email`}>{content.labels.emailLabel}</label>
-              <LumenInput id={`${spec.id}-email`} variant="plain" type="email" autoComplete="email" aria-invalid={false} value={flow.email} placeholder={content.labels.emailPlaceholder} onChange={(event) => flow.onEmailChange(event.currentTarget.value)} />
+              <label htmlFor={emailId}>{content.labels.emailLabel}</label>
+              <LumenInput id={emailId} variant="plain" type="email" autoComplete="email" aria-invalid={false} value={flow.email} placeholder={content.labels.emailPlaceholder} onChange={(event) => flow.onEmailChange(event.currentTarget.value)} />
               <p className="hbar-app-ui-auth-sign-up-helper">{content.labels.emailHelper}</p>
             </div>
             <div className="hbar-app-ui-auth-sign-up-field">
-              <label htmlFor={`${spec.id}-password`}>{content.labels.passwordLabel}</label>
+              <label htmlFor={passwordId}>{content.labels.passwordLabel}</label>
               <div className="hbar-app-ui-auth-sign-up-password-wrap">
-                <LumenInput id={`${spec.id}-password`} variant="plain" type={flow.visible ? 'text' : 'password'} autoComplete="new-password" aria-describedby={`${spec.id}-requirements`} value={flow.password} placeholder={content.labels.passwordPlaceholder} onChange={(event) => flow.onPasswordChange(event.currentTarget.value)} />
+                <LumenInput id={passwordId} variant="plain" type={flow.visible ? 'text' : 'password'} autoComplete="new-password" aria-describedby={requirementsId} value={flow.password} placeholder={content.labels.passwordPlaceholder} onChange={(event) => flow.onPasswordChange(event.currentTarget.value)} />
                 <LumenButton type="button" indicator="none" className="hbar-app-ui-auth-sign-up-reveal" aria-label={flow.visible ? content.labels.hidePassword : content.labels.showPassword} onClick={() => flow.onVisibleChange(!flow.visible)}>
                   <AuthIcon tier="sm">{flow.visible ? <EyeOff /> : <Eye />}</AuthIcon>
                 </LumenButton>
@@ -70,7 +75,7 @@ function ReferenceSignUpAuthentication({
                 <div className="hbar-app-ui-auth-sign-up-bars" aria-hidden="true">{content.labels.requirements.map((label, index) => <span key={label} className={index < strength ? 'is-active' : ''} />)}</div>
                 <span>{strength ? flow.labels.strength[strength - 1] : null}</span>
               </div>
-              <ul className="hbar-app-ui-auth-sign-up-requirements" id={`${spec.id}-requirements`}>{content.labels.requirements.map((label, index) => <li key={label} className={flow.requirementsMet[index] ? 'is-valid' : ''}><span className="hbar-app-ui-auth-sign-up-requirement-icon" aria-hidden="true">{flow.requirementsMet[index] && <Check />}</span>{label}</li>)}</ul>
+              <ul className="hbar-app-ui-auth-sign-up-requirements" id={requirementsId}>{content.labels.requirements.map((label, index) => <li key={label} className={flow.requirementsMet[index] ? 'is-valid' : ''}><span className="hbar-app-ui-auth-sign-up-requirement-icon" aria-hidden="true">{flow.requirementsMet[index] && <Check />}</span>{label}</li>)}</ul>
             </div>
           </div>
           <label className="hbar-app-ui-auth-sign-up-agreement">

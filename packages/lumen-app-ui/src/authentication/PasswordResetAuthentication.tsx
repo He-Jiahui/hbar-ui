@@ -34,6 +34,8 @@ export type PasswordResetAuthenticationProps = LumenAuthCompositionProps & {
 
 function ReferencePasswordResetAuthentication({ spec, onAction, content }: PasswordResetAuthenticationProps) {
   const flow = content.referenceFlow;
+  const newPasswordId = React.useId();
+  const confirmPasswordId = React.useId();
   if (!flow) {
     return null;
   }
@@ -66,14 +68,14 @@ function ReferencePasswordResetAuthentication({ spec, onAction, content }: Passw
             <p className="hbar-app-ui-auth-password-reset-reference-description">{flow.labels.descriptionBeforeEmail}<span className="is-emphasized">{content.email}</span>{flow.labels.descriptionAfterEmail}</p>
             <form onSubmit={(event) => { event.preventDefault(); if (canSubmit) { flow.onSubmit(); } }}>
               <div className="hbar-app-ui-auth-password-reset-reference-field">
-                <label htmlFor={`${spec.id}-new-password`}>{content.labels.newPassword}</label>
-                <span className="hbar-app-ui-auth-password-reset-reference-input-wrap"><input id={`${spec.id}-new-password`} type={flow.passwordVisible ? 'text' : 'password'} value={flow.password} placeholder={content.labels.newPasswordPlaceholder} onChange={(event) => flow.onPasswordChange(event.currentTarget.value)} /><LumenButton type="button" indicator="none" aria-label={flow.passwordVisible ? content.labels.hidePassword : content.labels.showPassword} onClick={flow.onTogglePassword}><AuthIcon tier="sm">{flow.passwordVisible ? <EyeOff /> : <Eye />}</AuthIcon></LumenButton></span>
+                <label htmlFor={newPasswordId}>{content.labels.newPassword}</label>
+                <span className="hbar-app-ui-auth-password-reset-reference-input-wrap"><input id={newPasswordId} type={flow.passwordVisible ? 'text' : 'password'} value={flow.password} placeholder={content.labels.newPasswordPlaceholder} onChange={(event) => flow.onPasswordChange(event.currentTarget.value)} /><LumenButton type="button" indicator="none" aria-label={flow.passwordVisible ? content.labels.hidePassword : content.labels.showPassword} onClick={flow.onTogglePassword}><AuthIcon tier="sm">{flow.passwordVisible ? <EyeOff /> : <Eye />}</AuthIcon></LumenButton></span>
               </div>
               <div className={`hbar-app-ui-auth-password-reset-reference-progress ${flow.password ? 'has-strength' : ''}`}><span aria-hidden="true">{checks.map((_, index) => <i className={index < strength ? 'is-active' : ''} key={index} />)}</span><small>{flow.password ? flow.labels.strength[Math.max(0, strength - 1)] : null}</small></div>
               <ul className="hbar-app-ui-auth-password-reset-reference-requirements">{content.labels.requirements.map((label, index) => <li className={checks[index] ? 'is-valid' : ''} key={label}><span aria-hidden="true">{checks[index] && <Check />}</span>{label}</li>)}</ul>
               <div className="hbar-app-ui-auth-password-reset-reference-field hbar-app-ui-auth-password-reset-reference-confirm">
-                <label htmlFor={`${spec.id}-confirm-password`}>{content.labels.confirmPassword}</label>
-                <span className={`hbar-app-ui-auth-password-reset-reference-input-wrap ${mismatch ? 'is-mismatch' : ''}`}><input id={`${spec.id}-confirm-password`} type="password" value={flow.confirmation} aria-invalid={mismatch || undefined} placeholder={content.labels.confirmPlaceholder} onChange={(event) => flow.onConfirmationChange(event.currentTarget.value)} />{(matches || mismatch) && <AuthIcon tier="sm">{matches ? <Check /> : <X />}</AuthIcon>}</span>
+                <label htmlFor={confirmPasswordId}>{content.labels.confirmPassword}</label>
+                <span className={`hbar-app-ui-auth-password-reset-reference-input-wrap ${mismatch ? 'is-mismatch' : ''}`}><input id={confirmPasswordId} type="password" value={flow.confirmation} aria-invalid={mismatch || undefined} placeholder={content.labels.confirmPlaceholder} onChange={(event) => flow.onConfirmationChange(event.currentTarget.value)} />{(matches || mismatch) && <AuthIcon tier="sm">{matches ? <Check /> : <X />}</AuthIcon>}</span>
                 <p className={mismatch ? 'is-mismatch' : ''}>{mismatch ? flow.labels.mismatchHelper : content.labels.confirmHelper}</p>
               </div>
               <label className="hbar-app-ui-auth-password-reset-reference-signout"><input type="checkbox" checked={flow.signOutOther} onChange={(event) => flow.onSignOutOtherChange(event.currentTarget.checked)} />{content.labels.signOutOther}</label>

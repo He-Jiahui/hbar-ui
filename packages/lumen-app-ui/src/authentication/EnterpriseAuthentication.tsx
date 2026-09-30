@@ -1,5 +1,5 @@
 import { ArrowRight, Building2, Clock3, KeyRound, ShieldCheck, Users } from './glyphs';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { LumenButton } from '../primitives';
 import { LumenInput } from '../forms';
 import type { LumenAuthCompositionProps } from './primitives';
@@ -23,6 +23,7 @@ function ReferenceEnterpriseAuthentication({
   content,
 }: LumenAuthCompositionProps & { readonly content: LumenAuthEnterpriseContent }) {
   const flow = content.referenceFlow;
+  const emailId = useId();
   if (!flow) return null;
   const domain = flow.email.split('@')[1]?.trim().toLowerCase();
   const alternate = flow.alternateOrganizations.find((entry) => domain === entry.organization.domain.toLowerCase());
@@ -41,8 +42,8 @@ function ReferenceEnterpriseAuthentication({
             <h1>{content.labels.title}</h1>
             <p className="hbar-app-ui-auth-enterprise-description">{content.labels.description}</p>
             <div className="hbar-app-ui-auth-enterprise-field">
-              <label htmlFor={`${spec.id}-email`}>{content.labels.emailLabel}</label>
-              <LumenInput id={`${spec.id}-email`} variant="plain" type="email" autoComplete="email" value={flow.email} placeholder={content.labels.emailPlaceholder} onChange={(event) => flow.onEmailChange(event.currentTarget.value)} />
+              <label htmlFor={emailId}>{content.labels.emailLabel}</label>
+              <LumenInput id={emailId} variant="plain" type="email" autoComplete="email" value={flow.email} placeholder={content.labels.emailPlaceholder} onChange={(event) => flow.onEmailChange(event.currentTarget.value)} />
               <p>{matched ? providerHint : validEmail ? flow.labels.unmatchedHint(domain ?? '') : flow.labels.emptyHint}</p>
             </div>
             <div className="hbar-app-ui-auth-enterprise-actions">
