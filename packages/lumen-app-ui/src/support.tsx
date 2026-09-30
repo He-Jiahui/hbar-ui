@@ -85,6 +85,30 @@ export interface LumenSupportTicketFormContent {
   readonly context: readonly LumenSupportTicketContext[];
   readonly beforeSending: readonly string[];
   readonly recentTickets: readonly LumenSupportArticle[];
+  readonly referenceFlow?: {
+    readonly areaId: string;
+    readonly workspaceId: string;
+    readonly priorityId: string;
+    readonly subject: string;
+    readonly description: string;
+    readonly attached: boolean;
+    readonly phase: 'idle' | 'pending' | 'confirmed' | 'failed';
+    readonly error: string | null;
+    readonly labels: {
+      readonly pending: string;
+      readonly confirmed: string;
+      readonly errorUnavailable: string;
+    };
+    readonly onAreaChange: (areaId: string) => void;
+    readonly onWorkspaceChange: (workspaceId: string) => void;
+    readonly onPriorityChange: (priorityId: string) => void;
+    readonly onSubjectChange: (subject: string) => void;
+    readonly onDescriptionChange: (description: string) => void;
+    readonly onAttachmentAdd: () => void;
+    readonly onAttachmentRemove: () => void;
+    readonly onSubmit: () => void;
+    readonly onSaveDraft: () => void;
+  } | undefined;
 }
 export interface LumenSupportMessage {
   readonly id: string;
@@ -450,33 +474,120 @@ function Help(props: Omit<LumenSupportProps, 'content'> & { content: LumenSuppor
 function Ticket(
   props: Omit<LumenSupportProps, 'content'> & { content: LumenSupportTicketFormContent },
 ) {
+  const flow = props.content.referenceFlow;
+  const generatedIdPrefix = React.useId();
   const areas = uniqueLumenSupportItems(props.content.areas);
   const workspaces = uniqueLumenSupportItems(props.content.workspaces);
   const priorities = uniqueLumenSupportItems(props.content.priorities);
   const suggestions = uniqueLumenSupportItems(props.content.suggestions);
-  const [areaId, setAreaId] = React.useState(props.content.initialAreaId);
-  const [workspaceId, setWorkspaceId] = React.useState(props.content.initialWorkspaceId);
-  const [priorityId, setPriorityId] = React.useState(props.content.initialPriorityId);
-  const [subject, setSubject] = React.useState(props.content.initialSubject);
-  const [attachment, setAttachment] = React.useState(true);
+  const [localAreaId, setLocalAreaId] = React.useState(props.content.initialAreaId);
+  const [localWorkspaceId, setLocalWorkspaceId] = React.useState(props.content.initialWorkspaceId);
+  const [localPriorityId, setLocalPriorityId] = React.useState(props.content.initialPriorityId);
+  const [localSubject, setLocalSubject] = React.useState(props.content.initialSubject);
+  const [localDescription, setLocalDescription] = React.useState('');
+  const [localAttachment, setLocalAttachment] = React.useState(true);
   const [submitted, setSubmitted] = React.useState(false);
+  const areaId = flow?.areaId ?? localAreaId;
+  const workspaceId = flow?.workspaceId ?? localWorkspaceId;
+  const priorityId = flow?.priorityId ?? localPriorityId;
+  const subject = flow?.subject ?? localSubject;
+  const description = flow?.description ?? localDescription;
+  const attachment = flow?.attached ?? localAttachment;
+  const phase = flow?.phase ?? (submitted ? 'confirmed' : 'idle');
+  const controlsLocked = Boolean(flow && (phase === 'pending' || phase === 'confirmed'));
+  const areaControlId = flow ? `${generatedIdPrefix}-area` : `${props.variantId}-area`;
+  const workspaceControlId = flow ? `${generatedIdPrefix}-workspace` : `${props.variantId}-workspace`;
+  const subjectControlId = flow ? `${generatedIdPrefix}-subject` : `${props.variantId}-subject`;
+  const detailsControlId = flow ? `${generatedIdPrefix}-details` : `${props.variantId}-details`;
   const priority = selectLumenSupportItem(priorities, priorityId);
+
+  const onAreaChange = (value: string) => {
+    if (flow) {
+      if (phase === 'idle' || phase === 'failed') flow.onAreaChange(value);
+    } else {
+      setLocalAreaId(value);
+    }
+  };
+  const onWorkspaceChange = (value: string) => {
+    if (flow) {
+      if (phase === 'idle' || phase === 'failed') flow.onWorkspaceChange(value);
+    } else {
+      setLocalWorkspaceId(value);
+    }
+  };
+  const onPriorityChange = (value: string) => {
+    if (flow) {
+      if (phase === 'idle' || phase === 'failed') flow.onPriorityChange(value);
+    } else {
+      setLocalPriorityId(value);
+      report(props.onAction, 'priority', value);
+    }
+  };
+  const onSubjectChange = (value: string) => {
+    if (flow) {
+      if (phase === 'idle' || phase === 'failed') flow.onSubjectChange(value);
+    } else {
+      setLocalSubject(value);
+    }
+  };
+  const onDescriptionChange = (value: string) => {
+    if (flow) {
+      if (phase === 'idle' || phase === 'failed') flow.onDescriptionChange(value);
+    } else {
+      setLocalDescription(value);
+    }
+  };
+  const onAttachmentAdd = () => {
+    if (flow) {
+      if (phase === 'idle' || phase === 'failed') flow.onAttachmentAdd();
+    } else {
+      setLocalAttachment(true);
+    }
+  };
+  const onAttachmentRemove = () => {
+    if (flow) {
+      if (phase === 'idle' || phase === 'failed') flow.onAttachmentRemove();
+    } else {
+      setLocalAttachment(false);
+    }
+  };
+  const onSaveDraft = () => {
+    if (flow) {
+      if (phase === 'idle' || phase === 'failed') flow.onSaveDraft();
+    } else {
+      report(props.onAction, 'save', subject);
+    }
+  };
+  const onSubmit = () => {
+    if (flow) {
+      if (phase === 'idle' || phase === 'failed') flow.onSubmit();
+    } else {
+      setSubmitted(true);
+      report(props.onAction, 'submit', priorityId);
+    }
+  };
+  const submitLabel = flow
+    ? props.content.labels.submit
+    : submitted
+      ? props.content.labels.submitted
+      : props.content.labels.submit;
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
       <div className="lumen-support-ticket">
         <form
+          aria-busy={flow?.phase === 'pending'}
           onSubmit={(event) => {
             event.preventDefault();
-            setSubmitted(true);
-            report(props.onAction, 'submit', priorityId);
+            onSubmit();
           }}
         >
           <div className="lumen-support-two-column">
-            <LumenFormField controlId={`${props.variantId}-area`} label={props.content.labels.area}>
+            <LumenFormField controlId={areaControlId} label={props.content.labels.area}>
               <LumenSelect
+                disabled={controlsLocked}
                 value={selectLumenSupportItem(areas, areaId)?.id ?? ''}
-                onChange={(event) => setAreaId(event.target.value)}
+                onChange={(event) => onAreaChange(event.target.value)}
               >
                 {areas.map((item) => (
                   <option key={item.id} value={item.id}>
@@ -486,12 +597,13 @@ function Ticket(
               </LumenSelect>
             </LumenFormField>
             <LumenFormField
-              controlId={`${props.variantId}-workspace`}
+              controlId={workspaceControlId}
               label={props.content.labels.workspace}
             >
               <LumenSelect
+                disabled={controlsLocked}
                 value={selectLumenSupportItem(workspaces, workspaceId)?.id ?? ''}
-                onChange={(event) => setWorkspaceId(event.target.value)}
+                onChange={(event) => onWorkspaceChange(event.target.value)}
               >
                 {workspaces.map((item) => (
                   <option key={item.id} value={item.id}>
@@ -502,10 +614,14 @@ function Ticket(
             </LumenFormField>
           </div>
           <LumenFormField
-            controlId={`${props.variantId}-subject`}
+            controlId={subjectControlId}
             label={props.content.labels.subject}
           >
-            <LumenInput value={subject} onChange={(event) => setSubject(event.target.value)} />
+            <LumenInput
+              disabled={controlsLocked}
+              value={subject}
+              onChange={(event) => onSubjectChange(event.target.value)}
+            />
           </LumenFormField>
           <section className="lumen-support-suggestions">
             <strong>{props.content.labels.suggestions}</strong>
@@ -533,9 +649,9 @@ function Ticket(
                   role="radio"
                   variant={priority?.id === item.id ? 'solid' : 'outlined'}
                   aria-checked={priority?.id === item.id}
+                  disabled={controlsLocked}
                   onClick={() => {
-                    setPriorityId(item.id);
-                    report(props.onAction, 'priority', item.id);
+                    onPriorityChange(item.id);
                   }}
                 >
                   {item.label}
@@ -544,13 +660,18 @@ function Ticket(
             </div>
           </fieldset>
           <LumenFormField
-            controlId={`${props.variantId}-details`}
+            controlId={detailsControlId}
             label={props.content.labels.happened}
           >
-            <LumenTextarea placeholder={props.content.labels.happenedPlaceholder} />
+            <LumenTextarea
+              disabled={controlsLocked}
+              placeholder={props.content.labels.happenedPlaceholder}
+              value={description}
+              onChange={(event) => onDescriptionChange(event.currentTarget.value)}
+            />
           </LumenFormField>
           <div className="lumen-support-attachments">
-            <LumenButton variant="outlined" onClick={() => setAttachment(true)}>
+            <LumenButton variant="outlined" disabled={controlsLocked} onClick={onAttachmentAdd}>
               <Glyph name="attach" />
               {props.content.labels.attach}
             </LumenButton>
@@ -559,7 +680,8 @@ function Ticket(
                 {props.content.attachmentName}
                 <LumenIconButton
                   label={props.content.labels.remove(props.content.attachmentName)}
-                  onClick={() => setAttachment(false)}
+                  disabled={controlsLocked}
+                  onClick={onAttachmentRemove}
                 >
                   <Glyph name="close" />
                 </LumenIconButton>
@@ -567,13 +689,28 @@ function Ticket(
             ) : null}
           </div>
           <footer>
-            <LumenButton variant="outlined" onClick={() => report(props.onAction, 'save', subject)}>
+            <LumenButton variant="outlined" disabled={controlsLocked} onClick={onSaveDraft}>
               {props.content.labels.draft}
             </LumenButton>
-            <LumenButton type="submit" tone="primary">
-              {submitted ? props.content.labels.submitted : props.content.labels.submit}
+            <LumenButton type="submit" tone="primary" disabled={controlsLocked}>
+              {submitLabel}
             </LumenButton>
           </footer>
+          {flow?.phase === 'pending' ? (
+            <LumenText as="p" role="status" aria-live="polite">
+              {flow.labels.pending}
+            </LumenText>
+          ) : null}
+          {flow?.phase === 'confirmed' ? (
+            <LumenText as="p" role="status" aria-live="polite">
+              {flow.labels.confirmed}
+            </LumenText>
+          ) : null}
+          {flow?.phase === 'failed' ? (
+            <LumenText as="p" role="alert">
+              {flow.error ?? flow.labels.errorUnavailable}
+            </LumenText>
+          ) : null}
         </form>
         <aside>
           <section>
