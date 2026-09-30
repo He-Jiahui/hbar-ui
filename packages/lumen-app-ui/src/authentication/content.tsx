@@ -267,6 +267,20 @@ export interface LumenAuthMagicLinkContent {
   readonly expiry: string;
   readonly requestedFromValue: string;
   readonly resendAfterSeconds: number;
+  /** Optional Host-owned state and actions for the controlled reference flow. */
+  readonly referenceFlow?: LumenAuthMagicLinkReferenceFlow | undefined;
+}
+
+export interface LumenAuthMagicLinkReferenceFlow {
+  readonly phase: 'sent' | 'form';
+  readonly email: string;
+  readonly invalidEmail: boolean;
+  readonly seconds: number;
+  readonly onEmailChange: (value: string) => void;
+  readonly onSend: () => void;
+  readonly onResend: () => void;
+  readonly onDifferentEmail: () => void;
+  readonly onNavigate: (intent: 'open-mail' | 'password-sign-in') => void;
 }
 
 export interface LumenAuthCodeContent {

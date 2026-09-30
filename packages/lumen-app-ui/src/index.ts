@@ -473,6 +473,7 @@ export type {
   LumenAuthInvitationContent,
   LumenAuthListStrategy,
   LumenAuthMagicLinkContent,
+  LumenAuthMagicLinkReferenceFlow,
   LumenAuthMember,
   LumenAuthPasskey,
   LumenAuthPasskeyContent,
