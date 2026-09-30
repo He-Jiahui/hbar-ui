@@ -1,4 +1,20 @@
-import { createContext, type ReactNode, useContext } from 'react';
+'use client';
+
+import * as React from 'react';
+import type {
+  LumenIntegrationMarketplaceReferenceLayout,
+  LumenIntegrationMarketplaceReferenceFlow,
+  LumenIntegrationConnectionReferenceLayout,
+  LumenIntegrationConnectionReferenceFlow,
+  LumenIntegrationApiKeysReferenceLayout,
+  LumenIntegrationApiKeysReferenceFlow,
+  LumenIntegrationWebhookReferenceLayout,
+  LumenIntegrationWebhookReferenceFlow,
+  LumenIntegrationConsentReferenceLayout,
+  LumenIntegrationConsentReferenceFlow,
+  LumenIntegrationSyncReferenceLayout,
+  LumenIntegrationSyncReferenceFlow,
+} from './reference-content';
 
 /**
  * Integration collections are host-owned.  Marketplace cards can grow within
@@ -28,6 +44,8 @@ export interface LumenIntegrationMarketplaceItem {
 }
 
 export interface LumenIntegrationMarketplaceContent {
+  readonly referenceLayout?: LumenIntegrationMarketplaceReferenceLayout | undefined;
+  readonly referenceFlow?: LumenIntegrationMarketplaceReferenceFlow | undefined;
   readonly labels: {
     readonly pageTitle: string;
     readonly pageDescription: string;
@@ -62,6 +80,8 @@ export interface LumenIntegrationActivity {
 }
 
 export interface LumenIntegrationConnectionContent {
+  readonly referenceLayout?: LumenIntegrationConnectionReferenceLayout | undefined;
+  readonly referenceFlow?: LumenIntegrationConnectionReferenceFlow | undefined;
   readonly labels: {
     readonly connected: string;
     readonly disconnected: string;
@@ -97,6 +117,8 @@ export interface LumenIntegrationApiKey {
 }
 
 export interface LumenIntegrationApiKeysContent {
+  readonly referenceLayout?: LumenIntegrationApiKeysReferenceLayout | undefined;
+  readonly referenceFlow?: LumenIntegrationApiKeysReferenceFlow | undefined;
   readonly labels: {
     readonly pageTitle: string;
     readonly pageDescription: string;
@@ -137,6 +159,8 @@ export interface LumenIntegrationDelivery {
 }
 
 export interface LumenIntegrationWebhookContent {
+  readonly referenceLayout?: LumenIntegrationWebhookReferenceLayout | undefined;
+  readonly referenceFlow?: LumenIntegrationWebhookReferenceFlow | undefined;
   readonly labels: {
     readonly endpointsTitle: string;
     readonly addEndpoint: string;
@@ -175,6 +199,8 @@ export interface LumenIntegrationConsentPermission {
 }
 
 export interface LumenIntegrationConsentContent {
+  readonly referenceLayout?: LumenIntegrationConsentReferenceLayout | undefined;
+  readonly referenceFlow?: LumenIntegrationConsentReferenceFlow | undefined;
   readonly labels: {
     readonly workspaceLabel: string;
     readonly cancel: string;
@@ -213,6 +239,8 @@ export interface LumenIntegrationSyncSource {
 }
 
 export interface LumenIntegrationSyncContent {
+  readonly referenceLayout?: LumenIntegrationSyncReferenceLayout | undefined;
+  readonly referenceFlow?: LumenIntegrationSyncReferenceFlow | undefined;
   readonly labels: {
     readonly pageTitle: string;
     readonly pageDescription: string;
@@ -242,7 +270,7 @@ export interface LumenIntegrationContent {
 
 export interface LumenIntegrationProviderProps {
   readonly content: LumenIntegrationContent;
-  readonly children: ReactNode;
+  readonly children: React.ReactNode;
 }
 
 export function uniqueLumenIntegrationItems<T extends { readonly id: string }>(
@@ -250,7 +278,9 @@ export function uniqueLumenIntegrationItems<T extends { readonly id: string }>(
 ): readonly T[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (!item.id.trim() || seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -264,7 +294,9 @@ export function selectLumenIntegrationItem<T extends { readonly id: string }>(
   return unique.find((item) => item.id === activeId) ?? unique[0];
 }
 
-const integrationContentContext = createContext<LumenIntegrationContent | undefined>(undefined);
+const integrationContentContext = React.createContext<LumenIntegrationContent | undefined>(
+  undefined,
+);
 
 export function LumenIntegrationProvider({ content, children }: LumenIntegrationProviderProps) {
   return (
@@ -275,5 +307,5 @@ export function LumenIntegrationProvider({ content, children }: LumenIntegration
 }
 
 export function useLumenIntegrationContent(): LumenIntegrationContent | undefined {
-  return useContext(integrationContentContext);
+  return React.useContext(integrationContentContext);
 }

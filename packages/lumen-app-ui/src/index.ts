@@ -611,6 +611,24 @@ export type {
   LumenIntegrationWebhookContent,
   LumenIntegrationWorkspace,
 } from './integrations/content';
+export type {
+  LumenIntegrationMarketplaceReferenceLayout,
+  LumenIntegrationMarketplaceReferenceFlow,
+  LumenIntegrationScopeReferenceState,
+  LumenIntegrationConnectionReferenceLayout,
+  LumenIntegrationConnectionReferenceFlow,
+  LumenIntegrationApiKeysReferenceLayout,
+  LumenIntegrationApiKeysReferenceFlow,
+  LumenIntegrationEndpointReferenceState,
+  LumenIntegrationWebhookReferenceLayout,
+  LumenIntegrationWebhookReferenceFlow,
+  LumenIntegrationConsentReferenceLayout,
+  LumenIntegrationConsentReferenceFlow,
+  LumenIntegrationSyncReferencePhase,
+  LumenIntegrationSyncReferenceState,
+  LumenIntegrationSyncReferenceLayout,
+  LumenIntegrationSyncReferenceFlow,
+} from './integrations/reference-content';
 export {
   LumenNavbar,
   LumenNavbar01,

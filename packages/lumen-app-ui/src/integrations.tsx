@@ -6,6 +6,12 @@ import { ConsentIntegration } from './integrations/ConsentIntegration';
 import { MarketplaceIntegration } from './integrations/MarketplaceIntegration';
 import { SyncIntegration } from './integrations/SyncIntegration';
 import { WebhooksIntegration } from './integrations/WebhooksIntegration';
+import { ReferenceMarketplaceIntegration } from './integrations/ReferenceMarketplaceIntegration';
+import { ReferenceConnectionIntegration } from './integrations/ReferenceConnectionIntegration';
+import { ReferenceApiKeysIntegration } from './integrations/ReferenceApiKeysIntegration';
+import { ReferenceWebhooksIntegration } from './integrations/ReferenceWebhooksIntegration';
+import { ReferenceConsentIntegration } from './integrations/ReferenceConsentIntegration';
+import { ReferenceSyncIntegration } from './integrations/ReferenceSyncIntegration';
 import {
   LumenIntegrationProvider,
   selectLumenIntegrationItem,
@@ -73,42 +79,102 @@ export function LumenIntegrations(props: LumenIntegrationsProps) {
   const inheritedContent = useLumenIntegrationContent();
   const content = props.content ?? inheritedContent;
   const composition = compositionProps(props);
-  if (props.variant === 1)
+  if (props.variant === 1 && content?.marketplace?.referenceLayout) {
+    return (
+      <ReferenceMarketplaceIntegration
+        {...composition}
+        content={content.marketplace}
+        layout={content.marketplace.referenceLayout}
+      />
+    );
+  }
+  if (props.variant === 2 && content?.connection?.referenceLayout) {
+    return (
+      <ReferenceConnectionIntegration
+        {...composition}
+        content={content.connection}
+        layout={content.connection.referenceLayout}
+      />
+    );
+  }
+  if (props.variant === 3 && content?.apiKeys?.referenceLayout) {
+    return (
+      <ReferenceApiKeysIntegration
+        {...composition}
+        content={content.apiKeys}
+        layout={content.apiKeys.referenceLayout}
+      />
+    );
+  }
+  if (props.variant === 4 && content?.webhooks?.referenceLayout) {
+    return (
+      <ReferenceWebhooksIntegration
+        {...composition}
+        content={content.webhooks}
+        layout={content.webhooks.referenceLayout}
+      />
+    );
+  }
+  if (props.variant === 5 && content?.consent?.referenceLayout) {
+    return (
+      <ReferenceConsentIntegration
+        {...composition}
+        content={content.consent}
+        layout={content.consent.referenceLayout}
+      />
+    );
+  }
+  if (props.variant === 6 && content?.sync?.referenceLayout) {
+    return (
+      <ReferenceSyncIntegration
+        {...composition}
+        content={content.sync}
+        layout={content.sync.referenceLayout}
+      />
+    );
+  }
+  if (props.variant === 1) {
     return content?.marketplace ? (
       <MarketplaceIntegration {...composition} content={content.marketplace} />
     ) : (
       empty(props)
     );
-  if (props.variant === 2)
+  }
+  if (props.variant === 2) {
     return content?.connection ? (
       <ConnectionIntegration {...composition} content={content.connection} />
     ) : (
       empty(props)
     );
-  if (props.variant === 3)
+  }
+  if (props.variant === 3) {
     return content?.apiKeys ? (
       <ApiKeysIntegration {...composition} content={content.apiKeys} />
     ) : (
       empty(props)
     );
-  if (props.variant === 4)
+  }
+  if (props.variant === 4) {
     return content?.webhooks ? (
       <WebhooksIntegration {...composition} content={content.webhooks} />
     ) : (
       empty(props)
     );
-  if (props.variant === 5)
+  }
+  if (props.variant === 5) {
     return content?.consent ? (
       <ConsentIntegration {...composition} content={content.consent} />
     ) : (
       empty(props)
     );
-  if (props.variant === 6)
+  }
+  if (props.variant === 6) {
     return content?.sync ? (
       <SyncIntegration {...composition} content={content.sync} />
     ) : (
       empty(props)
     );
+  }
   return empty(props);
 }
 
