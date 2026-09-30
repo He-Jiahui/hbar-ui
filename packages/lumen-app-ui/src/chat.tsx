@@ -6,6 +6,18 @@ import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
 import './chat.css';
 import './chat-reference.css';
+import { LumenChatDirectReference } from './chat-direct-reference';
+import { LumenChatSocialReference } from './chat-social-reference';
+import { LumenChatSupportReference } from './chat-support-reference';
+import { LumenChatGroupReference } from './chat-group-reference';
+import { LumenChatLiveReference } from './chat-live-reference';
+import type {
+  LumenChatDirectReferenceLayout,
+  LumenChatSocialReferenceLayout,
+  LumenChatSupportReferenceLayout,
+  LumenChatGroupReferenceLayout,
+  LumenChatLiveReferenceLayout,
+} from './chat/reference-content';
 
 export interface LumenChatListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -29,6 +41,7 @@ export interface LumenChatMessage {
   readonly replyCount?: number | undefined;
   readonly attachment?: string | undefined;
   readonly status?: string | undefined;
+  readonly read?: boolean | undefined;
 }
 
 export interface LumenChatComposerFlow {
@@ -50,20 +63,30 @@ export interface LumenChatDirectReferenceFlow {
   readonly contactId: string;
   readonly onContactChange: (contactId: string) => void;
   readonly composer: LumenChatComposerFlow;
+  readonly query?: string | undefined;
+  readonly onQueryChange?: ((query: string) => void) | undefined;
 }
 
 export interface LumenChatSocialReferenceFlow {
   readonly composer: LumenChatComposerFlow;
+  readonly sortOrder?: 'relevant' | 'recent' | undefined;
+  readonly likedIds?: readonly string[] | undefined;
+  readonly onSortChange?: ((order: 'relevant' | 'recent') => void) | undefined;
+  readonly onToggleLike?: ((messageId: string) => void) | undefined;
 }
 
 export interface LumenChatGroupReferenceFlow {
   readonly composer: LumenChatComposerFlow;
+  readonly selectedReactionIds?: readonly string[] | undefined;
+  readonly onToggleReaction?: ((reactionId: string) => void) | undefined;
 }
 
 export interface LumenChatLiveReferenceFlow {
   readonly tabId: string;
   readonly onTabChange: (tabId: string) => void;
   readonly composer: LumenChatComposerFlow;
+  readonly followed?: boolean | undefined;
+  readonly onFollowChange?: ((followed: boolean) => void) | undefined;
 }
 
 export interface LumenChatSupportReferenceFlow {
@@ -113,6 +136,8 @@ export interface LumenChatContact {
   readonly initials: string;
   readonly meta: string;
   readonly status?: string | undefined;
+  readonly time?: string | undefined;
+  readonly unreadCount?: string | undefined;
 }
 
 export interface LumenChatDirectContent {
@@ -130,6 +155,7 @@ export interface LumenChatDirectContent {
   readonly messages: readonly (LumenChatMessage & { readonly contactId: string })[];
   readonly listStrategy: LumenChatListStrategy;
   readonly referenceFlow?: LumenChatDirectReferenceFlow | undefined;
+  readonly referenceLayout?: LumenChatDirectReferenceLayout | undefined;
 }
 
 export interface LumenChatSocialContent {
@@ -146,6 +172,7 @@ export interface LumenChatSocialContent {
   readonly replies: readonly LumenChatMessage[];
   readonly listStrategy: LumenChatListStrategy;
   readonly referenceFlow?: LumenChatSocialReferenceFlow | undefined;
+  readonly referenceLayout?: LumenChatSocialReferenceLayout | undefined;
 }
 
 export interface LumenChatAttachment {
@@ -170,6 +197,7 @@ export interface LumenChatSupportContent {
   readonly maximumRating: number;
   readonly initialRating: number;
   readonly referenceFlow?: LumenChatSupportReferenceFlow | undefined;
+  readonly referenceLayout?: LumenChatSupportReferenceLayout | undefined;
 }
 
 export interface LumenChatParticipant {
@@ -196,6 +224,7 @@ export interface LumenChatGroupContent {
   readonly messages: readonly LumenChatMessage[];
   readonly listStrategy: LumenChatListStrategy;
   readonly referenceFlow?: LumenChatGroupReferenceFlow | undefined;
+  readonly referenceLayout?: LumenChatGroupReferenceLayout | undefined;
 }
 
 export interface LumenChatLiveMessage extends LumenChatMessage {
@@ -224,6 +253,7 @@ export interface LumenChatLiveContent {
   readonly viewerCount: number;
   readonly listStrategy: LumenChatListStrategy;
   readonly referenceFlow?: LumenChatLiveReferenceFlow | undefined;
+  readonly referenceLayout?: LumenChatLiveReferenceLayout | undefined;
 }
 
 export interface LumenChatContent {
@@ -395,6 +425,8 @@ function Avatar({ initials, large = false }: { initials: string; large?: boolean
 
 interface ComposerProps {
   readonly placeholder: string;
+  readonly label?: string | undefined;
+  readonly disabled?: boolean | undefined;
   readonly send: string;
   readonly actionId: string;
   readonly onAction: LumenChatProps['onAction'];
@@ -409,9 +441,21 @@ interface ReferenceComposerProps extends ComposerProps {
   readonly flow: LumenChatComposerFlow;
 }
 
+const unavailableReferenceComposer: LumenChatComposerFlow = {
+  draft: '',
+  pending: false,
+  error: null,
+  feedback: null,
+  onDraftChange() {},
+  onSubmit() {},
+};
+
 function Composer(props: ComposerProps) {
   if (props.flow) {
     return <ReferenceComposer {...props} flow={props.flow} />;
+  }
+  if (props.singleLine || props.label !== undefined) {
+    return <ReferenceComposer {...props} disabled flow={unavailableReferenceComposer} />;
   }
   return <LegacyComposer {...props} />;
 }
@@ -467,6 +511,8 @@ function LegacyComposer({
 
 function ReferenceComposer({
   placeholder,
+  label,
+  disabled = false,
   send,
   flow,
   leadingActions,
@@ -474,15 +520,15 @@ function ReferenceComposer({
 }: ReferenceComposerProps) {
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!flow.pending && flow.draft.trim()) {
+    if (!disabled && !flow.pending && flow.draft.trim()) {
       flow.onSubmit();
     }
   };
   const fieldProps = {
-    'aria-label': placeholder,
+    'aria-label': label ?? placeholder,
     className: 'lumen-chat-reference-input',
     'data-hbar-app-ui-field': 'draft',
-    disabled: flow.pending,
+    disabled: disabled || flow.pending,
     placeholder,
     value: flow.draft,
     onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -490,7 +536,7 @@ function ReferenceComposer({
     onKeyDown: (event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       if (event.key === 'Enter' && (singleLine || !event.shiftKey)) {
         event.preventDefault();
-        if (!flow.pending && flow.draft.trim()) {
+        if (!disabled && !flow.pending && flow.draft.trim()) {
           flow.onSubmit();
         }
       }
@@ -510,7 +556,7 @@ function ReferenceComposer({
             type="submit"
             tone="primary"
             loading={flow.pending}
-            disabled={!flow.draft.trim()}
+            disabled={disabled || !flow.draft.trim()}
             data-hbar-app-ui-action="send"
           >
             <Glyph name="send" />
@@ -815,6 +861,40 @@ function Direct(props: Omit<LumenChatProps, 'content'> & { content: LumenChatDir
   const referenceFlow = props.content.referenceFlow;
   const contact = selectLumenChatItem(contacts, referenceFlow?.contactId ?? contactId);
   const visible = contact ? messages.filter((message) => message.contactId === contact.id) : [];
+  const layout = props.content.referenceLayout;
+  if (layout) {
+    return (
+      <Root {...props} className={['lumen-chat-direct-reference-root', props.className].filter(Boolean).join(' ')}>
+        <LumenChatDirectReference
+          content={props.content}
+          layout={layout}
+          onAction={props.onAction}
+          composer={
+            <Composer
+              placeholder={layout.labels.inputPlaceholder}
+              label={layout.labels.inputLabel(contact?.name ?? '')}
+              disabled={!contact}
+              send={props.content.labels.send}
+              actionId="send"
+              onAction={props.onAction}
+              flow={referenceFlow?.composer}
+              singleLine
+              leadingActions={
+                <LumenButton
+                  variant="text"
+                  aria-label={layout.labels.attachImage}
+                  disabled={!contact}
+                  onClick={() => report(props.onAction, 'attach-image', contact?.id)}
+                >
+                  <Glyph name="image" size="sm" />
+                </LumenButton>
+              }
+            />
+          }
+        />
+      </Root>
+    );
+  }
   return (
     <Root {...props}>
       <div className="lumen-chat-split lumen-chat-direct">
@@ -886,6 +966,28 @@ function Direct(props: Omit<LumenChatProps, 'content'> & { content: LumenChatDir
 function Social(props: Omit<LumenChatProps, 'content'> & { content: LumenChatSocialContent }) {
   const replies = uniqueLumenChatItems(props.content.replies);
   const referenceFlow = props.content.referenceFlow;
+  const layout = props.content.referenceLayout;
+  if (layout) {
+    return (
+      <Root {...props} className={['lumen-chat-social-reference-root', props.className].filter(Boolean).join(' ')}>
+        <LumenChatSocialReference
+          content={props.content}
+          layout={layout}
+          onAction={props.onAction}
+          composer={
+            <Composer
+              placeholder={props.content.labels.placeholder}
+              label={layout.labels.inputLabel}
+              send={props.content.labels.send}
+              actionId="reply"
+              onAction={props.onAction}
+              flow={referenceFlow?.composer}
+            />
+          }
+        />
+      </Root>
+    );
+  }
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
@@ -938,6 +1040,38 @@ function Support(props: Omit<LumenChatProps, 'content'> & { content: LumenChatSu
   );
   const rating = Math.max(0, Math.min(maximum, referenceFlow?.rating ?? localRating));
   const messages = uniqueLumenChatItems(referenceFlow?.messages ?? [props.content.assistant]);
+  const layout = props.content.referenceLayout;
+  if (layout) {
+    return (
+      <Root {...props} className={['lumen-chat-support-reference-root', props.className].filter(Boolean).join(' ')}>
+        <LumenChatSupportReference
+          content={props.content}
+          layout={layout}
+          onAction={props.onAction}
+          composer={
+            <Composer
+              placeholder={props.content.labels.placeholder}
+              label={layout.labels.inputLabel}
+              send={props.content.labels.send}
+              actionId="send"
+              onAction={props.onAction}
+              flow={referenceFlow?.composer}
+              singleLine
+              leadingActions={
+                <LumenButton
+                  variant="text"
+                  aria-label={props.content.labels.attach}
+                  onClick={() => report(props.onAction, 'attach', props.content.assistant.id)}
+                >
+                  <Glyph name="paperclip" size="sm" />
+                </LumenButton>
+              }
+            />
+          }
+        />
+      </Root>
+    );
+  }
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
@@ -1018,6 +1152,14 @@ function Group(props: Omit<LumenChatProps, 'content'> & { content: LumenChatGrou
   const visibleLimit = Math.max(0, Math.floor(props.content.maximumVisibleParticipants));
   const visibleParticipants = participants.slice(0, visibleLimit);
   const overflow = Math.max(0, participants.length - visibleParticipants.length);
+  const layout = props.content.referenceLayout;
+  if (layout) {
+    return (
+      <Root {...props} className={['lumen-chat-group-reference-root', props.className].filter(Boolean).join(' ')}>
+        <LumenChatGroupReference content={props.content} layout={layout} onAction={props.onAction} />
+      </Root>
+    );
+  }
   return (
     <Root {...props}>
       <Header
@@ -1075,6 +1217,38 @@ function Live(props: Omit<LumenChatProps, 'content'> & { content: LumenChatLiveC
   const referenceFlow = props.content.referenceFlow;
   const selected = selectLumenChatItem(tabs, referenceFlow?.tabId ?? tabId);
   const showingChat = selected?.id !== props.content.viewersTabId;
+  const layout = props.content.referenceLayout;
+  if (layout) {
+    return (
+      <Root {...props} className={['lumen-chat-live-reference-root', props.className].filter(Boolean).join(' ')}>
+        <LumenChatLiveReference
+          content={props.content}
+          layout={layout}
+          onAction={props.onAction}
+          composer={
+            <Composer
+              placeholder={props.content.labels.placeholder}
+              label={layout.labels.inputLabel}
+              send={props.content.labels.send}
+              actionId="send"
+              onAction={props.onAction}
+              flow={referenceFlow?.composer}
+              singleLine
+              leadingActions={
+                <LumenButton
+                  variant="text"
+                  aria-label={layout.labels.emoji}
+                  onClick={() => report(props.onAction, 'add-emoji', props.content.chatTabId)}
+                >
+                  <Glyph name="smile" size="sm" />
+                </LumenButton>
+              }
+            />
+          }
+        />
+      </Root>
+    );
+  }
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />

@@ -778,6 +778,16 @@ export type {
   LumenChatTeamReferenceLayout,
   LumenChatVariantProps,
 } from './chat';
+export type {
+  LumenChatDirectReferenceLayout,
+  LumenChatSocialReferenceLayout,
+  LumenChatSocialNestedReply,
+  LumenChatSupportReferenceLayout,
+  LumenChatGroupReferenceLayout,
+  LumenChatGroupReferenceAttachment,
+  LumenChatGroupReaction,
+  LumenChatLiveReferenceLayout,
+} from './chat/reference-content';
 export {
   LumenPromptInput,
   LumenPromptInput01,
