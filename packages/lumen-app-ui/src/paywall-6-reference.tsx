@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, type FormEvent } from 'react';
+import * as React from 'react';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenText } from './primitives';
 import './paywall-6-reference.css';
@@ -58,7 +58,9 @@ export interface LumenPaywall6ReferenceProps {
 function uniqueById<Item extends { readonly id: string }>(items: readonly Item[]): Item[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (!item.id.trim() || seen.has(item.id)) return false;
+    if (!item.id.trim() || seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -77,7 +79,7 @@ export function LumenPaywall6Reference({
   const segments = uniqueById(content.segments);
   const assurances = uniqueById(content.assurances);
   const paneScroll = content.listStrategy.kind === 'pane-scroll';
-  const inputId = `lumen-paywall6-email-${useId().replaceAll(/[^a-zA-Z0-9_-]/g, '-')}`;
+  const inputId = `lumen-paywall6-email-${React.useId().replaceAll(/[^a-zA-Z0-9_-]/g, '-')}`;
   const rootClassName = [
     'lumen-paywall',
     'lumen-paywall6-reference',
@@ -91,7 +93,7 @@ export function LumenPaywall6Reference({
     .filter(Boolean)
     .join(' ');
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     viewModel.onKeepReadingRequest();
   }
@@ -114,6 +116,11 @@ export function LumenPaywall6Reference({
         ))}
       </ul>
     );
+  const assuranceScrollRegionProps: React.HTMLAttributes<HTMLDivElement> = {
+    role: 'region',
+    'aria-label': content.labels.assuranceList,
+    tabIndex: 0,
+  };
 
   return (
     <LumenSurface
@@ -190,12 +197,7 @@ export function LumenPaywall6Reference({
         </LumenButton>
       </LumenText>
       {paneScroll ? (
-        <div
-          className="lumen-paywall6-assurance-scroll"
-          role="region"
-          aria-label={content.labels.assuranceList}
-          tabIndex={0}
-        >
+        <div {...assuranceScrollRegionProps} className="lumen-paywall6-assurance-scroll">
           {assuranceList}
         </div>
       ) : (

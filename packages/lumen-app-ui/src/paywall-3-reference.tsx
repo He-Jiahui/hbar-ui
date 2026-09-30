@@ -55,6 +55,17 @@ export interface LumenPaywall3ReferenceProps {
   readonly viewModel: LumenPaywall3ReferenceViewModel;
 }
 
+function isRecommendedPlan(plan: LumenPaywall3ReferencePlan) {
+  return !plan.isCurrent && plan.badge !== null;
+}
+
+function planBadgeKind(plan: LumenPaywall3ReferencePlan) {
+  if (plan.isCurrent) {
+    return 'current';
+  }
+  return isRecommendedPlan(plan) ? 'recommended' : 'none';
+}
+
 export function LumenPaywall3Reference({
   variantId,
   density,
@@ -161,7 +172,7 @@ export function LumenPaywall3Reference({
               key={plan.id}
               data-paywall3-plan-id={plan.id}
               data-current={plan.isCurrent ? 'true' : 'false'}
-              data-badge-kind={plan.isCurrent ? 'current' : plan.badge ? 'recommended' : 'none'}
+              data-badge-kind={planBadgeKind(plan)}
             >
               <div className="lumen-paywall3-plan-heading">
                 <div className="lumen-paywall3-plan-title-row">
@@ -201,8 +212,8 @@ export function LumenPaywall3Reference({
               <LumenButton
                 className="lumen-paywall3-plan-action"
                 indicator="none"
-                variant={plan.badge === 'recommended' ? 'solid' : 'outlined'}
-                tone={plan.badge === 'recommended' ? 'primary' : 'neutral'}
+                variant={isRecommendedPlan(plan) ? 'solid' : 'outlined'}
+                tone={isRecommendedPlan(plan) ? 'primary' : 'neutral'}
                 disabled={plan.isCurrent || !plan.canRequestSelection}
                 data-paywall3-plan-action={plan.id}
                 onClick={() => viewModel.onPlanSelectionRequest(plan.id)}

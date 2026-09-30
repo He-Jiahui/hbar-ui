@@ -1,7 +1,7 @@
 'use client';
 
 import { Building2, LockKeyhole } from 'lucide-react';
-import { useId } from 'react';
+import * as React from 'react';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenText } from './primitives';
 import './paywall-7-reference.css';
@@ -57,9 +57,12 @@ export function uniqueLumenPaywall7Recipients(
   const seen = new Set<string>();
   return recipients.filter((recipient) => {
     const id = recipient.id.trim();
-    if (!id || seen.has(id)) return false;
-    if (!recipient.initials.trim() || !recipient.name.trim() || !recipient.role.trim())
+    if (!id || seen.has(id)) {
       return false;
+    }
+    if (!recipient.initials.trim() || !recipient.name.trim() || !recipient.role.trim()) {
+      return false;
+    }
     seen.add(id);
     return true;
   });
@@ -76,7 +79,7 @@ export function LumenPaywall7Reference({
 }: LumenPaywall7ReferenceProps) {
   const { content } = viewModel;
   const recipients = uniqueLumenPaywall7Recipients(content.recipients);
-  const noteId = useId();
+  const noteId = React.useId();
   const scrollRecipients = content.listStrategy.kind === 'pane-scroll';
   const rootClassName = [
     'lumen-paywall',
