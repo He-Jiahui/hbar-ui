@@ -5,6 +5,8 @@ import { LumenCheckBoxControl, LumenSelect, LumenTextarea } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './ai-chat.css';
+import type { LumenAiChatReferenceViewModel } from './ai-chat/reference-content';
+import { ReferenceAiChat } from './ai-chat/ReferenceAiChat';
 
 export interface LumenAiChatListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -26,6 +28,7 @@ export interface LumenAiChatProviderChoice extends LumenAiChatChoice {
   readonly status: string;
 }
 export interface LumenAiChatContent {
+  readonly referenceViewModel?: LumenAiChatReferenceViewModel | undefined;
   readonly labels: {
     readonly threadTitle: string;
     readonly threadDetail: string;
@@ -787,6 +790,16 @@ export function LumenAiChat(props: LumenAiChatProps) {
   const content = props.content ?? providerContent;
   if (!content) {
     return empty(props);
+  }
+  if (content.referenceViewModel?.content.variant === props.variant) {
+    return (
+      <ReferenceAiChat
+        variantId={props.variantId}
+        className={props.className}
+        viewModel={content.referenceViewModel}
+        onAction={props.onAction}
+      />
+    );
   }
   if (props.variant === 1) {
     return <Thread {...props} content={content} />;

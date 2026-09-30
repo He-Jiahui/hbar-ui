@@ -1635,6 +1635,26 @@ export type {
   LumenAiChatProviderProps,
   LumenAiChatVariantProps,
 } from './ai-chat';
+export type {
+  LumenAiChatReferenceChoice,
+  LumenAiChatReferenceDisclosure,
+  LumenAiChatReferencePart,
+  LumenAiChatReferenceMessage,
+  LumenAiChatReferenceComposer,
+  LumenAiChatReferenceBaseContent,
+  LumenAiChatThreadReferenceContent,
+  LumenAiChatArtifactReferenceContent,
+  LumenAiChatEmbeddedReferenceContent,
+  LumenAiChatContextReferenceContent,
+  LumenAiChatApprovalReferenceContent,
+  LumenAiChatAgentsReferenceContent,
+  LumenAiChatCitationsReferenceContent,
+  LumenAiChatVoiceReferenceContent,
+  LumenAiChatModelsReferenceContent,
+  LumenAiChatReferenceContent,
+  LumenAiChatReferenceViewModel,
+  LumenAiChatReferenceViewProps,
+} from './ai-chat/reference-content';
 export {
   LumenEmptyState,
   LumenEmptyState01,
