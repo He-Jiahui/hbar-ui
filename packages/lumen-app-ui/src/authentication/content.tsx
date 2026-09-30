@@ -126,6 +126,27 @@ export interface LumenAuthQuote {
   readonly metrics: readonly { readonly label: string; readonly value: string }[];
 }
 
+export type LumenAuthQuoteNavigationAction = 'forgot-password' | 'create-account';
+
+export interface LumenAuthQuoteSignInRequest {
+  readonly email: string;
+  readonly quoteId: string | null;
+}
+
+export interface LumenAuthQuoteReferenceFlow {
+  readonly email: string;
+  readonly password: string;
+  readonly passwordVisible: boolean;
+  readonly quoteId: string | null;
+  readonly onEmailChange: (value: string) => void;
+  readonly onPasswordChange: (value: string) => void;
+  readonly onPasswordVisibleChange: (visible: boolean) => void;
+  readonly onQuoteChange: (quoteId: string) => void;
+  readonly onSignInRequest: (request: LumenAuthQuoteSignInRequest) => void;
+  readonly onProviderRequest: (providerId: string) => void;
+  readonly onNavigationRequest: (action: LumenAuthQuoteNavigationAction) => void;
+}
+
 export interface LumenAuthQuoteContent {
   readonly labels: {
     readonly brand: string;
@@ -157,6 +178,7 @@ export interface LumenAuthQuoteContent {
   readonly initialQuoteId: string;
   /** Host-owned interval for the reference's automatic quote rotation; 0 disables it. */
   readonly autoAdvanceMs: number;
+  readonly referenceFlow?: LumenAuthQuoteReferenceFlow | undefined;
 }
 
 export interface LumenAuthTwoStepContent {
