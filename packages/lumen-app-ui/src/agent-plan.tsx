@@ -12,6 +12,7 @@ import './agent-plan-tree.css';
 import './agent-plan-actual.css';
 import './agent-plan-board.css';
 import './agent-plan-summary.css';
+import './agent-plan-practical-flow.css';
 
 export type LumenAgentPlanListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -196,6 +197,9 @@ export interface LumenAgentPlanSummaryContent {
 }
 
 export interface LumenAgentPlanContent {
+  /** Content-grown preview styling and nearby feedback supplied by the owning Host. */
+  readonly presentation?:
+    { readonly ownerId: string; readonly notice?: string | undefined } | undefined;
   readonly checklist?: LumenAgentPlanChecklistContent | undefined;
   readonly editable?: LumenAgentPlanEditableContent | undefined;
   readonly tree?: LumenAgentPlanTreeContent | undefined;
@@ -229,6 +233,8 @@ export interface LumenAgentPlanProps {
 export type LumenAgentPlanVariantProps = Omit<LumenAgentPlanProps, 'variant' | 'variantId'>;
 
 const AgentPlanContentContext = React.createContext<LumenAgentPlanContent | undefined>(undefined);
+const AgentPlanPresentationContext =
+  React.createContext<LumenAgentPlanContent['presentation']>(undefined);
 
 export function LumenAgentPlanProvider({ content, children }: LumenAgentPlanProviderProps) {
   return (
@@ -245,7 +251,7 @@ export function uniqueLumenAgentPlanItems<Item extends { readonly id: string }>(
 ): readonly Item[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (!item.id.trim() || seen.has(item.id)) return false;
     seen.add(item.id);
     return true;
   });
@@ -318,8 +324,10 @@ function AgentPlanRoot({
   className,
   children,
 }: Omit<LumenAgentPlanProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
+  const presentation = React.useContext(AgentPlanPresentationContext);
   const contentClassName = [
     'lumen-agent-plan',
+    presentation ? 'lumen-agent-plan-preview' : '',
     'hbar-app-ui-agent-plan-surface',
     `hbar-app-ui-agent-plan-variant-${variant}`,
     variant >= 1 && variant <= 6 ? 'hbar-app-ui-stage-padding-owner' : '',
@@ -335,7 +343,7 @@ function AgentPlanRoot({
     <LumenSurface
       as="section"
       boundary={variant >= 1 && variant <= 6 ? 'none' : 'horizontal'}
-      className="lumen-agent-plan-root-surface"
+      className={`lumen-agent-plan-root-surface${presentation ? ' lumen-agent-plan-preview-root' : ''}`}
       contentClassName={contentClassName}
       data-lumen-component="agent-plan"
       data-lumen-variant={variant}
@@ -343,6 +351,11 @@ function AgentPlanRoot({
       data-hbar-app-ui-surface={surface}
       data-hbar-app-ui-state={state}
     >
+      {presentation?.notice ? (
+        <p className="lumen-agent-plan-preview-notice" role="status">
+          {presentation.notice}
+        </p>
+      ) : null}
       {children}
     </LumenSurface>
   );
@@ -1086,6 +1099,18 @@ function emptyPlan(props: LumenAgentPlanProps) {
 export function LumenAgentPlan(props: LumenAgentPlanProps) {
   const providerContent = useLumenAgentPlanContent();
   const content = props.content ?? providerContent;
+  return (
+    <AgentPlanPresentationContext.Provider
+      key={content?.presentation?.ownerId ?? props.variantId}
+      value={content?.presentation}
+    >
+      <AgentPlanView {...props} content={content} />
+    </AgentPlanPresentationContext.Provider>
+  );
+}
+
+function AgentPlanView(props: LumenAgentPlanProps) {
+  const content = props.content;
   switch (props.variant) {
     case 1:
       return content?.checklist ? (
