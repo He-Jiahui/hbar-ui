@@ -5,6 +5,8 @@ import { LumenSelect } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './dashboard.css';
+import LumenDashboardReference from './dashboard-reference';
+import type { LumenDashboardReferenceContent } from './dashboard-reference-contracts';
 
 export interface LumenDashboardListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -276,6 +278,9 @@ export interface LumenDashboardServiceDetailContent {
   readonly listStrategy: LumenDashboardListStrategy;
 }
 export interface LumenDashboardContent {
+  readonly reference?: LumenDashboardReferenceContent | undefined;
+  readonly presentation?:
+    { readonly ownerId: string; readonly notice?: string | undefined } | undefined;
   readonly overview?: LumenDashboardOverviewContent | undefined;
   readonly throughput?: LumenDashboardThroughputContent | undefined;
   readonly widgets?: LumenDashboardWidgetsContent | undefined;
@@ -324,7 +329,9 @@ export function uniqueLumenDashboardItems<T extends { readonly id: string }>(
 ): readonly T[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -343,23 +350,18 @@ function Glyph({
 }: {
   name: 'up' | 'down' | 'more' | 'alert' | 'check' | 'refresh' | 'chevron';
 }) {
-  const d =
-    name === 'up'
-      ? 'm4 10 4-5 4 5M8 5v8'
-      : name === 'down'
-        ? 'm4 6 4 5 4-5M8 3v8'
-        : name === 'more'
-          ? 'M3 8h.01M8 8h.01M13 8h.01'
-          : name === 'alert'
-            ? 'M8 2 1.5 13h13zM8 6v3m0 2h.01'
-            : name === 'check'
-              ? 'm3 8 3 3 7-7'
-              : name === 'refresh'
-                ? 'M13 5V2l-2 2a5 5 0 1 0 1.5 5M13 2v3h-3'
-                : 'm6 3 5 5-5 5';
+  const paths = {
+    up: 'm4 10 4-5 4 5M8 5v8',
+    down: 'm4 6 4 5 4-5M8 3v8',
+    more: 'M3 8h.01M8 8h.01M13 8h.01',
+    alert: 'M8 2 1.5 13h13zM8 6v3m0 2h.01',
+    check: 'm3 8 3 3 7-7',
+    refresh: 'M13 5V2l-2 2a5 5 0 1 0 1.5 5M13 2v3h-3',
+    chevron: 'm6 3 5 5-5 5',
+  };
   return (
     <svg className="lumen-dashboard-glyph" viewBox="0 0 16 16" aria-hidden="true">
-      <path d={d} />
+      <path d={paths[name]} />
     </svg>
   );
 }
@@ -436,7 +438,7 @@ function Bars({
 }: {
   readonly points: readonly LumenDashboardPoint[];
   readonly label: string;
-  readonly horizontal?: boolean;
+  readonly horizontal?: boolean | undefined;
 }) {
   return (
     <div
@@ -879,7 +881,12 @@ function Delivery(
                 aria-valuemax={100}
                 aria-valuenow={item.progress}
               >
-                <b>{item.progress}%</b>
+                <b>
+                  {new Intl.NumberFormat(undefined, {
+                    style: 'percent',
+                    maximumFractionDigits: 2,
+                  }).format(item.progress / 100)}
+                </b>
               </span>
               <small>{item.detail}</small>
             </article>
@@ -939,7 +946,11 @@ function Worklog(
                     aria-label={props.content.labels.hours(person.name, day.label, hours)}
                     key={day.id}
                   >
-                    {hours}h
+                    {new Intl.NumberFormat(undefined, {
+                      style: 'unit',
+                      unit: 'hour',
+                      unitDisplay: 'narrow',
+                    }).format(hours)}
                   </span>
                 );
               })}
@@ -1094,7 +1105,12 @@ function Scorecard(
                 label={objective.progressLabel}
                 tone={objective.tone}
               />
-              <span>{objective.progress}%</span>
+              <span>
+                {new Intl.NumberFormat(undefined, {
+                  style: 'percent',
+                  maximumFractionDigits: 2,
+                }).format(objective.progress / 100)}
+              </span>
             </article>
           ))
         ) : (
@@ -1132,7 +1148,7 @@ function ServiceDetail(
         </aside>
         <main>
           {service ? (
-            <>
+            <React.Fragment>
               <Header
                 title={service.name}
                 detail={service.detail}
@@ -1145,7 +1161,7 @@ function ServiceDetail(
                   {service.activity}
                 </LumenText>
               </section>
-            </>
+            </React.Fragment>
           ) : (
             <Empty>{props.content.labels.empty}</Empty>
           )}
@@ -1160,50 +1176,86 @@ function empty(props: LumenDashboardProps) {
 export function LumenDashboard(props: LumenDashboardProps) {
   const inheritedContent = useLumenDashboardContent();
   const content = props.content ?? inheritedContent;
-  if (props.variant === 1)
+  if (content?.reference) {
+    return (
+      <div
+        className="lumen-dashboard-preview-owner"
+        data-hbar-preview-owner={content.presentation?.ownerId}
+      >
+        {content.presentation?.notice && (
+          <p className="lumen-dashboard-preview-notice" role="status">
+            {content.presentation.notice}
+          </p>
+        )}
+        <Root
+          {...props}
+          className={[props.className, 'lumen-dashboard-reference', `is-${content.reference.kind}`]
+            .filter(Boolean)
+            .join(' ')}
+        >
+          <LumenDashboardReference content={content.reference} />
+        </Root>
+      </div>
+    );
+  }
+  if (props.variant === 1) {
     return content?.overview ? <Overview {...props} content={content.overview} /> : empty(props);
-  if (props.variant === 2)
+  }
+  if (props.variant === 2) {
     return content?.throughput ? (
       <Throughput {...props} content={content.throughput} />
     ) : (
       empty(props)
     );
-  if (props.variant === 3)
+  }
+  if (props.variant === 3) {
     return content?.widgets ? <Widgets {...props} content={content.widgets} /> : empty(props);
-  if (props.variant === 4)
+  }
+  if (props.variant === 4) {
     return content?.operations ? (
       <Operations {...props} content={content.operations} />
     ) : (
       empty(props)
     );
-  if (props.variant === 5)
+  }
+  if (props.variant === 5) {
     return content?.usage ? <Usage {...props} content={content.usage} /> : empty(props);
-  if (props.variant === 6)
+  }
+  if (props.variant === 6) {
     return content?.comparison ? (
       <Comparison {...props} content={content.comparison} />
     ) : (
       empty(props)
     );
-  if (props.variant === 7)
+  }
+  if (props.variant === 7) {
     return content?.project ? <Project {...props} content={content.project} /> : empty(props);
-  if (props.variant === 8)
+  }
+  if (props.variant === 8) {
     return content?.delivery ? <Delivery {...props} content={content.delivery} /> : empty(props);
-  if (props.variant === 9)
+  }
+  if (props.variant === 9) {
     return content?.worklog ? <Worklog {...props} content={content.worklog} /> : empty(props);
-  if (props.variant === 10)
+  }
+  if (props.variant === 10) {
     return content?.explorer ? <Explorer {...props} content={content.explorer} /> : empty(props);
-  if (props.variant === 11)
+  }
+  if (props.variant === 11) {
     return content?.coverage ? <Coverage {...props} content={content.coverage} /> : empty(props);
-  if (props.variant === 12)
+  }
+  if (props.variant === 12) {
     return content?.payouts ? <Payouts {...props} content={content.payouts} /> : empty(props);
-  if (props.variant === 13)
+  }
+  if (props.variant === 13) {
     return content?.scorecard ? <Scorecard {...props} content={content.scorecard} /> : empty(props);
-  if (props.variant === 14)
+  }
+  if (props.variant === 14) {
     return content?.serviceDetail ? (
       <ServiceDetail {...props} content={content.serviceDetail} />
     ) : (
       empty(props)
     );
+  }
   return empty(props);
 }
 function variant(value: number, props: LumenDashboardVariantProps) {

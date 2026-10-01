@@ -959,6 +959,7 @@ export type {
   LumenDataTableWideContent,
 } from './data-table';
 export type { LumenDataTableReferenceContent } from './data-table-reference-contracts';
+export type { LumenDashboardReferenceContent } from './dashboard-reference-contracts';
 export {
   LumenDashboard,
   LumenDashboard01,
