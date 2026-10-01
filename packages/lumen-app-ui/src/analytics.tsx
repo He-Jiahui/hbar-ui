@@ -4,6 +4,9 @@ import * as React from 'react';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './analytics.css';
+import './analytics-reference.css';
+import LumenAnalyticsReference from './analytics-reference';
+import type { LumenAnalyticsReferenceContent } from './analytics-reference-contracts';
 
 export interface LumenAnalyticsListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -300,6 +303,9 @@ export interface LumenAnalyticsComboContent {
   readonly trend: readonly LumenAnalyticsPoint[];
 }
 export interface LumenAnalyticsContent {
+  readonly reference?: LumenAnalyticsReferenceContent | undefined;
+  readonly presentation?:
+    { readonly ownerId: string; readonly notice?: string | undefined } | undefined;
   readonly range?: LumenAnalyticsRangeContent | undefined;
   readonly area?: LumenAnalyticsAreaContent | undefined;
   readonly grouped?: LumenAnalyticsGroupedContent | undefined;
@@ -349,7 +355,9 @@ export function uniqueLumenAnalyticsItems<T extends { readonly id: string }>(
 ): readonly T[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -363,21 +371,17 @@ export function selectLumenAnalyticsItem<T extends { readonly id: string }>(
 const report = (fn: LumenAnalyticsProps['onAction'], actionId: string, value?: string) =>
   fn?.(value === undefined ? { actionId } : { actionId, value });
 function Glyph({ name }: { name: 'up' | 'down' | 'crosshair' | 'pointer' | 'sort' | 'info' }) {
-  const d =
-    name === 'up'
-      ? 'm4 10 4-5 4 5M8 5v8'
-      : name === 'down'
-        ? 'm4 6 4 5 4-5M8 3v8'
-        : name === 'crosshair'
-          ? 'M8 1v3m0 8v3M1 8h3m8 0h3M8 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z'
-          : name === 'pointer'
-            ? 'M4 2.5 12.5 9 8 10l-2 3z'
-            : name === 'sort'
-              ? 'M3 4h10M5 8h6m-4 4h2'
-              : 'M8 7v5m0-8h.01M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13Z';
+  const paths = {
+    up: 'm4 10 4-5 4 5M8 5v8',
+    down: 'm4 6 4 5 4-5M8 3v8',
+    crosshair: 'M8 1v3m0 8v3M1 8h3m8 0h3M8 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z',
+    pointer: 'M4 2.5 12.5 9 8 10l-2 3z',
+    sort: 'M3 4h10M5 8h6m-4 4h2',
+    info: 'M8 7v5m0-8h.01M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13Z',
+  };
   return (
     <svg className="lumen-analytics-glyph" viewBox="0 0 16 16" aria-hidden="true">
-      <path d={d} />
+      <path d={paths[name]} />
     </svg>
   );
 }
@@ -482,7 +486,7 @@ function Bars({
 }: {
   readonly points: readonly LumenAnalyticsPoint[];
   readonly label: string;
-  readonly horizontal?: boolean;
+  readonly horizontal?: boolean | undefined;
 }) {
   return (
     <div
@@ -700,7 +704,7 @@ function Stacked(
         }
       />
       {series.length ? (
-        <>
+        <React.Fragment>
           <div className="lumen-analytics-stacked" aria-label={props.content.labels.chart}>
             {series.map((item, index) => (
               <i
@@ -717,7 +721,7 @@ function Stacked(
               </span>
             ))}
           </div>
-        </>
+        </React.Fragment>
       ) : (
         <Empty>{props.content.labels.empty}</Empty>
       )}
@@ -1153,7 +1157,7 @@ function Candles(
         }
       />
       {candles.length ? (
-        <>
+        <React.Fragment>
           <div className="lumen-analytics-candles" aria-label={props.content.labels.chart}>
             {candles.map((item) => (
               <span
@@ -1174,7 +1178,7 @@ function Candles(
               />
             ))}
           </div>
-        </>
+        </React.Fragment>
       ) : (
         <Empty>{props.content.labels.empty}</Empty>
       )}
@@ -1338,38 +1342,64 @@ function empty(props: LumenAnalyticsProps) {
 export function LumenAnalytics(props: LumenAnalyticsProps) {
   const inheritedContent = useLumenAnalyticsContent();
   const content = props.content ?? inheritedContent;
-  if (props.variant === 1)
+  if (content?.reference) {
+    return (
+      <Root {...props}>
+        <LumenAnalyticsReference
+          content={content.reference}
+          notice={content.presentation?.notice}
+        />
+      </Root>
+    );
+  }
+  if (props.variant === 1) {
     return content?.range ? <Range {...props} content={content.range} /> : empty(props);
-  if (props.variant === 2)
+  }
+  if (props.variant === 2) {
     return content?.area ? <Area {...props} content={content.area} /> : empty(props);
-  if (props.variant === 3)
+  }
+  if (props.variant === 3) {
     return content?.grouped ? <Grouped {...props} content={content.grouped} /> : empty(props);
-  if (props.variant === 4)
+  }
+  if (props.variant === 4) {
     return content?.stacked ? <Stacked {...props} content={content.stacked} /> : empty(props);
-  if (props.variant === 5)
+  }
+  if (props.variant === 5) {
     return content?.donut ? <Donut {...props} content={content.donut} /> : empty(props);
-  if (props.variant === 6)
+  }
+  if (props.variant === 6) {
     return content?.ranked ? <Ranked {...props} content={content.ranked} /> : empty(props);
-  if (props.variant === 7)
+  }
+  if (props.variant === 7) {
     return content?.cards ? <Cards {...props} content={content.cards} /> : empty(props);
-  if (props.variant === 8)
+  }
+  if (props.variant === 8) {
     return content?.funnel ? <Funnel {...props} content={content.funnel} /> : empty(props);
-  if (props.variant === 9)
+  }
+  if (props.variant === 9) {
     return content?.heatmap ? <Heatmap {...props} content={content.heatmap} /> : empty(props);
-  if (props.variant === 10)
+  }
+  if (props.variant === 10) {
     return content?.goals ? <Goals {...props} content={content.goals} /> : empty(props);
-  if (props.variant === 11)
+  }
+  if (props.variant === 11) {
     return content?.cohort ? <Cohort {...props} content={content.cohort} /> : empty(props);
-  if (props.variant === 12)
+  }
+  if (props.variant === 12) {
     return content?.ranking ? <Ranking {...props} content={content.ranking} /> : empty(props);
-  if (props.variant === 13)
+  }
+  if (props.variant === 13) {
     return content?.candles ? <Candles {...props} content={content.candles} /> : empty(props);
-  if (props.variant === 14)
+  }
+  if (props.variant === 14) {
     return content?.scatter ? <Scatter {...props} content={content.scatter} /> : empty(props);
-  if (props.variant === 15)
+  }
+  if (props.variant === 15) {
     return content?.bullets ? <Bullets {...props} content={content.bullets} /> : empty(props);
-  if (props.variant === 16)
+  }
+  if (props.variant === 16) {
     return content?.combo ? <Combo {...props} content={content.combo} /> : empty(props);
+  }
   return empty(props);
 }
 function variant(value: number, props: LumenAnalyticsVariantProps) {

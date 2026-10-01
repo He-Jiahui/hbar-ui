@@ -1078,6 +1078,13 @@ export type {
   LumenAnalyticsStackedContent,
   LumenAnalyticsVariantProps,
 } from './analytics';
+export type {
+  LumenAnalyticsReferenceContent,
+  LumenAnalyticsReferenceChart,
+  LumenAnalyticsReferenceEntry,
+  LumenAnalyticsReferenceMetric,
+  LumenAnalyticsReferenceSeries,
+} from './analytics-reference-contracts';
 export {
   LumenForms,
   LumenForms01,
