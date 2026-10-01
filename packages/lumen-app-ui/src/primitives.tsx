@@ -6,7 +6,7 @@ import type { LumenState, LumenTone } from './LumenIndicator';
 import styles from './primitives.module.css';
 
 export type LumenActionVariant = 'contained' | 'outlined' | 'text' | 'solid';
-export type LumenActionTone = 'neutral' | 'primary' | 'success' | 'warning' | 'danger';
+export type LumenActionTone = 'neutral' | 'primary' | 'info' | 'success' | 'warning' | 'danger';
 
 export interface LumenButtonProps extends Omit<
   React.ButtonHTMLAttributes<HTMLButtonElement>,

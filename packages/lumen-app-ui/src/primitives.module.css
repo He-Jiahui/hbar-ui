@@ -50,6 +50,11 @@
   border-radius: 0;
 }
 
+.button[data-lumen-tone='info'],
+.iconButton[data-lumen-tone='info'] {
+  --lumen-action-color: var(--lumen-info);
+}
+
 .button[data-lumen-tone='success'],
 .iconButton[data-lumen-tone='success'] {
   --lumen-action-color: var(--lumen-success);
@@ -66,21 +71,44 @@
   --lumen-action-color: var(--lumen-danger);
 }
 
-:is(.button, .iconButton)[data-lumen-variant='contained'] {
+/* Variant paint owns the shape even inside compositions with legacy button resets.
+ * Hosts keep layout control through their className and choose paint through variant/tone. */
+:global([data-lumen-mode])
+  :is(.button, .iconButton)[data-lumen-variant][data-lumen-tone]:where(:not([role='switch'])) {
+  border: 0.0625rem solid transparent;
+  background-color: transparent;
+  background-image: var(--lumen-press-layer);
+  color: var(--lumen-action-color);
+  box-shadow: var(--lumen-effect-shadow);
+  transition: var(--lumen-state-transition);
+}
+
+:global([data-lumen-mode])
+  :is(.button, .iconButton)[data-lumen-variant='contained'][data-lumen-tone]:where(
+    :not([role='switch'])
+  ) {
   --lumen-press-ink: var(--lumen-contrast);
   background-color: var(--lumen-action-color);
   color: var(--lumen-contrast);
 }
 
-:is(.button, .iconButton)[data-lumen-variant='outlined'] {
+:global([data-lumen-mode])
+  :is(.button, .iconButton)[data-lumen-variant='outlined'][data-lumen-tone]:where(
+    :not([role='switch'])
+  ) {
   border-color: color-mix(in srgb, var(--lumen-action-color) 50%, transparent);
 }
 
-:is(.button, .iconButton)[data-lumen-variant='text'] {
+:global([data-lumen-mode])
+  :is(.button, .iconButton)[data-lumen-variant='text'][data-lumen-tone]:where(
+    :not([role='switch'])
+  ) {
   box-shadow: none;
+  text-shadow: var(--lumen-content-shadow);
 }
 
-:is(.button, .iconButton):is(
+:global([data-lumen-mode])
+  :is(.button, .iconButton)[data-lumen-variant][data-lumen-tone]:where(:not([role='switch'])):is(
     [aria-pressed='true'],
     [aria-current='page'],
     [data-lumen-state='selected']
@@ -89,13 +117,22 @@
 }
 
 @media (hover: hover) {
-  :is(.button, .iconButton):hover:not(:disabled) {
+  :global([data-lumen-mode])
+    :is(.button, .iconButton)[data-lumen-variant][data-lumen-tone]:where(
+      :not([role='switch'])
+    ):hover:not(:disabled) {
     background-color: color-mix(in srgb, var(--lumen-action-color) 8%, transparent);
   }
-  :is(.button, .iconButton)[data-lumen-variant='outlined']:hover:not(:disabled) {
+  :global([data-lumen-mode])
+    :is(.button, .iconButton)[data-lumen-variant='outlined'][data-lumen-tone]:where(
+      :not([role='switch'])
+    ):hover:not(:disabled) {
     border-color: var(--lumen-action-color);
   }
-  :is(.button, .iconButton)[data-lumen-variant='contained']:hover:not(:disabled) {
+  :global([data-lumen-mode])
+    :is(.button, .iconButton)[data-lumen-variant='contained'][data-lumen-tone]:where(
+      :not([role='switch'])
+    ):hover:not(:disabled) {
     background-color: color-mix(in srgb, var(--lumen-action-color) 90%, var(--lumen-contrast));
   }
 }
@@ -114,6 +151,17 @@
   box-shadow: none;
   text-shadow: none;
   opacity: 0.38;
+}
+
+:global([data-lumen-motion='off'])
+  :is(.button, .iconButton)[data-lumen-variant][data-lumen-tone]:where(:not([role='switch'])) {
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  :global([data-lumen-mode])
+    :is(.button, .iconButton)[data-lumen-variant][data-lumen-tone]:where(:not([role='switch'])) {
+    transition: none;
+  }
 }
 
 .text[data-tone='muted'] {

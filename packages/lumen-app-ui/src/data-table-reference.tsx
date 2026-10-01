@@ -49,10 +49,14 @@ function Search({
 }) {
   const inputId = React.useId();
   return (
-    <label className="lumen-data-table-reference-search" htmlFor={inputId}>
+    <label
+      className="lumen-effect lumen-input-group lumen-data-table-reference-search"
+      htmlFor={inputId}
+    >
       <Glyph name="search" />
       <LumenInput
         id={inputId}
+        variant="plain"
         aria-label={label}
         placeholder={label}
         value={value}
@@ -739,7 +743,12 @@ export default function LumenDataTableReference({ content, onAction }: Reference
       return <Shipments content={content} onAction={onAction} />;
     case 'sources':
       return <Sources content={content} onAction={onAction} />;
-    default:
+    case 'checks':
+    case 'budget':
+    case 'dispatch':
+    case 'accounts':
+    case 'capacity':
+    case 'payments':
       return <StandardReference content={content} onAction={onAction} />;
   }
 }

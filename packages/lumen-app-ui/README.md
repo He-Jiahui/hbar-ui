@@ -50,17 +50,41 @@ comes from this pnpm workspace rather than becoming part of a file consumer's
 dependency graph. Lumen's glass filter applies to the background layer, so
 foreground text stays sharp. Unsupported browsers render frosted glass.
 
-`LumenSlider` accepts a numeric controlled value and callback, normalizes its
-current `min`/`max` range, and lets the theme scale thumb and filled-track glow
-with progress. The theme also renders MUI switches as an unlit hollow circle or
-a lit solid circle over a flat line.
+`LumenSlider` accepts a numeric controlled value and callback and normalizes its
+current `min`/`max` range. Sliders keep their filled track and circular thumb;
+switches keep their full rounded track and moving circular thumb. Light follows
+the original MUI shape and strengthens on hover, selection and keyboard focus.
 
 Use `LumenButton` and `LumenIconButton` for application actions. Buttons expose
-the Lumen `solid`, `outlined`, and `text` variants, semantic tones, shared size
+the MUI `contained`, `outlined`, and `text` variants (`solid` remains a contained
+compatibility alias), semantic tones including `info`, shared size
 tiers, square or rounded geometry, disabled and loading states, and scoped glow
-feedback. `LumenNavigationButton` adds the selected indicator and standard
+feedback. `LumenNavigationButton` adds selected state paint and standard
 `aria-current="page"` semantics. `LumenText` and `LumenStatus` provide the same
 semantic text and status colors without owning any visible copy.
+
+Variant and tone own action paint; composition classes own layout. Contained
+actions have an opaque face, outlined actions have a continuous fine contour,
+and text actions glow around their glyphs. Legacy direction props remain typed
+but no longer create edge lamps. `LumenIndicator` is a compact decorative status
+dot next to host-owned state copy; `LumenDivider` is a quiet continuous separator.
+
+The default input is outlined. `boundary` maps to that continuous outline;
+`boxed` adds a background, while `plain` belongs inside a composed input group.
+Glass remains the default surface material, with frost and solid available.
+Ordinary panels do not strengthen their light when an inner field gains focus.
+
+Hover, focus and selection use a reversible 240ms transition with
+`cubic-bezier(0.2, 0, 0, 1)`. Press and release use 120ms; running light breathes
+over 2.6s without moving content or changing its opacity. Loading takes visual
+precedence when a host also disables repeated submissions; the native button
+remains disabled. Unavailable actions dim and do not breathe. Glow zero retains
+the face, border and keyboard focus; motion off and system reduced motion stop
+transitions and loops. Forced colors use system focus and contour colors.
+
+Core consumers can use public `appearance`, `provider`, `primitives`, `forms`,
+`range`, and `toggle-button` subpaths. Their source and packed ESM/type exports
+match, so using core controls does not require importing the catalog barrel.
 
 `LumenAgentApproval03` renders a host-controlled, ordered approval queue.
 Supply `labels.waiting(count)`, `hideRequest`, per-request `requestText`, typed

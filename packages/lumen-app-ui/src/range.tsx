@@ -11,8 +11,8 @@ function rangePercentage(
   min: LumenInputProps['min'],
   max: LumenInputProps['max'],
 ): string {
-  const parsedMin = Number(min ?? 0);
-  const parsedMax = Number(max ?? 100);
+  const parsedMin = Number(min === '' ? 0 : (min ?? 0));
+  const parsedMax = Number(max === '' ? 100 : (max ?? 100));
   const lower = Number.isFinite(parsedMin) ? parsedMin : 0;
   const upper = Number.isFinite(parsedMax) ? parsedMax : 100;
   if (upper <= lower) return '0%';

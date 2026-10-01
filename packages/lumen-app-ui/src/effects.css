@@ -32,6 +32,18 @@
     outline-color var(--lumen-state-duration) var(--lumen-state-easing);
 }
 
+[data-lumen-mode][data-lumen-motion='off'] {
+  --lumen-state-duration: 0ms;
+  --lumen-press-duration: 0ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-lumen-mode] {
+    --lumen-state-duration: 0ms;
+    --lumen-press-duration: 0ms;
+  }
+}
+
 :where(
   .lumen-effect,
   [data-lumen-mode] .MuiButton-root,
@@ -186,6 +198,24 @@
 }
 
 [data-lumen-mode][data-lumen-motion='off']
+  :is(
+    .MuiInputBase-root,
+    .MuiInputLabel-root,
+    .MuiCheckbox-root,
+    .MuiRadio-root,
+    .MuiSwitch-root,
+    .MuiSlider-root
+  ),
+[data-lumen-mode][data-lumen-motion='off']
+  :is(.MuiInputBase-root, .MuiCheckbox-root, .MuiRadio-root, .MuiSwitch-root, .MuiSlider-root)
+  *,
+[data-lumen-mode][data-lumen-motion='off'] .MuiInputBase-root::before,
+[data-lumen-mode][data-lumen-motion='off'] .MuiInputBase-root::after {
+  animation: none;
+  transition: none;
+}
+
+[data-lumen-mode][data-lumen-motion='off']
   :is(.lumen-effect, .MuiButton-root, .MuiIconButton-root):is(
     [data-lumen-state='running'],
     .Mui-loading
@@ -194,6 +224,23 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  [data-lumen-mode]
+    :is(
+      .MuiInputBase-root,
+      .MuiInputLabel-root,
+      .MuiCheckbox-root,
+      .MuiRadio-root,
+      .MuiSwitch-root,
+      .MuiSlider-root
+    ),
+  [data-lumen-mode]
+    :is(.MuiInputBase-root, .MuiCheckbox-root, .MuiRadio-root, .MuiSwitch-root, .MuiSlider-root)
+    *,
+  [data-lumen-mode] .MuiInputBase-root::before,
+  [data-lumen-mode] .MuiInputBase-root::after {
+    animation: none;
+    transition: none;
+  }
   [data-lumen-mode] :is(.MuiCircularProgress-root, .MuiCircularProgress-circle) {
     animation: none;
     transition: none;

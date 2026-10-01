@@ -43,7 +43,6 @@ export interface LumenOnboarding3ReferenceProps {
   readonly viewModel: LumenOnboarding3ReferenceViewModel;
 }
 
-/* eslint-disable jsx-a11y/anchor-is-valid -- Source uses href="#" placeholders; the host owns the unverified destination. */
 export function LumenOnboarding3Reference({
   variantId,
   density,
@@ -168,4 +167,3 @@ export function LumenOnboarding3Reference({
     </LumenSurface>
   );
 }
-/* eslint-enable jsx-a11y/anchor-is-valid */

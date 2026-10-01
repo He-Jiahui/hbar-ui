@@ -31,9 +31,21 @@
   outline-offset: 0.125rem;
 }
 
-.lumen-outlined-field .lumen-control:focus-visible,
+:is(.lumen-outlined-field, .lumen-input-group) .lumen-control.lumen-effect:focus-visible,
 .lumen-combobox-control[data-variant='boxed'] .lumen-control:focus-visible {
   outline: none;
+}
+
+/* A composed field owns one contour around its input and adornments. */
+.lumen-input-group {
+  box-shadow: var(--lumen-effect-shadow);
+  transition: var(--lumen-state-transition);
+}
+.lumen-input-group:hover:not(:has(:disabled)) {
+  --lumen-effect-level: var(--lumen-glow-hover);
+}
+.lumen-input-group:focus-within {
+  --lumen-effect-level: var(--lumen-glow-focus);
 }
 
 .lumen-checkbox-control.lumen-effect {

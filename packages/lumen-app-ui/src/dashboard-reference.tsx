@@ -399,10 +399,11 @@ function Search({
 }) {
   const id = React.useId();
   return (
-    <label className="lumen-dashboard-reference-search" htmlFor={id}>
+    <label className="lumen-effect lumen-input-group lumen-dashboard-reference-search" htmlFor={id}>
       <Glyph name="search" />
       <LumenInput
         id={id}
+        variant="plain"
         aria-label={label}
         placeholder={label}
         value={content.query}

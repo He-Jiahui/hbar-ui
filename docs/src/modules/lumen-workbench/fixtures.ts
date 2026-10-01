@@ -23,14 +23,14 @@ export default function getLumenTasks(locale: LumenLocale): readonly LumenTask[]
       name: 'motion.css',
       language: 'CSS',
       content:
-        '.indicator[data-state="running"] .halo {\n  animation: breathe 2.6s ease-in-out infinite;\n}\n\n@keyframes breathe {\n  0%, 100% { opacity: .25; }\n  50% { opacity: .85; }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .halo { animation: none; }\n}',
+        '.lumen-effect[data-lumen-state="running"] {\n  animation: lumen-breathe 2.6s ease-in-out infinite;\n}\n\n@keyframes lumen-breathe {\n  0%, 100% { --lumen-effect-level: .16; }\n  50% { --lumen-effect-level: .36; }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .lumen-effect { animation: none; transition: none; }\n}',
     },
   ];
   const changes: LumenTask['changes'] = [
     { kind: 'context', text: 'components: {' },
     { kind: 'remove', text: '  MuiButtonBase: { defaultProps: { disableRipple: false } },' },
     { kind: 'add', text: '  MuiButtonBase: { defaultProps: { disableRipple: true } },' },
-    { kind: 'add', text: "  interaction: { feedback: 'light', activeEdge: 'content' }," },
+    { kind: 'add', text: "  interaction: { feedback: 'light', stateTransition: '240ms' }," },
     { kind: 'context', text: '},' },
     { kind: 'add', text: "motion: { running: '2.6s', selected: 'steady' }," },
     { kind: 'add', text: "material: { panel: 'lens', control: 'frost' }," },
