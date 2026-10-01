@@ -1,7 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import { LumenCommandList, type LumenCommandListProps } from './command-list';
+import {
+  LumenCommandFooter,
+  LumenCommandList,
+  LumenCommandQuery,
+  type LumenCommandListProps,
+  type LumenCommandHints,
+} from './command-list';
 import { LumenDialog } from './dialog';
 import { LumenInput, LumenSelect } from './forms';
 import LumenSurface from './LumenSurface';
@@ -26,6 +32,8 @@ export interface LumenCommandOverlay {
 }
 
 export interface LumenSearchCommandsProps {
+  readonly scopeRole?: 'tabs' | 'buttons' | undefined;
+  readonly showOpenResult?: boolean | undefined;
   readonly list: LumenCommandListProps;
   readonly scopeLabel: string;
   readonly scopes: readonly { readonly id: string; readonly label: string }[];
@@ -52,6 +60,17 @@ export interface LumenSearchCommandsProps {
 }
 
 export interface LumenInviteCommandProps {
+  readonly inlineAction?: LumenInlineActionContent | undefined;
+  readonly actionList?: LumenCommandListProps | undefined;
+  readonly hints?: LumenCommandHints | undefined;
+  readonly confirmation?:
+    | {
+        readonly summary: string;
+        readonly backLabel: string;
+        readonly confirmLabel: string;
+        readonly onConfirm: () => void;
+      }
+    | undefined;
   readonly labels: {
     readonly title: string;
     readonly step: string;
@@ -73,7 +92,33 @@ export interface LumenInviteCommandProps {
   readonly onReview: () => void;
 }
 
+export interface LumenInlineActionContent {
+  readonly title: string;
+  readonly step: string;
+  readonly backLabel: string;
+  readonly actionLabel: string;
+  readonly hints: LumenCommandHints;
+  readonly fields: readonly ({
+    readonly id: string;
+    readonly label: string;
+    readonly value: string;
+  } & (
+    | { readonly kind: 'text'; readonly placeholder: string }
+    | {
+        readonly kind: 'choice';
+        readonly options: readonly { readonly id: string; readonly label: string }[];
+      }
+  ))[];
+  readonly summary?: string | undefined;
+  readonly canSubmit: boolean;
+  readonly onBack: () => void;
+  readonly onChange: (id: string, value: string) => void;
+  readonly onSubmit: () => void;
+}
+
 export interface LumenAssistantCommandsProps {
+  readonly results?: LumenCommandListProps | undefined;
+  readonly hints?: LumenCommandHints | undefined;
   readonly labels: {
     readonly search: string;
     readonly title: string;
@@ -93,6 +138,8 @@ export interface LumenAssistantCommandsProps {
 }
 
 export interface LumenCommandMenuContent {
+  readonly presentation?:
+    { readonly ownerId: string; readonly notice?: string | undefined } | undefined;
   readonly grouped?: LumenCommandSurfaceContent | undefined;
   readonly quick?: LumenCommandSurfaceContent | undefined;
   readonly rooms?: LumenCommandSurfaceContent | undefined;
@@ -136,14 +183,16 @@ export function useLumenCommandMenuContent() {
 export function uniqueLumenCommandItems<Item extends { readonly id: string }>(
   items: readonly Item[],
 ): readonly Item[] {
-  return [...new Map(items.map((item) => [item.id, item])).values()];
+  return [
+    ...new Map(items.filter((item) => item.id.trim()).map((item) => [item.id, item])).values(),
+  ];
 }
 
 function CommandGlyph({ name }: { readonly name: 'ask' | 'back' | 'search' | 'empty' }) {
   return (
     <svg
       className="lumen-command-menu-glyph"
-      data-tier={name === 'empty' ? 'lg' : 'sm'}
+      data-tier={name === 'empty' ? 'xl' : 'md'}
       viewBox="0 0 16 16"
       aria-hidden="true"
       focusable="false"
@@ -205,12 +254,18 @@ export function LumenSearchCommands(content: LumenSearchCommandsProps) {
       : undefined;
   return (
     <div className="hbar-app-ui-search-commands">
-      <nav aria-label={content.scopeLabel}>
+      <LumenCommandQuery {...content.list} />
+      <nav
+        aria-label={content.scopeLabel}
+        role={content.scopeRole === 'tabs' ? 'tablist' : undefined}
+      >
         {uniqueLumenCommandItems(content.scopes).map((scope) => (
           <LumenButton
             variant="text"
             key={scope.id}
-            aria-pressed={scope.id === content.scopeId}
+            role={content.scopeRole === 'tabs' ? 'tab' : undefined}
+            aria-pressed={content.scopeRole === 'tabs' ? undefined : scope.id === content.scopeId}
+            aria-selected={content.scopeRole === 'tabs' ? scope.id === content.scopeId : undefined}
             onClick={() => content.onScopeChange(scope.id)}
           >
             {scope.label}
@@ -218,7 +273,7 @@ export function LumenSearchCommands(content: LumenSearchCommandsProps) {
         ))}
       </nav>
       <div className="hbar-app-ui-search-commands-body">
-        <LumenCommandList {...content.list} />
+        <LumenCommandList {...content.list} hideQuery />
         <article>
           {detail ? (
             <>
@@ -240,13 +295,15 @@ export function LumenSearchCommands(content: LumenSearchCommandsProps) {
                 ))}
               </dl>
               <LumenText as="p">{detail.body}</LumenText>
-              <LumenButton
-                tone="primary"
-                disabled={detail.busy}
-                onClick={() => content.onOpenResult(detail.id)}
-              >
-                {detail.openLabel}
-              </LumenButton>
+              {content.showOpenResult !== false && (
+                <LumenButton
+                  tone="primary"
+                  disabled={detail.busy}
+                  onClick={() => content.onOpenResult(detail.id)}
+                >
+                  {detail.openLabel}
+                </LumenButton>
+              )}
             </>
           ) : (
             <LumenText as="p" tone="muted" role="status">
@@ -263,6 +320,54 @@ export function LumenInviteCommand(content: LumenInviteCommandProps) {
   const titleId = React.useId();
   const roles = uniqueLumenCommandItems(content.roles);
   const valid = roles.some((role) => role.id === content.roleId);
+  if (content.inlineAction) return <InlineActionCommands content={content.inlineAction} />;
+  if (content.actionList) return <LumenCommandList {...content.actionList} />;
+  if (content.confirmation) {
+    const confirmation = content.confirmation;
+    return (
+      <section className="hbar-app-ui-invite-command" aria-labelledby={titleId}>
+        <header>
+          <LumenIconButton
+            label={confirmation.backLabel}
+            onClick={content.onBack}
+            disabled={content.busy}
+          >
+            <CommandGlyph name="back" />
+          </LumenIconButton>
+          <div>
+            <LumenText id={titleId} as="h2" variant="heading">
+              {content.labels.title}
+            </LumenText>
+            <LumenText as="small" tone="muted" variant="supporting">
+              {content.labels.step}
+            </LumenText>
+          </div>
+        </header>
+        <p>{confirmation.summary}</p>
+        <dl className="lumen-command-confirmation-details">
+          <div>
+            <dt>{content.labels.email}</dt>
+            <dd>{content.email}</dd>
+          </div>
+          <div>
+            <dt>{content.labels.role}</dt>
+            <dd>{roles.find((role) => role.id === content.roleId)?.label}</dd>
+          </div>
+        </dl>
+        {content.error && <p role="alert">{content.error}</p>}
+        <footer>
+          {content.hints && <LumenCommandFooter as="div" hints={content.hints} />}
+          <LumenButton
+            tone="primary"
+            disabled={!valid || content.busy || !content.canReview}
+            onClick={confirmation.onConfirm}
+          >
+            {confirmation.confirmLabel}
+          </LumenButton>
+        </footer>
+      </section>
+    );
+  }
   return (
     <form
       className="hbar-app-ui-invite-command"
@@ -322,6 +427,7 @@ export function LumenInviteCommand(content: LumenInviteCommandProps) {
       </label>
       {content.error ? <p role="alert">{content.error}</p> : null}
       <footer>
+        {content.hints && <LumenCommandFooter as="div" hints={content.hints} />}
         <LumenButton
           type="submit"
           tone="primary"
@@ -334,7 +440,85 @@ export function LumenInviteCommand(content: LumenInviteCommandProps) {
   );
 }
 
+function InlineActionCommands({ content }: { readonly content: LumenInlineActionContent }) {
+  const titleId = React.useId();
+  return (
+    <form
+      className="hbar-app-ui-invite-command"
+      aria-labelledby={titleId}
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (content.canSubmit) content.onSubmit();
+      }}
+    >
+      <header>
+        <LumenIconButton label={content.backLabel} onClick={content.onBack}>
+          <CommandGlyph name="back" />
+        </LumenIconButton>
+        <div>
+          <LumenText id={titleId} as="h2" variant="heading">
+            {content.title}
+          </LumenText>
+          <LumenText as="small" tone="muted" variant="supporting">
+            {content.step}
+          </LumenText>
+        </div>
+      </header>
+      {content.summary ? (
+        <>
+          <p>{content.summary}</p>
+          <dl className="lumen-command-confirmation-details">
+            {content.fields.map((field) => (
+              <div key={field.id}>
+                <dt>{field.label}</dt>
+                <dd>
+                  {field.kind === 'choice'
+                    ? field.options.find((option) => option.id === field.value)?.label
+                    : field.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </>
+      ) : (
+        content.fields.map((field) => (
+          <label key={field.id}>
+            <LumenText as="span" variant="label">
+              {field.label}
+            </LumenText>
+            {field.kind === 'text' ? (
+              <LumenInput
+                value={field.value}
+                placeholder={field.placeholder}
+                onChange={(event) => content.onChange(field.id, event.currentTarget.value)}
+              />
+            ) : (
+              <LumenSelect
+                value={field.value}
+                onChange={(event) => content.onChange(field.id, event.currentTarget.value)}
+              >
+                {uniqueLumenCommandItems(field.options).map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.label}
+                  </option>
+                ))}
+              </LumenSelect>
+            )}
+          </label>
+        ))
+      )}
+      <footer>
+        <LumenCommandFooter as="div" hints={content.hints} />
+        <LumenButton type="submit" tone="primary" disabled={!content.canSubmit}>
+          {content.actionLabel}
+        </LumenButton>
+      </footer>
+    </form>
+  );
+}
+
 export function LumenAssistantCommands(content: LumenAssistantCommandsProps) {
+  if (content.results?.items.length) return <LumenCommandList {...content.results} />;
   return (
     <form
       className="hbar-app-ui-assistant-commands"
@@ -349,6 +533,9 @@ export function LumenAssistantCommands(content: LumenAssistantCommandsProps) {
         <CommandGlyph name="search" />
         <LumenInput
           type="search"
+          variant="plain"
+          role="combobox"
+          aria-expanded="true"
           aria-label={content.labels.search}
           value={content.query}
           placeholder={content.labels.search}
@@ -389,8 +576,32 @@ export function LumenAssistantCommands(content: LumenAssistantCommandsProps) {
           </LumenText>
         ) : null}
       </div>
-      <footer>{content.labels.resultSummary}</footer>
+      {content.hints ? (
+        <LumenCommandFooter hints={content.hints} />
+      ) : (
+        <footer>{content.labels.resultSummary}</footer>
+      )}
     </form>
+  );
+}
+
+function CommandPreviewContent({
+  presentation,
+  children,
+}: {
+  readonly presentation: LumenCommandMenuContent['presentation'];
+  readonly children: React.ReactNode;
+}) {
+  if (!presentation) return <>{children}</>;
+  return (
+    <div className="lumen-command-menu-preview-content" key={presentation.ownerId}>
+      {presentation.notice && (
+        <p className="lumen-command-menu-preview-notice" role="status">
+          {presentation.notice}
+        </p>
+      )}
+      {children}
+    </div>
   );
 }
 
@@ -416,7 +627,9 @@ function ListCommandSurface({
             className={`hbar-app-ui-command-dialog ${props.variant === 6 ? 'hbar-app-ui-command-dialog-room' : 'hbar-app-ui-command-dialog-list'}`}
             chromeless
           >
-            <LumenCommandList {...content} />
+            <CommandPreviewContent presentation={props.content?.presentation}>
+              <LumenCommandList {...content} />
+            </CommandPreviewContent>
           </LumenDialog>
         </>
       ) : null}
@@ -448,7 +661,9 @@ function WorkflowCommandSurface({
             className={`hbar-app-ui-command-dialog hbar-app-ui-command-dialog-${props.variant === 3 ? 'search' : props.variant === 4 ? 'form' : 'assistant'}`}
             chromeless
           >
-            {children}
+            <CommandPreviewContent presentation={props.content?.presentation}>
+              {children}
+            </CommandPreviewContent>
           </LumenDialog>
         </>
       ) : null}
@@ -459,25 +674,27 @@ function WorkflowCommandSurface({
 export function LumenCommandMenu(props: LumenCommandMenuProps) {
   const context = useLumenCommandMenuContent();
   const content = props.content ?? context;
-  if (props.variant === 1) return <ListCommandSurface props={props} content={content.grouped} />;
-  if (props.variant === 2) return <ListCommandSurface props={props} content={content.quick} />;
-  if (props.variant === 6) return <ListCommandSurface props={props} content={content.rooms} />;
+  const ownedProps = { ...props, content };
+  if (props.variant === 1)
+    return <ListCommandSurface props={ownedProps} content={content.grouped} />;
+  if (props.variant === 2) return <ListCommandSurface props={ownedProps} content={content.quick} />;
+  if (props.variant === 6) return <ListCommandSurface props={ownedProps} content={content.rooms} />;
   if (props.variant === 3) {
     return (
-      <WorkflowCommandSurface props={props} content={content.search}>
+      <WorkflowCommandSurface props={ownedProps} content={content.search}>
         {content.search ? <LumenSearchCommands {...content.search} /> : null}
       </WorkflowCommandSurface>
     );
   }
   if (props.variant === 4) {
     return (
-      <WorkflowCommandSurface props={props} content={content.invite}>
+      <WorkflowCommandSurface props={ownedProps} content={content.invite}>
         {content.invite ? <LumenInviteCommand {...content.invite} /> : null}
       </WorkflowCommandSurface>
     );
   }
   return (
-    <WorkflowCommandSurface props={props} content={content.assistant}>
+    <WorkflowCommandSurface props={ownedProps} content={content.assistant}>
       {content.assistant ? <LumenAssistantCommands {...content.assistant} /> : null}
     </WorkflowCommandSurface>
   );

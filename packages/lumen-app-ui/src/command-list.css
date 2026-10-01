@@ -50,7 +50,7 @@
   padding: 0.5rem;
 }
 
-.lumen-command-options > button {
+.lumen-command-options .lumen-command-option {
   display: flex;
   inline-size: 100%;
   min-inline-size: 0;
@@ -64,17 +64,32 @@
   text-align: start;
 }
 
-.lumen-command-list[data-list-strategy='virtual'] .lumen-command-options > button {
-  content-visibility: auto;
-  contain-intrinsic-block-size: auto 4rem;
+.lumen-command-group,
+.lumen-command-virtual-row {
+  display: flex;
+  min-inline-size: 0;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
-.lumen-command-options > button:is(:hover, :focus-visible, [aria-selected='true']) {
+.lumen-command-spacer {
+  flex: 0 0 auto;
+}
+
+.lumen-command-group-label {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  color: var(--lumen-muted);
+  font-size: 0.75rem;
+}
+
+.lumen-command-options .lumen-command-option:is(:hover, :focus-visible, [aria-selected='true']) {
   outline: 0;
   background: color-mix(in srgb, var(--lumen-ink) 10%, transparent);
 }
 
-.lumen-command-options > button:disabled {
+.lumen-command-options .lumen-command-option:disabled {
   cursor: not-allowed;
   opacity: 0.5;
 }
@@ -104,8 +119,8 @@
 }
 
 .lumen-command-glyph {
-  inline-size: 1rem;
-  block-size: 1rem;
+  inline-size: var(--hbar-app-ui-icon-md, 1rem);
+  block-size: var(--hbar-app-ui-icon-md, 1rem);
   flex: 0 0 auto;
   fill: none;
   stroke: currentColor;
@@ -114,7 +129,8 @@
   stroke-width: 1.5;
 }
 
-.lumen-command-list > footer {
+.lumen-command-list > footer,
+.lumen-command-footer {
   display: flex;
   flex: 0 0 auto;
   flex-wrap: wrap;
@@ -127,13 +143,15 @@
   line-height: 1.4;
 }
 
-.lumen-command-list > footer > span {
+.lumen-command-list > footer > span,
+.lumen-command-footer > span {
   display: flex;
   align-items: center;
   gap: 0.25rem;
 }
 
-.lumen-command-list > footer > small {
+.lumen-command-list > footer > small,
+.lumen-command-footer > small {
   margin-inline-start: auto;
   font: inherit;
 }
@@ -144,13 +162,13 @@
   overflow-wrap: anywhere;
 }
 
-[data-lumen-shape='square'] .lumen-command-options > button {
+[data-lumen-shape='square'] .lumen-command-options .lumen-command-option {
   border-radius: 0;
 }
 
 @media (forced-colors: active) {
   .lumen-command-list,
-  .lumen-command-options > button:is(:hover, :focus-visible, [aria-selected='true']) {
+  .lumen-command-options .lumen-command-option:is(:hover, :focus-visible, [aria-selected='true']) {
     outline: 0.0625rem solid CanvasText;
     background: Canvas;
   }
