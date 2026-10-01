@@ -14,6 +14,49 @@ export interface LumenMobileTab {
   readonly id: string;
   readonly label: string;
   readonly badge?: string | undefined;
+  readonly icon?: LumenMobileIcon | undefined;
+}
+export type LumenMobileIcon =
+  | 'filter'
+  | 'chevron'
+  | 'arrow'
+  | 'search'
+  | 'plus'
+  | 'menu'
+  | 'close'
+  | 'play'
+  | 'home'
+  | 'inbox'
+  | 'calendar'
+  | 'reports'
+  | 'bell'
+  | 'bookmark'
+  | 'user'
+  | 'box'
+  | 'message'
+  | 'more';
+export interface LumenMobileSelection {
+  readonly id: string | undefined;
+  readonly onChange: (id: string) => void;
+}
+export interface LumenMobileActionItem {
+  readonly id: string;
+  readonly label: string;
+  readonly detail?: string | undefined;
+  readonly icon?: LumenMobileIcon | undefined;
+  readonly avatar?: string | undefined;
+}
+export interface LumenMobileActionMenu {
+  readonly label: string;
+  readonly close: string;
+  readonly dismiss: string;
+  readonly items: readonly LumenMobileActionItem[];
+}
+export interface LumenMobileNavigationGroup {
+  readonly id: string;
+  readonly label: string;
+  readonly items?: readonly LumenMobileActionItem[] | undefined;
+  readonly expanded?: boolean | undefined;
 }
 export interface LumenMobileFeedItem {
   readonly id: string;
@@ -23,6 +66,17 @@ export interface LumenMobileFeedItem {
   readonly area?: string | undefined;
 }
 export interface LumenMobileActivityContent {
+  readonly pages?:
+    | readonly {
+        readonly id: string;
+        readonly title: string;
+        readonly description: string;
+        readonly items: readonly LumenMobileFeedItem[];
+      }[]
+    | undefined;
+  readonly selection?: LumenMobileSelection | undefined;
+  readonly filter?:
+    { readonly value: boolean; readonly onChange: (value: boolean) => void } | undefined;
   readonly labels: {
     readonly brand: string;
     readonly filterAll: string;
@@ -49,6 +103,11 @@ export interface LumenMobileTask {
   readonly complete: boolean;
 }
 export interface LumenMobileTasksContent {
+  readonly quickActions?: LumenMobileActionMenu | undefined;
+  readonly searchEnabled?: boolean | undefined;
+  readonly draft?:
+    { readonly query: string; readonly onChange: (query: string) => void } | undefined;
+  readonly onComplete?: ((id: string, value: boolean) => void) | undefined;
   readonly labels: {
     readonly title: string;
     readonly searchOpen: string;
@@ -65,6 +124,18 @@ export interface LumenMobileTasksContent {
   readonly listStrategy: LumenMobileListStrategy;
 }
 export interface LumenMobileHomeContent {
+  readonly search?:
+    | {
+        readonly tabId: string;
+        readonly label: string;
+        readonly placeholder: string;
+        readonly close: string;
+        readonly noResults: string;
+      }
+    | undefined;
+  readonly draft?:
+    { readonly query: string; readonly onChange: (query: string) => void } | undefined;
+  readonly selection?: LumenMobileSelection | undefined;
   readonly labels: {
     readonly title: string;
     readonly navigation: string;
@@ -83,6 +154,15 @@ export interface LumenMobileOrder {
   readonly detail: string;
 }
 export interface LumenMobileOrdersContent {
+  readonly more?:
+    | (LumenMobileActionMenu & {
+        readonly moreId: string;
+        readonly expand: string;
+        readonly expanded: string;
+        readonly links: readonly LumenMobileActionItem[];
+      })
+    | undefined;
+  readonly selection?: LumenMobileSelection | undefined;
   readonly labels: {
     readonly title: string;
     readonly recent: string;
@@ -103,6 +183,16 @@ export interface LumenMobileRun {
   readonly stateId: string;
 }
 export interface LumenMobileRunsContent {
+  readonly navigation?:
+    | {
+        readonly label: string;
+        readonly title: string;
+        readonly sectionsLabel: string;
+        readonly groups: readonly LumenMobileNavigationGroup[];
+        readonly profile: LumenMobileActionItem;
+      }
+    | undefined;
+  readonly selection?: LumenMobileSelection | undefined;
   readonly labels: {
     readonly title: string;
     readonly openMenu: string;
@@ -121,6 +211,9 @@ export interface LumenMobileRunsContent {
   readonly listStrategy: LumenMobileListStrategy;
 }
 export interface LumenMobileContent {
+  readonly onAction?: ((event: LumenMobileAction) => void) | undefined;
+  readonly presentation?:
+    { readonly ownerId: string; readonly notice?: string | undefined } | undefined;
   readonly activity?: LumenMobileActivityContent | undefined;
   readonly tasks?: LumenMobileTasksContent | undefined;
   readonly home?: LumenMobileHomeContent | undefined;
@@ -159,7 +252,7 @@ export function uniqueLumenMobileItems<T extends { readonly id: string }>(
 ): readonly T[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (!item.id.trim() || seen.has(item.id)) return false;
     seen.add(item.id);
     return true;
   });
@@ -168,32 +261,45 @@ export function selectLumenMobileItem<T extends { readonly id: string }>(
   items: readonly T[],
   id: string | undefined,
 ): T | undefined {
-  return items.find((item) => item.id === id) ?? items[0];
+  const valid = uniqueLumenMobileItems(items);
+  return valid.find((item) => item.id === id) ?? valid[0];
 }
 const report = (fn: LumenMobileProps['onAction'], actionId: string, value?: string) =>
   fn?.(value === undefined ? { actionId } : { actionId, value });
 function Glyph({
   name,
+  tier = 'md',
 }: {
-  name: 'filter' | 'chevron' | 'search' | 'plus' | 'menu' | 'close' | 'play';
+  readonly name: LumenMobileIcon;
+  readonly tier?: 'sm' | 'md' | 'lg';
 }) {
-  const d =
-    name === 'filter'
-      ? 'M2.5 3h11L9.3 8v4l-2.6 1V8z'
-      : name === 'chevron'
-        ? 'm6 3 5 5-5 5'
-        : name === 'search'
-          ? 'm11 11 3 3m-2-7a5 5 0 1 1-10 0 5 5 0 0 1 10 0Z'
-          : name === 'plus'
-            ? 'M8 3v10M3 8h10'
-            : name === 'menu'
-              ? 'M2 4h12M2 8h12M2 12h12'
-              : name === 'close'
-                ? 'M3 3l10 10M13 3 3 13'
-                : 'M5 3l8 5-8 5z';
+  const paths: Record<LumenMobileIcon, string> = {
+    filter: 'M2.5 3h11M2.5 8h11M2.5 13h11M6 1v4M10 6v4M5 11v4',
+    chevron: 'm6 3 5 5-5 5',
+    arrow: 'M4 12 12 4M5 4h7v7',
+    search: 'm11 11 3 3m-2-7a5 5 0 1 1-10 0 5 5 0 0 1 10 0Z',
+    plus: 'M8 3v10M3 8h10',
+    menu: 'M2 4h12M2 8h12M2 12h12',
+    close: 'M3 3l10 10M13 3 3 13',
+    play: 'M5 3l8 5-8 5z',
+    home: 'm2 7 6-5 6 5v7H2zM6 14V9h4v5',
+    inbox: 'M3 3h10l2 10H1zM1.8 9H5l1 2h4l1-2h3.2',
+    calendar: 'M3 3h10v11H3zM5 1v4M11 1v4M3 7h10M5 9h1M9 9h1M5 12h1M9 12h1',
+    reports: 'M3 14V8M8 14V2M13 14V5',
+    bell: 'M3 11h10l-1-2V6a4 4 0 0 0-8 0v3zM6 14h4',
+    bookmark: 'M4 2h8v12l-4-3-4 3z',
+    user: 'M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6M3 14a5 5 0 0 1 10 0',
+    box: 'm2 5 6-3 6 3v7l-6 3-6-3zM2 5l6 3 6-3M8 8v7M5 3.5l6 3',
+    message: 'M2 2h12v9H6l-4 3z',
+    more: 'm4 10 4-4 4 4',
+  };
   return (
-    <svg className="lumen-mobile-glyph" viewBox="0 0 16 16" aria-hidden="true">
-      <path d={d} />
+    <svg
+      className={`lumen-mobile-glyph lumen-mobile-icon-${tier}`}
+      viewBox="0 0 16 16"
+      aria-hidden="true"
+    >
+      <path d={paths[name]} />
     </svg>
   );
 }
@@ -267,27 +373,75 @@ function Tabs({
   value,
   label,
   onChange,
+  iconOnly = false,
+  asTabs = true,
+  expandedId,
+  moreId,
 }: {
   readonly tabs: readonly LumenMobileTab[];
   readonly value: string | undefined;
   readonly label: string;
   readonly onChange: (id: string) => void;
+  readonly iconOnly?: boolean;
+  readonly asTabs?: boolean;
+  readonly expandedId?: string | undefined;
+  readonly moreId?: string | undefined;
 }) {
   return (
-    <nav className="lumen-mobile-tabs" aria-label={label}>
+    <nav
+      className={`lumen-mobile-tabs${iconOnly ? ' is-icon-only' : ''}`}
+      aria-label={label}
+      role={asTabs ? 'tablist' : undefined}
+      onKeyDown={asTabs ? (event) => moveTab(event, tabs, value, onChange) : undefined}
+    >
       {tabs.map((tab) => (
         <LumenButton
           key={tab.id}
           variant="text"
+          role={asTabs ? 'tab' : undefined}
+          aria-selected={asTabs ? value === tab.id : undefined}
+          tabIndex={asTabs ? (value === tab.id ? 0 : -1) : undefined}
+          aria-label={tab.label}
           aria-current={value === tab.id ? 'page' : undefined}
+          aria-expanded={tab.id === moreId ? expandedId === tab.id : undefined}
+          data-mobile-more-trigger={tab.id === moreId ? '' : undefined}
           onClick={() => onChange(tab.id)}
         >
-          <span>{tab.label}</span>
-          {tab.badge ? <small>{tab.badge}</small> : null}
+          {tab.icon && (
+            <span className="lumen-mobile-tab-symbol">
+              <Glyph name={tab.icon} tier="lg" />
+              {tab.badge ? <small>{tab.badge}</small> : null}
+            </span>
+          )}
+          {(!iconOnly || !tab.icon) && <span>{tab.label}</span>}
+          {!tab.icon && tab.badge ? <small>{tab.badge}</small> : null}
         </LumenButton>
       ))}
     </nav>
   );
+}
+function moveTab(
+  event: React.KeyboardEvent<HTMLElement>,
+  tabs: readonly LumenMobileTab[],
+  value: string | undefined,
+  onChange: (id: string) => void,
+) {
+  if (!tabs.length || !['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
+  event.preventDefault();
+  const current = Math.max(
+    0,
+    tabs.findIndex((tab) => tab.id === value),
+  );
+  const index =
+    event.key === 'Home'
+      ? 0
+      : event.key === 'End'
+        ? tabs.length - 1
+        : (current + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+  const next = tabs[index];
+  if (!next) return;
+  onChange(next.id);
+  event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]')[index]?.focus();
 }
 function Feed({
   items,
@@ -295,36 +449,63 @@ function Feed({
   open,
   onAction,
   strategy,
+  cards = false,
+  interactive = true,
 }: {
   readonly items: readonly LumenMobileFeedItem[];
   readonly empty: string;
   readonly open: (title: string) => string;
   readonly onAction: LumenMobileProps['onAction'];
   readonly strategy: LumenMobileListStrategy;
+  readonly cards?: boolean;
+  readonly interactive?: boolean;
 }) {
   const values = uniqueLumenMobileItems(items);
   return (
-    <div className="lumen-mobile-feed" data-hbar-app-ui-list-strategy={strategy.kind}>
+    <div
+      className={`lumen-mobile-feed${cards ? ' lumen-mobile-card-feed' : ''}`}
+      data-hbar-app-ui-list-strategy={strategy.kind}
+      data-hbar-app-ui-expected-maximum={strategy.expectedMaximum}
+    >
       {values.length ? (
-        values.map((item) => (
-          <LumenButton
-            key={item.id}
-            variant="text"
-            aria-label={open(item.title)}
-            onClick={() => report(onAction, 'open', item.id)}
-          >
-            <span>
-              <strong>{item.title}</strong>
-              {item.description ? (
-                <LumenText as="small" tone="muted">
-                  {item.description}
+        values.map((item) =>
+          interactive ? (
+            <LumenButton
+              key={item.id}
+              variant="text"
+              aria-label={open(item.title)}
+              onClick={() => report(onAction, 'open', item.id)}
+            >
+              <span>
+                <strong>{item.title}</strong>
+                {item.description ? (
+                  <LumenText as="small" tone="muted">
+                    {item.description}
+                  </LumenText>
+                ) : null}
+                <small>{item.detail}</small>
+              </span>
+              <Glyph name={cards ? 'arrow' : 'chevron'} tier="sm" />
+            </LumenButton>
+          ) : (
+            <div key={item.id} className="lumen-mobile-card">
+              <span>
+                <LumenText as="p">
+                  <strong>{item.title}</strong>
                 </LumenText>
-              ) : null}
-              <small>{item.detail}</small>
-            </span>
-            <Glyph name="chevron" />
-          </LumenButton>
-        ))
+                {item.description && (
+                  <LumenText as="p" tone="muted">
+                    {item.description}
+                  </LumenText>
+                )}
+                <LumenText as="p" tone="muted">
+                  {item.detail}
+                </LumenText>
+              </span>
+              <Glyph name="arrow" tier="sm" />
+            </div>
+          ),
+        )
       ) : (
         <Empty>{empty}</Empty>
       )}
@@ -337,10 +518,13 @@ function Activity(
 ) {
   const tabs = uniqueLumenMobileItems(props.content.tabs);
   const items = uniqueLumenMobileItems(props.content.items);
-  const [tabId, setTabId] = React.useState(props.content.initialTabId);
-  const [filtered, setFiltered] = React.useState(false);
+  const [localTabId, setTabId] = React.useState(props.content.initialTabId);
+  const [localFiltered, setFiltered] = React.useState(false);
+  const tabId = props.content.selection ? props.content.selection.id : localTabId;
+  const filtered = props.content.filter?.value ?? localFiltered;
   const visible = items.filter((item) => !filtered || item.area === props.content.filterAreaId);
   const tab = selectLumenMobileItem(tabs, tabId);
+  const page = props.content.pages?.find((entry) => entry.id === tab?.id);
   return (
     <Root {...props}>
       <Phone>
@@ -352,6 +536,10 @@ function Activity(
               label={filtered ? props.content.labels.filterAll : props.content.labels.filterArea}
               aria-pressed={filtered}
               onClick={() => {
+                if (props.content.filter) {
+                  props.content.filter.onChange(!filtered);
+                  return;
+                }
                 setFiltered((value) => !value);
                 report(props.onAction, 'filter', filtered ? 'all' : props.content.filterAreaId);
               }}
@@ -361,7 +549,25 @@ function Activity(
           }
         />
         <main className="lumen-mobile-content">
-          {tab?.id === props.content.initialTabId ? (
+          {page ? (
+            <>
+              <section className="lumen-mobile-heading">
+                <LumenText as="h2" variant="title">
+                  {page.title}
+                </LumenText>
+                <LumenText as="p" tone="muted">
+                  {page.description}
+                </LumenText>
+              </section>
+              <Feed
+                items={page.items}
+                empty={props.content.labels.empty}
+                open={props.content.labels.open}
+                onAction={props.onAction}
+                strategy={props.content.listStrategy}
+              />
+            </>
+          ) : tab?.id === props.content.initialTabId ? (
             <>
               <section className="lumen-mobile-heading">
                 <LumenText as="h2" variant="title">
@@ -395,6 +601,10 @@ function Activity(
           value={tab?.id}
           label={props.content.labels.navigation}
           onChange={(id) => {
+            if (props.content.selection) {
+              props.content.selection.onChange(id);
+              return;
+            }
             setTabId(id);
             report(props.onAction, 'tabs', id);
           }}
@@ -405,9 +615,16 @@ function Activity(
 }
 function Tasks(props: Omit<LumenMobileProps, 'content'> & { content: LumenMobileTasksContent }) {
   const source = uniqueLumenMobileItems(props.content.tasks);
-  const [tasks, setTasks] = React.useState(() => [...source]);
   const [searchOpen, setSearchOpen] = React.useState(false);
-  const [query, setQuery] = React.useState('');
+  const [actionsOpen, setActionsOpen] = React.useState(false);
+  const actionTrigger = React.useRef<HTMLButtonElement>(null);
+  const closeActions = () => {
+    setActionsOpen(false);
+    actionTrigger.current?.focus();
+  };
+  const [localQuery, setQuery] = React.useState('');
+  const tasks = source;
+  const query = props.content.draft?.query ?? localQuery;
   const open = tasks.filter((task) => !task.complete);
   const visible = open.filter((task) =>
     task.title.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()),
@@ -423,7 +640,11 @@ function Tasks(props: Omit<LumenMobileProps, 'content'> & { content: LumenMobile
                 searchOpen ? props.content.labels.searchClose : props.content.labels.searchOpen
               }
               aria-pressed={searchOpen}
-              onClick={() => setSearchOpen((value) => !value)}
+              onClick={() =>
+                props.content.searchEnabled === false
+                  ? report(props.onAction, 'search')
+                  : setSearchOpen((value) => !value)
+              }
             >
               <Glyph name="search" />
             </LumenIconButton>
@@ -436,7 +657,11 @@ function Tasks(props: Omit<LumenMobileProps, 'content'> & { content: LumenMobile
               <LumenInput
                 autoFocus
                 value={query}
-                onChange={(event) => setQuery(event.target.value)}
+                onChange={(event) =>
+                  props.content.draft
+                    ? props.content.draft.onChange(event.currentTarget.value)
+                    : setQuery(event.currentTarget.value)
+                }
                 placeholder={props.content.labels.searchPlaceholder}
                 aria-label={props.content.labels.searchPlaceholder}
               />
@@ -448,6 +673,7 @@ function Tasks(props: Omit<LumenMobileProps, 'content'> & { content: LumenMobile
           <div
             className="lumen-mobile-tasks"
             data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
+            data-hbar-app-ui-expected-maximum={props.content.listStrategy.expectedMaximum}
           >
             {visible.length ? (
               visible.map((task) => (
@@ -457,12 +683,8 @@ function Tasks(props: Omit<LumenMobileProps, 'content'> & { content: LumenMobile
                   aria-pressed={task.complete}
                   aria-label={props.content.labels.toggle(task.title)}
                   onClick={() => {
-                    setTasks((current) =>
-                      current.map((item) =>
-                        item.id === task.id ? { ...item, complete: !item.complete } : item,
-                      ),
-                    );
-                    report(props.onAction, 'confirm', task.id);
+                    if (props.content.onComplete) props.content.onComplete(task.id, !task.complete);
+                    else report(props.onAction, 'confirm', task.id);
                   }}
                 >
                   <i />
@@ -477,22 +699,58 @@ function Tasks(props: Omit<LumenMobileProps, 'content'> & { content: LumenMobile
             )}
           </div>
         </main>
+        {actionsOpen && props.content.quickActions && (
+          <div
+            className="lumen-mobile-action-layer"
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') {
+                event.preventDefault();
+                closeActions();
+              }
+            }}
+          >
+            <LumenButton
+              className="lumen-mobile-action-backdrop"
+              aria-label={props.content.quickActions.dismiss}
+              onClick={closeActions}
+            />
+            <nav
+              className="lumen-mobile-quick-action-panel"
+              aria-label={props.content.quickActions.label}
+            >
+              {uniqueLumenMobileItems(props.content.quickActions.items).map((item, index) => (
+                <LumenButton
+                  key={item.id}
+                  autoFocus={index === 0}
+                  variant="text"
+                  onClick={() => {
+                    closeActions();
+                    report(props.onAction, 'quick-action', item.id);
+                  }}
+                >
+                  <span>{item.label}</span>
+                  {item.icon && <Glyph name={item.icon} />}
+                </LumenButton>
+              ))}
+            </nav>
+          </div>
+        )}
         <footer className="lumen-mobile-floating">
           <LumenIconButton
-            label={props.content.labels.add}
-            onClick={() => {
-              const id = `new-${tasks.length + 1}`;
-              setTasks((current) => [
-                ...current,
-                {
-                  id,
-                  title: props.content.labels.newTask,
-                  due: props.content.labels.noDue,
-                  complete: false,
-                },
-              ]);
-              report(props.onAction, 'open', id);
-            }}
+            ref={actionTrigger}
+            label={
+              actionsOpen && props.content.quickActions
+                ? props.content.quickActions.close
+                : props.content.labels.add
+            }
+            aria-expanded={props.content.quickActions ? actionsOpen : undefined}
+            onClick={() =>
+              props.content.quickActions
+                ? actionsOpen
+                  ? closeActions()
+                  : setActionsOpen(true)
+                : report(props.onAction, 'quick-actions')
+            }
           >
             <Glyph name="plus" />
           </LumenIconButton>
@@ -503,7 +761,24 @@ function Tasks(props: Omit<LumenMobileProps, 'content'> & { content: LumenMobile
 }
 function Home(props: Omit<LumenMobileProps, 'content'> & { content: LumenMobileHomeContent }) {
   const tabs = uniqueLumenMobileItems(props.content.tabs);
-  const [tabId, setTabId] = React.useState(props.content.initialTabId);
+  const [localTabId, setTabId] = React.useState(props.content.initialTabId);
+  const tabId = props.content.selection ? props.content.selection.id : localTabId;
+  const [localQuery, setQuery] = React.useState('');
+  const query = props.content.draft?.query ?? localQuery;
+  const search = props.content.search;
+  const searching = Boolean(search && search.tabId === tabId);
+  const changeTab = (id: string) => {
+    if (props.content.selection) props.content.selection.onChange(id);
+    else {
+      setTabId(id);
+      report(props.onAction, 'tabs', id);
+    }
+  };
+  const matches = uniqueLumenMobileItems(props.content.cards).filter((item) =>
+    `${item.title} ${item.description ?? ''} ${item.detail}`
+      .toLocaleLowerCase()
+      .includes(query.trim().toLocaleLowerCase()),
+  );
   return (
     <Root {...props}>
       <Phone>
@@ -515,17 +790,68 @@ function Home(props: Omit<LumenMobileProps, 'content'> & { content: LumenMobileH
             open={props.content.labels.open}
             onAction={props.onAction}
             strategy={props.content.listStrategy}
+            cards
+            interactive={false}
           />
         </main>
-        <Tabs
-          tabs={tabs}
-          value={selectLumenMobileItem(tabs, tabId)?.id}
-          label={props.content.labels.navigation}
-          onChange={(id) => {
-            setTabId(id);
-            report(props.onAction, 'tabs', id);
-          }}
-        />
+        <div className={`lumen-mobile-home-dock${searching ? ' is-searching' : ''}`}>
+          {searching && search ? (
+            <>
+              <section className="lumen-mobile-search-results" aria-label={search.label}>
+                {matches.length ? (
+                  matches.map((item) => (
+                    <LumenButton
+                      key={item.id}
+                      variant="text"
+                      aria-label={props.content.labels.open(item.title)}
+                      onClick={() => report(props.onAction, 'open', item.id)}
+                    >
+                      <strong>{item.title}</strong>
+                      <small>{item.detail}</small>
+                    </LumenButton>
+                  ))
+                ) : (
+                  <Empty>{search.noResults}</Empty>
+                )}
+              </section>
+              <div className="lumen-mobile-home-search">
+                <Glyph name="search" />
+                <input
+                  autoFocus
+                  aria-label={search.label}
+                  placeholder={search.placeholder}
+                  value={query}
+                  onChange={(event) => {
+                    if (props.content.draft)
+                      props.content.draft.onChange(event.currentTarget.value);
+                    else setQuery(event.currentTarget.value);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Escape') {
+                      event.preventDefault();
+                      changeTab(props.content.initialTabId);
+                    }
+                  }}
+                />
+                <LumenIconButton
+                  label={search.close}
+                  onClick={() => changeTab(props.content.initialTabId)}
+                >
+                  <Glyph name="close" />
+                </LumenIconButton>
+              </div>
+            </>
+          ) : (
+            <Tabs
+              tabs={tabs}
+              value={selectLumenMobileItem(tabs, tabId)?.id}
+              label={props.content.labels.navigation}
+              iconOnly
+              asTabs={false}
+              onChange={changeTab}
+            />
+          )}
+        </div>
       </Phone>
     </Root>
   );
@@ -533,18 +859,33 @@ function Home(props: Omit<LumenMobileProps, 'content'> & { content: LumenMobileH
 function Orders(props: Omit<LumenMobileProps, 'content'> & { content: LumenMobileOrdersContent }) {
   const tabs = uniqueLumenMobileItems(props.content.tabs);
   const orders = uniqueLumenMobileItems(props.content.orders);
-  const [tabId, setTabId] = React.useState(props.content.initialTabId);
+  const [localTabId, setTabId] = React.useState(props.content.initialTabId);
+  const tabId = props.content.selection ? props.content.selection.id : localTabId;
+  const [moreOpen, setMoreOpen] = React.useState(false);
+  const [moreExpanded, setMoreExpanded] = React.useState(false);
+  const phone = React.useRef<HTMLDivElement>(null);
+  const more = props.content.more;
+  const closeMore = () => {
+    setMoreOpen(false);
+    setMoreExpanded(false);
+    phone.current?.querySelector<HTMLButtonElement>('[data-mobile-more-trigger]')?.focus();
+  };
+  const chooseMore = (id: string) => {
+    closeMore();
+    report(props.onAction, 'destination', id);
+  };
   return (
     <Root {...props}>
-      <Phone>
+      <div className="lumen-mobile-phone" ref={phone}>
         <Header title={props.content.labels.title} avatar={props.content.avatar} />
         <main className="lumen-mobile-content">
           <LumenText as="p" tone="muted" variant="supporting">
             {props.content.labels.recent}
           </LumenText>
           <div
-            className="lumen-mobile-feed"
+            className="lumen-mobile-feed lumen-mobile-card-feed"
             data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
+            data-hbar-app-ui-expected-maximum={props.content.listStrategy.expectedMaximum}
           >
             {orders.length ? (
               orders.map((order) => (
@@ -558,7 +899,7 @@ function Orders(props: Omit<LumenMobileProps, 'content'> & { content: LumenMobil
                     <strong>{order.account}</strong>
                     <small>{order.detail}</small>
                   </span>
-                  <Glyph name="chevron" />
+                  <Glyph name="arrow" tier="sm" />
                 </LumenButton>
               ))
             ) : (
@@ -566,66 +907,139 @@ function Orders(props: Omit<LumenMobileProps, 'content'> & { content: LumenMobil
             )}
           </div>
         </main>
+        {moreOpen && more && (
+          <div
+            className="lumen-mobile-more-layer"
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') {
+                event.preventDefault();
+                closeMore();
+              }
+            }}
+          >
+            <button
+              type="button"
+              className="lumen-mobile-action-backdrop"
+              aria-label={more.dismiss}
+              onClick={closeMore}
+            />
+            <section
+              className={`lumen-mobile-more-panel${moreExpanded ? ' is-expanded' : ''}`}
+              role="dialog"
+              aria-modal="true"
+              aria-label={more.label}
+            >
+              <header>
+                <LumenIconButton
+                  label={moreExpanded ? more.expanded : more.expand}
+                  aria-expanded={moreExpanded}
+                  autoFocus
+                  onClick={() => setMoreExpanded((value) => !value)}
+                >
+                  <Glyph name="more" />
+                </LumenIconButton>
+                <LumenIconButton label={more.close} onClick={closeMore}>
+                  <Glyph name="close" />
+                </LumenIconButton>
+              </header>
+              <nav className="lumen-mobile-more-shortcuts" aria-label={more.label}>
+                {uniqueLumenMobileItems(more.items).map((item) => (
+                  <LumenButton key={item.id} variant="text" onClick={() => chooseMore(item.id)}>
+                    {item.icon && <Glyph name={item.icon} tier="lg" />}
+                    <strong>{item.label}</strong>
+                    {item.detail && <small>{item.detail}</small>}
+                  </LumenButton>
+                ))}
+              </nav>
+              <nav className="lumen-mobile-more-links" aria-label={more.label}>
+                {uniqueLumenMobileItems(more.links).map((item) => (
+                  <LumenButton key={item.id} variant="text" onClick={() => chooseMore(item.id)}>
+                    {item.label}
+                    <Glyph name="chevron" tier="sm" />
+                  </LumenButton>
+                ))}
+              </nav>
+            </section>
+          </div>
+        )}
         <Tabs
           tabs={tabs}
           value={selectLumenMobileItem(tabs, tabId)?.id}
           label={props.content.labels.navigation}
+          asTabs={false}
+          expandedId={moreOpen ? more?.moreId : undefined}
+          moreId={more?.moreId}
           onChange={(id) => {
+            if (more?.moreId === id) {
+              setMoreOpen((value) => !value);
+              setMoreExpanded(false);
+              return;
+            }
+            setMoreOpen(false);
+            if (props.content.selection) {
+              props.content.selection.onChange(id);
+              return;
+            }
             setTabId(id);
             report(props.onAction, 'tabs', id);
           }}
         />
-      </Phone>
+      </div>
     </Root>
   );
 }
 function Runs(props: Omit<LumenMobileProps, 'content'> & { content: LumenMobileRunsContent }) {
   const states = uniqueLumenMobileItems(props.content.states);
   const source = uniqueLumenMobileItems(props.content.runs);
-  const [runs, setRuns] = React.useState(() => [...source]);
-  const [stateId, setStateId] = React.useState(props.content.initialStateId);
+  const runs = source;
+  const [localStateId, setStateId] = React.useState(props.content.initialStateId);
+  const stateId = props.content.selection ? props.content.selection.id : localStateId;
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const menuTrigger = React.useRef<HTMLButtonElement>(null);
+  const navigation = props.content.navigation;
+  const closeMenu = () => {
+    setMenuOpen(false);
+    menuTrigger.current?.focus();
+  };
+  const navigate = (id: string) => {
+    closeMenu();
+    report(props.onAction, 'navigate', id);
+  };
   const state = selectLumenMobileItem(states, stateId);
   const visible = runs.filter((run) => run.stateId === state?.id);
+  const changeState = (id: string) => {
+    if (props.content.selection) props.content.selection.onChange(id);
+    else {
+      setStateId(id);
+      report(props.onAction, 'tabs', id);
+    }
+  };
   return (
     <Root {...props}>
       <Phone>
-        <Header
-          title={props.content.labels.title}
-          actions={
-            <>
-              <LumenIconButton
-                label={props.content.labels.openMenu}
-                onClick={() => setMenuOpen(true)}
-              >
-                <Glyph name="menu" />
-              </LumenIconButton>
-              <LumenIconButton
-                label={props.content.labels.newRun}
-                onClick={() => {
-                  const id = `new-${runs.length + 1}`;
-                  setRuns((current) => [
-                    ...current,
-                    {
-                      id,
-                      title: props.content.labels.queuedTitle,
-                      detail: props.content.labels.queuedDetail,
-                      stateId: states[0]?.id ?? '',
-                    },
-                  ]);
-                  setStateId(states[0]?.id ?? '');
-                  report(props.onAction, 'open', id);
-                }}
-              >
-                <Glyph name="plus" />
-              </LumenIconButton>
-            </>
-          }
-        />
+        <header className="lumen-mobile-header lumen-mobile-run-header">
+          <LumenIconButton
+            ref={menuTrigger}
+            label={props.content.labels.openMenu}
+            aria-haspopup="dialog"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen(true)}
+          >
+            <Glyph name="menu" />
+          </LumenIconButton>
+          <strong>{props.content.labels.title}</strong>
+          <LumenIconButton
+            label={props.content.labels.newRun}
+            onClick={() => report(props.onAction, 'new-run')}
+          >
+            <Glyph name="plus" />
+          </LumenIconButton>
+        </header>
         <div
           className="lumen-mobile-run-tabs"
           role="tablist"
           aria-label={props.content.labels.statuses}
+          onKeyDown={(event) => moveTab(event, states, state?.id, changeState)}
         >
           {states.map((item) => (
             <LumenButton
@@ -633,10 +1047,8 @@ function Runs(props: Omit<LumenMobileProps, 'content'> & { content: LumenMobileR
               role="tab"
               variant="text"
               aria-selected={state?.id === item.id}
-              onClick={() => {
-                setStateId(item.id);
-                report(props.onAction, 'tabs', item.id);
-              }}
+              tabIndex={state?.id === item.id ? 0 : -1}
+              onClick={() => changeState(item.id)}
             >
               {item.label}
             </LumenButton>
@@ -646,6 +1058,7 @@ function Runs(props: Omit<LumenMobileProps, 'content'> & { content: LumenMobileR
           <div
             className="lumen-mobile-runs"
             data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
+            data-hbar-app-ui-expected-maximum={props.content.listStrategy.expectedMaximum}
           >
             {visible.length ? (
               visible.map((run) => (
@@ -681,29 +1094,85 @@ function Runs(props: Omit<LumenMobileProps, 'content'> & { content: LumenMobileR
             className="lumen-mobile-menu"
             role="dialog"
             aria-modal="true"
-            aria-label={props.content.labels.menu}
+            aria-label={navigation?.label ?? props.content.labels.menu}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') {
+                event.preventDefault();
+                closeMenu();
+              }
+            }}
           >
             <header>
-              <strong>{props.content.labels.menu}</strong>
-              <LumenIconButton
-                label={props.content.labels.closeMenu}
-                onClick={() => setMenuOpen(false)}
-              >
+              <strong>{navigation?.title ?? props.content.labels.menu}</strong>
+              <LumenIconButton label={props.content.labels.closeMenu} autoFocus onClick={closeMenu}>
                 <Glyph name="close" />
               </LumenIconButton>
             </header>
-            {states.map((item) => (
-              <LumenButton
-                key={item.id}
-                variant="text"
-                onClick={() => {
-                  setStateId(item.id);
-                  setMenuOpen(false);
-                }}
-              >
-                {item.label}
-              </LumenButton>
-            ))}
+            {navigation ? (
+              <>
+                <nav className="lumen-mobile-section-list" aria-label={navigation.sectionsLabel}>
+                  {uniqueLumenMobileItems(navigation.groups).map((group) =>
+                    group.items?.length ? (
+                      <details key={group.id} open={group.expanded}>
+                        <summary>
+                          {group.label}
+                          <Glyph name="chevron" tier="sm" />
+                        </summary>
+                        {uniqueLumenMobileItems(group.items).map((item) => (
+                          <LumenButton
+                            key={item.id}
+                            variant="text"
+                            onClick={() => navigate(item.id)}
+                          >
+                            {item.label}
+                          </LumenButton>
+                        ))}
+                      </details>
+                    ) : (
+                      <LumenButton
+                        key={group.id}
+                        variant="text"
+                        aria-expanded={group.items ? false : undefined}
+                        onClick={() => navigate(group.id)}
+                      >
+                        {group.label}
+                        {group.items && <Glyph name="chevron" tier="sm" />}
+                      </LumenButton>
+                    ),
+                  )}
+                </nav>
+                <LumenButton
+                  className="lumen-mobile-menu-profile"
+                  variant="text"
+                  onClick={() => navigate(navigation.profile.id)}
+                >
+                  <span className="lumen-mobile-avatar">
+                    {navigation.profile.avatar ?? (
+                      <Glyph name={navigation.profile.icon ?? 'user'} />
+                    )}
+                  </span>
+                  <span>
+                    <strong>{navigation.profile.label}</strong>
+                    <small>{navigation.profile.detail}</small>
+                  </span>
+                  <Glyph name="chevron" tier="sm" />
+                </LumenButton>
+              </>
+            ) : (
+              states.map((item) => (
+                <LumenButton
+                  key={item.id}
+                  variant="text"
+                  onClick={() => {
+                    if (props.content.selection) props.content.selection.onChange(item.id);
+                    else setStateId(item.id);
+                    setMenuOpen(false);
+                  }}
+                >
+                  {item.label}
+                </LumenButton>
+              ))
+            )}
           </section>
         ) : null}
       </Phone>
@@ -716,6 +1185,23 @@ function empty(props: LumenMobileProps) {
 export function LumenMobile(props: LumenMobileProps) {
   const inheritedContent = useLumenMobileContent();
   const content = props.content ?? inheritedContent;
+  const controlled = content?.onAction ? { ...props, onAction: content.onAction } : props;
+  const result = renderMobile(controlled, content);
+  const presentation = content?.presentation;
+  return presentation ? (
+    <div className="lumen-mobile-preview-owner" data-hbar-preview-owner={presentation.ownerId}>
+      {presentation.notice && (
+        <p className="lumen-mobile-preview-notice" role="status">
+          {presentation.notice}
+        </p>
+      )}
+      {result}
+    </div>
+  ) : (
+    result
+  );
+}
+function renderMobile(props: LumenMobileProps, content: LumenMobileContent | undefined) {
   if (props.variant === 1)
     return content?.activity ? <Activity {...props} content={content.activity} /> : empty(props);
   if (props.variant === 2)

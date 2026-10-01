@@ -1377,10 +1377,15 @@ export {
 } from './mobile';
 export type {
   LumenMobileAction,
+  LumenMobileActionItem,
+  LumenMobileActionMenu,
   LumenMobileActivityContent,
   LumenMobileContent,
   LumenMobileFeedItem,
   LumenMobileHomeContent,
+  LumenMobileIcon,
+  LumenMobileNavigationGroup,
+  LumenMobileSelection,
   LumenMobileListStrategy,
   LumenMobileOrder,
   LumenMobileOrdersContent,
