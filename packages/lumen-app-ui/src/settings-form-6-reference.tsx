@@ -1,9 +1,10 @@
 'use client';
 
 import './settings-form-6-reference.css';
+import * as React from 'react';
 
 export type LumenSettingsForm6ActionIntent =
-  | { readonly type: 'transfer' | 'archive' | 'cancel'; readonly workspaceId: string }
+  | { readonly type: 'transfer' | 'archive' | 'cancel' | 'review'; readonly workspaceId: string }
   | { readonly type: 'delete'; readonly workspaceId: string; readonly confirmation: string };
 
 export interface LumenSettingsForm6Workspace {
@@ -29,6 +30,7 @@ export interface LumenSettingsForm6Labels {
   readonly confirmationPrompt: string;
   readonly cancelAction: string;
   readonly deleteAction: string;
+  readonly reviewAction?: string | undefined;
   readonly footerNote: string;
 }
 
@@ -36,6 +38,7 @@ export interface LumenSettingsForm6ReferenceProps {
   readonly labels: LumenSettingsForm6Labels;
   readonly workspace: LumenSettingsForm6Workspace;
   readonly confirmationValue: string;
+  readonly confirmationVisible?: boolean | undefined;
   readonly onConfirmationValueChange: (value: string) => void;
   readonly onAction?: ((action: LumenSettingsForm6ActionIntent) => void) | undefined;
   readonly instanceId?: string | undefined;
@@ -47,6 +50,7 @@ export function LumenSettingsForm6Reference({
   labels,
   workspace,
   confirmationValue,
+  confirmationVisible = true,
   onConfirmationValueChange,
   onAction,
   instanceId = 'settings-form-6',
@@ -113,37 +117,52 @@ export function LumenSettingsForm6Reference({
                 </ul>
               </div>
 
-              <div className="lumen-settings-form-6-confirmation-field">
-                <label htmlFor={confirmationId}>{labels.confirmationPrompt}</label>
-                <input
-                  id={confirmationId}
-                  value={confirmationValue}
-                  onChange={(event) => onConfirmationValueChange(event.currentTarget.value)}
-                />
-              </div>
+              {confirmationVisible && (
+                <React.Fragment>
+                  <div className="lumen-settings-form-6-confirmation-field">
+                    <label htmlFor={confirmationId}>{labels.confirmationPrompt}</label>
+                    <input
+                      id={confirmationId}
+                      value={confirmationValue}
+                      onChange={(event) => onConfirmationValueChange(event.currentTarget.value)}
+                    />
+                  </div>
 
-              <div className="lumen-settings-form-6-delete-actions">
-                <button
-                  className="lumen-settings-form-6-secondary-action"
-                  type="button"
-                  onClick={() => onAction?.({ type: 'cancel', workspaceId: workspace.id })}
-                >
-                  {labels.cancelAction}
-                </button>
-                <button
-                  className="lumen-settings-form-6-destructive-action"
-                  type="button"
-                  onClick={() =>
-                    onAction?.({
-                      type: 'delete',
-                      workspaceId: workspace.id,
-                      confirmation: confirmationValue,
-                    })
-                  }
-                >
-                  {labels.deleteAction}
-                </button>
-              </div>
+                  <div className="lumen-settings-form-6-delete-actions">
+                    <button
+                      className="lumen-settings-form-6-secondary-action"
+                      type="button"
+                      onClick={() => onAction?.({ type: 'cancel', workspaceId: workspace.id })}
+                    >
+                      {labels.cancelAction}
+                    </button>
+                    <button
+                      className="lumen-settings-form-6-destructive-action"
+                      type="button"
+                      onClick={() =>
+                        onAction?.({
+                          type: 'delete',
+                          workspaceId: workspace.id,
+                          confirmation: confirmationValue,
+                        })
+                      }
+                    >
+                      {labels.deleteAction}
+                    </button>
+                  </div>
+                </React.Fragment>
+              )}
+              {!confirmationVisible && labels.reviewAction && (
+                <div className="lumen-settings-form-6-delete-actions">
+                  <button
+                    className="lumen-settings-form-6-destructive-action"
+                    type="button"
+                    onClick={() => onAction?.({ type: 'review', workspaceId: workspace.id })}
+                  >
+                    {labels.reviewAction}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
