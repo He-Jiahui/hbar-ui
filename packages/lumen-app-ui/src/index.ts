@@ -924,6 +924,7 @@ export type {
   LumenCardProviderProps,
   LumenCardVariantProps,
 } from './card';
+export type { LumenCardReferenceContent } from './card-reference-contracts';
 export {
   LumenDataTable,
   LumenDataTable01,

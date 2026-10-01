@@ -5,6 +5,8 @@ import { LumenToggleControl } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './card.css';
+import LumenCardReference from './card-reference';
+import type { LumenCardReferenceContent } from './card-reference-contracts';
 
 export interface LumenCardListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -213,6 +215,10 @@ export interface LumenCardInvoiceContent {
 }
 
 export interface LumenCardContent {
+  readonly reference?: LumenCardReferenceContent | undefined;
+  readonly onAction?: ((event: LumenCardAction) => void) | undefined;
+  readonly presentation?:
+    { readonly ownerId: string; readonly notice?: string | undefined } | undefined;
   readonly member?: LumenCardMemberContent | undefined;
   readonly integrations?: LumenCardIntegrationsContent | undefined;
   readonly onboarding?: LumenCardOnboardingContent | undefined;
@@ -265,7 +271,9 @@ export function uniqueLumenCardItems<T extends { readonly id: string }>(
 ): readonly T[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -282,19 +290,17 @@ const report = (fn: LumenCardProps['onAction'], actionId: string, value?: string
   fn?.(value === undefined ? { actionId } : { actionId, value });
 
 function Glyph({ name }: { name: 'branch' | 'check' | 'bookmark' | 'file' | 'download' }) {
-  const path =
-    name === 'branch'
-      ? 'M5 3a2 2 0 1 1-2-2 2 2 0 0 1 2 2Zm8 0a2 2 0 1 1-2-2 2 2 0 0 1 2 2ZM5 13a2 2 0 1 1-2-2 2 2 0 0 1 2 2ZM3 5v6m2-3h3a4 4 0 0 0 4-4'
-      : name === 'check'
-        ? 'm3 8 3 3 7-7'
-        : name === 'bookmark'
-          ? 'M4 2h8v12L8 11l-4 3Z'
-          : name === 'file'
-            ? 'M4 2h5l3 3v9H4Zm5 0v3h3'
-            : 'M8 2v8m-3-3 3 3 3-3M3 12v2h10v-2';
+  const paths = {
+    branch:
+      'M5 3a2 2 0 1 1-2-2 2 2 0 0 1 2 2Zm8 0a2 2 0 1 1-2-2 2 2 0 0 1 2 2ZM5 13a2 2 0 1 1-2-2 2 2 0 0 1 2 2ZM3 5v6m2-3h3a4 4 0 0 0 4-4',
+    check: 'm3 8 3 3 7-7',
+    bookmark: 'M4 2h8v12L8 11l-4 3Z',
+    file: 'M4 2h5l3 3v9H4Zm5 0v3h3',
+    download: 'M8 2v8m-3-3 3 3 3-3M3 12v2h10v-2',
+  };
   return (
     <svg className="lumen-card-glyph" viewBox="0 0 16 16" aria-hidden="true">
-      <path d={path} />
+      <path d={paths[name]} />
     </svg>
   );
 }
@@ -360,7 +366,7 @@ function Header({
   );
 }
 
-function Avatar({ initials, large = false }: { initials: string; large?: boolean }) {
+function Avatar({ initials, large = false }: { initials: string; large?: boolean | undefined }) {
   return (
     <span className={large ? 'lumen-card-avatar is-large' : 'lumen-card-avatar'} aria-hidden="true">
       {initials}
@@ -910,40 +916,79 @@ function empty(props: LumenCardProps) {
 export function LumenCard(props: LumenCardProps) {
   const inheritedContent = useLumenCardContent();
   const content = props.content ?? inheritedContent;
-  if (props.variant === 1)
+  const controlled = content?.onAction ? { ...props, onAction: content.onAction } : props;
+  const result = content?.reference ? (
+    <Root
+      {...controlled}
+      className={[props.className, 'lumen-card-reference'].filter(Boolean).join(' ')}
+    >
+      <LumenCardReference content={content.reference} onAction={controlled.onAction} />
+    </Root>
+  ) : (
+    renderCard(controlled, content)
+  );
+  return content?.presentation ? (
+    <div
+      className="lumen-card-preview-owner"
+      data-hbar-preview-owner={content.presentation.ownerId}
+    >
+      {content.presentation.notice && (
+        <p className="lumen-card-preview-notice" role="status">
+          {content.presentation.notice}
+        </p>
+      )}
+      {result}
+    </div>
+  ) : (
+    result
+  );
+}
+function renderCard(props: LumenCardProps, content: LumenCardContent | undefined) {
+  if (props.variant === 1) {
     return content?.member ? <Member {...props} content={content.member} /> : empty(props);
-  if (props.variant === 2)
+  }
+  if (props.variant === 2) {
     return content?.integrations ? (
       <Integrations {...props} content={content.integrations} />
     ) : (
       empty(props)
     );
-  if (props.variant === 3)
+  }
+  if (props.variant === 3) {
     return content?.onboarding ? (
       <Onboarding {...props} content={content.onboarding} />
     ) : (
       empty(props)
     );
-  if (props.variant === 4)
+  }
+  if (props.variant === 4) {
     return content?.agenda ? <Agenda {...props} content={content.agenda} /> : empty(props);
-  if (props.variant === 5)
+  }
+  if (props.variant === 5) {
     return content?.plans ? <Plans {...props} content={content.plans} /> : empty(props);
-  if (props.variant === 6)
+  }
+  if (props.variant === 6) {
     return content?.metrics ? (
       <AccountMetrics {...props} content={content.metrics} />
     ) : (
       empty(props)
     );
-  if (props.variant === 7)
+  }
+  if (props.variant === 7) {
     return content?.changelog ? <Changelog {...props} content={content.changelog} /> : empty(props);
-  if (props.variant === 8)
+  }
+  if (props.variant === 8) {
     return content?.files ? <Files {...props} content={content.files} /> : empty(props);
-  if (props.variant === 9)
+  }
+  if (props.variant === 9) {
     return content?.profile ? <Profile {...props} content={content.profile} /> : empty(props);
-  if (props.variant === 10)
+  }
+  if (props.variant === 10) {
     return content?.balance ? <Balance {...props} content={content.balance} /> : empty(props);
-  if (props.variant === 11)
+  }
+  if (props.variant === 11) {
     return content?.invoice ? <Invoice {...props} content={content.invoice} /> : empty(props);
+  }
   return empty(props);
 }
 
