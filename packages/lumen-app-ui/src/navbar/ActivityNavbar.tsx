@@ -1,5 +1,6 @@
 import { LumenInput } from '../forms';
 import { LumenButton } from '../primitives';
+import { useState } from 'react';
 import { Bell, CircleHelp, Plus, Search } from './glyphs';
 import type { LumenNavbarActivityContent } from './content';
 import { uniqueLumenNavbarItems } from './content';
@@ -20,6 +21,7 @@ export function ActivityNavbar({
   readonly content: LumenNavbarActivityContent;
 }) {
   const items = uniqueLumenNavbarItems(content.items);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   return (
     <NavbarFrame spec={spec} onAction={onAction} className="hbar-app-ui-navbar-activity">
       <header>
@@ -27,14 +29,43 @@ export function ActivityNavbar({
           <span>{content.brandInitial}</span>
           <strong>{content.brand}</strong>
         </div>
-        <label className="hbar-app-ui-navbar-activity-search">
-          <NavbarGlyph icon={Search} tier="sm" />
-          <LumenInput
-            aria-label={content.labels.searchLabel}
-            placeholder={content.labels.searchPlaceholder}
-          />
-          <kbd>{content.labels.shortcut}</kbd>
-        </label>
+        <div className={`lumen-navbar-search-anchor${mobileSearchOpen ? ' is-open' : ''}`}>
+          <label className="hbar-app-ui-navbar-activity-search">
+            <NavbarGlyph icon={Search} tier="sm" />
+            <LumenInput
+              variant="plain"
+              aria-label={content.labels.searchLabel}
+              placeholder={content.labels.searchPlaceholder}
+              value={content.search?.query}
+              onChange={
+                content.search
+                  ? (event) => content.search?.onQueryChange(event.currentTarget.value)
+                  : undefined
+              }
+            />
+            <kbd>{content.labels.shortcut}</kbd>
+          </label>
+          {content.search?.query.trim() && (
+            <div className="lumen-navbar-search-results">
+              <p>{content.search.resultsLabel}</p>
+              {content.search.results.length ? (
+                <>
+                  {content.search.results.map((item) => (
+                    <LumenButton
+                      className="hbar-app-ui-button"
+                      key={item.id}
+                      onClick={() => content.search?.onResult(item.id)}
+                    >
+                      {item.label}
+                    </LumenButton>
+                  ))}
+                </>
+              ) : (
+                <p>{content.search.empty(content.search.query)}</p>
+              )}
+            </div>
+          )}
+        </div>
         <div className="hbar-app-ui-navbar-activity-actions">
           <NavbarButton
             className="hbar-app-ui-navbar-activity-new"
@@ -45,10 +76,18 @@ export function ActivityNavbar({
           </NavbarButton>
           <NavbarIconOnly
             className="hbar-app-ui-navbar-activity-mobile-search"
-            label={content.labels.openSearch}
+            label={
+              mobileSearchOpen && content.search
+                ? content.search.closeLabel
+                : content.labels.openSearch
+            }
+            aria-expanded={content.search ? mobileSearchOpen : undefined}
             icon={Search}
             tier="sm"
-            onClick={() => reportNavbarAction(onAction, spec, 'search')}
+            onClick={() => {
+              if (content.search) setMobileSearchOpen(!mobileSearchOpen);
+              else reportNavbarAction(onAction, spec, 'search');
+            }}
           />
           <NavbarIconOnly
             label={content.labels.helpLabel}

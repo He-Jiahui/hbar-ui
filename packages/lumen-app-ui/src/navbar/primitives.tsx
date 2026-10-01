@@ -80,12 +80,17 @@ export function NavbarFrame({
 export function NavbarButton({
   children,
   type = 'button',
+  className,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
   readonly children: ReactNode;
 }) {
   return (
-    <LumenButton {...props} type={type}>
+    <LumenButton
+      {...props}
+      type={type}
+      className={['hbar-app-ui-button', className].filter(Boolean).join(' ')}
+    >
       {children}
     </LumenButton>
   );
@@ -111,6 +116,7 @@ export function NavbarIconOnly({
   children,
   label,
   type = 'button',
+  className,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
   readonly icon: NavbarIcon;
@@ -119,7 +125,12 @@ export function NavbarIconOnly({
   readonly children?: ReactNode;
 }) {
   return (
-    <LumenIconButton {...props} type={type} label={label}>
+    <LumenIconButton
+      {...props}
+      type={type}
+      label={label}
+      className={['hbar-app-ui-icon-button', className].filter(Boolean).join(' ')}
+    >
       {children ?? <NavbarGlyph icon={icon} tier={tier} />}
     </LumenIconButton>
   );

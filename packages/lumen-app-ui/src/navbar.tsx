@@ -69,8 +69,27 @@ function empty(props: LumenNavbarProps) {
 }
 export function LumenNavbar(props: LumenNavbarProps) {
   const inheritedContent = useLumenNavbarContent();
-  const c = props.content ?? inheritedContent,
-    p = composition(props);
+  const content = props.content ?? inheritedContent;
+  const result = renderNavbarContent(
+    content?.onAction ? { ...props, onAction: content.onAction } : props,
+    content,
+  );
+  const presentation = content?.presentation;
+  return presentation ? (
+    <div className="lumen-navbar-preview-owner" data-hbar-preview-owner={presentation.ownerId}>
+      {presentation.notice && (
+        <p className="lumen-navbar-preview-notice" role="status">
+          {presentation.notice}
+        </p>
+      )}
+      {result}
+    </div>
+  ) : (
+    result
+  );
+}
+function renderNavbarContent(props: LumenNavbarProps, c: LumenNavbarContent | undefined) {
+  const p = composition(props);
   if (props.variant === 1)
     return c?.projectBoard ? <ProjectBoardNavbar {...p} content={c.projectBoard} /> : empty(props);
   if (props.variant === 2)

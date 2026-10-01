@@ -1,6 +1,7 @@
 import { ChevronDown, CircleHelp, MessageSquare, Search, Settings } from './glyphs';
 import { useState } from 'react';
 import type { LumenNavbarAnalyticsContent } from './content';
+import { selectLumenNavbarItem, uniqueLumenNavbarItems } from './content';
 import {
   NavbarButton,
   NavbarFrame,
@@ -21,11 +22,28 @@ export function AnalyticsNavbar({
 }: NavbarSurfaceProps & {
   readonly content: LumenNavbarAnalyticsContent;
 }) {
-  const [primary, setPrimary] = useState(() =>
+  const [localPrimary, setPrimary] = useState(() =>
     resolveTab(content.primaryTabs, content.activePrimaryTab),
   );
-  const [secondary, setSecondary] = useState(() =>
+  const [localSecondary, setSecondary] = useState(() =>
     resolveTab(content.secondaryTabs, content.activeSecondaryTab),
+  );
+  const primaryOptions = uniqueLumenNavbarItems(
+    content.primaryOptions ?? content.primaryTabs.map((label) => ({ id: label, label })),
+  );
+  const primary = selectLumenNavbarItem(
+    primaryOptions,
+    content.selection ? (content.selection.primaryId ?? '') : localPrimary,
+  );
+  const section = content.sections?.find((item) => item.primaryId === primary?.id);
+  const secondaryOptions = uniqueLumenNavbarItems(
+    section?.secondaryOptions ??
+      content.secondaryOptions ??
+      content.secondaryTabs.map((label) => ({ id: label, label })),
+  );
+  const secondary = selectLumenNavbarItem(
+    secondaryOptions,
+    content.selection ? (content.selection.secondaryId ?? '') : localSecondary,
   );
   return (
     <NavbarFrame spec={spec} onAction={onAction} className="hbar-app-ui-navbar-analytics">
@@ -66,17 +84,31 @@ export function AnalyticsNavbar({
           </NavbarButton>
         </div>
       </header>
-      <nav className="hbar-app-ui-navbar-analytics-primary" aria-label={content.workspace}>
-        {content.primaryTabs.map((tab) => (
+      <nav
+        className="hbar-app-ui-navbar-analytics-primary"
+        aria-label={content.workspace}
+        role="tablist"
+      >
+        {primaryOptions.map((tab) => (
           <NavbarButton
-            key={tab}
-            className={primary === tab ? 'is-selected' : ''}
+            key={tab.id}
+            role="tab"
+            aria-selected={primary?.id === tab.id}
+            className={primary?.id === tab.id ? 'is-selected' : ''}
             onClick={() => {
-              setPrimary(tab);
-              reportNavbarAction(onAction, spec, 'primary-tab', tab);
+              if (content.selection) {
+                content.selection.onPrimaryChange(tab.id);
+                return;
+              }
+              setPrimary(tab.id);
+              setSecondary(
+                content.sections?.find((item) => item.primaryId === tab.id)?.initialSecondaryId ??
+                  content.activeSecondaryTab,
+              );
+              reportNavbarAction(onAction, spec, 'primary-tab', tab.id);
             }}
           >
-            {tab}
+            {tab.label}
           </NavbarButton>
         ))}
         <NavbarButton
@@ -87,27 +119,32 @@ export function AnalyticsNavbar({
           <span>{content.feedbackLabel}</span>
         </NavbarButton>
       </nav>
-      <nav className="hbar-app-ui-navbar-analytics-secondary" aria-label={primary}>
-        {content.secondaryTabs.map((tab) => (
+      <nav className="hbar-app-ui-navbar-analytics-secondary" aria-label={primary?.label}>
+        {secondaryOptions.map((tab) => (
           <NavbarButton
-            key={tab}
-            className={secondary === tab ? 'is-selected' : ''}
+            key={tab.id}
+            aria-pressed={secondary?.id === tab.id}
+            className={secondary?.id === tab.id ? 'is-selected' : ''}
             onClick={() => {
-              setSecondary(tab);
-              reportNavbarAction(onAction, spec, 'secondary-tab', tab);
+              if (content.selection) {
+                content.selection.onSecondaryChange(tab.id);
+                return;
+              }
+              setSecondary(tab.id);
+              reportNavbarAction(onAction, spec, 'secondary-tab', tab.id);
             }}
           >
-            {tab}
+            {tab.label}
           </NavbarButton>
         ))}
       </nav>
       <main>
-        <h1>{content.titleLabel(primary, secondary)}</h1>
+        <h1>{content.titleLabel(primary?.label ?? '', secondary?.label ?? '')}</h1>
         <dl
           data-hbar-app-ui-list-strategy={content.metricsStrategy.kind}
           data-hbar-app-ui-expected-maximum={content.metricsStrategy.expectedMaximum}
         >
-          {content.metrics.map((metric) => (
+          {(section?.metrics ?? content.metrics).map((metric) => (
             <div key={metric.label}>
               <dt>{metric.label}</dt>
               <dd>{metric.value}</dd>

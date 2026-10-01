@@ -17,7 +17,7 @@ export function uniqueLumenNavbarItems<T extends { readonly id: string }>(
 ): readonly T[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (!item.id.trim() || seen.has(item.id)) return false;
     seen.add(item.id);
     return true;
   });
@@ -28,7 +28,45 @@ export function selectLumenNavbarItem<
     readonly id: string;
   },
 >(items: readonly T[], selectedId: string): T | undefined {
-  return items.find((item) => item.id === selectedId) ?? items[0];
+  const validItems = uniqueLumenNavbarItems(items);
+  return validItems.find((item) => item.id === selectedId) ?? validItems[0];
+}
+
+export interface LumenNavbarChoice {
+  readonly id: string;
+  readonly label: string;
+}
+
+export interface LumenNavbarNavigation {
+  readonly label: string;
+  readonly close: string;
+  readonly title: string;
+}
+
+export interface LumenNavbarPopup {
+  readonly label: string;
+  readonly selectionId?: string | undefined;
+  readonly search?:
+    | {
+        readonly label: string;
+        readonly query: string;
+        readonly empty: string;
+        readonly onChange: (value: string) => void;
+      }
+    | undefined;
+  readonly groups?:
+    | readonly {
+        readonly id: string;
+        readonly label: string;
+        readonly itemIds: readonly string[];
+      }[]
+    | undefined;
+  readonly footer?: { readonly text: string; readonly action: LumenNavbarChoice } | undefined;
+  readonly items: readonly {
+    readonly id: string;
+    readonly label: string;
+    readonly description?: string | undefined;
+  }[];
 }
 
 export interface LumenNavbarActionLabelSet {
@@ -45,6 +83,25 @@ export interface LumenNavbarProjectColumn {
 }
 
 export interface LumenNavbarProjectBoardContent {
+  readonly starred?:
+    | {
+        readonly value: boolean;
+        readonly label: string;
+        readonly onChange: (value: boolean) => void;
+      }
+    | undefined;
+  readonly tabColumns?:
+    | readonly {
+        readonly tabId: LumenNavbarProjectBoardContent['initialTab'];
+        readonly columns: readonly LumenNavbarProjectColumn[];
+      }[]
+    | undefined;
+  readonly selection?:
+    | {
+        readonly tabId: LumenNavbarProjectBoardContent['initialTab'];
+        readonly onTabChange: (id: LumenNavbarProjectBoardContent['initialTab']) => void;
+      }
+    | undefined;
   readonly title: string;
   readonly breadcrumbs: readonly string[];
   readonly labels: {
@@ -96,6 +153,10 @@ export interface LumenNavbarDeploymentStat {
 }
 
 export interface LumenNavbarDeploymentContent {
+  readonly summaryLabel?: ((workspace: string, environment: string) => string) | undefined;
+  readonly workspaceMenu?: LumenNavbarPopup | undefined;
+  readonly projectMenu?: LumenNavbarPopup | undefined;
+  readonly environmentMenu?: LumenNavbarPopup | undefined;
   readonly workspace: string;
   readonly workspaceInitial: string;
   readonly accountInitial: string;
@@ -112,6 +173,8 @@ export interface LumenNavbarDeploymentContent {
 }
 
 export interface LumenNavbarLandingContent {
+  readonly navigation?: LumenNavbarNavigation | undefined;
+  readonly dropdowns?: readonly (LumenNavbarPopup & { readonly id: string })[] | undefined;
   readonly brand: string;
   readonly brandMark: string;
   readonly navItems: readonly string[];
@@ -136,6 +199,17 @@ export interface LumenNavbarActivityItem {
 }
 
 export interface LumenNavbarActivityContent {
+  readonly search?:
+    | {
+        readonly query: string;
+        readonly onQueryChange: (query: string) => void;
+        readonly resultsLabel: string;
+        readonly empty: (query: string) => string;
+        readonly results: readonly LumenNavbarChoice[];
+        readonly onResult: (id: string) => void;
+        readonly closeLabel: string;
+      }
+    | undefined;
   readonly brand: string;
   readonly brandInitial: string;
   readonly labels: LumenNavbarActionLabelSet & {
@@ -158,6 +232,24 @@ export interface LumenNavbarMetric {
 }
 
 export interface LumenNavbarAnalyticsContent {
+  readonly sections?:
+    | readonly {
+        readonly primaryId: string;
+        readonly secondaryOptions: readonly LumenNavbarChoice[];
+        readonly initialSecondaryId: string;
+        readonly metrics: readonly LumenNavbarMetric[];
+      }[]
+    | undefined;
+  readonly primaryOptions?: readonly LumenNavbarChoice[] | undefined;
+  readonly secondaryOptions?: readonly LumenNavbarChoice[] | undefined;
+  readonly selection?:
+    | {
+        readonly primaryId?: string | undefined;
+        readonly secondaryId?: string | undefined;
+        readonly onPrimaryChange: (id: string) => void;
+        readonly onSecondaryChange: (id: string) => void;
+      }
+    | undefined;
   readonly workspace: string;
   readonly workspaceInitial: string;
   readonly workspaceLabel: string;
@@ -181,6 +273,12 @@ export interface LumenNavbarFilterItem {
 }
 
 export interface LumenNavbarFilterContent {
+  readonly selection?:
+    | {
+        readonly filterId?: string | undefined;
+        readonly onFilterChange: (id: string) => void;
+      }
+    | undefined;
   readonly filters: readonly {
     readonly id: string;
     readonly label: string;
@@ -206,6 +304,8 @@ export interface LumenNavbarProduct {
 }
 
 export interface LumenNavbarCommerceContent {
+  readonly navigation?: LumenNavbarNavigation | undefined;
+  readonly dropdowns?: readonly (LumenNavbarPopup & { readonly id: string })[] | undefined;
   readonly announcement: string;
   readonly brand: string;
   readonly navItems: readonly string[];
@@ -222,6 +322,8 @@ export interface LumenNavbarCommerceContent {
 }
 
 export interface LumenNavbarDocsContent {
+  readonly navigation?:
+    { readonly label: string; readonly close: string; readonly title: string } | undefined;
   readonly brand: string;
   readonly version: string;
   readonly navItems: readonly string[];
@@ -259,6 +361,7 @@ export interface LumenNavbarDocumentContent {
 }
 
 export interface LumenNavbarPortfolioContent {
+  readonly navigation?: LumenNavbarNavigation | undefined;
   readonly brand: string;
   readonly leftNav: readonly string[];
   readonly rightNav: readonly string[];
@@ -274,6 +377,13 @@ export interface LumenNavbarPortfolioContent {
 }
 
 export interface LumenNavbarArticleContent {
+  readonly bookmarked?:
+    | {
+        readonly value: boolean;
+        readonly label: string;
+        readonly onChange: (value: boolean) => void;
+      }
+    | undefined;
   readonly title: string;
   readonly authorMeta: string;
   readonly labels: {
@@ -294,6 +404,15 @@ export interface LumenNavbarArticleContent {
 }
 
 export interface LumenNavbarContent {
+  readonly onAction?:
+    | ((event: { readonly actionId: string; readonly value?: string | undefined }) => void)
+    | undefined;
+  readonly presentation?:
+    | {
+        readonly ownerId: string;
+        readonly notice?: string | undefined;
+      }
+    | undefined;
   readonly projectBoard?: LumenNavbarProjectBoardContent | undefined;
   readonly taskList?: LumenNavbarTaskListContent | undefined;
   readonly deployment?: LumenNavbarDeploymentContent | undefined;

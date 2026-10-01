@@ -1,4 +1,5 @@
-import { ChevronDown, CircleHelp, Globe2, Settings, Zap } from './glyphs';
+import { BookOpen, ChevronDown, Globe2, Settings, Zap } from './glyphs';
+import { NavbarPopup } from './menu';
 import type { LumenNavbarDeploymentContent } from './content';
 import {
   NavbarButton,
@@ -20,32 +21,68 @@ export function DeploymentNavbar({
     <NavbarFrame spec={spec} onAction={onAction} className="hbar-app-ui-navbar-deployment">
       <header>
         <div className="hbar-app-ui-navbar-deployment-path">
-          <NavbarButton onClick={() => reportNavbarAction(onAction, spec, 'workspace')}>
-            <span className="hbar-app-ui-navbar-brand-initial">{content.workspaceInitial}</span>
-            <span>{content.workspace}</span>
-            <NavbarGlyph icon={ChevronDown} tier="xs" />
-          </NavbarButton>
+          {content.workspaceMenu ? (
+            <NavbarPopup
+              {...content.workspaceMenu}
+              className="hbar-app-ui-navbar-deployment-selector"
+              onChoose={(id) => reportNavbarAction(onAction, spec, 'workspace', id)}
+            >
+              <span className="hbar-app-ui-navbar-brand-initial">{content.workspaceInitial}</span>
+              <span>{content.workspace}</span>
+              <NavbarGlyph icon={ChevronDown} tier="xs" />
+            </NavbarPopup>
+          ) : (
+            <NavbarButton onClick={() => reportNavbarAction(onAction, spec, 'workspace')}>
+              <span className="hbar-app-ui-navbar-brand-initial">{content.workspaceInitial}</span>
+              <span>{content.workspace}</span>
+              <NavbarGlyph icon={ChevronDown} tier="xs" />
+            </NavbarButton>
+          )}
           <span className="hbar-app-ui-navbar-separator">
             {content.actions.breadcrumbSeparator}
           </span>
-          <NavbarButton onClick={() => reportNavbarAction(onAction, spec, 'project')}>
-            <NavbarGlyph icon={Globe2} tier="sm" />
-            <span>{content.project}</span>
-            <NavbarGlyph icon={ChevronDown} tier="xs" />
-          </NavbarButton>
+          {content.projectMenu ? (
+            <NavbarPopup
+              {...content.projectMenu}
+              className="hbar-app-ui-navbar-deployment-selector"
+              onChoose={(id) => reportNavbarAction(onAction, spec, 'project', id)}
+            >
+              <NavbarGlyph icon={Globe2} tier="sm" />
+              <span>{content.project}</span>
+              <NavbarGlyph icon={ChevronDown} tier="xs" />
+            </NavbarPopup>
+          ) : (
+            <NavbarButton onClick={() => reportNavbarAction(onAction, spec, 'project')}>
+              <NavbarGlyph icon={Globe2} tier="sm" />
+              <span>{content.project}</span>
+              <NavbarGlyph icon={ChevronDown} tier="xs" />
+            </NavbarButton>
+          )}
           <span className="hbar-app-ui-navbar-separator">
             {content.actions.breadcrumbSeparator}
           </span>
-          <NavbarButton onClick={() => reportNavbarAction(onAction, spec, 'environment')}>
-            <span className="hbar-app-ui-navbar-environment-dot" />
-            <span>{content.environment}</span>
-            <NavbarGlyph icon={ChevronDown} tier="xs" />
-          </NavbarButton>
+          {content.environmentMenu ? (
+            <NavbarPopup
+              {...content.environmentMenu}
+              className="hbar-app-ui-navbar-deployment-selector"
+              onChoose={(id) => reportNavbarAction(onAction, spec, 'environment', id)}
+            >
+              <span className="hbar-app-ui-navbar-environment-dot" />
+              <span>{content.environment}</span>
+              <NavbarGlyph icon={ChevronDown} tier="xs" />
+            </NavbarPopup>
+          ) : (
+            <NavbarButton onClick={() => reportNavbarAction(onAction, spec, 'environment')}>
+              <span className="hbar-app-ui-navbar-environment-dot" />
+              <span>{content.environment}</span>
+              <NavbarGlyph icon={ChevronDown} tier="xs" />
+            </NavbarButton>
+          )}
         </div>
         <div className="hbar-app-ui-navbar-deployment-actions">
           <NavbarIconOnly
             label={content.actions.helpLabel}
-            icon={CircleHelp}
+            icon={BookOpen}
             tier="sm"
             onClick={() => reportNavbarAction(onAction, spec, 'help')}
           />

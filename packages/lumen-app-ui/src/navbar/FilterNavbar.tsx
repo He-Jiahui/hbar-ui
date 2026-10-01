@@ -22,16 +22,25 @@ export function FilterNavbar({
   const filters = uniqueLumenNavbarItems(content.filters);
   const items = uniqueLumenNavbarItems(content.items);
   const [active, setActive] = useState(content.activeFilter);
-  const selected = selectLumenNavbarItem(filters, active);
+  const selected = selectLumenNavbarItem(
+    filters,
+    content.selection ? (content.selection.filterId ?? '') : active,
+  );
   return (
     <NavbarFrame spec={spec} onAction={onAction} className="hbar-app-ui-navbar-filter-list">
       <header>
-        <nav aria-label={content.labels.filter}>
+        <nav aria-label={content.labels.filter} role="tablist">
           {filters.map((filter) => (
             <NavbarButton
               key={filter.id}
+              role="tab"
+              aria-selected={selected?.id === filter.id}
               className={selected?.id === filter.id ? 'is-selected' : ''}
               onClick={() => {
+                if (content.selection) {
+                  content.selection.onFilterChange(filter.id);
+                  return;
+                }
                 setActive(filter.id);
                 reportNavbarAction(onAction, spec, 'filter-tab', filter.id);
               }}

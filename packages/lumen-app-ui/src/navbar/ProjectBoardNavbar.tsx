@@ -17,7 +17,10 @@ export function ProjectBoardNavbar({
 }: NavbarSurfaceProps & {
   readonly content: LumenNavbarProjectBoardContent;
 }) {
-  const [tab, setTab] = useState(content.initialTab);
+  const [localTab, setTab] = useState(content.initialTab);
+  const tab = content.selection?.tabId ?? localTab;
+  const columns =
+    content.tabColumns?.find((group) => group.tabId === tab)?.columns ?? content.columns;
   const tabs = [
     { id: 'discussion' as const, label: content.labels.discussion, count: content.discussionCount },
     { id: 'tasks' as const, label: content.labels.tasks },
@@ -26,6 +29,10 @@ export function ProjectBoardNavbar({
     { id: 'overview' as const, label: content.labels.overview },
   ];
   const chooseTab = (next: typeof tab) => {
+    if (content.selection) {
+      content.selection.onTabChange(next);
+      return;
+    }
     setTab(next);
     reportNavbarAction(onAction, spec, 'tabs', next);
   };
@@ -42,10 +49,16 @@ export function ProjectBoardNavbar({
               onClick={() => reportNavbarAction(onAction, spec, 'search')}
             />
             <NavbarIconOnly
-              label={content.labels.starProject}
+              label={content.starred?.label ?? content.labels.starProject}
               icon={Star}
               tier="md"
-              onClick={() => reportNavbarAction(onAction, spec, 'star')}
+              className="hbar-app-ui-navbar-board-star"
+              role={content.starred ? 'checkbox' : undefined}
+              aria-checked={content.starred?.value}
+              onClick={() => {
+                if (content.starred) content.starred.onChange(!content.starred.value);
+                else reportNavbarAction(onAction, spec, 'star');
+              }}
             />
             <NavbarIconOnly
               label={content.labels.moreActions}
@@ -110,7 +123,7 @@ export function ProjectBoardNavbar({
         data-hbar-app-ui-list-strategy={content.listStrategy.kind}
         data-hbar-app-ui-expected-maximum={content.listStrategy.expectedMaximum}
       >
-        {content.columns.map((column) => (
+        {columns.map((column) => (
           <section key={column.id}>
             <h2>{column.label}</h2>
             <ul>
