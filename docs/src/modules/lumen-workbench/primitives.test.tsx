@@ -13,6 +13,30 @@ import {
 
 describe('Lumen application primitives', () => {
   const { render } = createRenderer();
+
+  it('keeps loading readable when the host also disables repeated submission', () => {
+    render(
+      <div>
+        <LumenButton loading disabled>
+          正在发送
+        </LumenButton>
+        <LumenIconButton label="正在运行" loading disabled>
+          <span aria-hidden="true">+</span>
+        </LumenIconButton>
+        <LumenButton disabled>暂不可用</LumenButton>
+      </div>,
+    );
+    for (const name of ['正在发送', '正在运行']) {
+      const button = screen.getByRole('button', { name });
+      expect(button).to.have.attribute('data-lumen-state', 'running');
+      expect(button).to.have.attribute('aria-busy', 'true');
+      expect(button).to.have.property('disabled', true);
+    }
+    expect(screen.getByRole('button', { name: '暂不可用' })).to.have.attribute(
+      'data-lumen-state',
+      'disabled',
+    );
+  });
   const appearance: LumenAppearance = {
     mode: 'dark',
     controlSize: 'm',

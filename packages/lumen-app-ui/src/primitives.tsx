@@ -49,10 +49,10 @@ export const LumenButton = React.forwardRef<HTMLButtonElement, LumenButtonProps>
     ref,
   ) {
     let state = indicatorState;
-    if (disabled) {
-      state = 'disabled';
-    } else if (loading) {
+    if (loading) {
       state = 'running';
+    } else if (disabled) {
+      state = 'disabled';
     }
     return (
       <button
@@ -117,10 +117,10 @@ export const LumenIconButton = React.forwardRef<HTMLButtonElement, LumenIconButt
     ref,
   ) {
     let state = indicatorState;
-    if (disabled) {
-      state = 'disabled';
-    } else if (loading) {
+    if (loading) {
       state = 'running';
+    } else if (disabled) {
+      state = 'disabled';
     }
     return (
       <button
