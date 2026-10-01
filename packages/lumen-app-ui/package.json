@@ -13,6 +13,12 @@
   ],
   "exports": {
     ".": "./src/index.ts",
+    "./appearance": "./src/appearance.ts",
+    "./provider": "./src/LumenProvider.tsx",
+    "./primitives": "./src/primitives.tsx",
+    "./forms": "./src/forms.tsx",
+    "./range": "./src/range.tsx",
+    "./toggle-button": "./src/toggle-button.tsx",
     "./catalog": "./src/catalog.ts",
     "./variants": "./src/variants/index.ts",
     "./styles.css": "./src/styles.css"
@@ -22,6 +28,30 @@
       ".": {
         "types": "./dist/types/index.d.ts",
         "import": "./dist/index.js"
+      },
+      "./appearance": {
+        "types": "./dist/types/appearance.d.ts",
+        "import": "./dist/appearance.js"
+      },
+      "./provider": {
+        "types": "./dist/types/LumenProvider.d.ts",
+        "import": "./dist/provider.js"
+      },
+      "./primitives": {
+        "types": "./dist/types/primitives.d.ts",
+        "import": "./dist/primitives.js"
+      },
+      "./forms": {
+        "types": "./dist/types/forms.d.ts",
+        "import": "./dist/forms.js"
+      },
+      "./range": {
+        "types": "./dist/types/range.d.ts",
+        "import": "./dist/range.js"
+      },
+      "./toggle-button": {
+        "types": "./dist/types/toggle-button.d.ts",
+        "import": "./dist/toggle-button.js"
       },
       "./catalog": {
         "types": "./dist/types/catalog.d.ts",

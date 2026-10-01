@@ -139,6 +139,7 @@ export function LumenFormField({
 }
 
 interface LumenControlProps {
+  /** @deprecated Fields use a continuous outline regardless of direction. */
   boundary?: 'horizontal' | 'vertical' | undefined;
   size?: LumenSize | undefined;
   variant?: LumenFieldVariant | undefined;
@@ -163,11 +164,11 @@ export interface LumenSelectProps
 }
 
 function controlClass(className: string | undefined): string {
-  return [className, 'lumen-control'].filter(Boolean).join(' ');
+  return [className, 'lumen-control', 'lumen-effect'].filter(Boolean).join(' ');
 }
 
-function normalizedVariant(variant: LumenFieldVariant): 'boundary' | 'plain' | 'boxed' {
-  return variant === 'outlined' ? 'boundary' : variant;
+function normalizedVariant(variant: LumenFieldVariant): 'outlined' | 'plain' | 'boxed' {
+  return variant === 'boundary' ? 'outlined' : variant;
 }
 
 function isInvalid(value: React.AriaAttributes['aria-invalid']): boolean {
@@ -185,10 +186,10 @@ function withBoundary(
     boundary: 'horizontal' | 'vertical';
     disabled: boolean;
     invalid: boolean;
-    variant: 'boundary' | 'plain' | 'boxed';
+    variant: 'outlined' | 'plain' | 'boxed';
   },
 ): React.ReactElement {
-  if (variant !== 'boundary') return control;
+  if (variant !== 'outlined') return control;
   return (
     <LumenField boundary={boundary} invalid={invalid} state={disabled ? 'disabled' : 'idle'}>
       {control}
@@ -201,7 +202,7 @@ export const LumenInput = React.forwardRef<HTMLInputElement, LumenInputProps>(fu
     className,
     boundary = 'horizontal',
     size,
-    variant = 'boundary',
+    variant = 'outlined',
     'data-size': compatibilitySize,
     'data-variant': compatibilityVariant,
     ...other
@@ -233,7 +234,7 @@ export const LumenTextarea = React.forwardRef<HTMLTextAreaElement, LumenTextarea
       className,
       boundary = 'horizontal',
       size,
-      variant = 'boundary',
+      variant = 'outlined',
       'data-size': compatibilitySize,
       'data-variant': compatibilityVariant,
       ...other
@@ -267,7 +268,7 @@ export const LumenSelect = React.forwardRef<HTMLSelectElement, LumenSelectProps>
       children,
       boundary = 'horizontal',
       size,
-      variant = 'boundary',
+      variant = 'outlined',
       'data-size': compatibilitySize,
       'data-variant': compatibilityVariant,
       ...other
@@ -321,7 +322,7 @@ export const LumenCheckBoxControl = React.forwardRef<HTMLInputElement, LumenChec
     }, [indeterminate]);
     return (
       <span
-        className={['lumen-checkbox-control', className].filter(Boolean).join(' ')}
+        className={['lumen-checkbox-control', 'lumen-effect', className].filter(Boolean).join(' ')}
         data-size={size ?? (typeof compatibilitySize === 'string' ? compatibilitySize : undefined)}
         data-disabled={disabled || undefined}
         data-indeterminate={indeterminate || undefined}
@@ -384,7 +385,7 @@ export const LumenToggleControl = React.forwardRef<HTMLInputElement, LumenToggle
     const compatibilitySize = (other as Record<string, unknown>)['data-size'];
     return (
       <span
-        className={['lumen-toggle-control', className].filter(Boolean).join(' ')}
+        className={['lumen-toggle-control', 'lumen-effect', className].filter(Boolean).join(' ')}
         data-size={size ?? (typeof compatibilitySize === 'string' ? compatibilitySize : undefined)}
         data-disabled={disabled || undefined}
       >
@@ -397,7 +398,7 @@ export const LumenToggleControl = React.forwardRef<HTMLInputElement, LumenToggle
           disabled={disabled}
         />
         <span className="lumen-toggle-track" aria-hidden="true">
-          <span className="lumen-toggle-lamp" />
+          <span className="lumen-toggle-thumb" />
         </span>
       </span>
     );
@@ -493,7 +494,7 @@ export function LumenComboBox({
   placeholder,
   boundary = 'horizontal',
   size,
-  variant = 'boundary',
+  variant = 'outlined',
   disabled = false,
   loading = false,
   invalid = false,
@@ -601,7 +602,7 @@ export function LumenComboBox({
 
   const control = (
     <div
-      className="lumen-combobox-control"
+      className="lumen-combobox-control lumen-effect"
       data-size={size}
       data-variant={variant}
       data-invalid={invalid || undefined}
@@ -669,7 +670,7 @@ export function LumenComboBox({
         }
       }}
     >
-      {lumenVariant !== 'boundary' ? (
+      {lumenVariant !== 'outlined' ? (
         control
       ) : (
         <LumenField boundary={boundary} invalid={invalid} state={disabled ? 'disabled' : 'idle'}>

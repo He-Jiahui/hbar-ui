@@ -24,14 +24,13 @@ export const LumenToggleButton = React.forwardRef<HTMLButtonElement, LumenToggle
           .filter(Boolean)
           .join(' ')}
         variant="text"
-        indicator="none"
         role="switch"
         aria-label={label}
         aria-checked={checked}
         onClick={() => onCheckedChange(!checked)}
       >
         <span className="lumen-toggle-track" aria-hidden="true">
-          <span className="lumen-toggle-lamp" />
+          <span className="lumen-toggle-thumb" />
         </span>
       </LumenButton>
     );

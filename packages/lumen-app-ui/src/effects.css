@@ -32,7 +32,17 @@
     outline-color var(--lumen-state-duration) var(--lumen-state-easing);
 }
 
-:where(.lumen-effect, [data-lumen-mode] .MuiButton-root, [data-lumen-mode] .MuiIconButton-root) {
+:where(
+  .lumen-effect,
+  [data-lumen-mode] .MuiButton-root,
+  [data-lumen-mode] .MuiIconButton-root,
+  [data-lumen-mode] .MuiInputBase-root,
+  [data-lumen-mode] .MuiCheckbox-root,
+  [data-lumen-mode] .MuiRadio-root,
+  [data-lumen-mode] .MuiSwitch-switchBase,
+  [data-lumen-mode] .MuiSlider-root,
+  [data-lumen-mode] .MuiSlider-thumb
+) {
   --lumen-effect-color: var(--lumen-ink);
   --lumen-effect-enabled: 1;
   --lumen-press-ink: var(--lumen-effect-color);
@@ -154,7 +164,18 @@
   }
 }
 
-[data-lumen-motion='off'] :is(.lumen-effect, .MuiButton-root, .MuiIconButton-root) {
+[data-lumen-mode][data-lumen-motion='off']
+  :is(
+    .lumen-effect,
+    .MuiButton-root,
+    .MuiIconButton-root,
+    .MuiInputBase-root,
+    .MuiCheckbox-root,
+    .MuiRadio-root,
+    .MuiSwitch-switchBase,
+    .MuiSlider-root,
+    .MuiSlider-thumb
+  ) {
   animation: none;
   transition: none;
 }
@@ -164,7 +185,7 @@
   transition: none;
 }
 
-[data-lumen-motion='off']
+[data-lumen-mode][data-lumen-motion='off']
   :is(.lumen-effect, .MuiButton-root, .MuiIconButton-root):is(
     [data-lumen-state='running'],
     .Mui-loading
@@ -177,7 +198,18 @@
     animation: none;
     transition: none;
   }
-  [data-lumen-mode] :is(.lumen-effect, .MuiButton-root, .MuiIconButton-root) {
+  [data-lumen-mode]
+    :is(
+      .lumen-effect,
+      .MuiButton-root,
+      .MuiIconButton-root,
+      .MuiInputBase-root,
+      .MuiCheckbox-root,
+      .MuiRadio-root,
+      .MuiSwitch-switchBase,
+      .MuiSlider-root,
+      .MuiSlider-thumb
+    ) {
     animation: none;
     transition: none;
   }
@@ -191,7 +223,18 @@
 }
 
 @media (forced-colors: active) {
-  [data-lumen-mode] :is(.lumen-effect, .MuiButton-root, .MuiIconButton-root) {
+  [data-lumen-mode]
+    :is(
+      .lumen-effect,
+      .MuiButton-root,
+      .MuiIconButton-root,
+      .MuiInputBase-root,
+      .MuiCheckbox-root,
+      .MuiRadio-root,
+      .MuiSwitch-switchBase,
+      .MuiSlider-root,
+      .MuiSlider-thumb
+    ) {
     --lumen-effect-enabled: 0;
     animation: none;
     transition: none;

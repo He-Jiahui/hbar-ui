@@ -16,9 +16,31 @@ export default function createLumenTheme(
   const shape = options.shape ?? DEFAULT_LUMEN_APPEARANCE.shape;
   const ink = mode === 'dark' ? '#eeeeee' : '#171717';
   const contrast = mode === 'dark' ? '#090909' : '#f5f5f5';
-  const controlGlow = mode === 'dark' ? 'rgb(255 255 255 / 75%)' : 'rgb(0 0 0 / 48%)';
-  const thumbGlow = `0 0 calc(var(--lumen-range-progress, 0) * ${mode === 'dark' ? '0.8rem' : '0.45rem'}) calc(var(--lumen-range-progress, 0) * 0.125rem) ${controlGlow}`;
-  const trackGlow = `0 0 calc(var(--lumen-range-progress, 0) * ${mode === 'dark' ? '0.7rem' : '0.35rem'}) calc(var(--lumen-range-progress, 0) * 0.0625rem) ${controlGlow}`;
+  const fieldLight = {
+    transition: 'var(--lumen-state-transition)',
+    '&:hover': { '--lumen-effect-level': 'var(--lumen-glow-hover)' },
+    '&.Mui-error': {
+      '--lumen-effect-color': 'var(--lumen-danger)',
+      '--lumen-effect-level': 'var(--lumen-glow-selected)',
+    },
+    '&.Mui-focused': { '--lumen-effect-level': 'var(--lumen-glow-focus)' },
+    '&.Mui-disabled': { '--lumen-effect-level': 0 },
+  };
+  const choiceLight = {
+    '--lumen-effect-color': 'currentColor',
+    transition: 'var(--lumen-state-transition)',
+    '&.Mui-checked': { '--lumen-effect-level': 'var(--lumen-glow-selected)' },
+    '&:hover': { '--lumen-effect-level': 'var(--lumen-glow-hover)' },
+    '&.Mui-focusVisible, &:has(input:focus-visible)': {
+      '--lumen-effect-level': 'var(--lumen-glow-focus)',
+      outline: '0.125rem solid currentColor',
+      outlineOffset: '0.125rem',
+    },
+    '&.Mui-disabled': { '--lumen-effect-level': 0 },
+    '& .MuiSvgIcon-root': {
+      filter: 'drop-shadow(0 0 var(--lumen-glow-near) var(--lumen-effect-light))',
+    },
+  };
   const fontSize = { s: 13, m: 14, l: 16 }[textSize];
   const borderRadius = shape === 'square' ? 0 : { s: 4, m: 6, l: 8 }[cornerSize];
   const theme = createTheme({
@@ -121,68 +143,93 @@ export default function createLumenTheme(
         },
       },
       MuiPaper: { styleOverrides: { root: { backgroundImage: 'none' } } },
-      MuiSlider: {
+      MuiOutlinedInput: {
+        styleOverrides: { root: { ...fieldLight, boxShadow: 'var(--lumen-effect-shadow)' } },
+      },
+      MuiFilledInput: {
         styleOverrides: {
-          thumb: {
-            width: '0.625rem',
-            height: '0.625rem',
-            borderRadius: '0.125rem',
-            boxShadow: thumbGlow,
-            '@media (prefers-reduced-motion: reduce)': { transition: 'none' },
-            '&:hover, &.Mui-active': {
-              boxShadow: thumbGlow,
-            },
-            '&.Mui-focusVisible': {
-              boxShadow: thumbGlow,
-              outline: '0.0625rem solid currentColor',
-              outlineOffset: '0.25rem',
+          root: fieldLight,
+          underline: {
+            '&:after': {
+              boxShadow: 'var(--lumen-effect-shadow)',
+              transition:
+                'transform var(--lumen-state-duration) var(--lumen-state-easing), var(--lumen-state-transition)',
             },
           },
-          rail: { height: '0.0625rem', opacity: 0.3 },
-          track: { height: '0.125rem', border: 0, boxShadow: trackGlow },
+        },
+      },
+      MuiInput: {
+        styleOverrides: {
+          root: fieldLight,
+          underline: {
+            '&:after': {
+              boxShadow: 'var(--lumen-effect-shadow)',
+              transition:
+                'transform var(--lumen-state-duration) var(--lumen-state-easing), var(--lumen-state-transition)',
+            },
+          },
+        },
+      },
+      MuiCheckbox: { styleOverrides: { root: choiceLight } },
+      MuiRadio: { styleOverrides: { root: choiceLight } },
+      MuiTabs: {
+        styleOverrides: {
+          indicator: {
+            boxShadow:
+              '0 0 var(--lumen-glow-near) color-mix(in srgb, currentColor calc(var(--lumen-glow, 0.65) * var(--lumen-glow-mode-scale, 1) * 22%), transparent)',
+          },
+        },
+      },
+      MuiSlider: {
+        styleOverrides: {
+          root: {
+            '--lumen-effect-color': 'currentColor',
+            '--lumen-effect-level': 'var(--lumen-glow-selected)',
+            transition: 'var(--lumen-state-transition)',
+            '&:hover': { '--lumen-effect-level': 'var(--lumen-glow-hover)' },
+            '&.Mui-disabled': { '--lumen-effect-level': 0 },
+          },
+          thumb: {
+            '--lumen-effect-color': 'currentColor',
+            boxShadow: 'var(--lumen-effect-shadow)',
+            transition: 'var(--lumen-state-transition)',
+            '&:hover, &.Mui-active': {
+              '--lumen-effect-level': 'var(--lumen-glow-hover)',
+              boxShadow: 'var(--lumen-effect-shadow)',
+            },
+            '&.Mui-focusVisible': {
+              '--lumen-effect-level': 'var(--lumen-glow-focus)',
+              boxShadow: 'var(--lumen-effect-shadow)',
+              outline: '0.125rem solid currentColor',
+              outlineOffset: '0.125rem',
+            },
+          },
+          track: { border: 0, boxShadow: 'var(--lumen-effect-shadow)' },
         },
       },
       MuiSwitch: {
         defaultProps: { size: 'small' },
         styleOverrides: {
-          root: { overflow: 'visible' },
           switchBase: {
-            color: 'transparent',
-            '@media (prefers-reduced-motion: reduce)': { transition: 'none' },
-            '&.Mui-checked': {
-              color: 'transparent',
+            '--lumen-effect-color': 'currentColor',
+            transition:
+              'transform var(--lumen-state-duration) var(--lumen-state-easing), var(--lumen-state-transition)',
+            '&.Mui-checked': { '--lumen-effect-level': 'var(--lumen-glow-selected)' },
+            '&:hover': { '--lumen-effect-level': 'var(--lumen-glow-hover)' },
+            '&.Mui-focusVisible, &:has(input:focus-visible)': {
+              '--lumen-effect-level': 'var(--lumen-glow-focus)',
               '& .MuiSwitch-thumb': {
-                backgroundColor: ink,
-                borderColor: ink,
-                boxShadow: `0 0 ${mode === 'dark' ? '0.5rem' : '0.3rem'} ${controlGlow}, 0 0 ${mode === 'dark' ? '1rem' : '0.55rem'} ${controlGlow}`,
-              },
-              '& + .MuiSwitch-track': {
-                backgroundColor: mode === 'dark' ? 'rgb(255 255 255 / 28%)' : 'rgb(0 0 0 / 28%)',
-                opacity: 1,
+                outline: '0.125rem solid currentColor',
+                outlineOffset: '0.125rem',
               },
             },
-            '&.Mui-focusVisible .MuiSwitch-thumb': {
-              outline: `0.0625rem solid ${ink}`,
-              outlineOffset: '0.2rem',
-            },
+            '&.Mui-disabled': { '--lumen-effect-level': 0 },
           },
           thumb: {
-            boxSizing: 'border-box',
-            width: '1rem',
-            height: '1rem',
-            border: `0.125rem solid ${ink}`,
-            backgroundColor: mode === 'dark' ? '#171717' : '#f5f5f5',
-            boxShadow: 'none',
-            transition:
-              'background-color 180ms ease, box-shadow 180ms ease, border-color 180ms ease',
-            '@media (prefers-reduced-motion: reduce)': { transition: 'none' },
+            boxShadow: 'var(--lumen-effect-shadow)',
           },
           track: {
-            alignSelf: 'center',
-            height: '0.125rem',
-            borderRadius: 0,
-            backgroundColor: mode === 'dark' ? 'rgb(255 255 255 / 28%)' : 'rgb(0 0 0 / 28%)',
-            opacity: 1,
+            transition: 'var(--lumen-state-transition)',
           },
         },
       },
