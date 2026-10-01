@@ -5,6 +5,9 @@ import { LumenCheckBoxControl, LumenInput } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './list.css';
+import './list-reference.css';
+import LumenListReference from './list-reference';
+import type { LumenListReferenceContent } from './list-reference-contracts';
 
 export interface LumenListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -275,6 +278,9 @@ export interface LumenListTreeContent {
 }
 
 export interface LumenListContent {
+  readonly reference?: LumenListReferenceContent | undefined;
+  readonly presentation?:
+    { readonly ownerId: string; readonly notice?: string | undefined } | undefined;
   readonly metrics?: LumenListMetricsContent | undefined;
   readonly spend?: LumenListSpendContent | undefined;
   readonly security?: LumenListSecurityContent | undefined;
@@ -328,7 +334,9 @@ export function uniqueLumenListItems<T extends { readonly id: string }>(
 ): readonly T[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -360,31 +368,22 @@ function Glyph({
     | 'folder'
     | 'file';
 }) {
-  const d =
-    name === 'chevron'
-      ? 'm6 3 5 5-5 5'
-      : name === 'filter'
-        ? 'M2.5 3h11L9.3 8v4l-2.6 1V8z'
-        : name === 'up'
-          ? 'm4 9 4-4 4 4'
-          : name === 'down'
-            ? 'm4 7 4 4 4-4'
-            : name === 'archive'
-              ? 'M2.5 5h11v8h-11zM2 3h12v2H2zm4 5h4'
-              : name === 'replay'
-                ? 'M4 5V2L1.5 4.5 4 7V5a5 5 0 1 1-1 3'
-                : name === 'search'
-                  ? 'm11 11 3 3m-2-7a5 5 0 1 1-10 0 5 5 0 0 1 10 0Z'
-                  : name === 'inbox'
-                    ? 'M2.5 3.5h11v9h-11zm0 5h3l1 2h3l1-2h3'
-                    : name === 'undo'
-                      ? 'M5 5H2l2.5-2.5M2.5 5A6 6 0 1 1 4 11'
-                      : name === 'folder'
-                        ? 'M1.5 4h5l1.5 2h6.5v7h-13z'
-                        : 'M4 1.5h5l3 3v10H4zm5 0v3h3';
+  const paths = {
+    chevron: 'm6 3 5 5-5 5',
+    filter: 'M2.5 3h11L9.3 8v4l-2.6 1V8z',
+    up: 'm4 9 4-4 4 4',
+    down: 'm4 7 4 4 4-4',
+    archive: 'M2.5 5h11v8h-11zM2 3h12v2H2zm4 5h4',
+    replay: 'M4 5V2L1.5 4.5 4 7V5a5 5 0 1 1-1 3',
+    search: 'm11 11 3 3m-2-7a5 5 0 1 1-10 0 5 5 0 0 1 10 0Z',
+    inbox: 'M2.5 3.5h11v9h-11zm0 5h3l1 2h3l1-2h3',
+    undo: 'M5 5H2l2.5-2.5M2.5 5A6 6 0 1 1 4 11',
+    folder: 'M1.5 4h5l1.5 2h6.5v7h-13z',
+    file: 'M4 1.5h5l3 3v10H4zm5 0v3h3',
+  };
   return (
     <svg className="lumen-list-glyph" viewBox="0 0 16 16" aria-hidden="true">
-      <path d={d} />
+      <path d={paths[name]} />
     </svg>
   );
 }
@@ -640,7 +639,9 @@ function Queue(props: Omit<LumenListProps, 'content'> & { content: LumenListQueu
   const [items, setItems] = React.useState(() => [...uniqueLumenListItems(props.content.items)]);
   const move = (index: number, direction: -1 | 1) => {
     const target = index + direction;
-    if (target < 0 || target >= items.length) return;
+    if (target < 0 || target >= items.length) {
+      return;
+    }
     const next = [...items];
     [next[index], next[target]] = [next[target]!, next[index]!];
     setItems(next);
@@ -714,8 +715,9 @@ function Assets(props: Omit<LumenListProps, 'content'> & { content: LumenListAss
       >
         {assets.length ? (
           assets.map((asset) => (
-            <label key={asset.id}>
+            <label key={asset.id} htmlFor={`lumen-list-asset-${asset.id}`}>
               <LumenCheckBoxControl
+                id={`lumen-list-asset-${asset.id}`}
                 aria-label={props.content.labels.select(asset.name)}
                 checked={selectedIds.includes(asset.id)}
                 onChange={(event) =>
@@ -1117,24 +1119,25 @@ function TreeBranch({
       {uniqueLumenListItems(nodes).map((node) => {
         const branch = Boolean(node.children?.length);
         const open = openIds.has(node.id);
+        let accessibleLabel = labels.open(node.name);
+        if (branch) {
+          accessibleLabel = open ? labels.collapse(node.name) : labels.expand(node.name);
+        }
         return (
           <li key={node.id}>
             <LumenButton
               variant="text"
               aria-expanded={branch ? open : undefined}
-              aria-label={
-                branch
-                  ? open
-                    ? labels.collapse(node.name)
-                    : labels.expand(node.name)
-                  : labels.open(node.name)
-              }
+              aria-label={accessibleLabel}
               onClick={() => {
                 if (branch) {
                   setOpenIds((current) => {
                     const next = new Set(current);
-                    if (open) next.delete(node.id);
-                    else next.add(node.id);
+                    if (open) {
+                      next.delete(node.id);
+                    } else {
+                      next.add(node.id);
+                    }
                     return next;
                   });
                 } else {
@@ -1196,38 +1199,57 @@ function empty(props: LumenListProps) {
 export function LumenList(props: LumenListProps) {
   const inheritedContent = useLumenListContent();
   const content = props.content ?? inheritedContent;
-  if (props.variant === 1)
+  if (content?.reference) {
+    return (
+      <Root {...props}>
+        <LumenListReference content={content.reference} notice={content.presentation?.notice} />
+      </Root>
+    );
+  }
+  if (props.variant === 1) {
     return content?.metrics ? <Metrics {...props} content={content.metrics} /> : empty(props);
-  if (props.variant === 2)
+  }
+  if (props.variant === 2) {
     return content?.spend ? <Spend {...props} content={content.spend} /> : empty(props);
-  if (props.variant === 3)
+  }
+  if (props.variant === 3) {
     return content?.security ? <Security {...props} content={content.security} /> : empty(props);
-  if (props.variant === 4)
+  }
+  if (props.variant === 4) {
     return content?.queue ? <Queue {...props} content={content.queue} /> : empty(props);
-  if (props.variant === 5)
+  }
+  if (props.variant === 5) {
     return content?.assets ? <Assets {...props} content={content.assets} /> : empty(props);
-  if (props.variant === 6)
+  }
+  if (props.variant === 6) {
     return content?.deliveries ? (
       <Deliveries {...props} content={content.deliveries} />
     ) : (
       empty(props)
     );
-  if (props.variant === 7)
+  }
+  if (props.variant === 7) {
     return content?.suppliers ? <Suppliers {...props} content={content.suppliers} /> : empty(props);
-  if (props.variant === 8)
+  }
+  if (props.variant === 8) {
     return content?.inbox ? <Inbox {...props} content={content.inbox} /> : empty(props);
-  if (props.variant === 9)
+  }
+  if (props.variant === 9) {
     return content?.contacts ? <Contacts {...props} content={content.contacts} /> : empty(props);
-  if (props.variant === 10)
+  }
+  if (props.variant === 10) {
     return content?.runbook ? <Runbook {...props} content={content.runbook} /> : empty(props);
-  if (props.variant === 11)
+  }
+  if (props.variant === 11) {
     return content?.leaderboard ? (
       <Leaderboard {...props} content={content.leaderboard} />
     ) : (
       empty(props)
     );
-  if (props.variant === 12)
+  }
+  if (props.variant === 12) {
     return content?.tree ? <Tree {...props} content={content.tree} /> : empty(props);
+  }
   return empty(props);
 }
 
