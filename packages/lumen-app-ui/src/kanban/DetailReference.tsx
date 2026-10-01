@@ -17,6 +17,11 @@ export default function DetailReference({ content }: { readonly content: LumenKa
   );
   const selected = cards.find((card) => card.id === flow.selectedCardId);
   const stage = selected && columns.find((column) => column.id === selected.statusId);
+  const detailsUnavailable = selected?.detailAvailability === 'unavailable';
+  const detailsUnavailableNotice =
+    detailsUnavailable && flow.labels.detailUnavailable ? (
+      <p className="hbar-app-ui-kanban-detail-no-activity">{flow.labels.detailUnavailable}</p>
+    ) : null;
   return (
     <React.Fragment>
       <header className="hbar-app-ui-kanban-detail-header">
@@ -86,10 +91,10 @@ export default function DetailReference({ content }: { readonly content: LumenKa
                         <p>{card.label}</p>
                         <span className="hbar-app-ui-kanban-detail-card-bottom">
                           <span>{flow.labels.shortPoints(card.points)}</span>
-                          {card.activity.length > 0 && (
+                          {(card.activityCount ?? card.activity?.length ?? 0) > 0 && (
                             <span className="hbar-app-ui-kanban-detail-comment">
                               <MessageSquare aria-hidden="true" />
-                              {card.activity.length}
+                              {card.activityCount ?? card.activity?.length}
                             </span>
                           )}
                           <span className="hbar-app-ui-kanban-detail-avatar">{card.assignee}</span>
@@ -131,12 +136,14 @@ export default function DetailReference({ content }: { readonly content: LumenKa
                     {selected.assigneeName}
                   </span>
                 </div>
-                <div>
-                  <span>{flow.labels.priority}</span>
-                  <span className="hbar-app-ui-kanban-detail-property-value">
-                    {selected.priority}
-                  </span>
-                </div>
+                {selected.detailAvailability !== 'unavailable' && selected.priority ? (
+                  <div>
+                    <span>{flow.labels.priority}</span>
+                    <span className="hbar-app-ui-kanban-detail-property-value">
+                      {selected.priority}
+                    </span>
+                  </div>
+                ) : null}
                 <div>
                   <span>{flow.labels.estimate}</span>
                   <span className="hbar-app-ui-kanban-detail-property-value">
@@ -157,23 +164,35 @@ export default function DetailReference({ content }: { readonly content: LumenKa
                   </button>
                 ))}
               </div>
-              <p className="hbar-app-ui-kanban-detail-description">{selected.description}</p>
-              <p className="hbar-app-ui-kanban-detail-caption">{flow.labels.activity}</p>
-              {selected.activity.length ? (
-                <ul className="hbar-app-ui-kanban-detail-activity">
-                  {selected.activity.map((item) => (
-                    <li key={item.id}>
-                      <span>
-                        <span className="hbar-app-ui-kanban-detail-avatar">{item.avatar}</span>
-                        <span className="hbar-app-ui-kanban-detail-activity-name">{item.name}</span>
-                        <small>{item.time}</small>
-                      </span>
-                      <p>{item.text}</p>
-                    </li>
-                  ))}
-                </ul>
+              {detailsUnavailable ? (
+                detailsUnavailableNotice
               ) : (
-                <p className="hbar-app-ui-kanban-detail-no-activity">{flow.labels.noActivity}</p>
+                <React.Fragment>
+                  {selected.description ? (
+                    <p className="hbar-app-ui-kanban-detail-description">{selected.description}</p>
+                  ) : null}
+                  <p className="hbar-app-ui-kanban-detail-caption">{flow.labels.activity}</p>
+                  {selected.activity?.length ? (
+                    <ul className="hbar-app-ui-kanban-detail-activity">
+                      {selected.activity.map((item) => (
+                        <li key={item.id}>
+                          <span>
+                            <span className="hbar-app-ui-kanban-detail-avatar">{item.avatar}</span>
+                            <span className="hbar-app-ui-kanban-detail-activity-name">
+                              {item.name}
+                            </span>
+                            <small>{item.time}</small>
+                          </span>
+                          <p>{item.text}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="hbar-app-ui-kanban-detail-no-activity">
+                      {flow.labels.noActivity}
+                    </p>
+                  )}
+                </React.Fragment>
               )}
             </div>
           </aside>

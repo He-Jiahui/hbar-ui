@@ -3,9 +3,11 @@
 import * as React from 'react';
 import { Grip } from 'lucide-react';
 import type { LumenKanbanContent, LumenKanbanSprintCard } from '../kanban';
+import useKanbanKeyboardGrabFocus from './keyboardGrabFocus';
 
 export default function SprintReference({ content }: { readonly content: LumenKanbanContent }) {
   const flow = content.referenceSprint;
+  const { cardRef, requestFocus } = useKanbanKeyboardGrabFocus(flow?.grabbedCardId ?? null);
   if (!flow) {
     return null;
   }
@@ -26,9 +28,9 @@ export default function SprintReference({ content }: { readonly content: LumenKa
     if (event.key === ' ' || event.key === 'Spacebar') {
       event.preventDefault();
       if (flow.grabbedCardId === card.id) {
-        flow.onDrop(card.id, card.stageId);
+        requestFocus(card.id, () => flow.onDrop(card.id, card.stageId));
       } else {
-        flow.onGrab(card.id);
+        requestFocus(card.id, () => flow.onGrab(card.id));
       }
       return;
     }
@@ -37,11 +39,11 @@ export default function SprintReference({ content }: { readonly content: LumenKa
     }
     if (event.key === 'Escape') {
       event.preventDefault();
-      flow.onCancelGrab();
+      requestFocus(card.id, flow.onCancelGrab);
       return;
     }
     const index = stages.findIndex((stage) => stage.id === card.stageId);
-    let next;
+    let next: (typeof stages)[number] | undefined;
     if (event.key === 'ArrowRight') {
       next = stages[index + 1];
     }
@@ -50,7 +52,7 @@ export default function SprintReference({ content }: { readonly content: LumenKa
     }
     if (next) {
       event.preventDefault();
-      flow.onMove(card.id, next.id);
+      requestFocus(card.id, () => flow.onMove(card.id, next.id));
     }
   };
   return (
@@ -133,6 +135,7 @@ export default function SprintReference({ content }: { readonly content: LumenKa
                       tabIndex={0}
                       aria-label={flow.labels.card(card)}
                       draggable
+                      ref={cardRef(card.id)}
                       onKeyDown={(event) => handleCardKey(event, card)}
                       onDragStart={(event) => {
                         event.dataTransfer.effectAllowed = 'move';

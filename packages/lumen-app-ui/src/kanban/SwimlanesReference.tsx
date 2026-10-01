@@ -3,9 +3,11 @@
 import * as React from 'react';
 import { ChevronDown, Grip } from 'lucide-react';
 import type { LumenKanbanContent, LumenKanbanSwimlaneCard } from '../kanban';
+import useKanbanKeyboardGrabFocus from './keyboardGrabFocus';
 
 export default function SwimlanesReference({ content }: { readonly content: LumenKanbanContent }) {
   const flow = content.referenceSwimlanes;
+  const { cardRef, requestFocus } = useKanbanKeyboardGrabFocus(flow?.grabbedCardId ?? null);
   if (!flow) {
     return null;
   }
@@ -25,9 +27,9 @@ export default function SwimlanesReference({ content }: { readonly content: Lume
     if (event.key === ' ' || event.key === 'Spacebar') {
       event.preventDefault();
       if (flow.grabbedCardId === card.id) {
-        flow.onDrop(card.id);
+        requestFocus(card.id, () => flow.onDrop(card.id));
       } else {
-        flow.onGrab(card.id);
+        requestFocus(card.id, () => flow.onGrab(card.id));
       }
       return;
     }
@@ -36,7 +38,7 @@ export default function SwimlanesReference({ content }: { readonly content: Lume
     }
     if (event.key === 'Escape') {
       event.preventDefault();
-      flow.onCancelGrab();
+      requestFocus(card.id, flow.onCancelGrab);
       return;
     }
     const stageIndex = stages.findIndex((stage) => stage.id === card.stageId);
@@ -60,7 +62,7 @@ export default function SwimlanesReference({ content }: { readonly content: Lume
     }
     event.preventDefault();
     if (nextStage && nextLane) {
-      flow.onMove(card.id, nextLane.id, nextStage.id);
+      requestFocus(card.id, () => flow.onMove(card.id, nextLane.id, nextStage.id));
     }
   };
   return (
@@ -142,6 +144,7 @@ export default function SwimlanesReference({ content }: { readonly content: Lume
                               tabIndex={0}
                               aria-label={flow.labels.card(card, lane.label, stage.label)}
                               draggable
+                              ref={cardRef(card.id)}
                               key={card.id}
                               onKeyDown={(event) => handleCardKey(event, card, lane.id)}
                               onDragStart={(event) => {

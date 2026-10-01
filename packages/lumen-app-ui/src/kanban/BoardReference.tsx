@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Grip, MessageSquare, Paperclip, Plus, X } from 'lucide-react';
 import type { LumenKanbanAction, LumenKanbanContent, LumenKanbanReferenceCard } from '../kanban';
+import useKanbanKeyboardGrabFocus from './keyboardGrabFocus';
 
 export function BoardReference({
   content,
@@ -12,9 +13,16 @@ export function BoardReference({
   readonly onAction?: ((event: LumenKanbanAction) => void) | undefined;
 }) {
   const flow = content.referenceBoard;
-  if (!flow) return null;
+  const { cardRef, requestFocus } = useKanbanKeyboardGrabFocus(flow?.grabbedCardId ?? null);
+  if (!flow) {
+    return null;
+  }
   const cards = new Map<string, LumenKanbanReferenceCard>();
-  for (const card of flow.cards) if (!cards.has(card.id)) cards.set(card.id, card);
+  for (const card of flow.cards) {
+    if (!cards.has(card.id)) {
+      cards.set(card.id, card);
+    }
+  }
   const columns = flow.columns.filter(
     (column, index) => flow.columns.findIndex((item) => item.id === column.id) === index,
   );
@@ -28,23 +36,29 @@ export function BoardReference({
     if (event.key === ' ' || event.key === 'Spacebar') {
       event.preventDefault();
       if (flow.grabbedCardId === card.id) {
-        flow.onDrop(card.id, flow.targetColumnId ?? columnId);
-        onAction?.({ actionId: 'move', value: card.id });
-      } else flow.onGrab(card.id, columnId);
+        requestFocus(card.id, () => {
+          flow.onDrop(card.id, flow.targetColumnId ?? columnId);
+          onAction?.({ actionId: 'move', value: card.id });
+        });
+      } else {
+        requestFocus(card.id, () => flow.onGrab(card.id, columnId));
+      }
     } else if (
       flow.grabbedCardId === card.id &&
       (event.key === 'ArrowRight' || event.key === 'ArrowLeft')
     ) {
       event.preventDefault();
       const next = columns[targetIndex + (event.key === 'ArrowRight' ? 1 : -1)];
-      if (next) flow.onTargetChange(next.id);
+      if (next) {
+        requestFocus(card.id, () => flow.onTargetChange(next.id));
+      }
     } else if (event.key === 'Escape' && flow.grabbedCardId === card.id) {
       event.preventDefault();
-      flow.onCancelGrab();
+      requestFocus(card.id, flow.onCancelGrab);
     }
   };
   return (
-    <>
+    <React.Fragment>
       <header className="hbar-app-ui-kanban-reference-header">
         <div>
           <h2>{content.labels.boardTitle}</h2>
@@ -67,9 +81,19 @@ export function BoardReference({
           columns.map((column) => (
             <section
               className="hbar-app-ui-kanban-reference-column"
-              role="region"
               aria-label={column.label}
               key={column.id}
+              onDragOver={(event) => {
+                event.preventDefault();
+                event.dataTransfer.dropEffect = 'move';
+              }}
+              onDrop={(event) => {
+                event.preventDefault();
+                const cardId = event.dataTransfer.getData('text/plain') || flow.grabbedCardId;
+                if (cardId && cards.has(cardId)) {
+                  flow.onDrop(cardId, column.id);
+                }
+              }}
             >
               <header>
                 <span>{column.label}</span>
@@ -118,7 +142,9 @@ export function BoardReference({
               <ul>
                 {column.cardIds.map((id) => {
                   const card = cards.get(id);
-                  if (!card) return null;
+                  if (!card) {
+                    return null;
+                  }
                   return (
                     <li key={card.id}>
                       <div
@@ -127,9 +153,14 @@ export function BoardReference({
                         tabIndex={0}
                         aria-label={flow.labels.card(card)}
                         draggable
+                        ref={cardRef(card.id)}
                         onClick={() => onAction?.({ actionId: 'open', value: card.id })}
                         onKeyDown={(event) => activateCard(event, card, column.id)}
-                        onDragStart={() => flow.onGrab(card.id, column.id)}
+                        onDragStart={(event) => {
+                          event.dataTransfer.effectAllowed = 'move';
+                          event.dataTransfer.setData('text/plain', card.id);
+                          flow.onGrab(card.id, column.id);
+                        }}
                         onDragEnd={flow.onCancelGrab}
                       >
                         <div className="hbar-app-ui-kanban-reference-card-top">
@@ -164,18 +195,7 @@ export function BoardReference({
                   );
                 })}
               </ul>
-              <div
-                className="hbar-app-ui-kanban-reference-drop-target"
-                aria-hidden="true"
-                onDragOver={(event) => {
-                  event.preventDefault();
-                  flow.onTargetChange(column.id);
-                }}
-                onDrop={(event) => {
-                  event.preventDefault();
-                  if (flow.grabbedCardId) flow.onDrop(flow.grabbedCardId, column.id);
-                }}
-              />
+              <div className="hbar-app-ui-kanban-reference-drop-target" aria-hidden="true" />
             </section>
           ))
         ) : (
@@ -185,6 +205,8 @@ export function BoardReference({
       <p className="hbar-app-ui-kanban-reference-announcement" aria-live="polite">
         {flow.announcement}
       </p>
-    </>
+    </React.Fragment>
   );
 }
+
+export default BoardReference;

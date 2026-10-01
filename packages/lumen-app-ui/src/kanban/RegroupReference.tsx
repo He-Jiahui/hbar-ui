@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Grip } from 'lucide-react';
 import type { LumenKanbanContent, LumenKanbanRegroupCard } from '../kanban';
+import useKanbanKeyboardGrabFocus from './keyboardGrabFocus';
 
 function cardColumnId(card: LumenKanbanRegroupCard, groupId: string): string {
   if (groupId === 'assignee') {
@@ -16,6 +17,7 @@ function cardColumnId(card: LumenKanbanRegroupCard, groupId: string): string {
 
 export default function RegroupReference({ content }: { readonly content: LumenKanbanContent }) {
   const flow = content.referenceRegroup;
+  const { cardRef, requestFocus } = useKanbanKeyboardGrabFocus(flow?.grabbedCardId ?? null);
   if (!flow) {
     return null;
   }
@@ -31,9 +33,9 @@ export default function RegroupReference({ content }: { readonly content: LumenK
     if (event.key === ' ' || event.key === 'Spacebar') {
       event.preventDefault();
       if (flow.grabbedCardId === card.id) {
-        flow.onDrop(card.id, cardColumnId(card, flow.groupId));
+        requestFocus(card.id, () => flow.onDrop(card.id, cardColumnId(card, flow.groupId)));
       } else {
-        flow.onGrab(card.id);
+        requestFocus(card.id, () => flow.onGrab(card.id));
       }
       return;
     }
@@ -42,11 +44,11 @@ export default function RegroupReference({ content }: { readonly content: LumenK
     }
     if (event.key === 'Escape') {
       event.preventDefault();
-      flow.onCancelGrab();
+      requestFocus(card.id, flow.onCancelGrab);
       return;
     }
     const index = columns.findIndex((column) => column.id === cardColumnId(card, flow.groupId));
-    let next;
+    let next: (typeof columns)[number] | undefined;
     if (event.key === 'ArrowRight') {
       next = columns[index + 1];
     }
@@ -55,7 +57,7 @@ export default function RegroupReference({ content }: { readonly content: LumenK
     }
     if (next) {
       event.preventDefault();
-      flow.onMove(card.id, flow.groupId, next.id);
+      requestFocus(card.id, () => flow.onMove(card.id, flow.groupId, next.id));
     }
   };
   return (
@@ -127,6 +129,7 @@ export default function RegroupReference({ content }: { readonly content: LumenK
                       tabIndex={0}
                       aria-label={flow.labels.card(card, currentGroup?.label ?? '', column.label)}
                       draggable
+                      ref={cardRef(card.id)}
                       className={`hbar-app-ui-kanban-regroup-card ${flow.grabbedCardId === card.id ? 'is-grabbed' : ''}`}
                       onKeyDown={(event) => handleCardKey(event, card)}
                       onDragStart={(event) => {

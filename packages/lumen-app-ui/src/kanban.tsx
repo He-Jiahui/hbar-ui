@@ -99,9 +99,13 @@ export interface LumenKanbanDetailCard {
   readonly points: number;
   readonly assignee: string;
   readonly assigneeName: string;
-  readonly priority: string;
-  readonly description: string;
-  readonly activity: readonly LumenKanbanDetailActivity[];
+  readonly priority?: string | undefined;
+  readonly description?: string | undefined;
+  readonly activity?: readonly LumenKanbanDetailActivity[] | undefined;
+  /** Indicates that the preview did not capture this card's detail pane data. */
+  readonly detailAvailability?: 'available' | 'unavailable' | undefined;
+  /** Captured comment count when activity rows are not part of the card payload. */
+  readonly activityCount?: number | undefined;
 }
 export interface LumenKanbanSprintCard {
   readonly id: string;
@@ -232,99 +236,108 @@ export interface LumenKanbanContent {
         readonly onCancelGrab: () => void;
       }
     | undefined;
-  readonly referenceRegroup?: {
-    readonly labels: {
-      readonly title: string;
-      readonly detail: string;
-      readonly groupBy: string;
-      readonly card: (card: LumenKanbanRegroupCard, group: string, column: string) => string;
-      readonly grabbed: (cardId: string, group: string) => string;
-      readonly dropped: (cardId: string, column: string) => string;
-    };
-    readonly groups: readonly LumenKanbanChoice[];
-    readonly columns: Readonly<Record<string, readonly LumenKanbanRegroupColumn[]>>;
-    readonly cards: readonly LumenKanbanRegroupCard[];
-    readonly groupId: string;
-    readonly grabbedCardId: string | null;
-    readonly announcement: string;
-    readonly onGroupChange: (groupId: string) => void;
-    readonly onGrab: (cardId: string) => void;
-    readonly onMove: (cardId: string, groupId: string, columnId: string) => void;
-    readonly onDrop: (cardId: string, columnId: string) => void;
-    readonly onCancelGrab: () => void;
-  } | undefined;
-  readonly referenceDetail?: {
-    readonly labels: {
-      readonly title: string;
-      readonly detail: (count: number) => string;
-      readonly card: (card: LumenKanbanDetailCard) => string;
-      readonly details: (cardId: string) => string;
-      readonly close: string;
-      readonly assignee: string;
-      readonly priority: string;
-      readonly estimate: string;
-      readonly points: (count: number) => string;
-      readonly shortPoints: (count: number) => string;
-      readonly moveTo: string;
-      readonly activity: string;
-      readonly noActivity: string;
-      readonly moved: (cardId: string, column: string) => string;
-    };
-    readonly columns: readonly LumenKanbanChoice[];
-    readonly cards: readonly LumenKanbanDetailCard[];
-    readonly selectedCardId: string | null;
-    readonly grabbedCardId: string | null;
-    readonly announcement: string;
-    readonly onSelect: (cardId: string) => void;
-    readonly onClose: () => void;
-    readonly onGrab: (cardId: string) => void;
-    readonly onMove: (cardId: string, columnId: string) => void;
-    readonly onCancelGrab: () => void;
-  } | undefined;
-  readonly referenceSprint?: {
-    readonly labels: {
-      readonly title: string;
-      readonly detail: string;
-      readonly committed: string;
-      readonly accepted: string;
-      readonly burned: string;
-      readonly points: (count: number) => string;
-      readonly capacity: (stage: string) => string;
-      readonly capacityPoints: (points: number, capacity: number) => string;
-      readonly burnedValue: (percent: number) => string;
-      readonly blocked: string;
-      readonly card: (card: LumenKanbanSprintCard) => string;
-      readonly grabbed: (cardId: string) => string;
-      readonly dropped: (cardId: string, stage: string) => string;
-    };
-    readonly stages: readonly LumenKanbanSprintStage[];
-    readonly cards: readonly LumenKanbanSprintCard[];
-    readonly grabbedCardId: string | null;
-    readonly announcement: string;
-    readonly onGrab: (cardId: string) => void;
-    readonly onMove: (cardId: string, stageId: string) => void;
-    readonly onDrop: (cardId: string, stageId: string) => void;
-    readonly onCancelGrab: () => void;
-  } | undefined;
-  readonly referenceCompact?: {
-    readonly labels: {
-      readonly title: string;
-      readonly detail: (count: number) => string;
-      readonly column: string;
-      readonly progress: (completed: number, total: number) => string;
-      readonly shortProgress: (completed: number, total: number) => string;
-      readonly card: (card: LumenKanbanCompactCard) => string;
-      readonly movePrevious: (card: string, column: string) => string;
-      readonly moveNext: (card: string, column: string) => string;
-      readonly moved: (card: string, column: string) => string;
-    };
-    readonly columns: readonly LumenKanbanChoice[];
-    readonly cards: readonly LumenKanbanCompactCard[];
-    readonly selectedColumnId: string;
-    readonly announcement: string;
-    readonly onSelectColumn: (columnId: string) => void;
-    readonly onMove: (cardId: string, columnId: string) => void;
-  } | undefined;
+  readonly referenceRegroup?:
+    | {
+        readonly labels: {
+          readonly title: string;
+          readonly detail: string;
+          readonly groupBy: string;
+          readonly card: (card: LumenKanbanRegroupCard, group: string, column: string) => string;
+          readonly grabbed: (cardId: string, group: string) => string;
+          readonly dropped: (cardId: string, column: string) => string;
+        };
+        readonly groups: readonly LumenKanbanChoice[];
+        readonly columns: Readonly<Record<string, readonly LumenKanbanRegroupColumn[]>>;
+        readonly cards: readonly LumenKanbanRegroupCard[];
+        readonly groupId: string;
+        readonly grabbedCardId: string | null;
+        readonly announcement: string;
+        readonly onGroupChange: (groupId: string) => void;
+        readonly onGrab: (cardId: string) => void;
+        readonly onMove: (cardId: string, groupId: string, columnId: string) => void;
+        readonly onDrop: (cardId: string, columnId: string) => void;
+        readonly onCancelGrab: () => void;
+      }
+    | undefined;
+  readonly referenceDetail?:
+    | {
+        readonly labels: {
+          readonly title: string;
+          readonly detail: (count: number) => string;
+          readonly card: (card: LumenKanbanDetailCard) => string;
+          readonly details: (cardId: string) => string;
+          readonly close: string;
+          readonly assignee: string;
+          readonly priority: string;
+          readonly estimate: string;
+          readonly points: (count: number) => string;
+          readonly shortPoints: (count: number) => string;
+          readonly moveTo: string;
+          readonly activity: string;
+          readonly noActivity: string;
+          readonly detailUnavailable?: string | undefined;
+          readonly moved: (cardId: string, column: string) => string;
+        };
+        readonly columns: readonly LumenKanbanChoice[];
+        readonly cards: readonly LumenKanbanDetailCard[];
+        readonly selectedCardId: string | null;
+        readonly grabbedCardId: string | null;
+        readonly announcement: string;
+        readonly onSelect: (cardId: string) => void;
+        readonly onClose: () => void;
+        readonly onGrab: (cardId: string) => void;
+        readonly onMove: (cardId: string, columnId: string) => void;
+        readonly onCancelGrab: () => void;
+      }
+    | undefined;
+  readonly referenceSprint?:
+    | {
+        readonly labels: {
+          readonly title: string;
+          readonly detail: string;
+          readonly committed: string;
+          readonly accepted: string;
+          readonly burned: string;
+          readonly points: (count: number) => string;
+          readonly capacity: (stage: string) => string;
+          readonly capacityPoints: (points: number, capacity: number) => string;
+          readonly burnedValue: (percent: number) => string;
+          readonly blocked: string;
+          readonly card: (card: LumenKanbanSprintCard) => string;
+          readonly grabbed: (cardId: string) => string;
+          readonly dropped: (cardId: string, stage: string) => string;
+        };
+        readonly stages: readonly LumenKanbanSprintStage[];
+        readonly cards: readonly LumenKanbanSprintCard[];
+        readonly grabbedCardId: string | null;
+        readonly announcement: string;
+        readonly onGrab: (cardId: string) => void;
+        readonly onMove: (cardId: string, stageId: string) => void;
+        readonly onDrop: (cardId: string, stageId: string) => void;
+        readonly onCancelGrab: () => void;
+      }
+    | undefined;
+  readonly referenceCompact?:
+    | {
+        readonly labels: {
+          readonly title: string;
+          readonly detail: (count: number) => string;
+          readonly column: string;
+          readonly progress: (completed: number, total: number) => string;
+          readonly shortProgress: (completed: number, total: number) => string;
+          readonly card: (card: LumenKanbanCompactCard) => string;
+          readonly movePrevious: (card: string, column: string) => string;
+          readonly moveNext: (card: string, column: string) => string;
+          readonly moved: (card: string, column: string) => string;
+        };
+        readonly columns: readonly LumenKanbanChoice[];
+        readonly cards: readonly LumenKanbanCompactCard[];
+        readonly selectedColumnId: string;
+        readonly announcement: string;
+        readonly onSelectColumn: (columnId: string) => void;
+        readonly onMove: (cardId: string, columnId: string) => void;
+      }
+    | undefined;
 }
 export interface LumenKanbanProviderProps {
   readonly content: LumenKanbanContent;
@@ -700,7 +713,16 @@ function LegacySwimlanes(
 }
 function Regroup(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
   if (props.content.referenceRegroup) {
-    return <Root {...props} className={[props.className, 'hbar-app-ui-kanban-regroup-reference'].filter(Boolean).join(' ')}><RegroupReference content={props.content} /></Root>;
+    return (
+      <Root
+        {...props}
+        className={[props.className, 'hbar-app-ui-kanban-regroup-reference']
+          .filter(Boolean)
+          .join(' ')}
+      >
+        <RegroupReference content={props.content} />
+      </Root>
+    );
   }
   return <LegacyRegroup {...props} />;
 }
@@ -766,7 +788,16 @@ function LegacyRegroup(props: Omit<LumenKanbanProps, 'content'> & { content: Lum
 }
 function Detail(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
   if (props.content.referenceDetail) {
-    return <Root {...props} className={[props.className, 'hbar-app-ui-kanban-detail-reference'].filter(Boolean).join(' ')}><DetailReference content={props.content} /></Root>;
+    return (
+      <Root
+        {...props}
+        className={[props.className, 'hbar-app-ui-kanban-detail-reference']
+          .filter(Boolean)
+          .join(' ')}
+      >
+        <DetailReference content={props.content} />
+      </Root>
+    );
   }
   return <LegacyDetail {...props} />;
 }
@@ -850,7 +881,16 @@ function LegacyDetail(props: Omit<LumenKanbanProps, 'content'> & { content: Lume
 }
 function Sprint(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
   if (props.content.referenceSprint) {
-    return <Root {...props} className={[props.className, 'hbar-app-ui-kanban-sprint-reference'].filter(Boolean).join(' ')}><SprintReference content={props.content} /></Root>;
+    return (
+      <Root
+        {...props}
+        className={[props.className, 'hbar-app-ui-kanban-sprint-reference']
+          .filter(Boolean)
+          .join(' ')}
+      >
+        <SprintReference content={props.content} />
+      </Root>
+    );
   }
   return <LegacySprint {...props} />;
 }
@@ -914,7 +954,16 @@ function LegacySprint(props: Omit<LumenKanbanProps, 'content'> & { content: Lume
 }
 function Compact(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
   if (props.content.referenceCompact) {
-    return <Root {...props} className={[props.className, 'hbar-app-ui-kanban-compact-reference'].filter(Boolean).join(' ')}><CompactReference content={props.content} /></Root>;
+    return (
+      <Root
+        {...props}
+        className={[props.className, 'hbar-app-ui-kanban-compact-reference']
+          .filter(Boolean)
+          .join(' ')}
+      >
+        <CompactReference content={props.content} />
+      </Root>
+    );
   }
   return <LegacyCompact {...props} />;
 }
