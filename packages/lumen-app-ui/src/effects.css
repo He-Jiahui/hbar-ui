@@ -112,7 +112,7 @@
   --lumen-press-level: calc(var(--lumen-glow-pressed) - var(--lumen-glow-hover));
 }
 
-:where(.lumen-action, [data-lumen-mode] .MuiButton-root, [data-lumen-mode] .MuiIconButton-root):is(
+:where(.lumen-effect, [data-lumen-mode] .MuiButton-root, [data-lumen-mode] .MuiIconButton-root):is(
   [data-lumen-state='running'],
   .Mui-loading
 ) {

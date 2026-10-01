@@ -64,10 +64,6 @@
   outline-offset: 0.125rem;
 }
 
-.field[data-lumen-state='running'] {
-  animation: lumen-breathe var(--lumen-running-duration) ease-in-out infinite;
-}
-
 .field[data-lumen-state='disabled'] {
   --lumen-effect-level: 0;
   animation: none;

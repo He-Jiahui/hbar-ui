@@ -1,5 +1,5 @@
 import * as React from 'react';
-import LumenIndicator, { type LumenIndicatorProps } from './LumenIndicator';
+import type { LumenIndicatorProps } from './LumenIndicator';
 import styles from './materials.module.css';
 
 export interface LumenDividerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
@@ -10,7 +10,7 @@ export interface LumenDividerProps extends Omit<React.HTMLAttributes<HTMLDivElem
 
 export default function LumenDivider({
   className,
-  length = 'area',
+  length: _length,
   orientation = 'horizontal',
   role = 'separator',
   tone = 'neutral',
@@ -21,14 +21,9 @@ export default function LumenDivider({
       {...other}
       className={[styles.divider, className].filter(Boolean).join(' ')}
       data-orientation={orientation}
+      data-tone={tone}
       role={role}
       aria-orientation={other['aria-orientation'] ?? orientation}
-    >
-      <LumenIndicator
-        edge={orientation === 'horizontal' ? 'bottom' : 'right'}
-        length={length}
-        tone={tone}
-      />
-    </div>
+    />
   );
 }

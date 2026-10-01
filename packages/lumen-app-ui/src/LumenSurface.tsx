@@ -3,12 +3,13 @@
 import * as React from 'react';
 import createLensMap from './lensMap';
 import type { LumenShape } from './appearance';
-import LumenIndicator, { type LumenState, type LumenTone } from './LumenIndicator';
+import type { LumenState, LumenTone } from './LumenIndicator';
 import styles from './materials.module.css';
 
 export type LumenSurfaceElement = 'article' | 'aside' | 'div' | 'form' | 'main' | 'nav' | 'section';
 
 interface LumenSurfaceOwnProps {
+  /** @deprecated The boundary is continuous; direction no longer selects a lamp edge. */
   boundary?: 'none' | 'horizontal' | 'vertical' | undefined;
   contentClassName?: string | undefined;
   material?: 'glass' | 'frost' | 'solid' | undefined;
@@ -36,6 +37,7 @@ export default function LumenSurface<Element extends LumenSurfaceElement = 'div'
   tone = 'neutral',
   className = '',
   children,
+  style,
   ...props
 }: LumenSurfaceProps<Element>) {
   const element = suppliedElement ?? 'div';
@@ -85,19 +87,18 @@ export default function LumenSurface<Element extends LumenSurfaceElement = 'div'
   const lensStyle = hasLens
     ? { backdropFilter: `url(#${id}) blur(${0.12 + glassStrength * 0.002}rem)` }
     : undefined;
-  let edges: readonly ['top', 'bottom'] | readonly ['left', 'right'] | undefined;
-  if (boundary === 'horizontal') {
-    edges = ['top', 'bottom'];
-  } else if (boundary === 'vertical') {
-    edges = ['left', 'right'];
-  }
   return (
     <Component
       {...(props as unknown as React.HTMLAttributes<HTMLElement>)}
       ref={(node: HTMLElement | null) => {
         root.current = node;
       }}
-      className={[styles.surface, className].filter(Boolean).join(' ')}
+      className={['lumen-effect lumen-surface', styles.surface, className]
+        .filter(Boolean)
+        .join(' ')}
+      style={{ ...lensStyle, ...style }}
+      data-lumen-state={state}
+      data-lumen-tone={state === 'failed' ? 'danger' : tone}
       data-boundary={boundary}
       data-material={material}
       data-interactive={interactive}
@@ -133,12 +134,9 @@ export default function LumenSurface<Element extends LumenSurfaceElement = 'div'
           </defs>
         </svg>
       )}
-      <div className={styles.glass} style={lensStyle} aria-hidden="true" />
-      {edges ? <LumenIndicator edge={edges[0]} length="area" state={state} tone={tone} /> : null}
       <div className={[styles.surfaceContent, contentClassName].filter(Boolean).join(' ')}>
         {children}
       </div>
-      {edges ? <LumenIndicator edge={edges[1]} length="area" state={state} tone={tone} /> : null}
     </Component>
   );
 }

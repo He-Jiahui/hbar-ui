@@ -4,30 +4,23 @@ export type LumenState = 'idle' | 'selected' | 'running' | 'failed' | 'disabled'
 export type LumenTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 
 export interface LumenIndicatorProps {
+  /** @deprecated Status is a compact dot; edge no longer changes its geometry. */
   edge?: 'top' | 'bottom' | 'left' | 'right' | undefined;
   state?: LumenState | undefined;
   tone?: LumenTone | undefined;
+  /** @deprecated All status markers use the same compact size. */
   length?: 'standard' | 'action' | 'area' | undefined;
 }
 
-export default function LumenIndicator({
-  edge = 'bottom',
-  state = 'idle',
-  tone = 'neutral',
-  length = 'standard',
-}: LumenIndicatorProps) {
+export default function LumenIndicator({ state = 'idle', tone = 'neutral' }: LumenIndicatorProps) {
   return (
     <span
-      className={styles.indicator}
-      data-edge={edge}
+      className={['lumen-effect lumen-status-dot', styles.indicator].join(' ')}
+      data-lumen-state={state}
+      data-lumen-tone={state === 'failed' ? 'danger' : tone}
       data-state={state}
       data-tone={tone}
-      data-length={length}
       aria-hidden="true"
-    >
-      <span className={styles.beam}>
-        <span className={styles.halo} />
-      </span>
-    </span>
+    />
   );
 }

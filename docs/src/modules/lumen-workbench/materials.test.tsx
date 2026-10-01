@@ -47,7 +47,7 @@ describe('Lumen materials', () => {
     expect(screen.getByRole('heading', { name: '执行步骤' })).toBeVisible();
   });
 
-  it('renders surface, field, and divider boundaries as decorative lamps', () => {
+  it('retains semantic state and continuous boundaries without edge lamps', () => {
     const { container } = render(
       <LumenSurface boundary="horizontal" state="selected" tone="warning">
         <LumenField boundary="vertical" invalid>
@@ -59,9 +59,10 @@ describe('Lumen materials', () => {
 
     expect(screen.getByRole('textbox', { name: 'Filter' })).toBeVisible();
     expect(screen.getByRole('separator')).to.have.attribute('aria-orientation', 'horizontal');
-    expect(container.querySelectorAll('[data-edge]')).to.have.length(5);
-    expect(container.querySelectorAll('[data-tone="danger"]')).to.have.length(2);
-    expect(container.querySelectorAll('[data-tone="warning"]')).to.have.length(2);
+    expect(container.querySelectorAll('[data-edge]')).to.have.length(0);
+    expect(container.querySelectorAll('[data-lumen-tone="danger"]')).to.have.length(1);
+    expect(container.querySelectorAll('[data-lumen-tone="warning"]')).to.have.length(1);
+    expect(container.querySelector('[data-lumen-state="selected"]')).to.have.class('lumen-surface');
   });
 
   it('composes a semantic surface with a dedicated flow-layout content class', () => {

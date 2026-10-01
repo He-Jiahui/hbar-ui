@@ -452,7 +452,6 @@ export function HbarAppUiFeedback04({ copy, content, state, actions }: HbarAppUi
               onClick={() => actions.onVote(content.boardId, request.id)}
             >
               {request.votes}
-              <LumenIndicator edge="bottom" state={request.voted ? 'selected' : 'idle'} />
             </LumenButton>
             <div className={styles.requestBody}>
               <div className={styles.row}>

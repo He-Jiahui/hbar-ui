@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import type { LumenShape } from './appearance';
-import LumenIndicator from './LumenIndicator';
 import LumenSurface from './LumenSurface';
 import { LumenText } from './primitives';
 import styles from './LumenWorkbenchNotice.module.css';
@@ -39,7 +38,6 @@ export default function LumenWorkbenchNotice({
       aria-labelledby={titleId}
     >
       <LumenSurface className={styles.surface} material="glass" shape={shape}>
-        <LumenIndicator edge="top" state="idle" length="area" />
         <div className={styles.content}>
           <LumenText as="h1" id={titleId} variant="title" className={styles.title}>
             {title}

@@ -35,7 +35,7 @@ const defaults: LumenPromptComposerProps = {
 describe('LumenPromptComposer running actions', () => {
   const { render } = createRenderer();
 
-  it('keeps both horizontal surface lamps by default for existing consumers', () => {
+  it('keeps the compatibility boundary with a continuous surface instead of edge lamps', () => {
     render(<LumenPromptComposer {...defaults} />);
     const form = screen.getByRole('textbox', { name: labels.input }).closest('form');
     expect(form?.getAttribute('data-boundary')).to.equal('horizontal');
@@ -43,10 +43,11 @@ describe('LumenPromptComposer running actions', () => {
       Array.from(form?.children ?? [])
         .map((child) => child.getAttribute('data-edge'))
         .filter(Boolean),
-    ).to.deep.equal(['top', 'bottom']);
+    ).to.deep.equal([]);
+    expect(form).to.have.class('lumen-surface');
   });
 
-  it('omits only decorative surface lamps when boundary is none, preserving input and submit', async () => {
+  it('preserves input and submit when boundary is none', async () => {
     const onSubmit = vi.fn();
     const { user } = render(
       <LumenPromptComposer {...defaults} boundary="none" canStop={false} onSubmit={onSubmit} />,

@@ -308,7 +308,7 @@ export function HbarAppUiEmptyState05({
   return (
     <Frame id="hbar-app-ui-empty-state-5" {...copy} glassStrength={glassStrength}>
       <div
-        className={styles.dropzone}
+        className={['lumen-effect lumen-dropzone', styles.dropzone].join(' ')}
         data-lumen-dropzone
         data-dragging={dragging}
         onDragEnter={() => setDragging(true)}
@@ -323,7 +323,6 @@ export function HbarAppUiEmptyState05({
           }
         }}
       >
-        <LumenIndicator edge="top" length="area" />
         <strong>{dragging ? copy.release : copy.drop}</strong>
         <p>{copy.supported}</p>
         <LumenButton
@@ -349,7 +348,6 @@ export function HbarAppUiEmptyState05({
           }}
         />
         <small>{copy.storage}</small>
-        <LumenIndicator edge="bottom" length="area" />
       </div>
     </Frame>
   );
