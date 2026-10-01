@@ -474,7 +474,6 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
               title={runningActions.queueTitle}
               tone="primary"
               variant="text"
-              indicator="none"
               loading={props.submitting}
               disabled={blocked}
             >
@@ -497,6 +496,7 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
               label={props.labels.send}
               title={props.labels.submitTitle}
               tone="primary"
+              variant="contained"
               loading={props.submitting}
               disabled={blocked}
             >
@@ -818,13 +818,19 @@ export function LumenApprovalRequest({
           <SessionGlyph name="remove" />
           {labels.denyLabel}
         </LumenButton>
-        <LumenButton tone="primary" disabled={disabled} onClick={() => onDecision(id, 'allow')}>
+        <LumenButton
+          variant="contained"
+          tone="primary"
+          disabled={disabled}
+          onClick={() => onDecision(id, 'allow')}
+        >
           <SessionGlyph name="check" />
           {labels.allowLabel}
         </LumenButton>
         {labels.allowAlwaysLabel ? (
           <LumenButton
             tone="success"
+            variant="outlined"
             disabled={disabled}
             onClick={() => onDecision(id, 'allow_always')}
           >

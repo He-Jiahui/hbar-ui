@@ -48,7 +48,7 @@ export default function createLumenTheme(
     palette: {
       mode,
       primary: { main: ink, contrastText: contrast },
-      secondary: { main: contrast, contrastText: ink },
+      secondary: { main: mode === 'dark' ? '#cccccc' : '#333333', contrastText: contrast },
       success: { main: mode === 'dark' ? '#77deb0' : '#1a7c56', contrastText: contrast },
       warning: { main: mode === 'dark' ? '#efd17a' : '#996500', contrastText: contrast },
       error: { main: mode === 'dark' ? '#ff969b' : '#b73548', contrastText: contrast },
@@ -94,10 +94,12 @@ export default function createLumenTheme(
             },
             '&.Mui-disabled:not(.Mui-loading)': { boxShadow: 'none', textShadow: 'none' },
             variants: [
-              ...(['primary', 'success', 'warning', 'error', 'info'] as const).map((color) => ({
-                props: { color },
-                style: { '--lumen-effect-color': `var(--lumen-mui-palette-${color}-main)` },
-              })),
+              ...(['primary', 'secondary', 'success', 'warning', 'error', 'info'] as const).map(
+                (color) => ({
+                  props: { color },
+                  style: { '--lumen-effect-color': `var(--lumen-mui-palette-${color}-main)` },
+                }),
+              ),
               {
                 props: { variant: 'contained' },
                 style: { '--lumen-press-ink': 'var(--variant-containedColor)' },
