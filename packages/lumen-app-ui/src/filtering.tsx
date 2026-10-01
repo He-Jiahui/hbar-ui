@@ -5,6 +5,9 @@ import { LumenCheckBox, LumenFormField, LumenInput, LumenSelect } from './forms'
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './filtering.css';
+import './filtering-reference.css';
+import LumenFilteringReference from './filtering-reference';
+import type { LumenFilteringReferenceContent } from './filtering-reference-contracts';
 
 export interface LumenFilteringListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -209,6 +212,9 @@ export interface LumenFilteringCuisineContent {
   readonly initialPriceId: string;
 }
 export interface LumenFilteringContent {
+  readonly reference?: LumenFilteringReferenceContent | undefined;
+  readonly presentation?:
+    { readonly ownerId: string; readonly notice?: string | undefined } | undefined;
   readonly product?: LumenFilteringProductContent | undefined;
   readonly drawer?: LumenFilteringDrawerContent | undefined;
   readonly query?: LumenFilteringQueryContent | undefined;
@@ -251,7 +257,9 @@ export function uniqueLumenFilteringItems<T extends { readonly id: string }>(
 ): readonly T[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -265,21 +273,17 @@ export function selectLumenFilteringItem<T extends { readonly id: string }>(
 const report = (fn: LumenFilteringProps['onAction'], actionId: string, value?: string) =>
   fn?.(value === undefined ? { actionId } : { actionId, value });
 function Glyph({ name }: { name: 'filter' | 'plus' | 'minus' | 'close' | 'search' | 'star' }) {
-  const d =
-    name === 'filter'
-      ? 'M2 3h12L9.5 8v4l-3 1V8Z'
-      : name === 'plus'
-        ? 'M8 3v10M3 8h10'
-        : name === 'minus'
-          ? 'M3 8h10'
-          : name === 'close'
-            ? 'm4 4 8 8m0-8-8 8'
-            : name === 'search'
-              ? 'm11 11 3 3M7 12A5 5 0 1 1 7 2a5 5 0 0 1 0 10Z'
-              : 'm8 2 1.8 3.6 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4-2.9-2.8 4-.6Z';
+  const paths = {
+    filter: 'M2 3h12L9.5 8v4l-3 1V8Z',
+    plus: 'M8 3v10M3 8h10',
+    minus: 'M3 8h10',
+    close: 'm4 4 8 8m0-8-8 8',
+    search: 'm11 11 3 3M7 12A5 5 0 1 1 7 2a5 5 0 0 1 0 10Z',
+    star: 'm8 2 1.8 3.6 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4-2.9-2.8 4-.6Z',
+  };
   return (
     <svg className="lumen-filtering-glyph" viewBox="0 0 16 16" aria-hidden="true">
-      <path d={d} />
+      <path d={paths[name]} />
     </svg>
   );
 }
@@ -534,7 +538,9 @@ function Query(
             variant="outlined"
             disabled={!next || rules.length >= props.content.maximumRules}
             onClick={() => {
-              if (next) setRules((current) => [...current, next]);
+              if (next) {
+                setRules((current) => [...current, next]);
+              }
             }}
           >
             <Glyph name="plus" />
@@ -778,8 +784,9 @@ function Candidate(
             const value = event.currentTarget.value.trim();
             if (event.key === 'Enter' && value) {
               const id = value.toLowerCase().replace(/\s+/g, '-');
-              if (!skills.some((item) => item.id === id))
+              if (!skills.some((item) => item.id === id)) {
                 setSkills((current) => [...current, { id, label: value }]);
+              }
               event.currentTarget.value = '';
               report(props.onAction, 'skill', id);
             }
@@ -987,24 +994,43 @@ function empty(props: LumenFilteringProps) {
 export function LumenFiltering(props: LumenFilteringProps) {
   const inheritedContent = useLumenFilteringContent();
   const content = props.content ?? inheritedContent;
-  if (props.variant === 1)
+  if (content?.reference) {
+    return (
+      <Root {...props}>
+        <LumenFilteringReference
+          content={content.reference}
+          notice={content.presentation?.notice}
+        />
+      </Root>
+    );
+  }
+  if (props.variant === 1) {
     return content?.product ? <Product {...props} content={content.product} /> : empty(props);
-  if (props.variant === 2)
+  }
+  if (props.variant === 2) {
     return content?.drawer ? <Drawer {...props} content={content.drawer} /> : empty(props);
-  if (props.variant === 3)
+  }
+  if (props.variant === 3) {
     return content?.query ? <Query {...props} content={content.query} /> : empty(props);
-  if (props.variant === 4)
+  }
+  if (props.variant === 4) {
     return content?.log ? <Log {...props} content={content.log} /> : empty(props);
-  if (props.variant === 5)
+  }
+  if (props.variant === 5) {
     return content?.property ? <Property {...props} content={content.property} /> : empty(props);
-  if (props.variant === 6)
+  }
+  if (props.variant === 6) {
     return content?.candidate ? <Candidate {...props} content={content.candidate} /> : empty(props);
-  if (props.variant === 7)
+  }
+  if (props.variant === 7) {
     return content?.assets ? <Assets {...props} content={content.assets} /> : empty(props);
-  if (props.variant === 8)
+  }
+  if (props.variant === 8) {
     return content?.flights ? <Flights {...props} content={content.flights} /> : empty(props);
-  if (props.variant === 9)
+  }
+  if (props.variant === 9) {
     return content?.cuisine ? <Cuisine {...props} content={content.cuisine} /> : empty(props);
+  }
   return empty(props);
 }
 function variant(value: number, props: LumenFilteringVariantProps) {

@@ -1935,6 +1935,14 @@ export type {
   LumenFilteringSwatch,
   LumenFilteringVariantProps,
 } from './filtering';
+export type {
+  LumenFilteringReferenceContent,
+  LumenFilteringReferenceField,
+  LumenFilteringReferenceOption,
+  LumenFilteringReferenceRecord,
+  LumenFilteringReferenceRule,
+  LumenFilteringReferenceValue,
+} from './filtering-reference-contracts';
 export {
   LumenMonitoring,
   LumenMonitoring01,
