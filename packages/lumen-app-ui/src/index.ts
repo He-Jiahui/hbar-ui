@@ -1968,6 +1968,14 @@ export {
   useLumenMonitoringContent,
 } from './monitoring';
 export type {
+  LumenMonitoringReferenceActionId,
+  LumenMonitoringReferenceChart,
+  LumenMonitoringReferenceContent,
+  LumenMonitoringReferenceTone,
+  LumenMonitoringReferenceMetric,
+  LumenMonitoringReferenceChoice,
+} from './monitoring-reference-contracts';
+export type {
   LumenMonitoringAction,
   LumenMonitoringAlert,
   LumenMonitoringAlertsContent,

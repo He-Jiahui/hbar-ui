@@ -4,6 +4,8 @@ import * as React from 'react';
 import { LumenSelect, LumenTextarea } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
+import type { LumenMonitoringReferenceContent } from './monitoring-reference-contracts';
+import LumenMonitoringReference from './monitoring-reference';
 import './monitoring.css';
 
 export interface LumenMonitoringListStrategy {
@@ -234,6 +236,7 @@ export interface LumenMonitoringSloContent {
   readonly listStrategy: LumenMonitoringListStrategy;
 }
 export interface LumenMonitoringContent {
+  readonly reference?: LumenMonitoringReferenceContent | undefined;
   readonly health?: LumenMonitoringHealthContent | undefined;
   readonly live?: LumenMonitoringLiveContent | undefined;
   readonly incident?: LumenMonitoringIncidentContent | undefined;
@@ -277,7 +280,9 @@ export function uniqueLumenMonitoringItems<T extends { readonly id: string }>(
 ): readonly T[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -295,24 +300,17 @@ function Glyph({
 }: {
   name: 'refresh' | 'pause' | 'play' | 'alert' | 'check' | 'filter' | 'chevron' | 'bell' | 'shield';
 }) {
-  const d =
-    name === 'refresh'
-      ? 'M13 5V2l-2 2a5 5 0 1 0 1 7'
-      : name === 'pause'
-        ? 'M5 3v10m6-10v10'
-        : name === 'play'
-          ? 'M5 3l8 5-8 5Z'
-          : name === 'alert'
-            ? 'M8 2 14 13H2Zm0 4v3m0 2h.01'
-            : name === 'check'
-              ? 'm3 8 3 3 7-7'
-              : name === 'filter'
-                ? 'M2 3h12L9.5 8v4l-3 1V8Z'
-                : name === 'chevron'
-                  ? 'm4 6 4 4 4-4'
-                  : name === 'bell'
-                    ? 'M4 7a4 4 0 0 1 8 0v3l1.5 2h-11L4 10Zm2.5 7h3'
-                    : 'M8 2l5 2v4c0 3-2 5-5 6-3-1-5-3-5-6V4Zm-2 6 1.5 1.5L11 7';
+  const d = {
+    refresh: 'M13 5V2l-2 2a5 5 0 1 0 1 7',
+    pause: 'M5 3v10m6-10v10',
+    play: 'M5 3l8 5-8 5Z',
+    alert: 'M8 2 14 13H2Zm0 4v3m0 2h.01',
+    check: 'm3 8 3 3 7-7',
+    filter: 'M2 3h12L9.5 8v4l-3 1V8Z',
+    chevron: 'm4 6 4 4 4-4',
+    bell: 'M4 7a4 4 0 0 1 8 0v3l1.5 2h-11L4 10Zm2.5 7h3',
+    shield: 'M8 2l5 2v4c0 3-2 5-5 6-3-1-5-3-5-6V4Zm-2 6 1.5 1.5L11 7',
+  }[name];
   return (
     <svg className="lumen-monitoring-glyph" viewBox="0 0 16 16" aria-hidden="true">
       <path d={d} />
@@ -398,7 +396,7 @@ function Bars({
 }: {
   points: readonly LumenMonitoringSeriesPoint[];
   label: string;
-  threshold?: number;
+  threshold?: number | undefined;
 }) {
   return (
     <div className="lumen-monitoring-bars" aria-label={label}>
@@ -752,7 +750,7 @@ function Progress({
 }: {
   value: number;
   label: string;
-  tone?: string;
+  tone?: string | undefined;
 }) {
   const normalized = Math.max(0, Math.min(100, value));
   return (
@@ -1019,26 +1017,43 @@ function empty(props: LumenMonitoringProps) {
 export function LumenMonitoring(props: LumenMonitoringProps) {
   const inheritedContent = useLumenMonitoringContent();
   const content = props.content ?? inheritedContent;
-  if (props.variant === 1)
+  if (content?.reference) {
+    return (
+      <Root {...props}>
+        <LumenMonitoringReference content={content.reference} />
+      </Root>
+    );
+  }
+  if (props.variant === 1) {
     return content?.health ? <Health {...props} content={content.health} /> : empty(props);
-  if (props.variant === 2)
+  }
+  if (props.variant === 2) {
     return content?.live ? <Live {...props} content={content.live} /> : empty(props);
-  if (props.variant === 3)
+  }
+  if (props.variant === 3) {
     return content?.incident ? <Incident {...props} content={content.incident} /> : empty(props);
-  if (props.variant === 4)
+  }
+  if (props.variant === 4) {
     return content?.alerts ? <Alerts {...props} content={content.alerts} /> : empty(props);
-  if (props.variant === 5)
+  }
+  if (props.variant === 5) {
     return content?.logs ? <Logs {...props} content={content.logs} /> : empty(props);
-  if (props.variant === 6)
+  }
+  if (props.variant === 6) {
     return content?.uptime ? <Uptime {...props} content={content.uptime} /> : empty(props);
-  if (props.variant === 7)
+  }
+  if (props.variant === 7) {
     return content?.fleet ? <Fleet {...props} content={content.fleet} /> : empty(props);
-  if (props.variant === 8)
+  }
+  if (props.variant === 8) {
     return content?.response ? <Response {...props} content={content.response} /> : empty(props);
-  if (props.variant === 9)
+  }
+  if (props.variant === 9) {
     return content?.queue ? <Queue {...props} content={content.queue} /> : empty(props);
-  if (props.variant === 10)
+  }
+  if (props.variant === 10) {
     return content?.slo ? <Slo {...props} content={content.slo} /> : empty(props);
+  }
   return empty(props);
 }
 function variant(value: number, props: LumenMonitoringVariantProps) {
