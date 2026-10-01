@@ -958,6 +958,7 @@ export type {
   LumenDataTableVariantProps,
   LumenDataTableWideContent,
 } from './data-table';
+export type { LumenDataTableReferenceContent } from './data-table-reference-contracts';
 export {
   LumenDashboard,
   LumenDashboard01,

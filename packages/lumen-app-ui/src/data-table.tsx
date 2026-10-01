@@ -5,6 +5,8 @@ import { LumenCheckBoxControl, LumenInput, LumenSelect } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
 import './data-table.css';
+import LumenDataTableReference from './data-table-reference';
+import type { LumenDataTableReferenceContent } from './data-table-reference-contracts';
 
 export interface LumenDataTableListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -158,6 +160,10 @@ export interface LumenDataTableWideContent {
 }
 
 export interface LumenDataTableContent {
+  readonly reference?: LumenDataTableReferenceContent | undefined;
+  readonly onAction?: ((event: LumenDataTableAction) => void) | undefined;
+  readonly presentation?:
+    { readonly ownerId: string; readonly notice?: string | undefined } | undefined;
   readonly rows: readonly LumenDataTableRow[];
   readonly listStrategy: LumenDataTableListStrategy;
   readonly faceted?: LumenDataTableFacetedContent | undefined;
@@ -209,7 +215,9 @@ export function uniqueLumenDataTableItems<T extends { readonly id: string }>(
 ): readonly T[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -230,20 +238,15 @@ function Glyph({
 }: {
   name: 'search' | 'columns' | 'check' | 'edit' | 'chevron' | 'density' | 'loading';
 }) {
-  const path =
-    name === 'search'
-      ? 'm11 11 3 3M7 12A5 5 0 1 1 7 2a5 5 0 0 1 0 10Z'
-      : name === 'columns'
-        ? 'M2 3h12v10H2Zm4 0v10m4-10v10'
-        : name === 'check'
-          ? 'm3 8 3 3 7-7'
-          : name === 'edit'
-            ? 'M3 11.5 11.5 3 13 4.5 4.5 13H3Zm7.5-7.5 1.5 1.5'
-            : name === 'chevron'
-              ? 'm6 3 5 5-5 5'
-              : name === 'density'
-                ? 'M3 4h10M3 8h10M3 12h10'
-                : 'M8 2a6 6 0 1 1-6 6';
+  const paths = {
+    search: 'm11 11 3 3M7 12A5 5 0 1 1 7 2a5 5 0 0 1 0 10Z',
+    columns: 'M2 3h12v10H2Zm4 0v10m4-10v10',
+    check: 'm3 8 3 3 7-7',
+    edit: 'M3 11.5 11.5 3 13 4.5 4.5 13H3Zm7.5-7.5 1.5 1.5',
+    chevron: 'm6 3 5 5-5 5',
+    density: 'M3 4h10M3 8h10M3 12h10',
+    loading: 'M8 2a6 6 0 1 1-6 6',
+  };
   return (
     <svg
       className={
@@ -252,7 +255,7 @@ function Glyph({
       viewBox="0 0 16 16"
       aria-hidden="true"
     >
-      <path d={path} />
+      <path d={paths[name]} />
     </svg>
   );
 }
@@ -374,6 +377,7 @@ function Faceted(
     listStrategy: LumenDataTableListStrategy;
   },
 ) {
+  const queryId = React.useId();
   const filters = uniqueLumenDataTableItems(props.content.filters);
   const [query, setQuery] = React.useState('');
   const [filterId, setFilterId] = React.useState(props.content.initialFilterId);
@@ -387,9 +391,10 @@ function Faceted(
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
       <div className="lumen-data-table-toolbar">
-        <label className="lumen-data-table-search">
+        <label className="lumen-data-table-search" htmlFor={queryId}>
           <Glyph name="search" />
           <LumenInput
+            id={queryId}
             value={query}
             aria-label={props.content.labels.search}
             placeholder={props.content.labels.search}
@@ -437,6 +442,7 @@ function Selectable(
     listStrategy: LumenDataTableListStrategy;
   },
 ) {
+  const selectionId = React.useId();
   const pageSize = Math.max(1, Math.floor(props.content.pageSize));
   const totalPages = Math.max(1, Math.ceil(props.rows.length / pageSize));
   const [page, setPage] = React.useState(
@@ -487,8 +493,9 @@ function Selectable(
       >
         {rows.length ? (
           rows.map((row) => (
-            <label key={row.id}>
+            <label key={row.id} htmlFor={`${selectionId}-${row.id}`}>
               <LumenCheckBoxControl
+                id={`${selectionId}-${row.id}`}
                 checked={selectedIds.includes(row.id)}
                 aria-label={props.content.labels.selectRow(row.name)}
                 onChange={() =>
@@ -567,7 +574,7 @@ function InlineEdit(
                 <small>{row.status}</small>
               </span>
               {editingId === row.id ? (
-                <>
+                <React.Fragment>
                   <LumenInput
                     defaultValue={row.value}
                     aria-label={props.content.labels.value(row.name)}
@@ -583,15 +590,15 @@ function InlineEdit(
                     <Glyph name="check" />
                     {props.content.labels.save}
                   </LumenButton>
-                </>
+                </React.Fragment>
               ) : (
-                <>
+                <React.Fragment>
                   <strong>{row.value}</strong>
                   <LumenButton variant="outlined" onClick={() => setEditingId(row.id)}>
                     <Glyph name="edit" />
                     {props.content.labels.edit}
                   </LumenButton>
-                </>
+                </React.Fragment>
               )}
             </article>
           ))
@@ -687,7 +694,9 @@ function Grouped(
                 densities.findIndex((item) => item.id === density?.id),
               );
               const next = densities[(index + 1) % Math.max(1, densities.length)];
-              if (next) setDensityId(next.id);
+              if (next) {
+                setDensityId(next.id);
+              }
             }}
           >
             <Glyph name="density" />
@@ -768,7 +777,7 @@ function MasterDetail(
         </aside>
         <main>
           {row ? (
-            <>
+            <React.Fragment>
               <Header title={row.name} detail={props.content.labels.panelDetail} />
               <LumenStatus value={row.status} tone={row.statusTone} />
               <article>
@@ -782,7 +791,7 @@ function MasterDetail(
                   {props.content.labels.edit}
                 </LumenButton>
               </article>
-            </>
+            </React.Fragment>
           ) : (
             <LumenText as="p" tone="muted">
               {props.content.labels.empty}
@@ -879,6 +888,7 @@ function Wide(
     listStrategy: LumenDataTableListStrategy;
   },
 ) {
+  const queryId = React.useId();
   const [query, setQuery] = React.useState('');
   const rows = props.rows.filter((row) =>
     row.name.toLowerCase().includes(query.trim().toLowerCase()),
@@ -887,9 +897,10 @@ function Wide(
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
       <div className="lumen-data-table-toolbar">
-        <label className="lumen-data-table-search">
+        <label className="lumen-data-table-search" htmlFor={queryId}>
           <Glyph name="search" />
           <LumenInput
+            id={queryId}
             value={query}
             aria-label={props.content.labels.search}
             placeholder={props.content.labels.search}
@@ -946,9 +957,39 @@ function empty(props: LumenDataTableProps) {
 export function LumenDataTable(props: LumenDataTableProps) {
   const inheritedContent = useLumenDataTableContent();
   const content = props.content ?? inheritedContent;
-  if (!content) return empty(props);
+  const controlled = content?.onAction ? { ...props, onAction: content.onAction } : props;
+  const result = content?.reference ? (
+    <Root
+      {...controlled}
+      className={[props.className, 'lumen-data-table-reference'].filter(Boolean).join(' ')}
+    >
+      <LumenDataTableReference content={content.reference} onAction={controlled.onAction} />
+    </Root>
+  ) : (
+    renderTable(controlled, content)
+  );
+  return content?.presentation ? (
+    <div
+      className="lumen-data-table-preview-owner"
+      data-hbar-preview-owner={content.presentation.ownerId}
+    >
+      {content.presentation.notice && (
+        <p className="lumen-data-table-preview-notice" role="status">
+          {content.presentation.notice}
+        </p>
+      )}
+      {result}
+    </div>
+  ) : (
+    result
+  );
+}
+function renderTable(props: LumenDataTableProps, content: LumenDataTableContent | undefined) {
+  if (!content) {
+    return empty(props);
+  }
   const rows = uniqueLumenDataTableItems(content.rows);
-  if (props.variant === 1)
+  if (props.variant === 1) {
     return content.faceted ? (
       <Faceted
         {...props}
@@ -959,7 +1000,8 @@ export function LumenDataTable(props: LumenDataTableProps) {
     ) : (
       empty(props)
     );
-  if (props.variant === 2)
+  }
+  if (props.variant === 2) {
     return content.selectable ? (
       <Selectable
         {...props}
@@ -970,19 +1012,22 @@ export function LumenDataTable(props: LumenDataTableProps) {
     ) : (
       empty(props)
     );
-  if (props.variant === 3)
+  }
+  if (props.variant === 3) {
     return content.edit ? (
       <InlineEdit {...props} rows={rows} content={content.edit} />
     ) : (
       empty(props)
     );
-  if (props.variant === 4)
+  }
+  if (props.variant === 4) {
     return content.expandable ? (
       <Expandable {...props} rows={rows} content={content.expandable} />
     ) : (
       empty(props)
     );
-  if (props.variant === 5)
+  }
+  if (props.variant === 5) {
     return content.grouped ? (
       <Grouped
         {...props}
@@ -993,7 +1038,8 @@ export function LumenDataTable(props: LumenDataTableProps) {
     ) : (
       empty(props)
     );
-  if (props.variant === 6)
+  }
+  if (props.variant === 6) {
     return content.masterDetail ? (
       <MasterDetail
         {...props}
@@ -1004,14 +1050,17 @@ export function LumenDataTable(props: LumenDataTableProps) {
     ) : (
       empty(props)
     );
-  if (props.variant === 7)
+  }
+  if (props.variant === 7) {
     return content.states ? <States {...props} content={content.states} /> : empty(props);
-  if (props.variant === 8)
+  }
+  if (props.variant === 8) {
     return content.wide ? (
       <Wide {...props} rows={rows} content={content.wide} listStrategy={content.listStrategy} />
     ) : (
       empty(props)
     );
+  }
   return empty(props);
 }
 
