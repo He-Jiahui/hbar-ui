@@ -27,10 +27,10 @@ export default function createLumenTheme(
       mode,
       primary: { main: ink, contrastText: contrast },
       secondary: { main: contrast, contrastText: ink },
-      success: { main: mode === 'dark' ? '#77deb0' : '#1a7c56' },
-      warning: { main: mode === 'dark' ? '#efd17a' : '#996500' },
-      error: { main: mode === 'dark' ? '#ff969b' : '#b73548' },
-      info: { main: mode === 'dark' ? '#81b5ff' : '#285bc3' },
+      success: { main: mode === 'dark' ? '#77deb0' : '#1a7c56', contrastText: contrast },
+      warning: { main: mode === 'dark' ? '#efd17a' : '#996500', contrastText: contrast },
+      error: { main: mode === 'dark' ? '#ff969b' : '#b73548', contrastText: contrast },
+      info: { main: mode === 'dark' ? '#81b5ff' : '#285bc3', contrastText: contrast },
       background: {
         default: mode === 'dark' ? '#090909' : '#f5f5f5',
         paper: mode === 'dark' ? '#181818' : '#fafafa',
@@ -54,40 +54,55 @@ export default function createLumenTheme(
       },
       MuiButtonBase: { defaultProps: { disableRipple: true } },
       MuiButton: {
-        defaultProps: { disableElevation: true, color: 'inherit' },
+        defaultProps: { disableElevation: true, color: 'primary', loadingPosition: 'start' },
         styleOverrides: {
           root: {
             minWidth: 0,
             minHeight: { s: '1.875rem', m: '2.25rem', l: '2.625rem' }[controlSize],
             borderRadius: 'var(--lumen-radius-control, 0.375rem)',
-            '&:hover': { backgroundColor: alpha(ink, 0.08) },
-            '&:active': { backgroundColor: alpha(ink, 0.16) },
-            '&:not(:has(> [data-edge]))::after': {
-              content: '""',
-              position: 'absolute',
-              bottom: '0.125rem',
-              left: '50%',
-              width: '34%',
-              height: '0.125rem',
-              pointerEvents: 'none',
-              transform: 'translateX(-50%)',
-              borderRadius: '1rem',
-              backgroundColor: ink,
-              opacity: 0.5,
-              transition: 'width 180ms ease, opacity 180ms ease, box-shadow 180ms ease',
+            boxShadow: 'var(--lumen-effect-shadow)',
+            backgroundImage: 'var(--lumen-press-layer)',
+            transition: 'var(--lumen-state-transition)',
+            '&:hover, &:active, &.Mui-focusVisible': { boxShadow: 'var(--lumen-effect-shadow)' },
+            '&.MuiButton-text, &.MuiButton-text:hover, &.MuiButton-text:active, &.MuiButton-text.Mui-focusVisible':
+              { boxShadow: 'none' },
+            '&.Mui-focusVisible': {
+              outline: '0.125rem solid var(--lumen-effect-color)',
+              outlineOffset: '0.125rem',
             },
-            '&:not(:has(> [data-edge])):is(:hover, .Mui-focusVisible)::after': {
-              width: '70%',
-              opacity: 1,
-              boxShadow: `0 0 0.5rem ${controlGlow}`,
-            },
-            '&:disabled::after': { opacity: 0.12, boxShadow: 'none' },
-            '@media (prefers-reduced-motion: reduce)': {
-              '&::after': { transition: 'none' },
-            },
-            '@media (forced-colors: active)': {
-              '&::after': { backgroundColor: 'CanvasText', opacity: 1 },
-            },
+            '&.Mui-disabled:not(.Mui-loading)': { boxShadow: 'none', textShadow: 'none' },
+            variants: [
+              ...(['primary', 'success', 'warning', 'error', 'info'] as const).map((color) => ({
+                props: { color },
+                style: { '--lumen-effect-color': `var(--lumen-mui-palette-${color}-main)` },
+              })),
+              {
+                props: { variant: 'contained' },
+                style: { '--lumen-press-ink': 'var(--variant-containedColor)' },
+              },
+              {
+                props: { variant: 'contained', loading: true },
+                style: {
+                  '&.Mui-disabled': {
+                    backgroundColor: 'var(--variant-containedBg)',
+                    color: 'var(--variant-containedColor)',
+                  },
+                },
+              },
+              {
+                props: { variant: 'outlined', loading: true },
+                style: {
+                  '&.Mui-disabled': {
+                    color: 'var(--variant-outlinedColor)',
+                    borderColor: 'var(--variant-outlinedBorder)',
+                  },
+                },
+              },
+              {
+                props: { variant: 'text', loading: true },
+                style: { '&.Mui-disabled': { color: 'var(--variant-textColor)' } },
+              },
+            ],
           },
         },
       },
@@ -95,8 +110,13 @@ export default function createLumenTheme(
         styleOverrides: {
           root: {
             borderRadius: 'var(--lumen-radius-control, 0.375rem)',
+            transition: 'var(--lumen-state-transition)',
             '&:hover': { backgroundColor: alpha(ink, 0.08) },
             '&:active': { backgroundColor: alpha(ink, 0.16) },
+            '&.Mui-focusVisible': {
+              outline: '0.125rem solid var(--lumen-effect-color)',
+              outlineOffset: '0.125rem',
+            },
           },
         },
       },

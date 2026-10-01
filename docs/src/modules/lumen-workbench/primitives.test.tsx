@@ -72,6 +72,40 @@ describe('Lumen application primitives', () => {
     );
     expect(screen.getByText('Supporting text')).to.have.attribute('data-tone', 'muted');
     expect(screen.getByText('Connected')).to.have.attribute('data-tone', 'success');
-    expect(container.querySelectorAll('button [data-length="action"]')).to.have.length(2);
+    expect(container.querySelectorAll('button [data-edge]')).to.have.length(0);
+    expect(screen.getByRole('button', { name: 'Workspace' })).to.have.attribute(
+      'data-lumen-state',
+      'selected',
+    );
+  });
+
+  it('normalizes legacy solid and distinguishes busy from unavailable actions without changing accessible names', () => {
+    const { container } = render(
+      <LumenProvider appearance={appearance} withCssBaseline={false}>
+        <LumenButton variant="contained" loading>
+          保存当前工作区的设置
+        </LumenButton>
+        <LumenButton variant="solid" disabled>
+          不可运行
+        </LumenButton>
+        <LumenIconButton label="正在同步" loading>
+          <span aria-hidden="true">+</span>
+        </LumenIconButton>
+      </LumenProvider>,
+    );
+    const busy = screen.getByRole('button', { name: '保存当前工作区的设置' });
+    expect(busy).to.have.attribute('data-lumen-variant', 'contained');
+    expect(busy).to.have.attribute('data-lumen-state', 'running');
+    expect(busy).to.have.property('disabled', true);
+    expect(screen.getByRole('button', { name: '不可运行' })).to.have.attribute(
+      'data-lumen-state',
+      'disabled',
+    );
+    expect(screen.getByRole('button', { name: '不可运行' })).to.have.attribute(
+      'data-lumen-variant',
+      'contained',
+    );
+    expect(screen.getByRole('button', { name: '正在同步' })).to.have.attribute('aria-busy', 'true');
+    expect(container.querySelectorAll('button [data-edge]')).to.have.length(0);
   });
 });

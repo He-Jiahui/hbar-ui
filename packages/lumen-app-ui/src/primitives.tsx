@@ -2,10 +2,10 @@
 
 import * as React from 'react';
 import type { LumenShape, LumenSize } from './appearance';
-import LumenIndicator, { type LumenState, type LumenTone } from './LumenIndicator';
+import type { LumenState, LumenTone } from './LumenIndicator';
 import styles from './primitives.module.css';
 
-export type LumenActionVariant = 'solid' | 'outlined' | 'text';
+export type LumenActionVariant = 'contained' | 'outlined' | 'text' | 'solid';
 export type LumenActionTone = 'neutral' | 'primary' | 'success' | 'warning' | 'danger';
 
 export interface LumenButtonProps extends Omit<
@@ -20,14 +20,11 @@ export interface LumenButtonProps extends Omit<
   size?: LumenSize | undefined;
   shape?: LumenShape | undefined;
   loading?: boolean | undefined;
-  /** Use none when a disclosure arrow already conveys the action. Focus remains visible. */
+  /** Opt out of decorative glow. Keyboard focus always keeps a visible outline. */
   indicator?: 'lamp' | 'none' | undefined;
   indicatorState?: LumenState | undefined;
+  /** @deprecated Glow follows the control shape, independent of an edge. */
   indicatorEdge?: 'top' | 'bottom' | 'left' | 'right' | undefined;
-}
-
-function indicatorTone(tone: LumenActionTone): LumenTone {
-  return tone === 'primary' ? 'neutral' : tone;
 }
 
 export const LumenButton = React.forwardRef<HTMLButtonElement, LumenButtonProps>(
@@ -40,7 +37,7 @@ export const LumenButton = React.forwardRef<HTMLButtonElement, LumenButtonProps>
       loading = false,
       indicator = 'lamp',
       indicatorState,
-      indicatorEdge = 'bottom',
+      indicatorEdge: _indicatorEdge,
       className,
       children,
       disabled,
@@ -62,9 +59,13 @@ export const LumenButton = React.forwardRef<HTMLButtonElement, LumenButtonProps>
         {...other}
         ref={ref}
         type={type}
-        className={[styles.button, className].filter(Boolean).join(' ')}
-        data-lumen-variant={variant}
+        className={['lumen-effect', 'lumen-action', styles.button, className]
+          .filter(Boolean)
+          .join(' ')}
+        data-lumen-variant={variant === 'solid' ? 'contained' : variant}
         data-lumen-indicator={indicator}
+        data-lumen-state={state ?? 'idle'}
+        data-lumen-tone={tone}
         data-tone={typeof compatibilityTone === 'string' ? compatibilityTone : tone}
         data-size={size}
         data-shape={shape}
@@ -73,14 +74,6 @@ export const LumenButton = React.forwardRef<HTMLButtonElement, LumenButtonProps>
         disabled={disabled || loading}
       >
         {children}
-        {indicator === 'lamp' ? (
-          <LumenIndicator
-            edge={indicatorEdge}
-            state={state ?? 'idle'}
-            tone={indicatorTone(tone)}
-            length="action"
-          />
-        ) : null}
       </button>
     );
   },
@@ -96,7 +89,10 @@ export interface LumenIconButtonProps extends Omit<
   size?: LumenSize | undefined;
   shape?: LumenShape | undefined;
   loading?: boolean | undefined;
+  variant?: LumenActionVariant | undefined;
+  indicator?: 'lamp' | 'none' | undefined;
   indicatorState?: LumenState | undefined;
+  /** @deprecated Glow follows the control shape, independent of an edge. */
   indicatorEdge?: 'top' | 'bottom' | 'left' | 'right' | undefined;
 }
 
@@ -108,8 +104,10 @@ export const LumenIconButton = React.forwardRef<HTMLButtonElement, LumenIconButt
       size = 'm',
       shape = 'rounded',
       loading = false,
+      variant = 'text',
+      indicator = 'lamp',
       indicatorState,
-      indicatorEdge = 'bottom',
+      indicatorEdge: _indicatorEdge,
       className,
       disabled,
       children,
@@ -129,8 +127,13 @@ export const LumenIconButton = React.forwardRef<HTMLButtonElement, LumenIconButt
         {...other}
         ref={ref}
         type={type}
-        className={[styles.iconButton, className].filter(Boolean).join(' ')}
-        data-lumen-variant="text"
+        className={['lumen-effect', 'lumen-action', styles.iconButton, className]
+          .filter(Boolean)
+          .join(' ')}
+        data-lumen-variant={variant === 'solid' ? 'contained' : variant}
+        data-lumen-indicator={indicator}
+        data-lumen-state={state ?? 'idle'}
+        data-lumen-tone={tone}
         data-tone={tone}
         data-size={size}
         data-shape={shape}
@@ -140,12 +143,6 @@ export const LumenIconButton = React.forwardRef<HTMLButtonElement, LumenIconButt
         disabled={disabled || loading}
       >
         {children}
-        <LumenIndicator
-          edge={indicatorEdge}
-          state={state ?? 'idle'}
-          tone={indicatorTone(tone)}
-          length="action"
-        />
       </button>
     );
   },
