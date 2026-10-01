@@ -5,6 +5,9 @@ import { LumenCheckBoxControl, LumenInput } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus } from './primitives';
 import './file-manager.css';
+import './file-manager-reference.css';
+import LumenFileManagerReference from './file-manager-reference';
+import type { LumenFileManagerReferenceContent } from './file-manager-reference-contracts';
 
 export type LumenFileManagerListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -202,6 +205,7 @@ export interface LumenFileManagerUploadContent {
 }
 
 export interface LumenFileManagerContent {
+  readonly reference?: LumenFileManagerReferenceContent | undefined;
   readonly drive?: LumenFileManagerDriveContent | undefined;
   readonly assets?: LumenFileManagerAssetContent | undefined;
   readonly detail?: LumenFileManagerDetailContent | undefined;
@@ -253,7 +257,9 @@ export function uniqueLumenFileManagerItems<Item extends { readonly id: string }
 ): readonly Item[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -295,7 +301,7 @@ function FileGlyph({
     | 'star'
     | 'trash'
     | 'upload';
-  readonly tier?: 'xs' | 'sm' | 'md' | 'lg';
+  readonly tier?: 'xs' | 'sm' | 'md' | 'lg' | undefined;
 }) {
   return (
     <svg
@@ -528,7 +534,7 @@ function DriveExplorer(
         <main className="hbar-app-ui-file-manager-drive-main">
           <header className="hbar-app-ui-file-manager-drive-toolbar">
             <strong>{activeFolder?.name ?? content.labels.myDrive}</strong>
-            <label className="hbar-app-ui-file-manager-search">
+            <div className="hbar-app-ui-file-manager-search">
               <FileGlyph name="search" tier="xs" />
               <LumenInput
                 value={query}
@@ -536,7 +542,7 @@ function DriveExplorer(
                 placeholder={content.labels.search}
                 aria-label={content.labels.search}
               />
-            </label>
+            </div>
             <div className="hbar-app-ui-file-manager-view-actions">
               <LumenIconButton label={content.labels.listView}>
                 <FileGlyph name="list" tier="xs" />
@@ -653,14 +659,16 @@ function DriveExplorer(
 
 type AssetFilter = 'all' | 'images' | 'video' | 'documents';
 function matchesFilter(kind: LumenFileKind, filter: AssetFilter) {
-  return (
-    filter === 'all' ||
-    (filter === 'images'
-      ? kind === 'image'
-      : filter === 'video'
-        ? kind === 'video'
-        : kind === 'document')
-  );
+  if (filter === 'all') {
+    return true;
+  }
+  if (filter === 'images') {
+    return kind === 'image';
+  }
+  if (filter === 'video') {
+    return kind === 'video';
+  }
+  return kind === 'document';
 }
 
 function AssetLibrary(
@@ -935,13 +943,25 @@ function labelForState(
   labels: LumenFileManagerUploadContent['labels'],
   state: LumenFileManagerUploadState,
 ) {
-  return state === 'uploaded'
-    ? labels.uploaded
-    : state === 'uploading'
-      ? labels.uploading
-      : state === 'failed'
-        ? labels.failed
-        : labels.queued;
+  switch (state) {
+    case 'uploaded':
+      return labels.uploaded;
+    case 'uploading':
+      return labels.uploading;
+    case 'failed':
+      return labels.failed;
+    default:
+      return labels.queued;
+  }
+}
+function toneForUploadState(state: LumenFileManagerUploadState) {
+  if (state === 'failed') {
+    return 'danger' as const;
+  }
+  if (state === 'uploaded') {
+    return 'success' as const;
+  }
+  return state === 'uploading' ? ('warning' as const) : ('neutral' as const);
 }
 
 function UploadQueue(
@@ -1012,15 +1032,7 @@ function UploadQueue(
                     <span>
                       <LumenStatus
                         value={labelForState(content.labels, state)}
-                        tone={
-                          state === 'failed'
-                            ? 'danger'
-                            : state === 'uploaded'
-                              ? 'success'
-                              : state === 'uploading'
-                                ? 'warning'
-                                : 'neutral'
-                        }
+                        tone={toneForUploadState(state)}
                       />
                       {statusDetail ? <small>{statusDetail}</small> : null}
                     </span>
@@ -1104,31 +1116,44 @@ function emptyFileManager(props: LumenFileManagerProps) {
 export function LumenFileManager(props: LumenFileManagerProps) {
   const providerContent = useLumenFileManagerContent();
   const content = props.content ?? providerContent;
-  if (!content) return emptyFileManager(props);
-  if (props.variant === 1)
+  if (content?.reference) {
+    return (
+      <FileManagerRoot {...props}>
+        <LumenFileManagerReference content={content.reference} />
+      </FileManagerRoot>
+    );
+  }
+  if (!content) {
+    return emptyFileManager(props);
+  }
+  if (props.variant === 1) {
     return content.drive ? (
       <DriveExplorer {...props} content={content.drive} />
     ) : (
       emptyFileManager(props)
     );
-  if (props.variant === 2)
+  }
+  if (props.variant === 2) {
     return content.assets ? (
       <AssetLibrary {...props} content={content.assets} />
     ) : (
       emptyFileManager(props)
     );
-  if (props.variant === 3)
+  }
+  if (props.variant === 3) {
     return content.detail ? (
       <FileDetail {...props} content={content.detail} />
     ) : (
       emptyFileManager(props)
     );
-  if (props.variant === 4)
+  }
+  if (props.variant === 4) {
     return content.upload ? (
       <UploadQueue {...props} content={content.upload} />
     ) : (
       emptyFileManager(props)
     );
+  }
   return emptyFileManager(props);
 }
 

@@ -308,6 +308,13 @@ export type {
   LumenFileManagerUploadState,
   LumenFileManagerVariantProps,
 } from './file-manager';
+export type {
+  LumenFileManagerReferenceContent,
+  LumenFileManagerReferenceFolderContents,
+  LumenFileManagerReferenceLabels,
+  LumenFileManagerReferenceMenuAction,
+  LumenFileManagerReferenceUpload,
+} from './file-manager-reference-contracts';
 export {
   LumenEditor,
   LumenEditor01,
