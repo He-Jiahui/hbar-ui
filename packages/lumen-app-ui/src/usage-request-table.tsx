@@ -28,6 +28,9 @@ export interface LumenUsageRequestTableContent {
   readonly filter: LumenUsageChoice;
   readonly expandedId: string | null;
   readonly onToggle: (id: string) => void;
+  /** Optional independent action for opening the source session/run. */
+  readonly openLabel?: string | undefined;
+  readonly onOpen?: ((id: string) => void) | undefined;
   readonly columns: {
     readonly time: string;
     readonly request: string;
@@ -140,6 +143,11 @@ export function UsageRequestTable({ heading, table }: UsageRequestTableProps) {
                           </div>
                         ),
                       )}
+                      {table.openLabel && table.onOpen ? (
+                        <LumenButton size="s" variant="text" onClick={() => table.onOpen?.(row.id)}>
+                          {table.openLabel}
+                        </LumenButton>
+                      ) : null}
                     </div>
                   ) : null}
                 </div>
