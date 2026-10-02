@@ -742,7 +742,7 @@ function Upload({ reference }: { readonly reference: Extract<Content, { kind: 'u
         return content.labels.uploaded;
       case 'failed':
         return content.labels.failed;
-      default:
+      case 'queued':
         return content.labels.queued;
     }
   };

@@ -950,7 +950,7 @@ function labelForState(
       return labels.uploading;
     case 'failed':
       return labels.failed;
-    default:
+    case 'queued':
       return labels.queued;
   }
 }
