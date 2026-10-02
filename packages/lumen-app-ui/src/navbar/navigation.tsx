@@ -18,6 +18,7 @@ export function NavbarNavigationOwner({
   readonly children: (state: { readonly open: boolean; readonly toggle: () => void }) => ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
   const owner = useRef<HTMLDivElement>(null);
   const content = children({ open, toggle: () => setOpen(!open) });
   function close() {
@@ -60,21 +61,37 @@ export function NavbarNavigationOwner({
               {uniqueLumenNavbarItems(items).map((item) => {
                 const menu = menus?.find((entry) => entry.label === item.label);
                 return menu ? (
-                  <details key={item.id} open={menu.id === menus?.[0]?.id}>
-                    <summary>{item.label}</summary>
-                    {uniqueLumenNavbarItems(menu.items).map((option) => (
-                      <LumenButton
-                        className="hbar-app-ui-button"
-                        key={option.id}
-                        onClick={() => {
-                          close();
-                          onChoose(option.id, menu.id);
-                        }}
-                      >
-                        {option.label}
-                      </LumenButton>
-                    ))}
-                  </details>
+                  <div
+                    key={item.id}
+                    data-expanded={expandedMenus[menu.id] ?? menu.id === menus?.[0]?.id}
+                  >
+                    <LumenButton
+                      type="button"
+                      variant="text"
+                      aria-expanded={expandedMenus[menu.id] ?? menu.id === menus?.[0]?.id}
+                      onClick={() =>
+                        setExpandedMenus((current) => ({
+                          ...current,
+                          [menu.id]: !(current[menu.id] ?? menu.id === menus?.[0]?.id),
+                        }))
+                      }
+                    >
+                      {item.label}
+                    </LumenButton>
+                    {(expandedMenus[menu.id] ?? menu.id === menus?.[0]?.id) &&
+                      uniqueLumenNavbarItems(menu.items).map((option) => (
+                        <LumenButton
+                          className="hbar-app-ui-button"
+                          key={option.id}
+                          onClick={() => {
+                            close();
+                            onChoose(option.id, menu.id);
+                          }}
+                        >
+                          {option.label}
+                        </LumenButton>
+                      ))}
+                  </div>
                 ) : (
                   <LumenButton
                     className="hbar-app-ui-button"

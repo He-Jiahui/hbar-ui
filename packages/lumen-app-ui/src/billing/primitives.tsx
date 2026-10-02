@@ -1,6 +1,6 @@
 import { LumenButton } from '../primitives';
 import LumenSurface from '../LumenSurface';
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import type {
   LumenBillingMetric,
   LumenBillingTone,
@@ -90,17 +90,14 @@ export function BillingIcon({
   );
 }
 
-export function BillingButton({
-  children,
-  tone = 'neutral',
-  className,
-  ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & {
-  readonly tone?: 'neutral' | 'accent' | 'quiet';
-}) {
+export const BillingButton = forwardRef<
+  HTMLButtonElement,
+  ButtonHTMLAttributes<HTMLButtonElement> & { readonly tone?: 'neutral' | 'accent' | 'quiet' }
+>(function BillingButton({ children, tone = 'neutral', className, ...props }, ref) {
   return (
     <LumenButton
       {...props}
+      ref={ref}
       tone={tone === 'accent' ? 'primary' : 'neutral'}
       variant={tone === 'accent' ? 'solid' : tone === 'quiet' ? 'text' : 'outlined'}
       className={`hbar-app-ui-billing-button hbar-app-ui-billing-button-${tone} ${className ?? ''}`}
@@ -108,7 +105,7 @@ export function BillingButton({
       {children}
     </LumenButton>
   );
-}
+});
 
 export function BillingIconButton({
   children,

@@ -242,7 +242,7 @@ export function ReferenceConsentIntegration({
                       workspace.id === selectedWorkspace?.id && index === selectedIndex;
                     return (
                       <li key={workspace.id} role="presentation">
-                        <button
+                        <IntegrationButton
                           aria-selected={selected}
                           className="lumen-integration-consent-reference-workspace-option"
                           data-hbar-app-ui-action="choose-workspace"
@@ -266,7 +266,7 @@ export function ReferenceConsentIntegration({
                               </IntegrationIcon>
                             )}
                           </span>
-                        </button>
+                        </IntegrationButton>
                       </li>
                     );
                   })}

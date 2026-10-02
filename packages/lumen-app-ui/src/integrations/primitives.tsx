@@ -1,6 +1,6 @@
 import { LumenButton } from '../primitives';
 import LumenSurface from '../LumenSurface';
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import type { LumenIntegrationTone } from './content';
 
 export interface LumenIntegrationsCompositionProps {
@@ -84,17 +84,16 @@ export function IntegrationIcon({
   );
 }
 
-export function IntegrationButton({
-  children,
-  tone = 'neutral',
-  className,
-  ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & {
-  readonly tone?: 'neutral' | 'accent' | 'quiet' | 'danger';
-}) {
+export const IntegrationButton = forwardRef<
+  HTMLButtonElement,
+  ButtonHTMLAttributes<HTMLButtonElement> & {
+    readonly tone?: 'neutral' | 'accent' | 'quiet' | 'danger';
+  }
+>(function IntegrationButton({ children, tone = 'neutral', className, ...props }, ref) {
   return (
     <LumenButton
       {...props}
+      ref={ref}
       tone={tone === 'accent' ? 'primary' : tone === 'danger' ? 'danger' : 'neutral'}
       variant={tone === 'quiet' ? 'text' : tone === 'neutral' ? 'outlined' : 'solid'}
       className={`hbar-app-ui-integration-button hbar-app-ui-integration-button-${tone} ${className ?? ''}`}
@@ -102,7 +101,7 @@ export function IntegrationButton({
       {children}
     </LumenButton>
   );
-}
+});
 
 export function IntegrationIconButton({
   children,

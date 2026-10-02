@@ -313,7 +313,7 @@ function QuoteAuthenticationView({
             <div className="hbar-app-ui-auth-quote-carousel">
               <div className="hbar-app-ui-auth-quote-dots">
                 {quotes.map((item) => (
-                  <button
+                  <LumenButton
                     key={item.id}
                     type="button"
                     className={item.id === quote.id ? 'is-active' : undefined}

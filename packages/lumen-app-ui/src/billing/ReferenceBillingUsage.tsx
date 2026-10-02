@@ -115,7 +115,7 @@ export function ReferenceBillingUsage({
               aria-label={content.labels.periodGroup}
             >
               {periods.map((period, index) => (
-                <button
+                <BillingButton
                   aria-selected={index === activeIndex}
                   data-hbar-app-ui-action="change-period"
                   data-hbar-app-ui-target={period.id}
@@ -131,7 +131,7 @@ export function ReferenceBillingUsage({
                   type="button"
                 >
                   {period.label}
-                </button>
+                </BillingButton>
               ))}
             </div>
           )}

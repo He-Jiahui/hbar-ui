@@ -50,7 +50,7 @@ function ReferenceWorkspacePickerAuthentication({ spec, onAction, content }: Wor
           <p>{content.labels.description}</p>
           <label className="hbar-app-ui-auth-workspace-reference-search">
             <AuthIcon tier="sm"><SearchIcon /></AuthIcon>
-            <input value={flow.query} aria-label={content.labels.searchLabel} placeholder={content.labels.searchPlaceholder} onChange={(event) => flow.onQueryChange(event.currentTarget.value)} />
+            <LumenInput value={flow.query} aria-label={content.labels.searchLabel} placeholder={content.labels.searchPlaceholder} onChange={(event) => flow.onQueryChange(event.currentTarget.value)} />
           </label>
           <div className="hbar-app-ui-auth-workspace-reference-list" data-hbar-app-ui-list-strategy={content.listStrategy.kind}>
             {visible.map((workspace) => (

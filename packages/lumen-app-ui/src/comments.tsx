@@ -402,7 +402,7 @@ function Discussion(
           </div>
           <div className="lumen-comments-discussion-sort" role="tablist" aria-label={content.labels.sortLabel}>
             {content.sortOptions.map((option) => (
-              <button
+              <LumenButton
                 type="button"
                 role="tab"
                 aria-selected={sort?.id === option.id}
@@ -410,7 +410,7 @@ function Discussion(
                 onClick={() => { content.onSortChange?.(option.id); report(onAction, 'sort', option.id); }}
               >
                 {option.label}
-              </button>
+              </LumenButton>
             ))}
           </div>
         </header>
@@ -423,17 +423,17 @@ function Discussion(
                 <div className="lumen-comments-discussion-message-body">
                   <div className="lumen-comments-discussion-byline">
                     <p><span className="lumen-comments-discussion-author">{message.author}</span><span>{message.role ? `${message.role} · ${message.meta}` : message.meta}</span></p>
-                    <button
+                    <LumenButton
                       type="button"
                       className="lumen-comments-discussion-more"
                       aria-label={content.labels.moreActions(message.author)}
                       onClick={() => report(onAction, 'more', message.id)}
-                    ><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3" cy="8" r="1" /><circle cx="8" cy="8" r="1" /><circle cx="13" cy="8" r="1" /></svg></button>
+                    ><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3" cy="8" r="1" /><circle cx="8" cy="8" r="1" /><circle cx="13" cy="8" r="1" /></svg></LumenButton>
                   </div>
                   <p>{message.body}</p>
                   <div className="lumen-comments-discussion-actions">
                     {message.reactionCount !== undefined ? (
-                      <button
+                      <LumenButton
                         type="button"
                         className="lumen-comments-discussion-reaction"
                         aria-pressed={pressed}
@@ -444,12 +444,12 @@ function Discussion(
                       >
                         <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" /><path d="M5 9.5c1.5 2 4.5 2 6 0M5.8 6.5h.1m4.2 0h.1" /></svg>
                         {message.reactionCount}
-                      </button>
+                      </LumenButton>
                     ) : null}
-                    <button type="button" className="lumen-comments-discussion-reply" onClick={() => report(onAction, 'reply', message.id)}>
+                    <LumenButton type="button" className="lumen-comments-discussion-reply" onClick={() => report(onAction, 'reply', message.id)}>
                       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 4-4 4 4 4M2 8h7c3 0 5 1 5 4" /></svg>
                       {content.labels.reply}
-                    </button>
+                    </LumenButton>
                   </div>
                   {message.replies?.length ? (
                     <div className="lumen-comments-discussion-replies">
@@ -482,9 +482,9 @@ function Discussion(
           </div>
           <div className="lumen-comments-discussion-footer">
             <p>{content.labels.helper}</p>
-            <button type="button" disabled={!draft.trim()} onClick={() => report(onAction, 'comment', draft)}>
+            <LumenButton type="button" disabled={!draft.trim()} onClick={() => report(onAction, 'comment', draft)}>
               {content.labels.comment}
-            </button>
+            </LumenButton>
           </div>
         </div>
       </div>

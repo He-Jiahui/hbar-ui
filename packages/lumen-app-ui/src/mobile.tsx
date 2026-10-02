@@ -816,7 +816,7 @@ function Home(props: Omit<LumenMobileProps, 'content'> & { content: LumenMobileH
               </section>
               <div className="lumen-mobile-home-search">
                 <Glyph name="search" />
-                <input
+                <LumenInput
                   autoFocus
                   aria-label={search.label}
                   placeholder={search.placeholder}
@@ -917,7 +917,7 @@ function Orders(props: Omit<LumenMobileProps, 'content'> & { content: LumenMobil
               }
             }}
           >
-            <button
+            <LumenButton
               type="button"
               className="lumen-mobile-action-backdrop"
               aria-label={more.dismiss}
@@ -995,6 +995,7 @@ function Runs(props: Omit<LumenMobileProps, 'content'> & { content: LumenMobileR
   const [localStateId, setStateId] = React.useState(props.content.initialStateId);
   const stateId = props.content.selection ? props.content.selection.id : localStateId;
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const [expandedGroups, setExpandedGroups] = React.useState<Record<string, boolean>>({});
   const menuTrigger = React.useRef<HTMLButtonElement>(null);
   const navigation = props.content.navigation;
   const closeMenu = () => {
@@ -1113,21 +1114,35 @@ function Runs(props: Omit<LumenMobileProps, 'content'> & { content: LumenMobileR
                 <nav className="lumen-mobile-section-list" aria-label={navigation.sectionsLabel}>
                   {uniqueLumenMobileItems(navigation.groups).map((group) =>
                     group.items?.length ? (
-                      <details key={group.id} open={group.expanded}>
-                        <summary>
+                      <div
+                        key={group.id}
+                        data-expanded={expandedGroups[group.id] ?? group.expanded}
+                      >
+                        <LumenButton
+                          type="button"
+                          variant="text"
+                          aria-expanded={expandedGroups[group.id] ?? group.expanded}
+                          onClick={() =>
+                            setExpandedGroups((current) => ({
+                              ...current,
+                              [group.id]: !(current[group.id] ?? group.expanded),
+                            }))
+                          }
+                        >
                           {group.label}
                           <Glyph name="chevron" tier="sm" />
-                        </summary>
-                        {uniqueLumenMobileItems(group.items).map((item) => (
-                          <LumenButton
-                            key={item.id}
-                            variant="text"
-                            onClick={() => navigate(item.id)}
-                          >
-                            {item.label}
-                          </LumenButton>
-                        ))}
-                      </details>
+                        </LumenButton>
+                        {(expandedGroups[group.id] ?? group.expanded) &&
+                          uniqueLumenMobileItems(group.items).map((item) => (
+                            <LumenButton
+                              key={item.id}
+                              variant="text"
+                              onClick={() => navigate(item.id)}
+                            >
+                              {item.label}
+                            </LumenButton>
+                          ))}
+                      </div>
                     ) : (
                       <LumenButton
                         key={group.id}

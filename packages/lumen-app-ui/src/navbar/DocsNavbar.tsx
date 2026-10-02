@@ -19,6 +19,7 @@ export function DocsNavbar({
   readonly content: LumenNavbarDocsContent;
 }) {
   const [navigationOpen, setNavigationOpen] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>({});
   const owner = useRef<HTMLDivElement>(null);
   const navigation = content.navigation;
   function closeNavigation() {
@@ -177,21 +178,37 @@ export function DocsNavbar({
               ))}
             </nav>
             {content.sidebar.map((group, index) => (
-              <details key={`${index}-${group.group}`} open={index === 1}>
-                <summary>{group.group}</summary>
-                {group.items.map((item) => (
-                  <LumenButton
-                    className="hbar-app-ui-button"
-                    key={item}
-                    onClick={() => {
-                      closeNavigation();
-                      reportNavbarAction(onAction, spec, 'navigate', item);
-                    }}
-                  >
-                    {item}
-                  </LumenButton>
-                ))}
-              </details>
+              <div
+                key={`${index}-${group.group}`}
+                data-expanded={expandedGroups[index] ?? index === 1}
+              >
+                <LumenButton
+                  type="button"
+                  variant="text"
+                  aria-expanded={expandedGroups[index] ?? index === 1}
+                  onClick={() =>
+                    setExpandedGroups((current) => ({
+                      ...current,
+                      [index]: !(current[index] ?? index === 1),
+                    }))
+                  }
+                >
+                  {group.group}
+                </LumenButton>
+                {(expandedGroups[index] ?? index === 1) &&
+                  group.items.map((item) => (
+                    <LumenButton
+                      className="hbar-app-ui-button"
+                      key={item}
+                      onClick={() => {
+                        closeNavigation();
+                        reportNavbarAction(onAction, spec, 'navigate', item);
+                      }}
+                    >
+                      {item}
+                    </LumenButton>
+                  ))}
+              </div>
             ))}
           </aside>
         </div>
