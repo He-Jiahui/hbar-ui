@@ -21,7 +21,34 @@
     "./toggle-button": "./src/toggle-button.tsx",
     "./catalog": "./src/catalog.ts",
     "./variants": "./src/variants/index.ts",
-    "./styles.css": "./src/styles.css"
+    "./styles.css": "./src/styles.css",
+    "./app-shell": "./src/app-shell-workflows.tsx",
+    "./app-sidebar": "./src/app-sidebar-workflows.tsx",
+    "./ai-chat": "./src/ai-chat.tsx",
+    "./prompt-input": "./src/prompt-input.tsx",
+    "./agent-activity": "./src/agent-activity.tsx",
+    "./agent-approval": "./src/agent-approval.tsx",
+    "./agent-plan": "./src/agent-plan.tsx",
+    "./tool-calls": "./src/tool-calls.tsx",
+    "./usage": "./src/usage.tsx",
+    "./file-manager": "./src/file-manager.tsx",
+    "./editor": "./src/editor.tsx",
+    "./settings-form": "./src/settings-form.tsx",
+    "./integrations": "./src/integrations.tsx",
+    "./notifications": "./src/notifications.tsx",
+    "./scheduling": "./src/scheduling.tsx",
+    "./kanban": "./src/kanban.tsx",
+    "./dashboard": "./src/dashboard.tsx",
+    "./analytics": "./src/analytics.tsx",
+    "./monitoring": "./src/monitoring.tsx",
+    "./command-menu": "./src/command-menu.tsx",
+    "./onboarding": "./src/onboarding.tsx",
+    "./wizard": "./src/wizard.tsx",
+    "./navbar": "./src/navbar.tsx",
+    "./mobile": "./src/mobile.tsx",
+    "./session-components": "./src/session-components.tsx",
+    "./workspace-components": "./src/workspace-components.tsx",
+    "./workbench": "./src/workbench.tsx"
   },
   "publishConfig": {
     "exports": {
@@ -61,7 +88,115 @@
         "types": "./dist/types/variants/index.d.ts",
         "import": "./dist/variants.js"
       },
-      "./styles.css": "./dist/app-ui.css"
+      "./styles.css": "./dist/app-ui.css",
+      "./app-shell": {
+        "types": "./dist/types/app-shell-workflows.d.ts",
+        "import": "./dist/app-shell.js"
+      },
+      "./app-sidebar": {
+        "types": "./dist/types/app-sidebar-workflows.d.ts",
+        "import": "./dist/app-sidebar.js"
+      },
+      "./ai-chat": {
+        "types": "./dist/types/ai-chat.d.ts",
+        "import": "./dist/ai-chat.js"
+      },
+      "./prompt-input": {
+        "types": "./dist/types/prompt-input.d.ts",
+        "import": "./dist/prompt-input.js"
+      },
+      "./agent-activity": {
+        "types": "./dist/types/agent-activity.d.ts",
+        "import": "./dist/agent-activity.js"
+      },
+      "./agent-approval": {
+        "types": "./dist/types/agent-approval.d.ts",
+        "import": "./dist/agent-approval.js"
+      },
+      "./agent-plan": {
+        "types": "./dist/types/agent-plan.d.ts",
+        "import": "./dist/agent-plan.js"
+      },
+      "./tool-calls": {
+        "types": "./dist/types/tool-calls.d.ts",
+        "import": "./dist/tool-calls.js"
+      },
+      "./usage": {
+        "types": "./dist/types/usage.d.ts",
+        "import": "./dist/usage.js"
+      },
+      "./file-manager": {
+        "types": "./dist/types/file-manager.d.ts",
+        "import": "./dist/file-manager.js"
+      },
+      "./editor": {
+        "types": "./dist/types/editor.d.ts",
+        "import": "./dist/editor.js"
+      },
+      "./settings-form": {
+        "types": "./dist/types/settings-form.d.ts",
+        "import": "./dist/settings-form.js"
+      },
+      "./integrations": {
+        "types": "./dist/types/integrations.d.ts",
+        "import": "./dist/integrations.js"
+      },
+      "./notifications": {
+        "types": "./dist/types/notifications.d.ts",
+        "import": "./dist/notifications.js"
+      },
+      "./scheduling": {
+        "types": "./dist/types/scheduling.d.ts",
+        "import": "./dist/scheduling.js"
+      },
+      "./kanban": {
+        "types": "./dist/types/kanban.d.ts",
+        "import": "./dist/kanban.js"
+      },
+      "./dashboard": {
+        "types": "./dist/types/dashboard.d.ts",
+        "import": "./dist/dashboard.js"
+      },
+      "./analytics": {
+        "types": "./dist/types/analytics.d.ts",
+        "import": "./dist/analytics.js"
+      },
+      "./monitoring": {
+        "types": "./dist/types/monitoring.d.ts",
+        "import": "./dist/monitoring.js"
+      },
+      "./command-menu": {
+        "types": "./dist/types/command-menu.d.ts",
+        "import": "./dist/command-menu.js"
+      },
+      "./onboarding": {
+        "types": "./dist/types/onboarding.d.ts",
+        "import": "./dist/onboarding.js"
+      },
+      "./wizard": {
+        "types": "./dist/types/wizard.d.ts",
+        "import": "./dist/wizard.js"
+      },
+      "./navbar": {
+        "types": "./dist/types/navbar.d.ts",
+        "import": "./dist/navbar.js"
+      },
+      "./mobile": {
+        "types": "./dist/types/mobile.d.ts",
+        "import": "./dist/mobile.js"
+      },
+      "./session-components": {
+        "types": "./dist/types/session-components.d.ts",
+        "import": "./dist/session-components.js"
+      },
+      "./workspace-components": {
+        "types": "./dist/types/workspace-components.d.ts",
+        "import": "./dist/workspace-components.js"
+      },
+      "./workbench": {
+        "types": "./dist/types/workbench.d.ts",
+        "import": "./dist/workbench.js"
+      }
     }
   },
   "scripts": {
