@@ -204,6 +204,7 @@ export interface LumenToolCallsProps {
   readonly surface?: string | undefined;
   readonly state?: string | undefined;
   readonly visualMode?: string | undefined;
+  readonly controlled?: { readonly body: React.ReactNode } | undefined;
 }
 
 export type LumenToolCallsVariantProps = Omit<LumenToolCallsProps, 'variant' | 'variantId'>;
@@ -1035,6 +1036,7 @@ function ToolCallsRouter(props: LumenToolCallsProps) {
 
 export function LumenToolCalls(props: LumenToolCallsProps) {
   const providerContent = useLumenToolCallsContent();
+  if (props.controlled) return <ToolCallsRoot {...props}>{props.controlled.body}</ToolCallsRoot>;
   const content = props.content ?? providerContent;
   const viewModel = props.viewModel ?? content?.viewModel;
   return (

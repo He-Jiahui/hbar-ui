@@ -302,6 +302,7 @@ export interface LumenAgentApprovalProps {
   readonly surface?: string | undefined;
   readonly state?: string | undefined;
   readonly visualMode?: string | undefined;
+  readonly controlled?: { readonly body: React.ReactNode } | undefined;
 }
 export type LumenAgentApprovalVariantProps = Omit<LumenAgentApprovalProps, 'variant' | 'variantId'>;
 
@@ -1259,6 +1260,7 @@ function HistoryApproval(
 
 export function LumenAgentApproval(props: LumenAgentApprovalProps) {
   const contextualContent = useLumenAgentApprovalContent();
+  if (props.controlled) return <ApprovalRoot {...props}>{props.controlled.body}</ApprovalRoot>;
   const content = props.content ?? contextualContent;
   let view: React.ReactNode = null;
   if (props.variant === 1 && content?.inline)

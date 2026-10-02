@@ -246,6 +246,7 @@ export interface LumenAgentActivityProps {
   readonly surface?: string | undefined;
   readonly state?: string | undefined;
   readonly visualMode?: string | undefined;
+  readonly controlled?: { readonly body: React.ReactNode } | undefined;
 }
 
 export type LumenAgentActivityVariantProps = Omit<LumenAgentActivityProps, 'variant' | 'variantId'>;
@@ -1169,6 +1170,7 @@ function FailureActivity(
 
 export function LumenAgentActivity(props: LumenAgentActivityProps) {
   const providerContent = useLumenAgentActivityContent();
+  if (props.controlled) return <ActivityFrame {...props}>{props.controlled.body}</ActivityFrame>;
   const content = props.content ?? providerContent;
   const viewModel = props.viewModel ?? content?.viewModel;
   return (
