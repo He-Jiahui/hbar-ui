@@ -7,6 +7,7 @@ export type LumenFrameElement =
   | 'a'
   | 'span'
   | 'pre'
+  | 'iframe'
   | 'section'
   | 'article'
   | 'aside'
