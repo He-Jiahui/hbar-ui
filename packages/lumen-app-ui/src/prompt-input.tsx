@@ -177,6 +177,14 @@ export interface LumenPromptInputProps {
   readonly surface?: string | undefined;
   readonly state?: string | undefined;
   readonly visualMode?: string | undefined;
+  /** Production host controlled layout for numbered variants; content remains host-owned. */
+  readonly controlled?:
+    | {
+        readonly header?: React.ReactNode;
+        readonly body: React.ReactNode;
+        readonly composer?: React.ReactNode;
+      }
+    | undefined;
 }
 
 export type LumenPromptInputVariantProps = Omit<LumenPromptInputProps, 'variant' | 'variantId'>;
@@ -824,6 +832,15 @@ function empty(props: LumenPromptInputProps) {
 
 export function LumenPromptInput(props: LumenPromptInputProps) {
   const inheritedContent = useLumenPromptInputContent();
+  if (props.controlled) {
+    return (
+      <Root {...props}>
+        {props.controlled.header}
+        {props.controlled.body}
+        {props.controlled.composer}
+      </Root>
+    );
+  }
   const content = props.content ?? inheritedContent;
   if (content?.referenceViewModel?.content.variant === props.variant) {
     return (

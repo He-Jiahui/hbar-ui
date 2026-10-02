@@ -291,6 +291,7 @@ export interface LumenPromptLabels {
 }
 
 export interface LumenPromptComposerProps {
+  readonly className?: string | undefined;
   value: string;
   labels: LumenPromptLabels;
   attachments: readonly LumenComposerAttachment[];
@@ -329,6 +330,8 @@ export interface LumenPromptComposerProps {
     | undefined;
   controls?: React.ReactNode;
   modelPicker?: React.ReactNode;
+  /** Host-owned action rendered with the primary running actions (for example background agent stop). */
+  backgroundAction?: React.ReactNode;
   onChange: (value: string) => void;
   onAddAttachments?: ((files: readonly File[]) => void) | undefined;
   onRemoveAttachment: (id: string, kind: 'image' | 'file') => void;
@@ -371,7 +374,7 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
       as="form"
       boundary={props.boundary ?? 'horizontal'}
       className="lumen-prompt-composer-surface"
-      contentClassName="lumen-prompt-composer"
+      contentClassName={['lumen-prompt-composer', props.className].filter(Boolean).join(' ')}
       interactive
       material="frost"
       state={surfaceState}
@@ -467,6 +470,7 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
         </div>
         <div className={runningActions ? 'lumen-composer-running-actions' : undefined}>
           {props.modelPicker}
+          {props.backgroundAction}
           {runningActions?.submit === 'queue' ? (
             <LumenButton
               type="submit"

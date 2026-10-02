@@ -124,6 +124,14 @@ export interface LumenAiChatProps {
   readonly surface?: string | undefined;
   readonly state?: string | undefined;
   readonly visualMode?: string | undefined;
+  /** Production host controlled layout. When supplied, no preview/content records are required. */
+  readonly controlled?:
+    | {
+        readonly header?: React.ReactNode;
+        readonly body: React.ReactNode;
+        readonly composer?: React.ReactNode;
+      }
+    | undefined;
 }
 export type LumenAiChatVariantProps = Omit<LumenAiChatProps, 'variant' | 'variantId'>;
 const Context = React.createContext<LumenAiChatContent | undefined>(undefined);
@@ -787,6 +795,15 @@ function empty(props: LumenAiChatProps) {
 }
 export function LumenAiChat(props: LumenAiChatProps) {
   const providerContent = useLumenAiChatContent();
+  if (props.controlled) {
+    return (
+      <Root {...props}>
+        {props.controlled.header}
+        {props.controlled.body}
+        {props.controlled.composer}
+      </Root>
+    );
+  }
   const content = props.content ?? providerContent;
   if (!content) {
     return empty(props);
