@@ -4,6 +4,7 @@ import * as React from 'react';
 
 export type LumenFrameElement =
   | 'div'
+  | 'a'
   | 'section'
   | 'article'
   | 'aside'
