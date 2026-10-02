@@ -232,6 +232,15 @@ export interface LumenFileManagerProps {
   readonly surface?: string | undefined;
   readonly state?: string | undefined;
   readonly visualMode?: string | undefined;
+  /** Host controlled regions for production workspaces. */
+  readonly slots?:
+    | {
+        readonly navigation?: React.ReactNode | undefined;
+        readonly toolbar?: React.ReactNode | undefined;
+        readonly content?: React.ReactNode | undefined;
+        readonly footer?: React.ReactNode | undefined;
+      }
+    | undefined;
 }
 
 export type LumenFileManagerVariantProps = Omit<LumenFileManagerProps, 'variant' | 'variantId'>;
@@ -1115,6 +1124,18 @@ function emptyFileManager(props: LumenFileManagerProps) {
 
 export function LumenFileManager(props: LumenFileManagerProps) {
   const providerContent = useLumenFileManagerContent();
+  if (props.slots) {
+    return (
+      <FileManagerRoot {...props} className="hbar-app-ui-file-manager-slot-surface">
+        {props.slots.toolbar ? <header>{props.slots.toolbar}</header> : null}
+        <div className="hbar-app-ui-file-manager-slot-body">
+          {props.slots.navigation ? <aside>{props.slots.navigation}</aside> : null}
+          <main>{props.slots.content}</main>
+        </div>
+        {props.slots.footer ? <footer>{props.slots.footer}</footer> : null}
+      </FileManagerRoot>
+    );
+  }
   const content = props.content ?? providerContent;
   if (content?.reference) {
     return (

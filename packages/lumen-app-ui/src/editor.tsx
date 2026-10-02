@@ -5,11 +5,20 @@ import { LumenInput, LumenTextarea } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus } from './primitives';
 import './editor.css';
-import {LumenRichEditorReference, type LumenRichEditorReferenceContent} from './editor-rich-reference';
-import {LumenMarkdownReference, type LumenMarkdownReferenceContent} from './editor-markdown-reference';
-import {LumenCodeReference, type LumenCodeReferenceContent} from './editor-code-reference';
-import {LumenSuggestionsReference, type LumenSuggestionsReferenceContent} from './editor-suggestions-reference';
-import {LumenReaderReference, type LumenReaderReferenceContent} from './editor-reader-reference';
+import {
+  LumenRichEditorReference,
+  type LumenRichEditorReferenceContent,
+} from './editor-rich-reference';
+import {
+  LumenMarkdownReference,
+  type LumenMarkdownReferenceContent,
+} from './editor-markdown-reference';
+import { LumenCodeReference, type LumenCodeReferenceContent } from './editor-code-reference';
+import {
+  LumenSuggestionsReference,
+  type LumenSuggestionsReferenceContent,
+} from './editor-suggestions-reference';
+import { LumenReaderReference, type LumenReaderReferenceContent } from './editor-reader-reference';
 
 export type LumenEditorFormattingAction =
   'bold' | 'italic' | 'strikethrough' | 'inline-code' | 'link';
@@ -210,6 +219,14 @@ export interface LumenEditorProps {
   readonly surface?: string | undefined;
   readonly state?: string | undefined;
   readonly visualMode?: string | undefined;
+  /** Host controlled production regions; preserves the numbered editor shell. */
+  readonly slots?:
+    | {
+        readonly toolbar?: React.ReactNode | undefined;
+        readonly body?: React.ReactNode | undefined;
+        readonly footer?: React.ReactNode | undefined;
+      }
+    | undefined;
 }
 export type LumenEditorVariantProps = Omit<LumenEditorProps, 'variant' | 'variantId'>;
 
@@ -274,7 +291,10 @@ function Root({
   className,
   boundary = 'horizontal',
   children,
-}: Omit<LumenEditorProps, 'content' | 'onAction'> & { readonly children: React.ReactNode; readonly boundary?: 'none' | 'horizontal' }) {
+}: Omit<LumenEditorProps, 'content' | 'onAction'> & {
+  readonly children: React.ReactNode;
+  readonly boundary?: 'none' | 'horizontal';
+}) {
   const contentClassName = [
     'lumen-editor',
     'hbar-app-ui-editor-surface',
@@ -842,17 +862,61 @@ function empty(props: LumenEditorProps) {
 }
 export function LumenEditor(props: LumenEditorProps) {
   const inheritedContent = useLumenEditorContent();
+  if (props.slots) {
+    return (
+      <Root {...props} className="hbar-app-ui-editor-slot-surface">
+        {props.slots.toolbar ? <header>{props.slots.toolbar}</header> : null}
+        <main>{props.slots.body}</main>
+        {props.slots.footer ? <footer>{props.slots.footer}</footer> : null}
+      </Root>
+    );
+  }
   const content = props.content ?? inheritedContent;
   if (props.variant === 1 && content?.referenceRichText)
-    return <Root {...props} boundary="none" className="hbar-app-ui-editor-rich-text lumen-rich-editor-reference"><LumenRichEditorReference content={content.referenceRichText} onAction={props.onAction} /></Root>;
+    return (
+      <Root
+        {...props}
+        boundary="none"
+        className="hbar-app-ui-editor-rich-text lumen-rich-editor-reference"
+      >
+        <LumenRichEditorReference content={content.referenceRichText} onAction={props.onAction} />
+      </Root>
+    );
   if (props.variant === 2 && content?.referenceMarkdown)
-    return <Root {...props} boundary="none" className={`hbar-app-ui-editor-markdown hbar-app-ui-editor-markdown-mode-${content.referenceMarkdown.mode} lumen-markdown-reference`}><LumenMarkdownReference content={content.referenceMarkdown} onAction={props.onAction} /></Root>;
+    return (
+      <Root
+        {...props}
+        boundary="none"
+        className={`hbar-app-ui-editor-markdown hbar-app-ui-editor-markdown-mode-${content.referenceMarkdown.mode} lumen-markdown-reference`}
+      >
+        <LumenMarkdownReference content={content.referenceMarkdown} onAction={props.onAction} />
+      </Root>
+    );
   if (props.variant === 3 && content?.referenceCode)
-    return <Root {...props} boundary="none" className="hbar-app-ui-editor-code lumen-code-reference"><LumenCodeReference content={content.referenceCode} onAction={props.onAction} /></Root>;
+    return (
+      <Root {...props} boundary="none" className="hbar-app-ui-editor-code lumen-code-reference">
+        <LumenCodeReference content={content.referenceCode} onAction={props.onAction} />
+      </Root>
+    );
   if (props.variant === 4 && content?.referenceSuggestions)
-    return <Root {...props} boundary="none" className="hbar-app-ui-editor-suggestions lumen-suggestions-reference"><LumenSuggestionsReference content={content.referenceSuggestions} onAction={props.onAction} /></Root>;
+    return (
+      <Root
+        {...props}
+        boundary="none"
+        className="hbar-app-ui-editor-suggestions lumen-suggestions-reference"
+      >
+        <LumenSuggestionsReference
+          content={content.referenceSuggestions}
+          onAction={props.onAction}
+        />
+      </Root>
+    );
   if (props.variant === 5 && content?.referenceReader)
-    return <Root {...props} boundary="none" className="hbar-app-ui-editor-reader lumen-reader-reference"><LumenReaderReference content={content.referenceReader} onAction={props.onAction} /></Root>;
+    return (
+      <Root {...props} boundary="none" className="hbar-app-ui-editor-reader lumen-reader-reference">
+        <LumenReaderReference content={content.referenceReader} onAction={props.onAction} />
+      </Root>
+    );
   if (props.variant === 1)
     return content?.richText ? <RichText {...props} content={content.richText} /> : empty(props);
   if (props.variant === 2)
