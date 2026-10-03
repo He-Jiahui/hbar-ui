@@ -14,6 +14,22 @@
     system-ui,
     sans-serif;
 }
+.lumen-notifications.hbar-app-ui-notifications-variant-6.lumen-notifications-inline-bell {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+  overflow: visible;
+  background: transparent;
+}
+.lumen-notifications-inline-bell.hbar-app-ui-notifications-variant-6 .lumen-notifications-appbar {
+  min-block-size: 0;
+  gap: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.lumen-notifications-inline-bell.hbar-app-ui-notifications-variant-6 .lumen-bell-popover {
+  inline-size: min(22rem, calc(100vw - 2rem));
+}
 .hbar-app-ui-notifications-variant-6 .lumen-notifications-appbar {
   min-block-size: 3.5rem;
   flex: 0 0 auto;

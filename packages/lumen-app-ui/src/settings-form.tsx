@@ -296,6 +296,13 @@ export interface LumenSettingsFormProps {
   readonly surface?: string | undefined;
   readonly state?: string | undefined;
   readonly visualMode?: string | undefined;
+  readonly slots?:
+    | {
+        readonly navigation?: React.ReactNode | undefined;
+        readonly content?: React.ReactNode | undefined;
+        readonly footer?: React.ReactNode | undefined;
+      }
+    | undefined;
 }
 
 export type LumenSettingsFormVariantProps = Omit<LumenSettingsFormProps, 'variant' | 'variantId'>;
@@ -1228,6 +1235,14 @@ function emptySettings(props: LumenSettingsFormProps) {
 
 export function LumenSettingsForm(props: LumenSettingsFormProps) {
   const providerContent = useLumenSettingsFormContent();
+  if (props.slots)
+    return (
+      <SettingsRoot {...props} className="hbar-app-ui-settings-form-slot-surface">
+        {props.slots.navigation}
+        <main>{props.slots.content}</main>
+        {props.slots.footer}
+      </SettingsRoot>
+    );
   const content = props.content ?? providerContent;
   if (!content) return emptySettings(props);
   switch (props.variant) {
@@ -1287,7 +1302,9 @@ export function LumenSettingsForm(props: LumenSettingsFormProps) {
       );
     case 6:
       if (content.dangerReference) {
-        return <LumenSettingsForm6Reference {...content.dangerReference} instanceId={props.variantId} />;
+        return (
+          <LumenSettingsForm6Reference {...content.dangerReference} instanceId={props.variantId} />
+        );
       }
       return content.danger ? (
         <DangerSettings {...props} content={content.danger} />

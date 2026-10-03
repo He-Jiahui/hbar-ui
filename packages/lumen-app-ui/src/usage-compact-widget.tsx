@@ -73,7 +73,7 @@ export function UsageCompactWidget({ content, widget }: UsageCompactWidgetProps)
               ))}
             </div>
           </div>
-          <div
+          {content.progress !== undefined ? <div
             className="lumen-usage-widget-progress"
             role="progressbar"
             aria-label={content.progressLabel}
@@ -82,7 +82,7 @@ export function UsageCompactWidget({ content, widget }: UsageCompactWidgetProps)
             aria-valuenow={percent(content.progress)}
           >
             <div style={{ inlineSize: `${percent(content.progress)}%` }} />
-          </div>
+          </div> : null}
           <p className="lumen-usage-widget-status">
             <span aria-hidden="true" />
             {content.detail}

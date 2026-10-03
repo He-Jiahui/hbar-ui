@@ -129,6 +129,7 @@ export interface LumenNotificationPreferencesContent {
   readonly days: readonly LumenNotificationsChoice[];
   readonly initialDayIds: readonly string[];
   readonly initialQuiet: boolean;
+  readonly quietHoursVisible?: boolean | undefined;
   readonly listStrategy: LumenNotificationsListStrategy;
   /** The owning host confirms persistence; an absent handler cannot claim a successful save. */
   readonly savePreferences?:
@@ -220,6 +221,8 @@ export interface LumenNotificationBellMessage {
   readonly icon: 'mention' | 'review' | 'security' | 'reply' | 'resolved';
 }
 export interface LumenNotificationBellContent {
+  readonly presentation?: 'appbar' | 'trigger' | undefined;
+  readonly unreadCount?: number | undefined;
   readonly labels: {
     readonly brandMark: string;
     readonly brand: string;
@@ -896,7 +899,7 @@ function Preferences(
             )}
           </div>
         </div>
-        <section className="lumen-notifications-quiet" data-hbar-app-ui-region="quiet-hours">
+        {content.quietHoursVisible !== false ? <section className="lumen-notifications-quiet" data-hbar-app-ui-region="quiet-hours">
           <div className="lumen-preferences-quiet-card">
             <div className="lumen-preferences-quiet-heading">
               <span className="lumen-preferences-quiet-icon" aria-hidden="true">
@@ -948,7 +951,7 @@ function Preferences(
               </div>
             ) : null}
           </div>
-        </section>
+        </section> : null}
       </div>
       <footer className="lumen-notifications-save" role="contentinfo">
         <span aria-live="polite">{statusLabel}</span>
@@ -1367,6 +1370,7 @@ function Bell(
     };
   }, [open]);
   const unreadMessages = messages.filter((item) => item.unread && !readIds.has(item.id));
+  const unreadCount = content.unreadCount ?? unreadMessages.length;
   const visible = filter === 'unread' ? unreadMessages : messages;
   const markRead = async (ids: readonly string[], target: string) => {
     if (!content.markRead || pendingRef.current || ids.length === 0) {
@@ -1402,21 +1406,21 @@ function Bell(
     }
   };
   return (
-    <Root {...props}>
-      <header className="lumen-notifications-appbar" role="banner">
-        <div className="lumen-bell-leading">
+    <Root {...props} className={[props.className, content.presentation === 'trigger' ? 'lumen-notifications-inline-bell' : undefined].filter(Boolean).join(' ')}>
+      <header className="lumen-notifications-appbar" role={content.presentation === 'trigger' ? undefined : 'banner'}>
+        {content.presentation !== 'trigger' ? <div className="lumen-bell-leading">
           <span className="lumen-bell-brand"><span className="lumen-bell-mark">{content.labels.brandMark}</span><span>{content.labels.brand}</span></span>
           <nav>
             {navItems.map((item) => (
               <a key={item.id} href={item.href} aria-current={item.id === content.selectedNavId ? 'page' : undefined}>{item.label}</a>
             ))}
           </nav>
-        </div>
+        </div> : null}
         <div className="lumen-bell-trailing">
           <div className="lumen-notifications-bell" ref={bellRef}>
             <LumenIconButton
               ref={triggerRef}
-              label={content.labels.bell(unreadMessages.length)}
+              label={content.labels.bell(unreadCount)}
               aria-expanded={open}
               aria-controls={open ? dialogId : undefined}
               onClick={() => {
@@ -1425,7 +1429,7 @@ function Bell(
               }}
             >
               <Glyph name="bell" />
-              {unreadMessages.length ? <span className="lumen-bell-badge">{unreadMessages.length}</span> : null}
+              {unreadCount ? <span className="lumen-bell-badge">{unreadCount}</span> : null}
             </LumenIconButton>
             {open ? (
               <aside className="lumen-bell-popover" id={dialogId} role="dialog" aria-label={content.labels.dialog}>
@@ -1456,20 +1460,20 @@ function Bell(
               </aside>
             ) : null}
           </div>
-          <LumenIconButton
+          {content.presentation !== 'trigger' ? <LumenIconButton
             label={content.labels.settings}
             onClick={() => report(props.onAction, 'settings')}
           >
             <Glyph name="settings" />
-          </LumenIconButton>
-          <span className="lumen-notifications-avatar">{content.avatar}</span>
+          </LumenIconButton> : null}
+          {content.presentation !== 'trigger' ? <span className="lumen-notifications-avatar">{content.avatar}</span> : null}
         </div>
       </header>
-      <div className="lumen-notifications-hint">
+      {content.presentation !== 'trigger' ? <div className="lumen-notifications-hint">
         <LumenText as="p" tone="muted">
           {content.labels.hint}
         </LumenText>
-      </div>
+      </div> : null}
     </Root>
   );
 }

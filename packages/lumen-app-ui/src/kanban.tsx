@@ -35,6 +35,7 @@ export interface LumenKanbanCard extends LumenKanbanChoice {
   readonly points?: number | undefined;
   readonly blocked?: boolean | undefined;
   readonly groupValues?: Readonly<Record<string, string>> | undefined;
+  readonly actions?: readonly { readonly id: string; readonly label: string; readonly runId?: string | undefined; readonly disabled?: boolean }[] | undefined;
 }
 export interface LumenKanbanColumn extends LumenKanbanChoice {
   readonly cardIds: readonly string[];
@@ -357,6 +358,8 @@ export interface LumenKanbanProps {
   readonly surface?: string | undefined;
   readonly state?: string | undefined;
   readonly visualMode?: string | undefined;
+  /** Disable board mutations while retaining the reference layout and selection actions. */
+  readonly readOnly?: boolean | undefined;
 }
 export type LumenKanbanVariantProps = Omit<LumenKanbanProps, 'variant' | 'variantId'>;
 const Context = React.createContext<LumenKanbanContent | undefined>(undefined);
@@ -475,11 +478,13 @@ function Card({
   onOpen,
   onMove,
   moveLabel,
+  onAction,
 }: {
   card: LumenKanbanCard;
   onOpen: () => void;
   onMove?: (() => void) | undefined;
   moveLabel?: string | undefined;
+  onAction?: LumenKanbanProps['onAction'] | undefined;
 }) {
   return (
     <article className="lumen-kanban-card">
@@ -525,6 +530,15 @@ function Card({
           <Glyph name="next" />
         </LumenButton>
       ) : null}
+      {card.actions?.length ? (
+        <footer>
+          {card.actions.map((action) => (
+            <LumenButton key={action.id} variant="outlined" disabled={action.disabled} onClick={() => report(onAction, action.id, action.runId ?? card.id)}>
+              {action.label}
+            </LumenButton>
+          ))}
+        </footer>
+      ) : null}
     </article>
   );
 }
@@ -544,7 +558,7 @@ function Board(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanban
 function LegacyBoard(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
   const sourceCards = uniqueLumenKanbanItems(props.content.cards);
   const sourceColumns = uniqueLumenKanbanItems(props.content.columns);
-  const [columnCards, setColumnCards] = React.useState(
+  const hostColumnCards = React.useMemo(
     () =>
       Object.fromEntries(
         sourceColumns.map((column) => [
@@ -555,7 +569,18 @@ function LegacyBoard(props: Omit<LumenKanbanProps, 'content'> & { content: Lumen
           ),
         ]),
       ) as Record<string, readonly string[]>,
+    [sourceCards, sourceColumns],
   );
+  const [localColumnCards, setLocalColumnCards] = React.useState<Record<string, readonly string[]>>(hostColumnCards);
+  const hostProjectionKey = sourceColumns.map((column) => `${column.id}:${column.cardIds.join(',')}`).join('|');
+  const [lastHostProjectionKey, setLastHostProjectionKey] = React.useState(hostProjectionKey);
+  React.useEffect(() => {
+    if (lastHostProjectionKey !== hostProjectionKey) {
+      setLastHostProjectionKey(hostProjectionKey);
+      setLocalColumnCards(hostColumnCards);
+    }
+  }, [hostColumnCards, hostProjectionKey, lastHostProjectionKey]);
+  const columnCards = props.readOnly ? hostColumnCards : localColumnCards;
   const count = Object.values(columnCards).reduce((total, ids) => total + ids.length, 0);
   const move = (cardId: string, fromId: string) => {
     const index = sourceColumns.findIndex((column) => column.id === fromId);
@@ -563,7 +588,7 @@ function LegacyBoard(props: Omit<LumenKanbanProps, 'content'> & { content: Lumen
     if (!destination) {
       return;
     }
-    setColumnCards((current) => ({
+    setLocalColumnCards((current) => ({
       ...current,
       [fromId]: (current[fromId] ?? []).filter((id) => id !== cardId),
       [destination.id]: [...(current[destination.id] ?? []), cardId],
@@ -598,12 +623,14 @@ function LegacyBoard(props: Omit<LumenKanbanProps, 'content'> & { content: Lumen
                     {column.label}
                   </LumenText>
                   <span>{column.limit ? `${ids.length}/${column.limit}` : ids.length}</span>
-                  <LumenIconButton
-                    label={props.content.labels.add(column.label)}
-                    onClick={() => report(props.onAction, 'add', column.id)}
-                  >
-                    <Glyph name="plus" />
-                  </LumenIconButton>
+                  {props.readOnly ? null : (
+                    <LumenIconButton
+                      label={props.content.labels.add(column.label)}
+                      onClick={() => report(props.onAction, 'add', column.id)}
+                    >
+                      <Glyph name="plus" />
+                    </LumenIconButton>
+                  )}
                 </header>
                 <div>
                   {ids.map((id) => {
@@ -613,7 +640,8 @@ function LegacyBoard(props: Omit<LumenKanbanProps, 'content'> & { content: Lumen
                         key={card.id}
                         card={card}
                         onOpen={() => report(props.onAction, 'open', card.id)}
-                        onMove={() => move(card.id, column.id)}
+                        onMove={props.readOnly ? undefined : () => move(card.id, column.id)}
+                        onAction={props.onAction}
                       />
                     ) : null;
                   })}
@@ -868,7 +896,7 @@ function LegacyDetail(props: Omit<LumenKanbanProps, 'content'> & { content: Lume
               </LumenSelect>
             </label>
             <LumenText as="p" tone="muted">
-              {props.content.labels.activity} · {card.detail}
+              {props.content.labels.activity} {String.fromCharCode(0x00b7)} {card.detail}
             </LumenText>
             <LumenButton tone="primary" onClick={() => report(props.onAction, 'save', card.id)}>
               {props.content.labels.save}
@@ -935,12 +963,20 @@ function LegacySprint(props: Omit<LumenKanbanProps, 'content'> & { content: Lume
                     key={id}
                     card={card}
                     onOpen={() => report(props.onAction, 'open', id)}
-                    onMove={() => {
-                      setMovedId(id);
-                      report(props.onAction, 'move', id);
-                    }}
+                    onMove={
+                      props.readOnly
+                        ? undefined
+                        : () => {
+                            setMovedId(id);
+                            report(props.onAction, 'move', id);
+                          }
+                    }
                     moveLabel={
-                      movedId === id ? props.content.labels.moved : props.content.labels.move
+                      props.readOnly
+                        ? undefined
+                        : movedId === id
+                          ? props.content.labels.moved
+                          : props.content.labels.move
                     }
                   />
                 ) : null;
@@ -998,15 +1034,19 @@ function LegacyCompact(props: Omit<LumenKanbanProps, 'content'> & { content: Lum
             <strong>{card.label}</strong>
             <small>{props.content.labels.steps}</small>
             <div>
-              <LumenButton
-                tone="primary"
-                onClick={() => report(props.onAction, 'step', column?.id)}
-              >
-                {props.content.labels.nextStep}
-              </LumenButton>
-              <LumenIconButton label={props.content.labels.more}>
-                <Glyph name="more" />
-              </LumenIconButton>
+              {props.readOnly ? null : (
+                <>
+                  <LumenButton
+                    tone="primary"
+                    onClick={() => report(props.onAction, 'step', column?.id)}
+                  >
+                    {props.content.labels.nextStep}
+                  </LumenButton>
+                  <LumenIconButton label={props.content.labels.more}>
+                    <Glyph name="more" />
+                  </LumenIconButton>
+                </>
+              )}
             </div>
           </article>
         ) : (

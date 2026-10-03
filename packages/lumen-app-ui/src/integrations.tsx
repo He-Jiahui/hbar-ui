@@ -1,5 +1,7 @@
 'use client';
 
+import type React from 'react';
+
 import { ApiKeysIntegration } from './integrations/ApiKeysIntegration';
 import { ConnectionIntegration } from './integrations/ConnectionIntegration';
 import { ConsentIntegration } from './integrations/ConsentIntegration';
@@ -40,6 +42,12 @@ export interface LumenIntegrationsProps {
   readonly surface?: string | undefined;
   readonly state?: string | undefined;
   readonly visualMode?: string | undefined;
+  readonly slots?:
+    | {
+        readonly list?: React.ReactNode | undefined;
+        readonly detail?: React.ReactNode | undefined;
+      }
+    | undefined;
 }
 
 export type LumenIntegrationsVariantProps = Omit<LumenIntegrationsProps, 'variant' | 'variantId'>;
@@ -79,6 +87,10 @@ export function LumenIntegrations(props: LumenIntegrationsProps) {
   const inheritedContent = useLumenIntegrationContent();
   const content = props.content ?? inheritedContent;
   const composition = compositionProps(props);
+  if (props.slots)
+    return (
+      <IntegrationFrame {...composition}>{props.slots.detail ?? props.slots.list}</IntegrationFrame>
+    );
   if (props.variant === 1 && content?.marketplace?.referenceLayout) {
     return (
       <ReferenceMarketplaceIntegration

@@ -187,7 +187,7 @@ export interface LumenUsageCompactContent extends LumenUsageHeading {
   readonly density?: 'default' | 'inline' | undefined;
   readonly value: string;
   readonly detail: string;
-  readonly progress: number;
+  readonly progress?: number | undefined;
   readonly progressLabel: string;
   readonly tone: LumenUsageMeter['tone'];
   /** Bounded normalized trend, normally twelve points; hosts aggregate above thirty-one. */
@@ -498,7 +498,7 @@ export function LumenUsageModelSpend(content: LumenUsageModelSpendContent) {
         content={content}
         items={content.rows}
         render={(row) => (
-          <div className="lumen-usage-model-row hbar-app-ui-model-spend-row">
+          <div className="lumen-usage-model-row hbar-app-ui-model-spend-row hbar-settings-usage-model-row">
             <strong>{row.model}</strong>
             <UsageProgress value={row.share} label={row.shareLabel} />
             <span>{row.spend}</span>
@@ -750,7 +750,7 @@ export function LumenUsageCompact(content: LumenUsageCompactContent) {
         <LumenText as="small" tone="muted">
           {content.detail}
         </LumenText>
-        <UsageProgress value={content.progress} label={content.progressLabel} tone={content.tone} />
+        {content.progress !== undefined ? <UsageProgress value={content.progress} label={content.progressLabel} tone={content.tone} /> : null}
         <div className="lumen-usage-secondary-metrics hbar-app-ui-secondary-meters">
           {uniqueLumenUsageItems(content.metrics).map((metric) => (
             <span key={metric.id}>
