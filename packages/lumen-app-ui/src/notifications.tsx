@@ -513,7 +513,8 @@ function Center(
                             : props.content.labels.markRead(item.title)
                         }
                         disabled={pendingIds.has(item.id)}
-                        onClick={() =>
+                        onClick={() => {
+                          if (props.content.controlledReadState) { report(props.onAction, read ? 'unread' : 'read', item.id); return; }
                           setLocalReadIds((current) => {
                             const next = new Set(current);
                             if (read) next.delete(item.id);
@@ -521,7 +522,7 @@ function Center(
                             report(props.onAction, read ? 'unread' : 'read', item.id);
                             return next;
                           })
-                        }
+                        }}
                       >
                         <span className="lumen-notifications-center-dot" aria-hidden="true" />
                       </LumenIconButton>
