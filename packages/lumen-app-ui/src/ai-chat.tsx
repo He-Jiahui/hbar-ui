@@ -5,6 +5,7 @@ import { LumenCheckBoxControl, LumenSelect, LumenTextarea } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './ai-chat.css';
+import './ai-chat-controlled-flow.css';
 import type { LumenAiChatReferenceViewModel } from './ai-chat/reference-content';
 import { ReferenceAiChat } from './ai-chat/ReferenceAiChat';
 
@@ -797,10 +798,17 @@ export function LumenAiChat(props: LumenAiChatProps) {
   const providerContent = useLumenAiChatContent();
   if (props.controlled) {
     return (
-      <Root {...props}>
-        {props.controlled.header}
-        {props.controlled.body}
-        {props.controlled.composer}
+      <Root
+        {...props}
+        className={['lumen-ai-chat-controlled-stage', props.className].filter(Boolean).join(' ')}
+      >
+        {props.controlled.header != null ? (
+          <div className="lumen-ai-chat-controlled-header">{props.controlled.header}</div>
+        ) : null}
+        <div className="lumen-ai-chat-controlled-body">{props.controlled.body}</div>
+        {props.controlled.composer != null ? (
+          <div className="lumen-ai-chat-controlled-composer">{props.controlled.composer}</div>
+        ) : null}
       </Root>
     );
   }

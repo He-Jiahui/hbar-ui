@@ -1,0 +1,19 @@
+.lumen-app-sidebar-stage > .lumen-app-sidebar-controlled-layout,
+.lumen-app-sidebar-controlled-layout > :is(nav, section, aside) {
+  display: flex;
+  min-inline-size: 0;
+  min-block-size: 0;
+  flex: 1 1 0;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.lumen-app-sidebar-controlled-layout > footer {
+  min-inline-size: 0;
+  flex: 0 0 auto;
+}
+
+.lumen-app-sidebar-controlled-layout > :is(nav, section, aside) > .lumen-app-sidebar {
+  flex: 1 1 0;
+  overflow: hidden;
+}

@@ -14,6 +14,7 @@ import { AppSidebarDrawer, type LumenAppSidebarDrawerContent } from './app-sideb
 import { AppSidebarFull, type LumenAppSidebarFullContent } from './app-sidebar-full';
 import './app-sidebar-workflows.css';
 import './app-sidebar-practical-flow.css';
+import './app-sidebar-controlled-flow.css';
 
 export interface LumenAppSidebarListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';

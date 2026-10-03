@@ -1,0 +1,24 @@
+.lumen-ai-chat-stage.lumen-ai-chat-controlled-stage {
+  display: flex;
+  flex-direction: column;
+}
+
+.lumen-ai-chat-controlled-header,
+.lumen-ai-chat-controlled-composer {
+  min-inline-size: 0;
+  flex: 0 0 auto;
+}
+
+.lumen-ai-chat-controlled-body {
+  display: flex;
+  min-inline-size: 0;
+  min-block-size: 0;
+  flex: 1 1 0;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.lumen-ai-chat-controlled-body > * {
+  min-block-size: 0;
+  flex: 1 1 auto;
+}
