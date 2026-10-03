@@ -17,3 +17,15 @@
   flex: 1 1 0;
   overflow: hidden;
 }
+
+.lumen-app-sidebar-controlled-layout .lumen-app-sidebar > header {
+  min-block-size: 0;
+  flex: 0 1 auto;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.lumen-app-sidebar-controlled-layout .lumen-app-sidebar-content {
+  /* Keep a usable row when titlebar, header and footer compete for a short pane. */
+  min-block-size: 2.75rem;
+}
