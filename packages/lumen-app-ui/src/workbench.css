@@ -450,6 +450,23 @@
   backdrop-filter: blur(1.5rem);
 }
 
+.hbar-app-ui-dialog-menu.lumen-action-menu-popup:popover-open {
+  position: fixed;
+  z-index: 1000;
+  inset: auto;
+  top: var(--lumen-action-menu-top);
+  bottom: var(--lumen-action-menu-bottom);
+  left: var(--lumen-action-menu-left);
+  max-block-size: var(--lumen-action-menu-limit, calc(100vh - 2rem));
+  margin: 0;
+  overflow: auto;
+  visibility: hidden;
+}
+
+.hbar-app-ui-dialog-menu.lumen-action-menu-popup:popover-open[data-positioned='true'] {
+  visibility: visible;
+}
+
 .lumen-action-menu-popup button {
   inline-size: 100%;
   justify-content: flex-start;

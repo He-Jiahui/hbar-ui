@@ -454,18 +454,99 @@ export interface LumenActionMenuProps<ActionId extends string = string> {
   onAction: (actionId: ActionId) => void;
 }
 
+function placeLumenActionMenu(popup: HTMLElement, trigger: HTMLElement) {
+  const bounds = trigger.getBoundingClientRect();
+  const rem = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+  const margin = rem;
+  const gap = rem / 2;
+  const width = Math.min(
+    Math.max(popup.offsetWidth, 10 * rem),
+    Math.max(0, innerWidth - margin * 2),
+  );
+  const below = Math.max(0, innerHeight - bounds.bottom - gap - margin);
+  const above = Math.max(0, bounds.top - gap - margin);
+  const placeBelow = popup.offsetHeight <= below || below >= above;
+  const left = Math.min(
+    Math.max(margin, bounds.right - width),
+    Math.max(margin, innerWidth - width - margin),
+  );
+  popup.style.setProperty('--lumen-action-menu-left', `${left}px`);
+  popup.style.setProperty(
+    '--lumen-action-menu-top',
+    placeBelow ? `${bounds.bottom + gap}px` : 'auto',
+  );
+  popup.style.setProperty(
+    '--lumen-action-menu-bottom',
+    placeBelow ? 'auto' : `${innerHeight - bounds.top + gap}px`,
+  );
+  popup.style.setProperty(
+    '--lumen-action-menu-limit',
+    `${Math.max(0, placeBelow ? below : above)}px`,
+  );
+}
+
 export function LumenActionMenu<ActionId extends string = string>({
   label,
   items,
   onAction,
 }: LumenActionMenuProps<ActionId>) {
+  const details = React.useRef<HTMLDetailsElement>(null);
+  const popup = React.useRef<HTMLDivElement>(null);
+
+  const position = React.useCallback(() => {
+    const menu = popup.current;
+    const trigger = details.current?.querySelector<HTMLElement>(':scope > summary');
+    if (!menu || !trigger || !menu.matches(':popover-open')) return;
+    placeLumenActionMenu(menu, trigger);
+  }, []);
+
+  React.useEffect(() => {
+    const reposition = () => position();
+    window.addEventListener('resize', reposition);
+    window.addEventListener('scroll', reposition, true);
+    return () => {
+      window.removeEventListener('resize', reposition);
+      window.removeEventListener('scroll', reposition, true);
+    };
+  }, [position]);
+
+  const openPopup = () => {
+    const menu = popup.current;
+    if (!menu) return;
+    if (typeof menu.showPopover !== 'function') {
+      menu.removeAttribute('popover');
+      menu.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
+      return;
+    }
+    try {
+      if (!menu.matches(':popover-open')) menu.showPopover();
+    } catch {
+      // A browser without a usable popover implementation keeps the legacy
+      // details disclosure instead of making the action menu inaccessible.
+      menu.removeAttribute('popover');
+      menu.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
+      return;
+    }
+    menu.removeAttribute('data-positioned');
+    window.requestAnimationFrame(() => {
+      if (!menu.matches(':popover-open')) return;
+      position();
+      menu.dataset.positioned = 'true';
+      menu.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
+    });
+  };
+
   return (
     // Native details owns the toggle and Escape interaction for this disclosed menu.
     <details
+      ref={details}
       className="lumen-action-menu hbar-app-ui-action-menu"
       onToggle={(event) => {
         if (event.currentTarget.open) {
-          event.currentTarget.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
+          openPopup();
+        } else {
+          popup.current?.removeAttribute('data-positioned');
+          if (popup.current?.matches(':popover-open')) popup.current.hidePopover();
         }
       }}
       onKeyDown={(event) => {
@@ -485,9 +566,16 @@ export function LumenActionMenu<ActionId extends string = string>({
         </span>
       </summary>
       <div
+        ref={popup}
+        popover="auto"
         className="lumen-action-menu-popup hbar-app-ui-dialog-menu"
         role="menu"
         aria-label={label}
+        onToggle={(event) => {
+          if (event.newState !== 'closed') return;
+          event.currentTarget.removeAttribute('data-positioned');
+          if (details.current?.open) details.current.open = false;
+        }}
       >
         {items.map((item) => (
           <LumenButton
@@ -501,6 +589,8 @@ export function LumenActionMenu<ActionId extends string = string>({
             onClick={(event) => {
               const menu = event.currentTarget.closest('details');
               menu?.removeAttribute('open');
+              const popup = event.currentTarget.closest<HTMLElement>('[popover]');
+              if (popup?.matches(':popover-open')) popup.hidePopover();
               // A following dialog must restore focus to the visible trigger, not a hidden item.
               menu?.querySelector('summary')?.focus();
               onAction(item.id);

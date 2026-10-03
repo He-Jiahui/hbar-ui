@@ -293,8 +293,30 @@ textarea.lumen-control {
   z-index: 30;
   inset-block-start: calc(100% + 0.25rem);
   inset-inline: 0;
+  margin: 0;
   overflow: hidden;
   box-shadow: 0 0.75rem 2rem color-mix(in srgb, #000 35%, transparent);
+}
+
+.lumen-combobox-popup:popover-open {
+  position: fixed;
+  z-index: 1000;
+  inset: auto;
+  top: var(--lumen-combobox-top);
+  bottom: var(--lumen-combobox-bottom);
+  left: var(--lumen-combobox-left);
+  inline-size: var(--lumen-combobox-width);
+  max-inline-size: calc(100vw - 2rem);
+  max-block-size: var(--lumen-combobox-limit, calc(100vh - 2rem));
+  visibility: hidden;
+}
+
+.lumen-combobox-popup:popover-open[data-positioned='true'] {
+  visibility: visible;
+}
+
+.lumen-combobox-popup-surface {
+  block-size: 100%;
 }
 
 .lumen-combobox-popup-content,

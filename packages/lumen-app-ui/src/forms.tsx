@@ -506,12 +506,81 @@ export function LumenComboBox({
   onValueChange,
 }: LumenComboBoxProps) {
   const root = React.useRef<HTMLDivElement>(null);
+  const popup = React.useRef<HTMLDivElement>(null);
   const generatedId = React.useId().replaceAll(':', '');
   const listboxId = `${id}-${generatedId}-listbox`;
   const lumenVariant = normalizedVariant(variant);
   const items = React.useMemo(() => uniqueOptions(options), [options]);
   const available = React.useMemo(() => items.filter((option) => !option.disabled), [items]);
   const [activeId, setActiveId] = React.useState<string | null>(null);
+
+  const positionPopup = React.useCallback(() => {
+    const menu = popup.current;
+    const anchor = root.current;
+    if (!menu || !anchor || !menu.matches(':popover-open')) return;
+    const bounds = anchor.getBoundingClientRect();
+    const rem = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    const margin = rem;
+    const gap = rem / 2;
+    const width = Math.min(Math.max(bounds.width, 12 * rem), Math.max(0, innerWidth - margin * 2));
+    const below = Math.max(0, innerHeight - bounds.bottom - gap - margin);
+    const above = Math.max(0, bounds.top - gap - margin);
+    const placeBelow = menu.offsetHeight <= below || below >= above;
+    const left = Math.min(
+      Math.max(margin, bounds.left),
+      Math.max(margin, innerWidth - width - margin),
+    );
+    menu.style.setProperty('--lumen-combobox-left', `${left}px`);
+    menu.style.setProperty('--lumen-combobox-width', `${width}px`);
+    menu.style.setProperty(
+      '--lumen-combobox-top',
+      placeBelow ? `${bounds.bottom + gap}px` : 'auto',
+    );
+    menu.style.setProperty(
+      '--lumen-combobox-bottom',
+      placeBelow ? 'auto' : `${innerHeight - bounds.top + gap}px`,
+    );
+    menu.style.setProperty(
+      '--lumen-combobox-limit',
+      `${Math.max(0, placeBelow ? below : above)}px`,
+    );
+  }, []);
+
+  React.useEffect(() => {
+    const menu = popup.current;
+    if (!open || disabled || !menu) return undefined;
+    let topLayer = false;
+    if (typeof menu.showPopover === 'function') {
+      if (menu.matches(':popover-open')) {
+        topLayer = true;
+      } else {
+        try {
+          menu.showPopover();
+          topLayer = true;
+        } catch {
+          menu.removeAttribute('popover');
+        }
+      }
+    }
+    menu.removeAttribute('data-positioned');
+    const position = () => {
+      if (!topLayer || !menu.matches(':popover-open')) return;
+      positionPopup();
+      menu.dataset.positioned = 'true';
+    };
+    const frame = window.requestAnimationFrame(position);
+    const reposition = () => positionPopup();
+    window.addEventListener('resize', reposition);
+    window.addEventListener('scroll', reposition, true);
+    if (!topLayer) {
+      menu.dataset.positioned = 'true';
+    }
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener('resize', reposition);
+      window.removeEventListener('scroll', reposition, true);
+    };
+  }, [disabled, items, loadMoreLabel, loading, open, positionPopup]);
 
   React.useEffect(() => {
     if (!open) {
@@ -678,23 +747,36 @@ export function LumenComboBox({
         </LumenField>
       )}
       {open && !disabled ? (
-        <LumenSurface boundary="horizontal" className="lumen-combobox-popup" material="frost">
-          <div className="lumen-combobox-popup-content">
-            <div id={listboxId} role="listbox">
-              {optionContent}
+        <div
+          ref={popup}
+          popover="auto"
+          className="lumen-combobox-popup"
+          onToggle={(event) => {
+            if (event.newState === 'closed' && open) onOpenChange(false);
+          }}
+        >
+          <LumenSurface
+            boundary="horizontal"
+            className="lumen-combobox-popup-surface"
+            material="frost"
+          >
+            <div className="lumen-combobox-popup-content">
+              <div id={listboxId} role="listbox">
+                {optionContent}
+              </div>
+              {loadMoreLabel && onLoadMore ? (
+                <LumenButton
+                  className="lumen-combobox-load-more"
+                  variant="text"
+                  size={size}
+                  onClick={onLoadMore}
+                >
+                  {loadMoreLabel}
+                </LumenButton>
+              ) : null}
             </div>
-            {loadMoreLabel && onLoadMore ? (
-              <LumenButton
-                className="lumen-combobox-load-more"
-                variant="text"
-                size={size}
-                onClick={onLoadMore}
-              >
-                {loadMoreLabel}
-              </LumenButton>
-            ) : null}
-          </div>
-        </LumenSurface>
+          </LumenSurface>
+        </div>
       ) : null}
     </div>
   );
