@@ -11,13 +11,34 @@ import {
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './scheduling.css';
-import { LumenSchedulingMonthReference, type LumenSchedulingMonthReferenceContent } from './scheduling-month-reference';
-import { LumenSchedulingRangeReference, type LumenSchedulingRangeReferenceContent } from './scheduling-range-reference';
-import { LumenSchedulingFormReference, type LumenSchedulingFormReferenceContent } from './scheduling-form-reference';
-import { LumenSchedulingDeadlineReference, type LumenSchedulingDeadlineReferenceContent } from './scheduling-deadline-reference';
-import { LumenSchedulingAvailabilityReference, type LumenSchedulingAvailabilityReferenceContent } from './scheduling-availability-reference';
-import { LumenSchedulingTimelineReference, type LumenSchedulingTimelineReferenceContent } from './scheduling-timeline-reference';
-import { LumenSchedulingBookingReference, type LumenSchedulingBookingReferenceContent } from './scheduling-booking-reference';
+import {
+  LumenSchedulingMonthReference,
+  type LumenSchedulingMonthReferenceContent,
+} from './scheduling-month-reference';
+import {
+  LumenSchedulingRangeReference,
+  type LumenSchedulingRangeReferenceContent,
+} from './scheduling-range-reference';
+import {
+  LumenSchedulingFormReference,
+  type LumenSchedulingFormReferenceContent,
+} from './scheduling-form-reference';
+import {
+  LumenSchedulingDeadlineReference,
+  type LumenSchedulingDeadlineReferenceContent,
+} from './scheduling-deadline-reference';
+import {
+  LumenSchedulingAvailabilityReference,
+  type LumenSchedulingAvailabilityReferenceContent,
+} from './scheduling-availability-reference';
+import {
+  LumenSchedulingTimelineReference,
+  type LumenSchedulingTimelineReferenceContent,
+} from './scheduling-timeline-reference';
+import {
+  LumenSchedulingBookingReference,
+  type LumenSchedulingBookingReferenceContent,
+} from './scheduling-booking-reference';
 import { selectLumenSchedulingItem, uniqueLumenSchedulingItems } from './scheduling-model';
 
 export { selectLumenSchedulingItem, uniqueLumenSchedulingItems } from './scheduling-model';
@@ -247,6 +268,14 @@ export interface LumenSchedulingProps {
   readonly surface?: string | undefined;
   readonly state?: string | undefined;
   readonly visualMode?: string | undefined;
+  /** Runtime-owned regions of the numbered scheduling surface. */
+  readonly slots?:
+    | {
+        readonly header?: React.ReactNode;
+        readonly body: React.ReactNode;
+        readonly footer?: React.ReactNode;
+      }
+    | undefined;
 }
 
 export type LumenSchedulingVariantProps = Omit<LumenSchedulingProps, 'variant' | 'variantId'>;
@@ -266,8 +295,11 @@ const report = (fn: LumenSchedulingProps['onAction'], actionId: string, value?: 
 
 function Glyph({ name }: { readonly name: 'left' | 'right' | 'filter' | 'plus' | 'close' }) {
   const paths = {
-    left: 'm10 3-5 5 5 5', right: 'm6 3 5 5-5 5', filter: 'M2 3h12L9.5 8v4l-3 1V8Z',
-    plus: 'M8 3v10M3 8h10', close: 'm4 4 8 8m0-8-8 8',
+    left: 'm10 3-5 5 5 5',
+    right: 'm6 3 5 5-5 5',
+    filter: 'M2 3h12L9.5 8v4l-3 1V8Z',
+    plus: 'M8 3v10M3 8h10',
+    close: 'm4 4 8 8m0-8-8 8',
   };
   const path = paths[name];
   return (
@@ -301,7 +333,17 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary={className?.includes('scheduling-month-reference') || className?.includes('scheduling-range-reference') || className?.includes('scheduling-form-reference') || className?.includes('scheduling-deadline-reference') || className?.includes('scheduling-availability-reference') || className?.includes('scheduling-timeline-reference') || className?.includes('scheduling-booking-reference') ? 'none' : 'horizontal'}
+      boundary={
+        className?.includes('scheduling-month-reference') ||
+        className?.includes('scheduling-range-reference') ||
+        className?.includes('scheduling-form-reference') ||
+        className?.includes('scheduling-deadline-reference') ||
+        className?.includes('scheduling-availability-reference') ||
+        className?.includes('scheduling-timeline-reference') ||
+        className?.includes('scheduling-booking-reference')
+          ? 'none'
+          : 'horizontal'
+      }
       className="lumen-scheduling-surface"
       contentClassName={contentClassName}
       data-lumen-component="scheduling"
@@ -409,7 +451,7 @@ function Month(
                   {event.title}
                 </LumenText>
                 <LumenText as="small" tone="muted" variant="supporting">
-                  {event.time} · {event.detail}
+                  {event.time} {String.fromCharCode(0x00b7)} {event.detail}
                 </LumenText>
                 {event.status ? <LumenStatus value={event.status} /> : null}
               </article>
@@ -563,7 +605,9 @@ function Form(
               disabled={!next || atCapacity}
               title={atCapacity ? props.content.labels.capacityReached : undefined}
               onClick={() => {
-                if (!next || atCapacity) {return;}
+                if (!next || atCapacity) {
+                  return;
+                }
                 setSelectedIds((current) => [...current, next.id]);
                 report(props.onAction, 'add-attendee', next.id);
               }}
@@ -631,6 +675,7 @@ function Form(
 function Deadline(
   props: Omit<LumenSchedulingProps, 'content'> & { content: LumenSchedulingDeadlineContent },
 ) {
+  const rangeSeparator = '–';
   const presets = uniqueLumenSchedulingItems(props.content.presets);
   const days = uniqueLumenSchedulingItems(props.content.days);
   const slots = uniqueLumenSchedulingItems(props.content.slots);
@@ -757,7 +802,7 @@ function Availability(
                       aria-label={props.content.labels.start(day.label)}
                     />
                     <LumenText as="span" tone="muted">
-                      –
+                      {String.fromCharCode(0x2013)}
                     </LumenText>
                     <LumenInput
                       type="time"
@@ -965,60 +1010,175 @@ function empty(props: LumenSchedulingProps) {
 
 export function LumenScheduling(props: LumenSchedulingProps) {
   const inheritedContent = useLumenSchedulingContent();
+  if (props.slots) {
+    return (
+      <Root
+        {...props}
+        className={['lumen-scheduling-controlled', props.className].filter(Boolean).join(' ')}
+      >
+        {props.slots.header}
+        {props.slots.body}
+        {props.slots.footer}
+      </Root>
+    );
+  }
   const content = props.content ?? inheritedContent;
   if (props.variant === 1 && content?.referenceMonth) {
-    return <Root {...props} className={['lumen-scheduling-month-reference', 'hbar-app-ui-stage-padding-owner', 'hbar-app-ui-full-canvas-owner', props.className].filter(Boolean).join(' ')}>
-      <LumenSchedulingMonthReference content={content.referenceMonth} onAction={props.onAction} />
-    </Root>;
+    return (
+      <Root
+        {...props}
+        className={[
+          'lumen-scheduling-month-reference',
+          'hbar-app-ui-stage-padding-owner',
+          'hbar-app-ui-full-canvas-owner',
+          props.className,
+        ]
+          .filter(Boolean)
+          .join(' ')}
+      >
+        <LumenSchedulingMonthReference content={content.referenceMonth} onAction={props.onAction} />
+      </Root>
+    );
   }
   if (props.variant === 2 && content?.referenceRange) {
-    return <Root {...props} className={['lumen-scheduling-range-reference', 'hbar-app-ui-stage-padding-owner', 'hbar-app-ui-full-canvas-owner', props.className].filter(Boolean).join(' ')}>
-      <LumenSchedulingRangeReference content={content.referenceRange} onAction={props.onAction} />
-    </Root>;
+    return (
+      <Root
+        {...props}
+        className={[
+          'lumen-scheduling-range-reference',
+          'hbar-app-ui-stage-padding-owner',
+          'hbar-app-ui-full-canvas-owner',
+          props.className,
+        ]
+          .filter(Boolean)
+          .join(' ')}
+      >
+        <LumenSchedulingRangeReference content={content.referenceRange} onAction={props.onAction} />
+      </Root>
+    );
   }
   if (props.variant === 3 && content?.referenceForm) {
-    return <Root {...props} className={['lumen-scheduling-form-reference', 'hbar-app-ui-stage-padding-owner', 'hbar-app-ui-full-canvas-owner', props.className].filter(Boolean).join(' ')}>
-      <LumenSchedulingFormReference content={content.referenceForm} onAction={props.onAction} />
-    </Root>;
+    return (
+      <Root
+        {...props}
+        className={[
+          'lumen-scheduling-form-reference',
+          'hbar-app-ui-stage-padding-owner',
+          'hbar-app-ui-full-canvas-owner',
+          props.className,
+        ]
+          .filter(Boolean)
+          .join(' ')}
+      >
+        <LumenSchedulingFormReference content={content.referenceForm} onAction={props.onAction} />
+      </Root>
+    );
   }
   if (props.variant === 4 && content?.referenceDeadline) {
-    return <Root {...props} className={['lumen-scheduling-deadline-reference', 'hbar-app-ui-stage-padding-owner', 'hbar-app-ui-full-canvas-owner', props.className].filter(Boolean).join(' ')}>
-      <LumenSchedulingDeadlineReference content={content.referenceDeadline} onAction={props.onAction} />
-    </Root>;
+    return (
+      <Root
+        {...props}
+        className={[
+          'lumen-scheduling-deadline-reference',
+          'hbar-app-ui-stage-padding-owner',
+          'hbar-app-ui-full-canvas-owner',
+          props.className,
+        ]
+          .filter(Boolean)
+          .join(' ')}
+      >
+        <LumenSchedulingDeadlineReference
+          content={content.referenceDeadline}
+          onAction={props.onAction}
+        />
+      </Root>
+    );
   }
   if (props.variant === 5 && content?.referenceAvailability) {
-    return <Root {...props} className={['lumen-scheduling-availability-reference', 'hbar-app-ui-stage-padding-owner', 'hbar-app-ui-full-canvas-owner', props.className].filter(Boolean).join(' ')}>
-      <LumenSchedulingAvailabilityReference content={content.referenceAvailability} onAction={props.onAction} />
-    </Root>;
+    return (
+      <Root
+        {...props}
+        className={[
+          'lumen-scheduling-availability-reference',
+          'hbar-app-ui-stage-padding-owner',
+          'hbar-app-ui-full-canvas-owner',
+          props.className,
+        ]
+          .filter(Boolean)
+          .join(' ')}
+      >
+        <LumenSchedulingAvailabilityReference
+          content={content.referenceAvailability}
+          onAction={props.onAction}
+        />
+      </Root>
+    );
   }
   if (props.variant === 6 && content?.referenceTimeline) {
-    return <Root {...props} className={['lumen-scheduling-timeline-reference', 'hbar-app-ui-stage-padding-owner', 'hbar-app-ui-full-canvas-owner', props.className].filter(Boolean).join(' ')}>
-      <LumenSchedulingTimelineReference content={content.referenceTimeline} onAction={props.onAction} />
-    </Root>;
+    return (
+      <Root
+        {...props}
+        className={[
+          'lumen-scheduling-timeline-reference',
+          'hbar-app-ui-stage-padding-owner',
+          'hbar-app-ui-full-canvas-owner',
+          props.className,
+        ]
+          .filter(Boolean)
+          .join(' ')}
+      >
+        <LumenSchedulingTimelineReference
+          content={content.referenceTimeline}
+          onAction={props.onAction}
+        />
+      </Root>
+    );
   }
   if (props.variant === 7 && content?.referenceBooking) {
-    return <Root {...props} className={['lumen-scheduling-booking-reference', 'hbar-app-ui-stage-padding-owner', 'hbar-app-ui-full-canvas-owner', props.className].filter(Boolean).join(' ')}>
-      <LumenSchedulingBookingReference content={content.referenceBooking} onAction={props.onAction} />
-    </Root>;
+    return (
+      <Root
+        {...props}
+        className={[
+          'lumen-scheduling-booking-reference',
+          'hbar-app-ui-stage-padding-owner',
+          'hbar-app-ui-full-canvas-owner',
+          props.className,
+        ]
+          .filter(Boolean)
+          .join(' ')}
+      >
+        <LumenSchedulingBookingReference
+          content={content.referenceBooking}
+          onAction={props.onAction}
+        />
+      </Root>
+    );
   }
-  if (props.variant === 1)
-    {return content?.month ? <Month {...props} content={content.month} /> : empty(props);}
-  if (props.variant === 2)
-    {return content?.timeRange ? <TimeRange {...props} content={content.timeRange} /> : empty(props);}
-  if (props.variant === 3)
-    {return content?.form ? <Form {...props} content={content.form} /> : empty(props);}
-  if (props.variant === 4)
-    {return content?.deadline ? <Deadline {...props} content={content.deadline} /> : empty(props);}
-  if (props.variant === 5)
-    {return content?.availability ? (
+  if (props.variant === 1) {
+    return content?.month ? <Month {...props} content={content.month} /> : empty(props);
+  }
+  if (props.variant === 2) {
+    return content?.timeRange ? <TimeRange {...props} content={content.timeRange} /> : empty(props);
+  }
+  if (props.variant === 3) {
+    return content?.form ? <Form {...props} content={content.form} /> : empty(props);
+  }
+  if (props.variant === 4) {
+    return content?.deadline ? <Deadline {...props} content={content.deadline} /> : empty(props);
+  }
+  if (props.variant === 5) {
+    return content?.availability ? (
       <Availability {...props} content={content.availability} />
     ) : (
       empty(props)
-    );}
-  if (props.variant === 6)
-    {return content?.timeline ? <Timeline {...props} content={content.timeline} /> : empty(props);}
-  if (props.variant === 7)
-    {return content?.booking ? <Booking {...props} content={content.booking} /> : empty(props);}
+    );
+  }
+  if (props.variant === 6) {
+    return content?.timeline ? <Timeline {...props} content={content.timeline} /> : empty(props);
+  }
+  if (props.variant === 7) {
+    return content?.booking ? <Booking {...props} content={content.booking} /> : empty(props);
+  }
   return empty(props);
 }
 

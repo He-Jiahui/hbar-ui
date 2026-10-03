@@ -207,6 +207,8 @@ export interface LumenWizardShippingContent {
   };
   readonly options: readonly LumenWizardChoice[];
   readonly initialOptionId: string;
+  readonly selectedOptionId?: string | undefined;
+  readonly onOptionChange?: ((optionId: string) => void) | undefined;
   readonly listStrategy: LumenWizardListStrategy;
 }
 export interface LumenWizardContent {
@@ -768,7 +770,7 @@ function Upgrade(
             </LumenText>
             <div className="lumen-wizard-total">
               <small>{props.content.labels.due}</small>
-              <strong>{plan ? props.content.totals[plan.id] : ''}</strong>
+              <strong>{plan ? props.content.totals[plan.id] : null}</strong>
             </div>
             <dl>
               {summary.map((row) => (
@@ -1008,7 +1010,8 @@ function Shipping(
   props: Omit<LumenWizardProps, 'content'> & { content: LumenWizardShippingContent },
 ) {
   const options = uniqueLumenWizardItems(props.content.options);
-  const [optionId, setOptionId] = React.useState(props.content.initialOptionId);
+  const [internalOptionId, setInternalOptionId] = React.useState(props.content.initialOptionId);
+  const optionId = props.content.selectedOptionId ?? internalOptionId;
   const selected = selectLumenWizardItem(options, optionId);
   return (
     <Root {...props}>
@@ -1029,7 +1032,8 @@ function Shipping(
                   role="radio"
                   aria-checked={option.id === selected?.id}
                   onClick={() => {
-                    setOptionId(option.id);
+                    setInternalOptionId(option.id);
+                    props.content.onOptionChange?.(option.id);
                     report(props.onAction, 'option', option.id);
                   }}
                 >
