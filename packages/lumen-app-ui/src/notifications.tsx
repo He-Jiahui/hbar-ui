@@ -55,6 +55,10 @@ export interface LumenNotificationCenterContent {
   readonly groups: readonly LumenNotificationGroup[];
   readonly entries: readonly LumenNotificationEntry[];
   readonly listStrategy: LumenNotificationsListStrategy;
+  readonly controlledReadState?: { readonly readIds: ReadonlySet<string>; readonly pendingIds?: ReadonlySet<string> };
+  readonly showDismiss?: boolean;
+  readonly showMentions?: boolean;
+  readonly openLabel?: (title: string) => string;
 }
 export interface LumenNotificationToastChoice {
   readonly id: string;
@@ -430,9 +434,11 @@ function Center(
   const groups = uniqueLumenNotificationsItems(props.content.groups);
   const entries = uniqueLumenNotificationsItems(props.content.entries);
   const [filter, setFilter] = React.useState('all');
-  const [readIds, setReadIds] = React.useState<ReadonlySet<string>>(
+  const [localReadIds, setLocalReadIds] = React.useState<ReadonlySet<string>>(
     () => new Set(entries.filter((item) => !item.unread).map((item) => item.id)),
   );
+  const readIds = props.content.controlledReadState?.readIds ?? localReadIds;
+  const pendingIds = props.content.controlledReadState?.pendingIds ?? new Set<string>();
   const [dismissed, setDismissed] = React.useState<ReadonlySet<string>>(() => new Set());
   const unread = entries.filter((item) => !readIds.has(item.id) && !dismissed.has(item.id)).length;
   const total = entries.length - dismissed.size;
@@ -441,7 +447,7 @@ function Center(
   const filters = [
     { id: 'all', label: props.content.labels.all, count: count(total) },
     { id: 'unread', label: props.content.labels.unreadFilter, count: count(unread) },
-    { id: 'mentions', label: props.content.labels.mentions, count: count(mentions) },
+    ...(props.content.showMentions === false ? [] : [{ id: 'mentions', label: props.content.labels.mentions, count: count(mentions) }]),
   ];
   const visible = entries.filter(
     (item) =>
@@ -462,7 +468,7 @@ function Center(
           indicator="none"
           disabled={!unread}
           onClick={() => {
-            setReadIds(new Set(entries.map((item) => item.id)));
+            if (!props.content.controlledReadState) setLocalReadIds(new Set(entries.map((item) => item.id)));
             report(props.onAction, 'read-all');
           }}
         >
@@ -506,8 +512,9 @@ function Center(
                             ? props.content.labels.markUnread(item.title)
                             : props.content.labels.markRead(item.title)
                         }
+                        disabled={pendingIds.has(item.id)}
                         onClick={() =>
-                          setReadIds((current) => {
+                          setLocalReadIds((current) => {
                             const next = new Set(current);
                             if (read) next.delete(item.id);
                             else next.add(item.id);
@@ -518,7 +525,7 @@ function Center(
                       >
                         <span className="lumen-notifications-center-dot" aria-hidden="true" />
                       </LumenIconButton>
-                      <LumenIconButton
+                      {props.content.showDismiss === false ? null : <LumenIconButton
                         label={props.content.labels.dismiss(item.title)}
                         onClick={() => {
                           setDismissed((current) => new Set([...current, item.id]));
@@ -526,7 +533,7 @@ function Center(
                         }}
                       >
                         <Glyph name="close" />
-                      </LumenIconButton></div>
+                      </LumenIconButton>}{props.content.openLabel ? <LumenIconButton label={props.content.openLabel(item.title)} onClick={() => report(props.onAction, 'open', item.id)}><Glyph name="external" /></LumenIconButton> : null}</div>
                     </li>
                   );
                 })}</ul>
