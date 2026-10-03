@@ -871,7 +871,9 @@ export function LumenAppShellWorkflows(props: LumenAppShellWorkflowsProps) {
     <Root {...props} className={['lumen-shell-chat-stage', 'lumen-shell-chat-runtime-stage', props.className].filter(Boolean).join(' ')}>
       <div className="lumen-app-shell lumen-desktop-shell" data-lumen-shell="app" data-hbar-app-ui-shell="app" data-sidebar-open={props.sidebarOpen} data-tool-presentation={props.tool ? 'split' : 'none'}>
         {props.titlebar}
-        <header className="lumen-desktop-shell-header">{props.header ?? props.slots.header}</header>
+        {props.header || props.slots.header ? (
+          <header className="lumen-desktop-shell-header">{props.header ?? props.slots.header}</header>
+        ) : null}
         {props.slots.desktopLayout}
         {props.overlay}
       </div>
