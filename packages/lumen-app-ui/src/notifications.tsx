@@ -56,6 +56,7 @@ export interface LumenNotificationCenterContent {
   readonly entries: readonly LumenNotificationEntry[];
   readonly listStrategy: LumenNotificationsListStrategy;
   readonly controlledReadState?: { readonly readIds: ReadonlySet<string>; readonly pendingIds?: ReadonlySet<string> };
+  readonly unreadCount?: number;
   readonly showDismiss?: boolean;
   readonly showMentions?: boolean;
   readonly openLabel?: (title: string) => string;
@@ -440,7 +441,7 @@ function Center(
   const readIds = props.content.controlledReadState?.readIds ?? localReadIds;
   const pendingIds = props.content.controlledReadState?.pendingIds ?? new Set<string>();
   const [dismissed, setDismissed] = React.useState<ReadonlySet<string>>(() => new Set());
-  const unread = entries.filter((item) => !readIds.has(item.id) && !dismissed.has(item.id)).length;
+  const unread = props.content.unreadCount ?? entries.filter((item) => !readIds.has(item.id) && !dismissed.has(item.id)).length;
   const total = entries.length - dismissed.size;
   const mentions = entries.filter((item) => item.mention && !dismissed.has(item.id)).length;
   const count = props.content.labels.count ?? ((value: number) => `${value}`);
@@ -466,7 +467,7 @@ function Center(
         <LumenButton
           variant="outlined"
           indicator="none"
-          disabled={!unread}
+          disabled={!unread || pendingIds.size > 0}
           onClick={() => {
             if (!props.content.controlledReadState) setLocalReadIds(new Set(entries.map((item) => item.id)));
             report(props.onAction, 'read-all');

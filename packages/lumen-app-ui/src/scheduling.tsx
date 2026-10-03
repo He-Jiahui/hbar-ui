@@ -675,7 +675,6 @@ function Form(
 function Deadline(
   props: Omit<LumenSchedulingProps, 'content'> & { content: LumenSchedulingDeadlineContent },
 ) {
-  const rangeSeparator = '–';
   const presets = uniqueLumenSchedulingItems(props.content.presets);
   const days = uniqueLumenSchedulingItems(props.content.days);
   const slots = uniqueLumenSchedulingItems(props.content.slots);
