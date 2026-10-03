@@ -1,5 +1,7 @@
 'use client';
 
+import * as React from 'react';
+
 import { ActivityNavbar } from './navbar/ActivityNavbar';
 import { AnalyticsNavbar } from './navbar/AnalyticsNavbar';
 import { ArticleNavbar } from './navbar/ArticleNavbar';
@@ -36,6 +38,12 @@ export interface LumenNavbarProps {
   readonly surface?: string | undefined;
   readonly state?: string | undefined;
   readonly visualMode?: string | undefined;
+  readonly slots?: LumenNavbarWorkflowSlots | undefined;
+}
+export interface LumenNavbarWorkflowSlots {
+  readonly content?: React.ReactNode;
+  readonly leading?: React.ReactNode;
+  readonly trailing?: React.ReactNode;
 }
 export type LumenNavbarVariantProps = Omit<LumenNavbarProps, 'variant' | 'variantId'>;
 export {
@@ -70,6 +78,14 @@ function empty(props: LumenNavbarProps) {
 export function LumenNavbar(props: LumenNavbarProps) {
   const inheritedContent = useLumenNavbarContent();
   const content = props.content ?? inheritedContent;
+  if (props.slots && [1, 6, 11].includes(props.variant))
+    return (
+      <NavbarFrame {...composition(props)} className="hbar-app-ui-navbar-runtime">
+        {props.slots.leading}
+        {props.slots.content}
+        {props.slots.trailing}
+      </NavbarFrame>
+    );
   const result = renderNavbarContent(
     content?.onAction ? { ...props, onAction: content.onAction } : props,
     content,

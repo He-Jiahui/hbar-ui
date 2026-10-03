@@ -1,4 +1,7 @@
 .lumen-app-shell-stage-surface {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
   inline-size: 100%;
   block-size: 100%;
   min-inline-size: 0;
@@ -15,6 +18,37 @@
   overflow: hidden;
   background: transparent;
   color: var(--lumen-ink);
+}
+.lumen-shell-chat-runtime-stage,
+.lumen-shell-context-runtime-stage {
+  block-size: 100%;
+}
+.lumen-shell-chat-runtime-stage > .lumen-app-shell {
+  min-block-size: 0;
+  block-size: 100%;
+  flex: 1 1 auto;
+}
+.lumen-desktop-shell {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  min-block-size: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+.lumen-desktop-shell-header {
+  display: flex;
+  flex: 0 0 auto;
+  border-block-end: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-shell-context-runtime-stage > .lumen-app-shell-context-surface {
+  display: flex;
+  min-inline-size: 0;
+  min-block-size: 0;
+  block-size: 100%;
+  flex: 1 1 auto;
+  flex-direction: column;
+  overflow: hidden;
 }
 .lumen-app-shell-stage *,
 .lumen-app-shell-stage *::before,
@@ -57,11 +91,12 @@
   padding: 1rem;
 }
 .lumen-app-shell-sidebar-layout {
-  display: grid;
+  display: flex;
   min-block-size: 0;
   flex: 1 1 auto;
-  grid-template-columns: minmax(12rem, 17rem) minmax(0, 1fr);
 }
+.lumen-app-shell-sidebar-layout > aside { flex: 0 1 17rem; }
+.lumen-app-shell-sidebar-layout > main { flex: 1 1 0; }
 .lumen-app-shell-sidebar-layout > aside,
 .lumen-app-shell-three-pane > aside,
 .lumen-app-shell-context-columns > aside,
@@ -111,12 +146,13 @@
   display: none;
 }
 .lumen-app-shell-metrics {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.75rem;
   padding: 0 1rem 1rem;
 }
 .lumen-app-shell-metrics article {
+  flex: 1 1 8rem;
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
@@ -134,10 +170,9 @@
   padding: 0.5rem 1rem 1rem;
 }
 .lumen-app-shell-records > button {
-  display: grid;
+  display: flex;
   inline-size: 100%;
-  grid-template-columns: minmax(0, 1fr) auto;
-  justify-content: stretch;
+  justify-content: space-between;
   border-block-end: 0.0625rem solid var(--lumen-edge);
   border-radius: 0;
   text-align: start;
@@ -157,11 +192,13 @@
   background: color-mix(in srgb, var(--lumen-accent) 8%, transparent);
 }
 .lumen-app-shell-three-pane {
-  display: grid;
+  display: flex;
   min-block-size: 0;
   flex: 1 1 auto;
-  grid-template-columns: 3.75rem minmax(10rem, 15rem) minmax(0, 1fr);
 }
+.lumen-app-shell-three-pane > nav { flex: 0 0 3.75rem; }
+.lumen-app-shell-three-pane > aside { flex: 0 1 15rem; }
+.lumen-app-shell-three-pane > main { flex: 1 1 0; }
 .lumen-app-shell-three-pane > aside {
   display: flex;
   flex-direction: column;
@@ -192,11 +229,13 @@
   padding: 0.75rem 1rem;
 }
 .lumen-app-shell-context-columns {
-  display: grid;
+  display: flex;
   min-block-size: 0;
   flex: 1 1 auto;
-  grid-template-columns: minmax(11rem, 15rem) minmax(0, 1fr) minmax(12rem, 18rem);
 }
+.lumen-app-shell-context-columns > nav { flex: 0 1 15rem; }
+.lumen-app-shell-context-columns > aside { flex: 0 1 18rem; }
+.lumen-app-shell-context-columns > main { flex: 1 1 0; }
 .lumen-app-shell-context-columns > main {
   min-inline-size: 0;
   overflow: auto;
@@ -219,11 +258,13 @@
   color: var(--lumen-muted);
 }
 .lumen-app-shell-triage {
-  display: grid;
+  display: flex;
   min-block-size: 0;
   flex: 1 1 auto;
-  grid-template-columns: 3.75rem minmax(15rem, 22rem) minmax(0, 1fr);
 }
+.lumen-app-shell-triage > nav { flex: 0 0 3.75rem; }
+.lumen-app-shell-triage > aside { flex: 0 1 22rem; }
+.lumen-app-shell-triage > main { flex: 1 1 0; }
 .lumen-app-shell-triage > main {
   min-inline-size: 0;
   overflow: auto;
@@ -241,11 +282,12 @@
   min-inline-size: 0;
 }
 .lumen-app-shell-document {
-  display: grid;
+  display: flex;
   min-block-size: 0;
   flex: 1 1 auto;
-  grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr);
 }
+.lumen-app-shell-document > aside { flex: 0 1 18rem; }
+.lumen-app-shell-document > main { flex: 1 1 0; }
 .lumen-app-shell-document > aside {
   display: flex;
   flex-direction: column;
@@ -256,10 +298,10 @@
   justify-content: flex-start;
 }
 .lumen-app-shell-document > main {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
   min-block-size: 0;
-  grid-template-rows: auto minmax(0, 1fr);
+  flex-direction: column;
 }
 .lumen-app-shell-format {
   display: flex;
@@ -285,11 +327,12 @@
   padding: 1rem;
 }
 .lumen-app-shell-scope-pickers {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.75rem;
   margin-block-end: 1rem;
 }
+.lumen-app-shell-scope-pickers > * { flex: 1 1 10rem; }
 .lumen-app-shell-scope-pickers label {
   display: flex;
   min-inline-size: 0;
@@ -307,18 +350,19 @@
   box-shadow: inset 0 -0.125rem var(--lumen-accent);
 }
 .lumen-app-shell-adaptive {
-  display: grid;
+  display: flex;
   min-block-size: 0;
   flex: 1 1 auto;
-  grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr);
 }
+.lumen-app-shell-adaptive > nav { flex: 0 1 18rem; }
+.lumen-app-shell-adaptive > main { flex: 1 1 0; }
 .lumen-app-shell-adaptive > main {
   min-inline-size: 0;
   overflow: auto;
 }
 .lumen-app-shell-adaptive[data-view='mobile'] {
   inline-size: min(26rem, 100%);
-  grid-template-columns: 1fr;
+  flex-direction: column;
   align-self: center;
   border-inline: 0.0625rem solid var(--lumen-edge);
 }
@@ -331,11 +375,12 @@
   justify-content: center;
 }
 .lumen-app-shell-chat {
-  display: grid;
+  display: flex;
   min-block-size: 0;
   flex: 1 1 auto;
-  grid-template-columns: minmax(13rem, 20rem) minmax(0, 1fr);
 }
+.lumen-app-shell-chat > aside { flex: 0 1 20rem; }
+.lumen-app-shell-chat > main { flex: 1 1 0; }
 .lumen-app-shell-chat > aside {
   display: flex;
   flex-direction: column;
@@ -346,10 +391,10 @@
   justify-content: flex-start;
 }
 .lumen-app-shell-chat > main {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
   min-block-size: 0;
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  flex-direction: column;
   overflow: hidden;
 }
 .lumen-app-shell-chat > main > select {
@@ -369,8 +414,7 @@
   background: var(--lumen-glass);
 }
 .lumen-app-shell-composer {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
   align-items: end;
   gap: 0.5rem;
   padding: 1rem;
@@ -400,7 +444,7 @@
   .lumen-app-shell-document,
   .lumen-app-shell-adaptive,
   .lumen-app-shell-chat {
-    grid-template-columns: 1fr;
+    flex-direction: column;
   }
   .lumen-app-shell-sidebar-layout > aside,
   .lumen-app-shell-three-pane > nav,

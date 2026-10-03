@@ -228,6 +228,13 @@ export interface LumenAgentPlanProps {
   readonly surface?: string | undefined;
   readonly state?: string | undefined;
   readonly visualMode?: string | undefined;
+  readonly slots?:
+    | {
+        readonly header?: React.ReactNode | undefined;
+        readonly body?: React.ReactNode | undefined;
+        readonly footer?: React.ReactNode | undefined;
+      }
+    | undefined;
 }
 
 export type LumenAgentPlanVariantProps = Omit<LumenAgentPlanProps, 'variant' | 'variantId'>;
@@ -1098,6 +1105,14 @@ function emptyPlan(props: LumenAgentPlanProps) {
 
 export function LumenAgentPlan(props: LumenAgentPlanProps) {
   const providerContent = useLumenAgentPlanContent();
+  if (props.slots)
+    return (
+      <AgentPlanRoot {...props}>
+        {props.slots.header}
+        {props.slots.body}
+        {props.slots.footer}
+      </AgentPlanRoot>
+    );
   const content = props.content ?? providerContent;
   return (
     <AgentPlanPresentationContext.Provider

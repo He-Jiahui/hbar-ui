@@ -4,7 +4,7 @@ import * as React from 'react';
 import { LumenInput, LumenSelect, LumenTextarea } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import { LumenAppShell } from './workbench';
+import { LumenAppShell, type LumenAppShellProps } from './workbench';
 import './app-shell-workflows.css';
 import { AppShellSidebar, type LumenAppShellSidebarContent } from './app-shell-sidebar';
 import { AppShellRail, type LumenAppShellRailContent } from './app-shell-rail';
@@ -122,6 +122,38 @@ export interface LumenAppShellWorkflowsProps {
   readonly surface?: string | undefined;
   readonly state?: string | undefined;
   readonly visualMode?: string | undefined;
+  /** Host-owned regions for production workbench composition. */
+  readonly slots?: LumenAppShellWorkflowSlots | undefined;
+  /** Controlled runtime shell layout props. These let AppShell09 project a live app without preview data. */
+  readonly label?: LumenAppShellProps['label'];
+  readonly titlebar?: LumenAppShellProps['titlebar'];
+  readonly sidebar?: LumenAppShellProps['sidebar'];
+  readonly sidebarWidthRem?: LumenAppShellProps['sidebarWidthRem'];
+  readonly sidebarLayout?: LumenAppShellProps['sidebarLayout'];
+  readonly sidebarResize?: LumenAppShellProps['sidebarResize'];
+  readonly toolWidthRem?: LumenAppShellProps['toolWidthRem'];
+  readonly toolLayout?: LumenAppShellProps['toolLayout'];
+  readonly mainRef?: LumenAppShellProps['mainRef'];
+  readonly toolRef?: LumenAppShellProps['toolRef'];
+  readonly resizeRef?: LumenAppShellProps['resizeRef'];
+  readonly onToolPresentationChange?: LumenAppShellProps['onToolPresentationChange'];
+  readonly toolResize?: LumenAppShellProps['toolResize'];
+  readonly sidebarOpen?: LumenAppShellProps['sidebarOpen'];
+  readonly closeSidebarLabel?: LumenAppShellProps['closeSidebarLabel'];
+  readonly onCloseSidebar?: LumenAppShellProps['onCloseSidebar'];
+  readonly header?: LumenAppShellProps['header'];
+  readonly tool?: LumenAppShellProps['tool'];
+  readonly toolLabel?: LumenAppShellProps['toolLabel'];
+  readonly overlay?: LumenAppShellProps['overlay'];
+  readonly children?: LumenAppShellProps['children'];
+}
+export interface LumenAppShellWorkflowSlots {
+  readonly desktopLayout?: React.ReactNode;
+  readonly navigation?: React.ReactNode;
+  readonly header?: React.ReactNode;
+  readonly content?: React.ReactNode;
+  readonly composer?: React.ReactNode;
+  readonly context?: React.ReactNode;
 }
 export type LumenAppShellWorkflowVariantProps = Omit<
   LumenAppShellWorkflowsProps,
@@ -835,8 +867,55 @@ function empty(props: LumenAppShellWorkflowsProps) {
 }
 export function LumenAppShellWorkflows(props: LumenAppShellWorkflowsProps) {
   const providerContent = useLumenAppShellWorkflowsContent();
+  if (props.variant === 9 && props.slots?.desktopLayout) return (
+    <Root {...props} className={['lumen-shell-chat-stage', 'lumen-shell-chat-runtime-stage', props.className].filter(Boolean).join(' ')}>
+      <div className="lumen-app-shell lumen-desktop-shell" data-lumen-shell="app" data-hbar-app-ui-shell="app" data-sidebar-open={props.sidebarOpen} data-tool-presentation={props.tool ? 'split' : 'none'}>
+        {props.titlebar}
+        <header className="lumen-desktop-shell-header">{props.header ?? props.slots.header}</header>
+        {props.slots.desktopLayout}
+        {props.overlay}
+      </div>
+    </Root>
+  );
   const content = props.content ?? providerContent;
   if (!content) {
+    if (props.variant === 4 && props.slots?.context) {
+      return (
+        <Root {...props} className={['lumen-shell-editorial-stage', 'lumen-shell-context-runtime-stage', props.className].filter(Boolean).join(' ')}>
+          <aside className="lumen-app-shell-context-surface" aria-label={props.toolLabel ?? 'Context'}>{props.slots.context}</aside>
+        </Root>
+      );
+    }
+    if (props.variant === 9 && (props.sidebar !== undefined || props.children !== undefined)) {
+      return (
+        <Root {...props} className={['lumen-shell-chat-stage', 'lumen-shell-chat-runtime-stage', props.className].filter(Boolean).join(' ')}>
+          <LumenAppShell
+            label={props.label ?? 'main'}
+            titlebar={props.titlebar}
+            sidebar={props.sidebar}
+            sidebarWidthRem={props.sidebarWidthRem ?? 18}
+            sidebarLayout={props.sidebarLayout}
+            sidebarResize={props.sidebarResize}
+            toolWidthRem={props.toolWidthRem}
+            toolLayout={props.toolLayout}
+            mainRef={props.mainRef}
+            toolRef={props.toolRef}
+            resizeRef={props.resizeRef}
+            onToolPresentationChange={props.onToolPresentationChange}
+            toolResize={props.toolResize}
+            sidebarOpen={props.sidebarOpen ?? true}
+            closeSidebarLabel={props.closeSidebarLabel ?? 'Close navigation'}
+            onCloseSidebar={props.onCloseSidebar ?? (() => undefined)}
+            header={props.header}
+            tool={props.tool}
+            toolLabel={props.toolLabel}
+            overlay={props.overlay}
+          >
+            {props.children}
+          </LumenAppShell>
+        </Root>
+      );
+    }
     return empty(props);
   }
   const view = <AppShellWorkflowView {...props} content={content} />;
@@ -896,6 +975,14 @@ function AppShellWorkflowView(
     return <Workbench {...props} content={content} />;
   }
   if (props.variant === 4) {
+    if (props.slots?.context)
+      return (
+        <Root {...props} className={['lumen-shell-editorial-stage', 'lumen-shell-context-runtime-stage', props.className].filter(Boolean).join(' ')}>
+          <aside className="lumen-app-shell-context-surface" aria-label={props.toolLabel ?? 'Context'}>
+            {props.slots.context}
+          </aside>
+        </Root>
+      );
     if (content.editorial)
       return (
         <Root
@@ -956,14 +1043,78 @@ function AppShellWorkflowView(
     return <Adaptive {...props} content={content} />;
   }
   if (props.variant === 9) {
+    if (props.slots)
+      return (
+        <Root {...props} className={['lumen-shell-chat-stage', 'lumen-shell-chat-runtime-stage', props.className].filter(Boolean).join(' ')}>
+          <LumenAppShell
+            label={props.label ?? content.labels.title}
+            titlebar={props.titlebar}
+            sidebar={props.sidebar ?? props.slots.navigation}
+            sidebarWidthRem={props.sidebarWidthRem ?? 18}
+            sidebarLayout={props.sidebarLayout}
+            sidebarResize={props.sidebarResize}
+            toolWidthRem={props.toolWidthRem}
+            toolLayout={props.toolLayout}
+            mainRef={props.mainRef}
+            toolRef={props.toolRef}
+            resizeRef={props.resizeRef}
+            onToolPresentationChange={props.onToolPresentationChange}
+            toolResize={props.toolResize}
+            sidebarOpen={props.sidebarOpen ?? true}
+            closeSidebarLabel={props.closeSidebarLabel ?? content.labels.closeNavigation}
+            onCloseSidebar={props.onCloseSidebar ?? (() => undefined)}
+            header={props.header ?? props.slots.header}
+            tool={props.tool ?? props.slots.context}
+            toolLabel={props.toolLabel}
+            overlay={props.overlay}
+          >
+            {props.children ?? (
+              <>
+                {props.slots.content}
+                {props.slots.composer}
+              </>
+            )}
+          </LumenAppShell>
+        </Root>
+      );
     if (content.chat)
       return (
         <Root
           {...props}
           className={['lumen-shell-chat-stage', props.className].filter(Boolean).join(' ')}
         >
-          <AppShellChat content={content.chat} />
+        <AppShellChat content={content.chat} />
         </Root>
+      );
+    // Runtime callers may supply the live pane contract without preview content.
+    // Keep the canonical AppShell09 identity while delegating flow, resize and
+    // focus behavior to the shared production shell implementation.
+    if (props.sidebar !== undefined || props.children !== undefined)
+      return (
+        <LumenAppShell
+          label={props.label ?? content.labels.title}
+          titlebar={props.titlebar}
+          sidebar={props.sidebar}
+          sidebarWidthRem={props.sidebarWidthRem ?? 18}
+          sidebarLayout={props.sidebarLayout}
+          sidebarResize={props.sidebarResize}
+          toolWidthRem={props.toolWidthRem}
+          toolLayout={props.toolLayout}
+          mainRef={props.mainRef}
+          toolRef={props.toolRef}
+          resizeRef={props.resizeRef}
+          onToolPresentationChange={props.onToolPresentationChange}
+          toolResize={props.toolResize}
+          sidebarOpen={props.sidebarOpen ?? true}
+          closeSidebarLabel={props.closeSidebarLabel ?? content.labels.closeNavigation}
+          onCloseSidebar={props.onCloseSidebar ?? (() => undefined)}
+          header={props.header}
+          tool={props.tool}
+          toolLabel={props.toolLabel}
+          overlay={props.overlay}
+        >
+          {props.children}
+        </LumenAppShell>
       );
     return <Chat {...props} content={content} />;
   }

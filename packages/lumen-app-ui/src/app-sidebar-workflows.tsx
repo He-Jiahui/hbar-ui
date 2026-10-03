@@ -103,6 +103,14 @@ export interface LumenAppSidebarWorkflowsProps {
   readonly surface?: string | undefined;
   readonly state?: string | undefined;
   readonly visualMode?: string | undefined;
+  /** Host owned controlled regions for production sidebar variants. */
+  readonly slots?: LumenAppSidebarWorkflowSlots | undefined;
+}
+export interface LumenAppSidebarWorkflowSlots {
+  readonly navigation?: React.ReactNode;
+  readonly tree?: React.ReactNode;
+  readonly drawer?: React.ReactNode;
+  readonly actions?: React.ReactNode;
 }
 export type LumenAppSidebarWorkflowVariantProps = Omit<
   LumenAppSidebarWorkflowsProps,
@@ -625,6 +633,17 @@ export function LumenAppSidebarWorkflows(props: LumenAppSidebarWorkflowsProps) {
   const providerContent = useLumenAppSidebarWorkflowsContent();
   const content = props.content ?? providerContent;
   if (!content) {
+    if (props.slots && [3, 5, 6].includes(props.variant))
+      return (
+        <Root {...props}>
+          <div className="lumen-app-sidebar-controlled-layout" data-lumen-sidebar-controlled="true">
+            {props.slots.navigation ? <nav>{props.slots.navigation}</nav> : null}
+            {props.slots.tree ? <section>{props.slots.tree}</section> : null}
+            {props.slots.drawer ? <aside>{props.slots.drawer}</aside> : null}
+            {props.slots.actions ? <footer>{props.slots.actions}</footer> : null}
+          </div>
+        </Root>
+      );
     return empty(props);
   }
   const view = (
