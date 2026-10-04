@@ -130,14 +130,23 @@
 }
 
 .lumen-app-sidebar-drawer {
-  display: none;
+  display: flex;
   min-inline-size: 0;
   min-block-size: 0;
-  flex: 0 0 var(--lumen-sidebar-size);
+  flex: 0 0 0;
+  overflow: hidden;
+  transition: flex-basis var(--lumen-motion-sidebar-duration, 280ms) var(--lumen-motion-sidebar-easing, cubic-bezier(0.22, 1, 0.36, 1));
+  will-change: flex-basis;
 }
 
 .lumen-app-sidebar-drawer[data-open='true'] {
-  display: flex;
+  flex: 0 0 var(--lumen-sidebar-size);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lumen-app-sidebar-drawer {
+    transition: none;
+  }
 }
 
 .lumen-app-sidebar-backdrop {

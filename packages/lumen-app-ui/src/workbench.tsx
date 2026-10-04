@@ -167,6 +167,7 @@ export function LumenAppShell({
           <div
             className="lumen-app-sidebar-drawer hbar-app-ui-app-sidebar-drawer"
             data-open={sidebarOpen}
+            inert={!sidebarOpen || undefined}
           >
             <div className="lumen-app-sidebar-drawer-panel hbar-app-ui-app-sidebar-drawer-panel">
               {sidebar}
