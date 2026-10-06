@@ -1,9 +1,3 @@
-/* Media viewport dimensions are bounded by the native modal, not by page content coordinates. */
-.lumen-dialog.lumen-image-gallery-dialog {
-  --lumen-dialog-width: 80rem;
-  block-size: calc(100dvh - 2rem);
-}
-
 .lumen-image-gallery-dialog .lumen-dialog-surface,
 .lumen-image-gallery-dialog .lumen-dialog-content,
 .lumen-image-gallery {
@@ -210,9 +204,6 @@
 }
 
 @media (max-width: 47.9375rem) {
-  .lumen-dialog.lumen-image-gallery-dialog {
-    block-size: calc(100dvh - 1rem);
-  }
   .lumen-image-gallery {
     gap: 0.5rem;
     padding: 0.5rem;

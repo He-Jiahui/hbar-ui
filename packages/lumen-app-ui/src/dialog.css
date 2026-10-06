@@ -1,20 +1,38 @@
-.lumen-floating-modal-root.hbar-app-ui-dialog-backdrop {
-  padding: 1rem;
+.lumen-floating-modal-root.hbar-app-ui-dialog-backdrop[data-lumen-floating-root] {
+  padding: 0;
 }
 
-.lumen-floating-modal-root.hbar-app-ui-dialog-backdrop > .lumen-dialog {
-  inline-size: min(var(--lumen-dialog-width, 40rem), calc(100% - 2rem));
-  max-inline-size: calc(100% - 2rem);
-  max-block-size: calc(100% - 2rem);
+.lumen-floating-modal-root.hbar-app-ui-dialog-backdrop > .lumen-dialog[data-dialog-size] {
+  inline-size: var(--lumen-dialog-extent, 60%);
+  block-size: var(--lumen-dialog-extent, 60%);
+  max-inline-size: 100%;
+  max-block-size: 100%;
+  flex: 0 0 auto;
+}
+
+.lumen-dialog[data-dialog-size='large'] {
+  --lumen-dialog-extent: 80%;
+}
+
+.lumen-dialog[data-dialog-size='medium'] {
+  --lumen-dialog-extent: 60%;
+}
+
+.lumen-dialog[data-dialog-size='small'] {
+  --lumen-dialog-extent: 40%;
 }
 
 .lumen-dialog-surface {
   inline-size: 100%;
+  min-block-size: 0;
   max-block-size: 100%;
+  flex: 1 1 auto;
   box-shadow: 0 1.5rem 5rem color-mix(in srgb, #000 45%, transparent);
 }
 
 .lumen-dialog-content {
+  min-block-size: 0;
+  flex: 1 1 auto;
   max-block-size: 100%;
   overflow: hidden;
 }
@@ -48,6 +66,7 @@
 }
 
 .lumen-dialog-content > footer {
+  flex-wrap: wrap;
   justify-content: flex-end;
 }
 
@@ -77,10 +96,10 @@
   border-radius: 0;
 }
 
-@media (max-width: 47.9375rem) {
-  .lumen-floating-modal-root.hbar-app-ui-dialog-backdrop > .lumen-dialog {
-    inline-size: calc(100% - 1rem);
-    max-block-size: calc(100% - 1rem);
+/* A compact owner window uses all available space, including short desktop windows. */
+@media (max-width: 60rem), (max-height: 40rem) {
+  .lumen-dialog[data-dialog-size] {
+    --lumen-dialog-extent: 100%;
   }
 }
 

@@ -205,6 +205,7 @@ export function LumenImageGallery({
   return (
     <LumenDialog
       open={open}
+      size="large"
       title={labels.title}
       closeLabel={labels.close}
       onClose={onClose}

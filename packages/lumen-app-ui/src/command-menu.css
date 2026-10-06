@@ -30,23 +30,6 @@
   max-inline-size: min(100%, 26rem);
 }
 
-.hbar-app-ui-command-dialog.lumen-dialog {
-  --lumen-dialog-width: 44rem;
-}
-
-.hbar-app-ui-command-dialog-search.lumen-dialog {
-  --lumen-dialog-width: 64rem;
-}
-
-.hbar-app-ui-command-dialog-form.lumen-dialog,
-.hbar-app-ui-command-dialog-assistant.lumen-dialog {
-  --lumen-dialog-width: 34rem;
-}
-
-.hbar-app-ui-command-dialog-room.lumen-dialog {
-  --lumen-dialog-width: 38rem;
-}
-
 .lumen-command-menu-preview-content {
   display: flex;
   min-inline-size: 0;

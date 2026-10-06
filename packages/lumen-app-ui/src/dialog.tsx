@@ -15,6 +15,8 @@ export interface LumenDialogProps {
   children: React.ReactNode;
   footer?: React.ReactNode;
   className?: string | undefined;
+  /** Viewport width and height: large 80%, medium 60%, small 40%; compact viewports fill the window. */
+  size?: 'large' | 'medium' | 'small' | undefined;
   /** Solid, undecorated panel chrome is opt-in; glass preserves the existing lamp appearance. */
   appearance?: 'glass' | 'panel' | undefined;
   chromeless?: boolean | undefined;
@@ -38,6 +40,7 @@ export function LumenDialog({
   children,
   footer,
   className,
+  size = 'medium',
   appearance = 'glass',
   chromeless = false,
   initialFocus,
@@ -59,6 +62,7 @@ export function LumenDialog({
         .join(' ')}
       backdropClassName="hbar-app-ui-dialog-backdrop"
       data-open={open || undefined}
+      data-dialog-size={size}
       data-appearance={appearance}
     >
       <LumenSurface

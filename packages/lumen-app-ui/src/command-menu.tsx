@@ -621,6 +621,7 @@ function ListCommandSurface({
           </LumenButton>
           <LumenDialog
             open={content.open}
+            size={props.variant === 6 ? 'large' : 'medium'}
             title={content.title}
             closeLabel={content.labels.close}
             onClose={content.onClose}
@@ -655,6 +656,7 @@ function WorkflowCommandSurface({
           </LumenButton>
           <LumenDialog
             open={content.open}
+            size={props.variant === 3 ? 'large' : 'medium'}
             title={content.title}
             closeLabel={content.closeLabel}
             onClose={content.onClose}
