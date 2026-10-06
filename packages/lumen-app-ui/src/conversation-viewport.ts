@@ -184,6 +184,7 @@ export function useConversationViewport<Item extends { id: string }>(options: {
     scrollKey,
     virtualized,
     virtual,
+    followLatest,
     recordPosition,
     onResult: options.onScrollTargetResult,
   });
@@ -193,6 +194,7 @@ export function useConversationViewport<Item extends { id: string }>(options: {
       scrollKey,
       virtualized,
       virtual,
+      followLatest,
       recordPosition,
       onResult: options.onScrollTargetResult,
     };
@@ -518,6 +520,69 @@ export function useConversationViewport<Item extends { id: string }>(options: {
     targetAlign,
   ]);
 
+  // Renderers can finish well after the bounded navigation/virtual measurement
+  // window. Observe actual geometry for the lifetime of this pane, not on a
+  // perpetual animation loop. One pending frame preserves either the latest
+  // end or the same semantic message and offset while reading history.
+  React.useLayoutEffect(() => {
+    const element = viewport.current;
+    const content = element?.querySelector('.lumen-conversation-content');
+    if (!element || !content || typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+    let frame: number | undefined;
+    const cancelResizeFrame = () => {
+      if (frame !== undefined) {
+        cancelAnimationFrame(frame);
+        frame = undefined;
+      }
+    };
+    const interruptKey = (event: KeyboardEvent) => {
+      if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(event.key)) {
+        cancelResizeFrame();
+      }
+    };
+    const observer = new ResizeObserver(() => {
+      if (frame !== undefined) {
+        return;
+      }
+      frame = requestAnimationFrame(() => {
+        frame = undefined;
+        const prior = previous.current;
+        const current = latest.current;
+        if (
+          viewport.current !== element ||
+          current.scrollKey !== scrollKey ||
+          prior?.key !== scrollKey ||
+          !element.isConnected ||
+          seeking.current
+        ) {
+          return;
+        }
+        if (prior.atEnd && current.followLatest) {
+          element.scrollTop = element.scrollHeight;
+        } else {
+          restoreMessageAnchor(element, prior.messageId, prior.messageOffset);
+        }
+        current.recordPosition(element);
+      });
+    });
+    observer.observe(element);
+    observer.observe(content);
+    element.addEventListener('wheel', cancelResizeFrame, { passive: true });
+    element.addEventListener('touchstart', cancelResizeFrame, { passive: true });
+    element.addEventListener('pointerdown', cancelResizeFrame, { passive: true });
+    element.addEventListener('keydown', interruptKey);
+    return () => {
+      observer.disconnect();
+      cancelResizeFrame();
+      element.removeEventListener('wheel', cancelResizeFrame);
+      element.removeEventListener('touchstart', cancelResizeFrame);
+      element.removeEventListener('pointerdown', cancelResizeFrame);
+      element.removeEventListener('keydown', interruptKey);
+    };
+  }, [scrollKey]);
+
   const onScroll = () => {
     const element = viewport.current;
     if (!element || seeking.current) {
@@ -550,7 +615,7 @@ export function useConversationViewport<Item extends { id: string }>(options: {
     }
     element.scrollTop = element.scrollHeight;
     setHasNewContent(false);
-    saveAnchor(element);
+    recordPosition(element);
   };
 
   return {

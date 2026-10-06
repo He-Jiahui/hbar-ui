@@ -249,12 +249,18 @@ export function LumenConversation({
       ) : (
         header
       )}
-      <div ref={viewport} onScroll={onScroll} className="lumen-conversation-messages">
+      <div
+        ref={viewport}
+        onScroll={onScroll}
+        className="lumen-conversation-messages"
+        data-follow-latest={followLatest ?? true}
+      >
         <div className="lumen-conversation-content">
           {beforeMessages}
           {messageContent}
           {afterMessages}
         </div>
+        <div className="lumen-conversation-end-anchor" aria-hidden="true" />
       </div>
       {hasNewContent && latestLabel && messages.length > 0 ? (
         <LumenButton
