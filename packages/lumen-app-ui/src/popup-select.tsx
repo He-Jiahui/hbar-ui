@@ -281,7 +281,7 @@ export const LumenPopupSelect = React.forwardRef<HTMLButtonElement, LumenPopupSe
         ref={rootRef}
         className={['lumen-popup-select', className].filter(Boolean).join(' ')}
         data-size={resolvedSize}
-        data-variant={variant}
+        data-variant={typeof compatibilityVariant === 'string' ? compatibilityVariant : variant}
         data-invalid={invalid || undefined}
         data-disabled={disabled || undefined}
       >

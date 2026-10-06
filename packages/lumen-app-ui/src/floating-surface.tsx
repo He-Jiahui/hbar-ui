@@ -242,16 +242,17 @@ interface FloatingTriggerHandlers {
  * already-open surface.  The object form is the public contract; the legacy
  * `(open, setOpen)` form remains for existing hbar consumers.
  */
-export function useFloatingTrigger(props: FloatingTriggerProps): FloatingTriggerHandlers;
-export function useFloatingTrigger(open: boolean, setOpen: (value: boolean) => void): FloatingTriggerHandlers;
 export function useFloatingTrigger(
-  propsOrOpen: FloatingTriggerProps | boolean,
-  legacySetOpen?: (value: boolean) => void,
+  ...[propsOrOpen, legacySetOpen]:
+    | [props: FloatingTriggerProps]
+    | [open: boolean, setOpen: (value: boolean) => void]
 ): FloatingTriggerHandlers {
   const objectProps = typeof propsOrOpen === 'boolean' ? undefined : propsOrOpen;
   const open = objectProps?.open ?? propsOrOpen;
-  const onOpen = objectProps?.onOpen ?? (() => legacySetOpen?.(true));
-  const onClose = objectProps?.onClose ?? (() => legacySetOpen?.(false));
+  const legacyOpen = React.useCallback(() => legacySetOpen?.(true), [legacySetOpen]);
+  const legacyClose = React.useCallback(() => legacySetOpen?.(false), [legacySetOpen]);
+  const onOpen = objectProps?.onOpen ?? legacyOpen;
+  const onClose = objectProps?.onClose ?? legacyClose;
   const suppressClick = React.useRef(false);
   const handlePointerDown = React.useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
@@ -516,7 +517,7 @@ export function LumenFloatingSurface(props: FloatingSurfaceProps) {
     if (anchorMatchWidth) surface.style.setProperty('inline-size', `${width}px`);
     else surface.style.removeProperty('inline-size');
     setPositioned(true);
-  }, [anchorMatchWidth, anchorPoint, anchorRef, mode, placement]);
+  }, [anchorMatchWidth, anchorPoint, anchorRef, focusBehavior, mode, placement]);
 
   React.useLayoutEffect(() => {
     if (!open || !positioned || !focusPendingRef.current || focusBehavior !== 'surface') return;
@@ -533,6 +534,7 @@ export function LumenFloatingSurface(props: FloatingSurfaceProps) {
     const layer = layerRef.current;
     const surface = surfaceRef.current ?? layerRef.current;
     if (!layer || !surface) return undefined;
+    const anchorElement = anchorRef?.current;
     previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     focusPendingRef.current = focusBehavior === 'surface';
     setPositioned(false);
@@ -550,15 +552,14 @@ export function LumenFloatingSurface(props: FloatingSurfaceProps) {
       const frame = requestAnimationFrame(position);
       const resizeObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(position) : undefined;
       resizeObserver?.observe(surface);
-      const anchor = anchorRef?.current;
-      if (anchor) resizeObserver?.observe(anchor);
+      if (anchorElement) resizeObserver?.observe(anchorElement);
       window.addEventListener('resize', position);
       window.addEventListener('scroll', position, true);
       const disposer = registerFloatingSurface({
         id: surfaceId,
         close: () => closeRef.current(),
         getElement: () => surfaceRef.current ?? layerRef.current,
-        anchor: anchorRef?.current,
+        anchor: anchorElement,
         mode,
         parentId: resolvedParentId,
         nested: Boolean(resolvedParentId),
@@ -575,7 +576,7 @@ export function LumenFloatingSurface(props: FloatingSurfaceProps) {
         setPositioned(false);
         if (restoreFocus) {
           const active = document.activeElement;
-          const restore = previousFocusRef.current ?? anchorRef?.current;
+          const restore = previousFocusRef.current ?? anchorElement;
           if (
             restore?.isConnected &&
             (active === document.body || active === surface || surface.contains(active))
