@@ -23,18 +23,19 @@
   border-block-end: 0.0625rem solid var(--lumen-edge);
   background: var(--lumen-frost);
   backdrop-filter: blur(1.25rem);
+  overflow-x: auto;
 }
 
 .lumen-page-heading {
   min-inline-size: 0;
   flex: 1 1 auto;
+  overflow-x: auto;
 }
 
 .lumen-page-heading h1,
 .lumen-page-heading p {
   margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  min-inline-size: max-content;
   white-space: nowrap;
 }
 
@@ -70,6 +71,7 @@
   gap: 0.75rem;
   padding: 0.75rem;
   border-block-end: 0.0625rem solid var(--lumen-edge);
+  overflow-x: auto;
 }
 
 .lumen-tool-pane-start {
@@ -83,13 +85,15 @@
 }
 
 .lumen-tool-pane-heading {
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.5rem;
+  overflow-x: auto;
 }
 
 .lumen-tool-pane-heading h2 {
-  max-inline-size: 100%;
   flex: 0 0 auto;
+  min-inline-size: max-content;
+  white-space: nowrap;
 }
 
 .lumen-tool-pane-heading h2,
@@ -99,10 +103,7 @@
 }
 
 .lumen-tool-pane-heading span {
-  min-inline-size: 0;
-  flex: 1 1 12rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex: 1 0 auto;
   white-space: nowrap;
 }
 
@@ -245,8 +246,21 @@
   gap: 0.25rem;
 }
 
+.lumen-settings-list > header {
+  overflow-x: auto;
+}
+
+.lumen-settings-list > header > div:first-child {
+  flex: 1 0 auto;
+}
+
+.lumen-settings-list > header h2 {
+  min-inline-size: max-content;
+  white-space: nowrap;
+}
+
 .lumen-settings-list-row {
-  min-inline-size: 0;
+  min-inline-size: max-content;
   flex: 1 1 auto;
   justify-content: space-between;
   text-align: start;
@@ -255,13 +269,11 @@
 .lumen-settings-list-copy {
   display: flex;
   min-inline-size: 0;
-  flex: 1 1 auto;
+  flex: 1 0 auto;
   flex-direction: column;
 }
 
 .lumen-settings-list-copy > strong {
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
