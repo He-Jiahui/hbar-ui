@@ -26,6 +26,13 @@
   inline-size: 100%;
 }
 
+.fieldContent > :global(.lumen-combobox-control),
+.fieldContent > :global(.lumen-popup-select) {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  inline-size: 100%;
+}
+
 .field[data-lumen-tone='info'] {
   --lumen-effect-color: var(--lumen-info);
 }

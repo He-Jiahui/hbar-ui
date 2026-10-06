@@ -2171,6 +2171,34 @@ export type {
   LumenToggleControlProps,
   LumenToggleProps,
 } from './forms';
+export { LumenPopupSelect } from './popup-select';
+export type { LumenPopupSelectProps } from './popup-select';
+export {
+  FloatingSurface,
+  LumenFloatingSurface,
+  claimFloatingSurface,
+  floatingSurfaceCoordinator,
+  registerFloatingSurface,
+  useFloatingTrigger,
+} from './floating-surface';
+export type {
+  AnchoredFloatingSurfaceProps,
+  FloatingPlacement,
+  FloatingSurfaceMaterial,
+  FloatingSurfaceMode,
+  FloatingSurfaceProps,
+  FloatingSurfaceRegistration,
+  FloatingTriggerProps,
+  ModalFloatingSurfaceProps,
+  PointFloatingSurfaceProps,
+} from './floating-surface';
+export { LumenToggleGroup } from './toggle-group';
+export type {
+  LumenToggleGroupMultipleProps,
+  LumenToggleGroupProps,
+  LumenToggleGroupSingleProps,
+  LumenToggleOption,
+} from './toggle-group';
 export { LumenCommandDialog, LumenCommandList } from './command-list';
 export type {
   LumenCommandDialogProps,

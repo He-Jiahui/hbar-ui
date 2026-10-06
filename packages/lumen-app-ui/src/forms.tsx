@@ -4,6 +4,7 @@ import * as React from 'react';
 import type { LumenSize } from './appearance';
 import LumenField from './LumenField';
 import LumenSurface from './LumenSurface';
+import { LumenFloatingSurface, useFloatingTrigger } from './floating-surface';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
 
 export type LumenFieldVariant = 'boundary' | 'outlined' | 'plain' | 'boxed';
@@ -19,6 +20,8 @@ export interface LumenFormFieldProps {
   controlId: string;
   label: string;
   description?: string | undefined;
+  /** Place helper description before the control (the legacy default) or after it. */
+  descriptionPlacement?: 'before-control' | 'after-control' | undefined;
   hint?: string | undefined;
   error?: string | undefined;
   required?: boolean | undefined;
@@ -47,7 +50,12 @@ function bindDescendantControl(
     }
     if (child.props.id === controlId) {
       const binding = Object.fromEntries(
-        Object.entries(attributes).map(([name, value]) => [name, child.props[name] ?? value]),
+        Object.entries(attributes).map(([name, value]) => {
+          if (name === 'aria-labelledby' && child.props['aria-label'] !== undefined) {
+            return [name, child.props[name]];
+          }
+          return [name, child.props[name] ?? value];
+        }),
       );
       return React.cloneElement(child, binding);
     }
@@ -63,6 +71,7 @@ export function LumenFormField({
   controlId,
   label,
   description,
+  descriptionPlacement = 'before-control',
   hint,
   error,
   required,
@@ -72,6 +81,7 @@ export function LumenFormField({
   className,
 }: LumenFormFieldProps) {
   const descriptionId = description ? `${controlId}-description` : undefined;
+  const labelId = `${controlId}-label`;
   let messageId: string | undefined;
   if (error) {
     messageId = `${controlId}-error`;
@@ -83,6 +93,7 @@ export function LumenFormField({
     required,
     'aria-describedby': describedBy,
     'aria-invalid': Boolean(error) || undefined,
+    'aria-labelledby': labelId,
     'data-size': size,
   };
   const control = containsControl(children, controlId)
@@ -93,6 +104,9 @@ export function LumenFormField({
           required: children.props.required ?? required,
           'aria-describedby': children.props['aria-describedby'] ?? describedBy,
           'aria-invalid': children.props['aria-invalid'] ?? (Boolean(error) || undefined),
+          'aria-labelledby':
+            children.props['aria-labelledby'] ??
+            (children.props['aria-label'] === undefined ? labelId : undefined),
           'data-size': children.props['data-size'] ?? size,
         })
       : children;
@@ -118,7 +132,7 @@ export function LumenFormField({
       data-invalid={Boolean(error) || undefined}
     >
       <label htmlFor={controlId}>
-        <LumenText as="span" variant="label" size={size}>
+        <LumenText as="span" id={labelId} variant="label" size={size}>
           {label}
         </LumenText>
         {required && requiredIndicator ? (
@@ -127,12 +141,17 @@ export function LumenFormField({
           </LumenText>
         ) : null}
       </label>
-      {description ? (
+      {description && descriptionPlacement === 'before-control' ? (
         <LumenText as="p" id={descriptionId} tone="muted" variant="supporting" size={size}>
           {description}
         </LumenText>
       ) : null}
       {control}
+      {description && descriptionPlacement === 'after-control' ? (
+        <LumenText as="p" id={descriptionId} tone="muted" variant="supporting" size={size}>
+          {description}
+        </LumenText>
+      ) : null}
       {message}
     </div>
   );
@@ -455,6 +474,8 @@ export interface LumenComboBoxProps {
   loading?: boolean | undefined;
   invalid?: boolean | undefined;
   describedBy?: string | undefined;
+  'aria-label'?: string | undefined;
+  'aria-labelledby'?: string | undefined;
   loadMoreLabel?: string | undefined;
   onLoadMore?: (() => void) | undefined;
   onQueryChange: (query: string) => void;
@@ -499,6 +520,8 @@ export function LumenComboBox({
   loading = false,
   invalid = false,
   describedBy,
+  'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledBy,
   loadMoreLabel,
   onLoadMore,
   onQueryChange,
@@ -506,81 +529,13 @@ export function LumenComboBox({
   onValueChange,
 }: LumenComboBoxProps) {
   const root = React.useRef<HTMLDivElement>(null);
-  const popup = React.useRef<HTMLDivElement>(null);
   const generatedId = React.useId().replaceAll(':', '');
   const listboxId = `${id}-${generatedId}-listbox`;
   const lumenVariant = normalizedVariant(variant);
   const items = React.useMemo(() => uniqueOptions(options), [options]);
   const available = React.useMemo(() => items.filter((option) => !option.disabled), [items]);
   const [activeId, setActiveId] = React.useState<string | null>(null);
-
-  const positionPopup = React.useCallback(() => {
-    const menu = popup.current;
-    const anchor = root.current;
-    if (!menu || !anchor || !menu.matches(':popover-open')) return;
-    const bounds = anchor.getBoundingClientRect();
-    const rem = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-    const margin = rem;
-    const gap = rem / 2;
-    const width = Math.min(Math.max(bounds.width, 12 * rem), Math.max(0, innerWidth - margin * 2));
-    const below = Math.max(0, innerHeight - bounds.bottom - gap - margin);
-    const above = Math.max(0, bounds.top - gap - margin);
-    const placeBelow = menu.offsetHeight <= below || below >= above;
-    const left = Math.min(
-      Math.max(margin, bounds.left),
-      Math.max(margin, innerWidth - width - margin),
-    );
-    menu.style.setProperty('--lumen-combobox-left', `${left}px`);
-    menu.style.setProperty('--lumen-combobox-width', `${width}px`);
-    menu.style.setProperty(
-      '--lumen-combobox-top',
-      placeBelow ? `${bounds.bottom + gap}px` : 'auto',
-    );
-    menu.style.setProperty(
-      '--lumen-combobox-bottom',
-      placeBelow ? 'auto' : `${innerHeight - bounds.top + gap}px`,
-    );
-    menu.style.setProperty(
-      '--lumen-combobox-limit',
-      `${Math.max(0, placeBelow ? below : above)}px`,
-    );
-  }, []);
-
-  React.useEffect(() => {
-    const menu = popup.current;
-    if (!open || disabled || !menu) return undefined;
-    let topLayer = false;
-    if (typeof menu.showPopover === 'function') {
-      if (menu.matches(':popover-open')) {
-        topLayer = true;
-      } else {
-        try {
-          menu.showPopover();
-          topLayer = true;
-        } catch {
-          menu.removeAttribute('popover');
-        }
-      }
-    }
-    menu.removeAttribute('data-positioned');
-    const position = () => {
-      if (!topLayer || !menu.matches(':popover-open')) return;
-      positionPopup();
-      menu.dataset.positioned = 'true';
-    };
-    const frame = window.requestAnimationFrame(position);
-    const reposition = () => positionPopup();
-    window.addEventListener('resize', reposition);
-    window.addEventListener('scroll', reposition, true);
-    if (!topLayer) {
-      menu.dataset.positioned = 'true';
-    }
-    return () => {
-      window.cancelAnimationFrame(frame);
-      window.removeEventListener('resize', reposition);
-      window.removeEventListener('scroll', reposition, true);
-    };
-  }, [disabled, items, loadMoreLabel, loading, open, positionPopup]);
+  const optionRefs = React.useRef(new Map<string, HTMLButtonElement>());
 
   React.useEffect(() => {
     if (!open) {
@@ -593,15 +548,18 @@ export function LumenComboBox({
   }, [activeId, available, open, value]);
 
   React.useEffect(() => {
-    if (!open) return undefined;
-    const closeOutside = (event: PointerEvent) => {
-      if (event.target instanceof Node && !root.current?.contains(event.target)) {
-        onOpenChange(false);
-      }
-    };
-    document.addEventListener('pointerdown', closeOutside);
-    return () => document.removeEventListener('pointerdown', closeOutside);
-  }, [onOpenChange, open]);
+    if (!open || activeId === null) return;
+    const option = optionRefs.current.get(activeId);
+    if (option && typeof option.scrollIntoView === 'function') {
+      option.scrollIntoView({ block: 'nearest' });
+    }
+  }, [activeId, open]);
+
+  const floatingTrigger = useFloatingTrigger({
+    open,
+    onOpen: () => onOpenChange(true),
+    onClose: () => onOpenChange(false),
+  });
 
   const select = (option: LumenControlOption) => {
     if (option.disabled) {
@@ -639,8 +597,14 @@ export function LumenComboBox({
     optionContent = items.map((option, index) => (
       <LumenButton
         key={`${option.id}:${index}`}
+        ref={(element) => {
+          if (element) optionRefs.current.set(option.id, element);
+          else optionRefs.current.delete(option.id);
+        }}
         id={`${listboxId}-${index}`}
         role="option"
+        data-value={option.id}
+        title={option.label}
         aria-selected={value === option.id}
         disabled={option.disabled}
         className={['lumen-combobox-option', activeId === option.id ? 'is-active' : '']
@@ -689,12 +653,15 @@ export function LumenComboBox({
         aria-expanded={open}
         aria-controls={listboxId}
         aria-activedescendant={
-          open && activeId
+          open && activeId !== null
             ? `${listboxId}-${items.findIndex((option) => option.id === activeId)}`
             : undefined
         }
         aria-describedby={describedBy}
         aria-invalid={invalid || undefined}
+        aria-label={ariaLabel}
+        aria-labelledby={ariaLabelledBy}
+        title={query}
         onFocus={() => onOpenChange(true)}
         onChange={(event) => {
           onQueryChange(event.currentTarget.value);
@@ -709,6 +676,12 @@ export function LumenComboBox({
             event.preventDefault();
             const option = available.find((candidate) => candidate.id === activeId);
             if (option) select(option);
+          } else if (event.key === 'Home' && open) {
+            event.preventDefault();
+            setActiveId(available[0]?.id ?? null);
+          } else if (event.key === 'End' && open) {
+            event.preventDefault();
+            setActiveId(available.at(-1)?.id ?? null);
           } else if (event.key === 'Escape' && open) {
             event.preventDefault();
             onOpenChange(false);
@@ -721,8 +694,8 @@ export function LumenComboBox({
         size={size}
         disabled={disabled}
         aria-expanded={open}
-        onMouseDown={(event) => event.preventDefault()}
-        onClick={() => onOpenChange(!open)}
+        onPointerDown={floatingTrigger.onPointerDown}
+        onClick={floatingTrigger.onClick}
       >
         <FormGlyph name="chevron" />
       </LumenIconButton>
@@ -730,15 +703,7 @@ export function LumenComboBox({
   );
 
   return (
-    <div
-      ref={root}
-      className="lumen-combobox"
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) {
-          onOpenChange(false);
-        }
-      }}
-    >
+    <div ref={root} className="lumen-combobox">
       {lumenVariant !== 'outlined' ? (
         control
       ) : (
@@ -746,38 +711,33 @@ export function LumenComboBox({
           {control}
         </LumenField>
       )}
-      {open && !disabled ? (
-        <div
-          ref={popup}
-          popover="auto"
-          className="lumen-combobox-popup"
-          onToggle={(event) => {
-            if (event.newState === 'closed' && open) onOpenChange(false);
-          }}
-        >
-          <LumenSurface
-            boundary="horizontal"
-            className="lumen-combobox-popup-surface"
-            material="frost"
-          >
-            <div className="lumen-combobox-popup-content">
-              <div id={listboxId} role="listbox">
-                {optionContent}
-              </div>
-              {loadMoreLabel && onLoadMore ? (
-                <LumenButton
-                  className="lumen-combobox-load-more"
-                  variant="text"
-                  size={size}
-                  onClick={onLoadMore}
-                >
-                  {loadMoreLabel}
-                </LumenButton>
-              ) : null}
-            </div>
-          </LumenSurface>
+      <LumenFloatingSurface
+        open={open && !disabled}
+        onClose={() => onOpenChange(false)}
+        anchorRef={root}
+        anchorMatchWidth
+        placement="below"
+        focusBehavior="preserve"
+        className="lumen-combobox-popup-surface"
+      >
+        <div className="lumen-combobox-popup-content">
+          <div id={listboxId} role="listbox">
+            {optionContent}
+          </div>
+          {loadMoreLabel && onLoadMore ? (
+            <LumenButton
+              className="lumen-combobox-load-more"
+              variant="text"
+              size={size}
+              onPointerDown={(event) => event.preventDefault()}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={onLoadMore}
+            >
+              {loadMoreLabel}
+            </LumenButton>
+          ) : null}
         </div>
-      ) : null}
+      </LumenFloatingSurface>
     </div>
   );
 }

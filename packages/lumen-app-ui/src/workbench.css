@@ -398,11 +398,11 @@
 }
 
 .lumen-action-menu {
-  position: relative;
   flex: 0 0 auto;
 }
 
-.lumen-action-menu > summary {
+.lumen-action-menu-trigger {
+  appearance: none;
   display: inline-flex;
   inline-size: 1.875rem;
   block-size: 1.875rem;
@@ -412,16 +412,12 @@
   border-radius: var(--lumen-radius-control, 0.375rem);
   color: var(--lumen-muted);
   cursor: pointer;
-  list-style: none;
+  background: transparent;
 }
 
-.lumen-action-menu > summary::-webkit-details-marker {
-  display: none;
-}
-
-.lumen-action-menu > summary:hover,
-.lumen-action-menu > summary:focus-visible,
-.lumen-action-menu[open] > summary {
+.lumen-action-menu-trigger:hover,
+.lumen-action-menu-trigger:focus-visible,
+.lumen-action-menu[data-open='true'] .lumen-action-menu-trigger {
   border-color: var(--lumen-edge);
   background: color-mix(in srgb, var(--lumen-ink) 10%, transparent);
   color: var(--lumen-ink);
@@ -443,37 +439,12 @@
 }
 
 .hbar-app-ui-dialog-menu.lumen-action-menu-popup {
-  position: absolute;
-  z-index: 40;
-  inset-block-start: calc(100% + 0.25rem);
-  inset-inline-end: 0;
   display: flex;
   min-inline-size: 10rem;
   flex-direction: column;
   gap: 0.125rem;
   padding: 0.375rem;
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: var(--lumen-radius-control, 0.375rem);
-  background: var(--lumen-reading);
-  box-shadow: 0 1rem 2rem color-mix(in srgb, #000 28%, transparent);
-  backdrop-filter: blur(1.5rem);
-}
-
-.hbar-app-ui-dialog-menu.lumen-action-menu-popup:popover-open {
-  position: fixed;
-  z-index: 1000;
-  inset: auto;
-  top: var(--lumen-action-menu-top);
-  bottom: var(--lumen-action-menu-bottom);
-  left: var(--lumen-action-menu-left);
-  max-block-size: var(--lumen-action-menu-limit, calc(100vh - 2rem));
-  margin: 0;
   overflow: auto;
-  visibility: hidden;
-}
-
-.hbar-app-ui-dialog-menu.lumen-action-menu-popup:popover-open[data-positioned='true'] {
-  visibility: visible;
 }
 
 .lumen-action-menu-popup button {
@@ -527,8 +498,7 @@
   .lumen-window-titlebar,
   .lumen-app-header,
   .lumen-app-sidebar,
-  .lumen-app-tool-drawer,
-  .lumen-action-menu-popup {
+  .lumen-app-tool-drawer {
     background: Canvas;
     backdrop-filter: none;
   }

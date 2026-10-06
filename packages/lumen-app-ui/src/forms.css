@@ -1,3 +1,5 @@
+@import './popup-select.css';
+
 .lumen-form-field,
 .lumen-checkbox-copy,
 .lumen-toggle-copy {
@@ -288,35 +290,10 @@ textarea.lumen-control {
   border: 0;
 }
 
-.lumen-combobox-popup {
-  position: absolute;
-  z-index: 30;
-  inset-block-start: calc(100% + 0.25rem);
-  inset-inline: 0;
-  margin: 0;
-  overflow: hidden;
-  box-shadow: 0 0.75rem 2rem color-mix(in srgb, #000 35%, transparent);
-}
-
-.lumen-combobox-popup:popover-open {
-  position: fixed;
-  z-index: 1000;
-  inset: auto;
-  top: var(--lumen-combobox-top);
-  bottom: var(--lumen-combobox-bottom);
-  left: var(--lumen-combobox-left);
-  inline-size: var(--lumen-combobox-width);
-  max-inline-size: calc(100vw - 2rem);
-  max-block-size: var(--lumen-combobox-limit, calc(100vh - 2rem));
-  visibility: hidden;
-}
-
-.lumen-combobox-popup:popover-open[data-positioned='true'] {
-  visibility: visible;
-}
-
 .lumen-combobox-popup-surface {
-  block-size: 100%;
+  min-inline-size: 0;
+  max-block-size: min(24rem, calc(100vh - 2rem));
+  overflow: hidden;
 }
 
 .lumen-combobox-popup-content,
@@ -326,8 +303,17 @@ textarea.lumen-control {
   flex-direction: column;
 }
 
+.lumen-combobox-popup-content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-block-size: 0;
+  overflow: hidden;
+}
+
 .lumen-combobox-popup-content > [role='listbox'] {
-  max-block-size: 16rem;
+  flex: 1 1 auto;
+  min-block-size: 0;
   gap: 0.25rem;
   overflow: auto;
   padding: 0.25rem;

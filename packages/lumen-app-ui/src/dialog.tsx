@@ -4,6 +4,7 @@ import * as React from 'react';
 import LumenDivider from './LumenDivider';
 import LumenSurface from './LumenSurface';
 import { LumenIconButton, LumenText } from './primitives';
+import { LumenFloatingSurface } from './floating-surface';
 import './dialog.css';
 
 export interface LumenDialogProps {
@@ -28,35 +29,7 @@ function CloseGlyph() {
   );
 }
 
-function retainDialogFocus(event: React.KeyboardEvent<HTMLDialogElement>) {
-  if (event.key !== 'Tab' || event.defaultPrevented) {
-    return;
-  }
-  if (event.target instanceof Element && event.target.closest('dialog') !== event.currentTarget) {
-    return;
-  }
-  const controls = [
-    ...event.currentTarget.querySelectorAll<HTMLElement>(
-      'a[href], area[href], button, input, select, textarea, [tabindex], [contenteditable="true"]',
-    ),
-  ].filter(
-    (element) =>
-      (element.tabIndex >= 0 || element.isContentEditable) &&
-      !element.matches(':disabled') &&
-      !element.closest('[inert]') &&
-      element.getClientRects().length > 0 &&
-      getComputedStyle(element).visibility === 'visible',
-  );
-  const first = controls[0];
-  const last = controls.at(-1);
-  const active = document.activeElement;
-  if ((event.shiftKey && active === first) || (!event.shiftKey && active === last)) {
-    event.preventDefault();
-    (event.shiftKey ? last : first)?.focus();
-  }
-}
-
-/** Uses the platform dialog top layer while the host owns open state and visible copy. */
+/** Uses the shared top-layer surface while the host owns open state and copy. */
 export function LumenDialog({
   open,
   title,
@@ -69,58 +42,24 @@ export function LumenDialog({
   chromeless = false,
   initialFocus,
 }: LumenDialogProps) {
-  const connect = (dialog: HTMLDialogElement | null) => {
-    if (!dialog) {
-      return;
-    }
-    if (open && !dialog.open) {
-      try {
-        dialog.showModal();
-      } catch {
-        dialog.setAttribute('open', '');
-      }
-      initialFocus?.current?.focus();
-    } else if (!open && dialog.open) {
-      dialog.close();
-    }
-  };
-
   return (
-    // Native dialog owns modal pointer and keyboard interaction semantics.
-    <dialog
-      ref={connect}
+    <LumenFloatingSurface
+      mode="modal"
+      open={open}
+      onClose={onClose}
+      initialFocusRef={initialFocus}
+      label={title}
       className={[
         'lumen-dialog',
         'hbar-app-ui-native-dialog',
-        'hbar-app-ui-dialog-backdrop',
         chromeless ? 'is-chromeless' : '',
         className,
       ]
         .filter(Boolean)
         .join(' ')}
-      aria-label={title}
+      backdropClassName="hbar-app-ui-dialog-backdrop"
       data-open={open || undefined}
       data-appearance={appearance}
-      onKeyDown={retainDialogFocus}
-      onCancel={(event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        onClose();
-      }}
-      onMouseDown={(event) => {
-        if (event.target !== event.currentTarget) {
-          return;
-        }
-        const bounds = event.currentTarget.getBoundingClientRect();
-        if (
-          event.clientX < bounds.left ||
-          event.clientX > bounds.right ||
-          event.clientY < bounds.top ||
-          event.clientY > bounds.bottom
-        ) {
-          onClose();
-        }
-      }}
     >
       <LumenSurface
         boundary={appearance === 'panel' ? 'none' : 'horizontal'}
@@ -149,6 +88,6 @@ export function LumenDialog({
           </React.Fragment>
         ) : null}
       </LumenSurface>
-    </dialog>
+    </LumenFloatingSurface>
   );
 }

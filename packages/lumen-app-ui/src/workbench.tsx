@@ -17,6 +17,7 @@ import { useToolPaneGeometry } from './use-tool-pane-geometry';
 import { resolveLumenSidebarLayout } from './sidebar-layout';
 import type { LumenSidebarLayout, LumenSidebarResize } from './sidebar-layout';
 import './workbench.css';
+import { LumenFloatingSurface, useFloatingTrigger } from './floating-surface';
 
 export type LumenIconTier = 'sm' | 'md' | 'lg';
 
@@ -455,153 +456,129 @@ export interface LumenActionMenuProps<ActionId extends string = string> {
   onAction: (actionId: ActionId) => void;
 }
 
-function placeLumenActionMenu(popup: HTMLElement, trigger: HTMLElement) {
-  const bounds = trigger.getBoundingClientRect();
-  const rem = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-  const margin = rem;
-  const gap = rem / 2;
-  const width = Math.min(
-    Math.max(popup.offsetWidth, 10 * rem),
-    Math.max(0, innerWidth - margin * 2),
-  );
-  const below = Math.max(0, innerHeight - bounds.bottom - gap - margin);
-  const above = Math.max(0, bounds.top - gap - margin);
-  const placeBelow = popup.offsetHeight <= below || below >= above;
-  const left = Math.min(
-    Math.max(margin, bounds.right - width),
-    Math.max(margin, innerWidth - width - margin),
-  );
-  popup.style.setProperty('--lumen-action-menu-left', `${left}px`);
-  popup.style.setProperty(
-    '--lumen-action-menu-top',
-    placeBelow ? `${bounds.bottom + gap}px` : 'auto',
-  );
-  popup.style.setProperty(
-    '--lumen-action-menu-bottom',
-    placeBelow ? 'auto' : `${innerHeight - bounds.top + gap}px`,
-  );
-  popup.style.setProperty(
-    '--lumen-action-menu-limit',
-    `${Math.max(0, placeBelow ? below : above)}px`,
-  );
-}
-
 export function LumenActionMenu<ActionId extends string = string>({
   label,
   items,
   onAction,
 }: LumenActionMenuProps<ActionId>) {
-  const details = React.useRef<HTMLDetailsElement>(null);
-  const popup = React.useRef<HTMLDivElement>(null);
-
-  const position = React.useCallback(() => {
-    const menu = popup.current;
-    const trigger = details.current?.querySelector<HTMLElement>(':scope > summary');
-    if (!menu || !trigger || !menu.matches(':popover-open')) return;
-    placeLumenActionMenu(menu, trigger);
+  const [open, setOpen] = React.useState(false);
+  const menuId = `lumen-action-menu-${React.useId().replaceAll(':', '')}`;
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const firstItemRef = React.useRef<HTMLButtonElement>(null);
+  const itemRefs = React.useRef(new Map<ActionId, HTMLButtonElement>());
+  const focusLastOnOpen = React.useRef(false);
+  const triggerEvents = useFloatingTrigger({
+    open,
+    onOpen: () => setOpen(true),
+    onClose: () => setOpen(false),
+  });
+  const availableItems = React.useMemo(() => items.filter((item) => !item.disabled), [items]);
+  const setItemRef = React.useCallback((itemId: ActionId, element: HTMLButtonElement | null) => {
+    if (element) itemRefs.current.set(itemId, element);
+    else itemRefs.current.delete(itemId);
   }, []);
-
+  const focusItem = React.useCallback(
+    (index: number) => {
+      if (availableItems.length === 0) return;
+      const item = availableItems[(index + availableItems.length) % availableItems.length];
+      if (item) itemRefs.current.get(item.id)?.focus();
+    },
+    [availableItems],
+  );
   React.useEffect(() => {
-    const reposition = () => position();
-    window.addEventListener('resize', reposition);
-    window.addEventListener('scroll', reposition, true);
-    return () => {
-      window.removeEventListener('resize', reposition);
-      window.removeEventListener('scroll', reposition, true);
-    };
-  }, [position]);
-
-  const openPopup = () => {
-    const menu = popup.current;
-    if (!menu) return;
-    if (typeof menu.showPopover !== 'function') {
-      menu.removeAttribute('popover');
-      menu.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
-      return;
-    }
-    try {
-      if (!menu.matches(':popover-open')) menu.showPopover();
-    } catch {
-      // A browser without a usable popover implementation keeps the legacy
-      // details disclosure instead of making the action menu inaccessible.
-      menu.removeAttribute('popover');
-      menu.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
-      return;
-    }
-    menu.removeAttribute('data-positioned');
-    window.requestAnimationFrame(() => {
-      if (!menu.matches(':popover-open')) return;
-      position();
-      menu.dataset.positioned = 'true';
-      menu.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
-    });
-  };
+    if (!open || !focusLastOnOpen.current) return;
+    focusLastOnOpen.current = false;
+    const frame = window.requestAnimationFrame(() => focusItem(availableItems.length - 1));
+    return () => window.cancelAnimationFrame(frame);
+  }, [availableItems.length, focusItem, open]);
 
   return (
-    // Native details owns the toggle and Escape interaction for this disclosed menu.
-    <details
-      ref={details}
-      className="lumen-action-menu hbar-app-ui-action-menu"
-      onToggle={(event) => {
-        if (event.currentTarget.open) {
-          openPopup();
-        } else {
-          popup.current?.removeAttribute('data-positioned');
-          if (popup.current?.matches(':popover-open')) popup.current.hidePopover();
-        }
-      }}
-      onKeyDown={(event) => {
-        if (event.key !== 'Escape') {
-          return;
-        }
-        event.preventDefault();
-        event.currentTarget.removeAttribute('open');
-        event.currentTarget.querySelector('summary')?.focus();
-      }}
-    >
-      <summary aria-label={label} title={label} aria-haspopup="menu">
+    <div className="lumen-action-menu hbar-app-ui-action-menu" data-open={open || undefined}>
+      <button
+        ref={triggerRef}
+        type="button"
+        className="lumen-action-menu-trigger"
+        aria-label={label}
+        title={label}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-controls={menuId}
+        onKeyDown={(event) => {
+          if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            setOpen(true);
+          } else if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            setOpen((current) => !current);
+          } else if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            focusLastOnOpen.current = true;
+            setOpen(true);
+          }
+        }}
+        {...triggerEvents}
+      >
         <span className="lumen-action-menu-dots" aria-hidden="true">
           <i />
           <i />
           <i />
         </span>
-      </summary>
-      <div
-        ref={popup}
-        popover="auto"
+      </button>
+      <LumenFloatingSurface
+        open={open}
+        onClose={() => setOpen(false)}
+        anchorRef={triggerRef}
+        initialFocusRef={firstItemRef}
+        placement="below"
+        id={menuId}
         className="lumen-action-menu-popup hbar-app-ui-dialog-menu"
         role="menu"
         aria-label={label}
-        onToggle={(event) => {
-          if (event.newState !== 'closed') return;
-          event.currentTarget.removeAttribute('data-positioned');
-          if (details.current?.open) details.current.open = false;
-        }}
       >
         {items.map((item) => (
           <LumenButton
             key={item.id}
+            ref={(element) => {
+              setItemRef(item.id, element);
+              if (item === availableItems[0]) {
+                if (element) firstItemRef.current = element;
+                else firstItemRef.current = null;
+              }
+            }}
             type="button"
             role="menuitem"
+            data-value={item.id}
+            title={item.label}
             size="s"
             variant="text"
             tone={item.tone === 'danger' ? 'danger' : 'neutral'}
             disabled={item.disabled}
-            onClick={(event) => {
-              const menu = event.currentTarget.closest('details');
-              menu?.removeAttribute('open');
-              const popup = event.currentTarget.closest<HTMLElement>('[popover]');
-              if (popup?.matches(':popover-open')) popup.hidePopover();
+            aria-disabled={item.disabled || undefined}
+            onKeyDown={(event) => {
+              if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                event.preventDefault();
+                const current = availableItems.findIndex((candidate) => candidate.id === item.id);
+                focusItem(current + (event.key === 'ArrowDown' ? 1 : -1));
+              } else if (event.key === 'Home') {
+                event.preventDefault();
+                focusItem(0);
+              } else if (event.key === 'End') {
+                event.preventDefault();
+                focusItem(availableItems.length - 1);
+              }
+            }}
+            onClick={() => {
+              setOpen(false);
               // A following dialog must restore focus to the visible trigger, not a hidden item.
-              menu?.querySelector('summary')?.focus();
+              triggerRef.current?.focus();
               onAction(item.id);
             }}
           >
             {item.label}
           </LumenButton>
         ))}
-      </div>
-    </details>
+      </LumenFloatingSurface>
+    </div>
   );
 }
 
