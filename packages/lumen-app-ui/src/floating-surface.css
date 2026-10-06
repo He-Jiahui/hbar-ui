@@ -78,12 +78,18 @@
   padding: 1rem;
   border: 0;
   background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 
-.lumen-floating-modal-root::backdrop {
-  background: color-mix(in srgb, var(--lumen-ink, CanvasText) 32%, transparent);
-  -webkit-backdrop-filter: blur(0.25rem);
-  backdrop-filter: blur(0.25rem);
+.lumen-floating-modal-root::backdrop,
+.lumen-floating-modal-backdrop {
+  background: var(
+    --lumen-modal-backdrop-background,
+    color-mix(in srgb, var(--lumen-contrast, Canvas) 48%, transparent)
+  );
+  -webkit-backdrop-filter: blur(var(--lumen-modal-backdrop-blur, 1.2rem));
+  backdrop-filter: blur(var(--lumen-modal-backdrop-blur, 1.2rem));
 }
 
 .lumen-floating-modal-root > .lumen-floating-surface {
@@ -98,7 +104,13 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: color-mix(in srgb, var(--lumen-ink, CanvasText) 20%, transparent);
+}
+
+/* Native top-layer backdrops own the scrim; the element is only a fallback. */
+.lumen-floating-modal-root:popover-open > .lumen-floating-modal-backdrop {
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 
 .lumen-floating-modal-root > .lumen-floating-surface {
@@ -135,6 +147,12 @@
 }
 
 @media (forced-colors: active) {
+  .lumen-floating-modal-root::backdrop,
+  .lumen-floating-modal-backdrop {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
   .lumen-floating-surface,
   .lumen-floating-modal-root {
     border-color: CanvasText;
