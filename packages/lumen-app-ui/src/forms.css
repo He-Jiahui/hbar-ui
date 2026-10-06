@@ -16,6 +16,32 @@
   display: flex;
   align-items: baseline;
   gap: 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+
+.lumen-form-field > label > * {
+  flex: 0 0 auto;
+}
+
+.lumen-checkbox-copy,
+.lumen-toggle-copy {
+  flex: 1 1 auto;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.lumen-checkbox-copy > span,
+.lumen-toggle-copy > span {
+  min-inline-size: max-content;
+  white-space: nowrap;
+}
+
+.lumen-checkbox-copy > small,
+.lumen-toggle-copy > small {
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .lumen-form-field > p,
