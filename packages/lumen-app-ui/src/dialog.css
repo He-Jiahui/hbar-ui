@@ -60,9 +60,8 @@
   min-inline-size: 0;
   flex: 1 1 auto;
   margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .lumen-dialog-content > footer {

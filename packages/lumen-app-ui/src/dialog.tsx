@@ -3,7 +3,8 @@
 import * as React from 'react';
 import LumenDivider from './LumenDivider';
 import LumenSurface from './LumenSurface';
-import { LumenIconButton, LumenText } from './primitives';
+import { LumenIconButton } from './primitives';
+import { LumenContentText } from './content-text';
 import { LumenFloatingSurface } from './floating-surface';
 import './dialog.css';
 
@@ -74,9 +75,9 @@ export function LumenDialog({
         {!chromeless ? (
           <React.Fragment>
             <header>
-              <LumenText as="h2" variant="heading">
+              <LumenContentText context="dialog.title">
                 {title}
-              </LumenText>
+              </LumenContentText>
               <LumenIconButton label={closeLabel} onClick={onClose}>
                 <CloseGlyph />
               </LumenIconButton>

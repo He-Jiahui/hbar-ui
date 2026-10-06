@@ -32,6 +32,8 @@
   background: var(--lumen-floating-background, var(--lumen-frost, var(--lumen-contrast, Canvas)));
   box-shadow: var(--lumen-floating-shadow, var(--lumen-shadow, 0 0.75rem 2rem rgb(0 0 0 / 35%)));
   text-align: start;
+  white-space: normal;
+  overflow-wrap: anywhere;
   -webkit-backdrop-filter: blur(var(--lumen-floating-blur, 1.2rem));
   backdrop-filter: blur(var(--lumen-floating-blur, 1.2rem));
 }

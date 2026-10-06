@@ -16,6 +16,8 @@ export { LumenToggleButton } from './toggle-button';
 export type { LumenToggleButtonProps } from './toggle-button';
 export { LumenDialog } from './dialog';
 export type { LumenDialogProps } from './dialog';
+export { LumenContentText, LUMEN_TEXT_CONTEXTS } from './content-text';
+export type { LumenContentTextProps, LumenTextContext } from './content-text';
 export { LumenFilePicker } from './file-picker';
 export type { LumenFilePickerProps } from './file-picker';
 export {

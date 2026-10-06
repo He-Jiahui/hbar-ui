@@ -275,7 +275,9 @@
   flex: 0 0 auto;
   align-items: center;
   gap: 0.25rem;
-  white-space: nowrap;
+  /* Flex keeps the controls in one row. Text wrapping belongs to each control,
+     so nested reading popovers must not inherit a single-line text policy. */
+  white-space: normal;
 }
 
 .lumen-composer-trailing-controls {

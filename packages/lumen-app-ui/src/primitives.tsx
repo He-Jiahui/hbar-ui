@@ -3,7 +3,11 @@
 import * as React from 'react';
 import type { LumenShape, LumenSize } from './appearance';
 import type { LumenState, LumenTone } from './LumenIndicator';
+import { LumenContentText } from './content-text';
 import styles from './primitives.module.css';
+
+export { LumenText } from './text';
+export type { LumenTextProps, LumenTextTone, LumenTextVariant } from './text';
 
 export type LumenActionVariant = 'contained' | 'outlined' | 'text' | 'solid';
 export type LumenActionTone = 'neutral' | 'primary' | 'info' | 'success' | 'warning' | 'danger';
@@ -73,7 +77,11 @@ export const LumenButton = React.forwardRef<HTMLButtonElement, LumenButtonProps>
         aria-busy={loading || undefined}
         disabled={disabled || loading}
       >
-        {children}
+        {React.Children.map(children, (child) =>
+          typeof child === 'string' || typeof child === 'number' ? (
+            <LumenContentText context="control.label">{child}</LumenContentText>
+          ) : child,
+        )}
       </button>
     );
   },
@@ -169,61 +177,6 @@ export function LumenNavigationButton({
   );
 }
 
-export type LumenTextTone = 'neutral' | 'muted' | 'subtle' | 'success' | 'warning' | 'danger';
-export type LumenTextVariant = 'title' | 'heading' | 'body' | 'label' | 'supporting' | 'code';
-
-export interface LumenTextProps extends React.HTMLAttributes<HTMLElement> {
-  as?:
-    | 'h1'
-    | 'h2'
-    | 'h3'
-    | 'h4'
-    | 'h5'
-    | 'h6'
-    | 'span'
-    | 'p'
-    | 'small'
-    | 'strong'
-    | 'b'
-    | 'em'
-    | 'kbd'
-    | 's'
-    | 'code'
-    | 'pre'
-    | 'time'
-    | 'output'
-    | 'legend'
-    | 'dt'
-    | 'dd'
-    | undefined;
-  dateTime?: string | undefined;
-  size?: LumenSize | undefined;
-  tone?: LumenTextTone | undefined;
-  variant?: LumenTextVariant | undefined;
-}
-
-export function LumenText({
-  as: Element = 'span',
-  size,
-  tone = 'neutral',
-  variant = 'body',
-  className,
-  children,
-  ...other
-}: LumenTextProps) {
-  return (
-    <Element
-      {...other}
-      className={[styles.text, className].filter(Boolean).join(' ')}
-      data-size={size}
-      data-tone={tone}
-      data-variant={variant}
-    >
-      {children}
-    </Element>
-  );
-}
-
 export interface LumenStatusProps extends React.HTMLAttributes<HTMLSpanElement> {
   value: string;
   tone?: LumenTone | undefined;
@@ -237,7 +190,7 @@ export function LumenStatus({ value, tone = 'neutral', className, ...other }: Lu
       data-tone={tone}
     >
       <i aria-hidden="true" />
-      {value}
+      <LumenContentText context="control.status">{value}</LumenContentText>
     </span>
   );
 }
