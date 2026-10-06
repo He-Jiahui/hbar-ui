@@ -253,16 +253,48 @@
   gap: 0.25rem;
 }
 
-.lumen-composer-queue-action {
-  min-inline-size: 0;
-  white-space: normal;
-  overflow-wrap: anywhere;
+/* The rail owns overflow; complete labels retain their intrinsic width.
+   Primary send/stop actions remain outside it. A stable scroll track prevents
+   the toolbar from growing when a label becomes longer. */
+.lumen-composer-control-rail {
+  flex: 1 1 0;
+  overflow-x: scroll;
+  scrollbar-width: thin;
+  overscroll-behavior-inline: contain;
+  padding-block: 0.125rem;
 }
 
-.lumen-composer-toolbar > .lumen-composer-running-actions {
-  max-inline-size: 100%;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+.lumen-composer-control-rail:focus-visible {
+  outline: 0.125rem solid var(--lumen-edge);
+  outline-offset: -0.125rem;
+}
+
+.lumen-composer-leading-controls,
+.lumen-composer-trailing-controls,
+.lumen-composer-primary-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+
+.lumen-composer-trailing-controls {
+  margin-inline-start: auto;
+}
+
+.lumen-composer-leading-controls > *,
+.lumen-composer-trailing-controls > *,
+.lumen-composer-control-rail button {
+  flex-shrink: 0;
+}
+
+.lumen-composer-queue-action {
+  flex: 0 0 auto;
+  inline-size: max-content;
+  max-inline-size: none;
+  min-inline-size: 0;
+  white-space: nowrap;
 }
 
 .lumen-uploading {
@@ -595,14 +627,9 @@
     margin-inline-start: 0;
   }
 
-  .lumen-composer-toolbar,
   .lumen-inline-usage {
     align-items: stretch;
     flex-direction: column;
-  }
-
-  .lumen-composer-toolbar > div {
-    justify-content: space-between;
   }
 
   .lumen-inline-usage > div:first-child,

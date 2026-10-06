@@ -456,40 +456,49 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
         </LumenText>
       ) : null}
       <div className="lumen-composer-toolbar">
-        <div>
-          {props.onAddAttachments ? (
-            <LumenFilePicker
-              label={props.labels.addAttachment}
-              disabled={!props.canAddAttachments}
-              multiple
-              onFiles={props.onAddAttachments}
-            >
-              <SessionGlyph name="add" />
-            </LumenFilePicker>
-          ) : null}
-          {props.controls}
-          {props.uploading ? (
-            <span className="lumen-uploading" role="status" aria-label={props.labels.uploading}>
-              <SessionGlyph name="loading" />
-            </span>
-          ) : null}
+        <div
+          className="lumen-composer-control-rail"
+          role="group"
+          aria-label={props.labels.input}
+          tabIndex={0}
+        >
+          <div className="lumen-composer-leading-controls">
+            {props.onAddAttachments ? (
+              <LumenFilePicker
+                label={props.labels.addAttachment}
+                disabled={!props.canAddAttachments}
+                multiple
+                onFiles={props.onAddAttachments}
+              >
+                <SessionGlyph name="add" />
+              </LumenFilePicker>
+            ) : null}
+            {props.controls}
+            {props.uploading ? (
+              <span className="lumen-uploading" role="status" aria-label={props.labels.uploading}>
+                <SessionGlyph name="loading" />
+              </span>
+            ) : null}
+          </div>
+          <div className="lumen-composer-trailing-controls">
+            {props.modelPicker}
+            {props.backgroundAction}
+            {runningActions?.submit === 'queue' ? (
+              <LumenButton
+                type="submit"
+                className="lumen-composer-queue-action"
+                title={runningActions.queueTitle}
+                tone="primary"
+                variant="text"
+                loading={props.submitting}
+                disabled={blocked}
+              >
+                {runningActions.queueLabel}
+              </LumenButton>
+            ) : null}
+          </div>
         </div>
-        <div className={runningActions ? 'lumen-composer-running-actions' : undefined}>
-          {props.modelPicker}
-          {props.backgroundAction}
-          {runningActions?.submit === 'queue' ? (
-            <LumenButton
-              type="submit"
-              className="lumen-composer-queue-action"
-              title={runningActions.queueTitle}
-              tone="primary"
-              variant="text"
-              loading={props.submitting}
-              disabled={blocked}
-            >
-              {runningActions.queueLabel}
-            </LumenButton>
-          ) : null}
+        <div className="lumen-composer-primary-actions">
           {props.canStop ? (
             <LumenIconButton
               label={props.labels.stop}

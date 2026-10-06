@@ -108,7 +108,9 @@ describe('LumenPromptComposer running actions', () => {
     const queue = screen.getByRole('button', { name: runningActions.queueLabel });
     const stop = screen.getByRole('button', { name: labels.stop });
     expect(screen.queryByRole('button', { name: labels.send })).to.equal(null);
-    expect(queue.nextElementSibling).to.equal(stop);
+    expect(queue.closest('.lumen-composer-control-rail')).not.to.equal(null);
+    expect(stop.closest('.lumen-composer-control-rail')).to.equal(null);
+    expect(queue.compareDocumentPosition(stop) & Node.DOCUMENT_POSITION_FOLLOWING).not.to.equal(0);
     await user.click(queue);
     await user.click(screen.getByRole('textbox', { name: labels.input }));
     await user.keyboard('{Enter}');
