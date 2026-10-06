@@ -2311,6 +2311,8 @@ export type {
   LumenTextVariant,
 } from './primitives';
 export { LumenCollection, LumenCollectionItem, LumenFrame, LumenOption } from './structure';
+export { LumenImage } from './lumen-image';
+export type { LumenImageProps } from './lumen-image';
 export type {
   LumenCollectionElement,
   LumenCollectionItemElement,
