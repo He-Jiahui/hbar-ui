@@ -324,10 +324,15 @@ textarea.lumen-control {
   padding: 0.75rem;
 }
 
-.lumen-combobox-option {
+.lumen-combobox-option[role='option'] {
   inline-size: 100%;
-  justify-content: space-between;
+  block-size: auto;
+  flex: 0 0 auto;
+  justify-content: flex-start;
+  padding-block: 0.5rem;
   text-align: start;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .lumen-combobox-option.is-active {
