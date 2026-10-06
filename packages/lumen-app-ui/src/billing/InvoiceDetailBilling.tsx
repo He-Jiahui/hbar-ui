@@ -11,7 +11,7 @@ import {
   BillingValueRows,
 } from './primitives';
 
-export function InvoiceDetailBilling({
+export default function InvoiceDetailBilling({
   spec,
   onAction,
   content,
@@ -19,11 +19,7 @@ export function InvoiceDetailBilling({
   readonly content: LumenBillingInvoiceDetailContent;
 }) {
   return (
-    <BillingFrame
-      spec={spec}
-      onAction={onAction}
-      className="hbar-app-ui-billing-invoice-detail-surface"
-    >
+    <BillingFrame spec={spec} className="hbar-app-ui-billing-invoice-detail-surface">
       <main className="hbar-app-ui-billing-invoice-page">
         <header className="hbar-app-ui-billing-topbar">
           <div>

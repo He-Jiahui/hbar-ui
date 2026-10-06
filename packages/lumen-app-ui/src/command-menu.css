@@ -48,6 +48,74 @@
   overflow-wrap: anywhere;
 }
 
+.hbar-app-ui-quick-command-anchor {
+  position: relative;
+  display: flex;
+}
+
+.hbar-app-ui-command-variant-6 {
+  align-items: flex-start;
+}
+
+.hbar-app-ui-command-variant-6 .hbar-app-ui-quick-command-anchor {
+  margin-block-start: 1rem;
+}
+
+.hbar-app-ui-nested-command {
+  display: flex;
+  min-inline-size: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+.hbar-app-ui-nested-command > header {
+  display: flex;
+  min-inline-size: 0;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-block-end: 0.0625rem solid var(--lumen-edge);
+}
+
+.hbar-app-ui-nested-command > header > div {
+  display: flex;
+  min-inline-size: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+.hbar-app-ui-nested-command > header h2,
+.hbar-app-ui-nested-command > .lumen-command-list > p {
+  margin: 0;
+}
+
+.hbar-app-ui-dialog-menu.hbar-app-ui-quick-command-popover {
+  inset-inline-start: 50%;
+  inline-size: min(30rem, calc(100vw - 4rem));
+  max-block-size: min(34rem, calc(100vh - 2rem));
+  overflow: auto;
+  transform: translateX(-50%);
+}
+
+.hbar-app-ui-quick-command-popover > div {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hbar-app-ui-quick-command-popover header {
+  display: flex;
+  min-inline-size: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.hbar-app-ui-quick-command-popover header h2 {
+  margin: 0;
+}
+
 .hbar-app-ui-search-commands,
 .hbar-app-ui-search-commands-body,
 .hbar-app-ui-search-commands-body > article,
@@ -114,6 +182,12 @@
   min-inline-size: 0;
   flex-direction: column;
   gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.hbar-app-ui-search-commands-body article dl > * {
+  flex: 1 1 min(8rem, 100%);
+  min-inline-size: min(8rem, 100%);
 }
 
 .hbar-app-ui-search-commands-body article dl > div {
@@ -201,7 +275,8 @@
   margin: 0;
 }
 
-.hbar-app-ui-invite-command > label {
+.hbar-app-ui-invite-command > label,
+.hbar-app-ui-invite-role {
   display: flex;
   min-inline-size: 0;
   flex-direction: column;

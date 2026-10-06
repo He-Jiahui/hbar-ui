@@ -244,6 +244,7 @@
 }
 
 .lumen-composer-toolbar {
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 0.5rem;
 }
@@ -578,10 +579,9 @@
   flex: 2 1 16rem;
 }
 
-.lumen-inline-usage > progress,
-.lumen-compact-usage > progress {
+.lumen-inline-usage > .lumen-progress,
+.lumen-compact-usage > .lumen-progress {
   inline-size: 100%;
-  accent-color: var(--lumen-ink);
 }
 
 .lumen-compact-usage {

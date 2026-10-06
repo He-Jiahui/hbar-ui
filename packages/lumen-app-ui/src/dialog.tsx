@@ -75,9 +75,7 @@ export function LumenDialog({
         {!chromeless ? (
           <React.Fragment>
             <header>
-              <LumenContentText context="dialog.title">
-                {title}
-              </LumenContentText>
+              <LumenContentText context="dialog.title">{title}</LumenContentText>
               <LumenIconButton label={closeLabel} onClick={onClose}>
                 <CloseGlyph />
               </LumenIconButton>

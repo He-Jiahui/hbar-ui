@@ -11,13 +11,14 @@ import { LumenChatSocialReference } from './chat-social-reference';
 import { LumenChatSupportReference } from './chat-support-reference';
 import { LumenChatGroupReference } from './chat-group-reference';
 import { LumenChatLiveReference } from './chat-live-reference';
-import type {
-  LumenChatDirectReferenceLayout,
-  LumenChatSocialReferenceLayout,
-  LumenChatSupportReferenceLayout,
-  LumenChatGroupReferenceLayout,
-  LumenChatLiveReferenceLayout,
+import {
+  type LumenChatDirectReferenceLayout,
+  type LumenChatSocialReferenceLayout,
+  type LumenChatSupportReferenceLayout,
+  type LumenChatGroupReferenceLayout,
+  type LumenChatLiveReferenceLayout,
 } from './chat/reference-content';
+import { LumenBadge, LumenChip } from './ui-controls';
 
 export interface LumenChatListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -603,10 +604,11 @@ function Message({
         </header>
         <LumenText as="p">{message.body}</LumenText>
         {message.attachment ? (
-          <span className="lumen-chat-attachment">
-            <Glyph name="image" />
-            {message.attachment}
-          </span>
+          <LumenChip
+            className="lumen-chat-attachment"
+            startAdornment={<Glyph name="image" />}
+            label={message.attachment}
+          />
         ) : null}
         <footer>
           <LumenText as="small" tone="muted" variant="supporting">
@@ -864,7 +866,10 @@ function Direct(props: Omit<LumenChatProps, 'content'> & { content: LumenChatDir
   const layout = props.content.referenceLayout;
   if (layout) {
     return (
-      <Root {...props} className={['lumen-chat-direct-reference-root', props.className].filter(Boolean).join(' ')}>
+      <Root
+        {...props}
+        className={['lumen-chat-direct-reference-root', props.className].filter(Boolean).join(' ')}
+      >
         <LumenChatDirectReference
           content={props.content}
           layout={layout}
@@ -969,7 +974,10 @@ function Social(props: Omit<LumenChatProps, 'content'> & { content: LumenChatSoc
   const layout = props.content.referenceLayout;
   if (layout) {
     return (
-      <Root {...props} className={['lumen-chat-social-reference-root', props.className].filter(Boolean).join(' ')}>
+      <Root
+        {...props}
+        className={['lumen-chat-social-reference-root', props.className].filter(Boolean).join(' ')}
+      >
         <LumenChatSocialReference
           content={props.content}
           layout={layout}
@@ -1043,7 +1051,10 @@ function Support(props: Omit<LumenChatProps, 'content'> & { content: LumenChatSu
   const layout = props.content.referenceLayout;
   if (layout) {
     return (
-      <Root {...props} className={['lumen-chat-support-reference-root', props.className].filter(Boolean).join(' ')}>
+      <Root
+        {...props}
+        className={['lumen-chat-support-reference-root', props.className].filter(Boolean).join(' ')}
+      >
         <LumenChatSupportReference
           content={props.content}
           layout={layout}
@@ -1155,8 +1166,15 @@ function Group(props: Omit<LumenChatProps, 'content'> & { content: LumenChatGrou
   const layout = props.content.referenceLayout;
   if (layout) {
     return (
-      <Root {...props} className={['lumen-chat-group-reference-root', props.className].filter(Boolean).join(' ')}>
-        <LumenChatGroupReference content={props.content} layout={layout} onAction={props.onAction} />
+      <Root
+        {...props}
+        className={['lumen-chat-group-reference-root', props.className].filter(Boolean).join(' ')}
+      >
+        <LumenChatGroupReference
+          content={props.content}
+          layout={layout}
+          onAction={props.onAction}
+        />
       </Root>
     );
   }
@@ -1176,7 +1194,9 @@ function Group(props: Omit<LumenChatProps, 'content'> & { content: LumenChatGrou
         {visibleParticipants.map((participant) => (
           <Avatar key={participant.id} initials={participant.initials} />
         ))}
-        {overflow ? <span>{props.content.labels.overflowParticipants(overflow)}</span> : null}
+        {overflow ? (
+          <LumenBadge value={props.content.labels.overflowParticipants(overflow)} />
+        ) : null}
       </div>
       <div
         className="lumen-chat-message-list"
@@ -1220,7 +1240,10 @@ function Live(props: Omit<LumenChatProps, 'content'> & { content: LumenChatLiveC
   const layout = props.content.referenceLayout;
   if (layout) {
     return (
-      <Root {...props} className={['lumen-chat-live-reference-root', props.className].filter(Boolean).join(' ')}>
+      <Root
+        {...props}
+        className={['lumen-chat-live-reference-root', props.className].filter(Boolean).join(' ')}
+      >
         <LumenChatLiveReference
           content={props.content}
           layout={layout}
@@ -1371,8 +1394,13 @@ function variant(value: number, props: LumenChatVariantProps) {
 }
 
 export const LumenChat01 = (props: LumenChatVariantProps) => variant(1, props);
+
 export const LumenChat02 = (props: LumenChatVariantProps) => variant(2, props);
+
 export const LumenChat03 = (props: LumenChatVariantProps) => variant(3, props);
+
 export const LumenChat04 = (props: LumenChatVariantProps) => variant(4, props);
+
 export const LumenChat05 = (props: LumenChatVariantProps) => variant(5, props);
+
 export const LumenChat06 = (props: LumenChatVariantProps) => variant(6, props);

@@ -19,6 +19,14 @@
   background: var(--lumen-contrast);
   backdrop-filter: none;
 }
+.surface[data-elevation='overlay'] {
+  border-color: var(--lumen-overlay-edge);
+  background: var(--lumen-frost);
+  box-shadow:
+    0 0 0 0.0625rem var(--lumen-overlay-edge),
+    0 0 1rem var(--lumen-overlay-glow-near),
+    0 0 2.75rem var(--lumen-overlay-glow-far);
+}
 .surface[data-shape='square'] {
   border-radius: 0;
 }
@@ -93,6 +101,9 @@
 .indicator[data-lumen-state='idle'][data-lumen-tone='neutral'] {
   background: var(--lumen-muted);
   --lumen-effect-level: 0;
+}
+.indicator[data-visible='false'] {
+  opacity: 0;
 }
 .indicator:is([data-lumen-state='selected'], [data-lumen-state='failed']) {
   --lumen-effect-level: var(--lumen-glow-selected);

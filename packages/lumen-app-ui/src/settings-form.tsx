@@ -4,9 +4,9 @@ import * as React from 'react';
 import {
   LumenCheckBoxControl,
   LumenInput,
-  LumenSelect,
   LumenTextarea,
   LumenToggleControl,
+  LumenChoiceSelect,
 } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus } from './primitives';
@@ -35,6 +35,7 @@ import {
   type LumenSettingsForm6ViewModel,
 } from './settings-form-6-reference';
 import './settings-form.css';
+import { LumenProgress } from './ui-controls';
 
 export type LumenPreferenceAction =
   | { readonly type: 'theme' | 'density' | 'language'; readonly id: string }
@@ -328,7 +329,9 @@ export function uniqueLumenSettingsItems<Item extends { readonly id: string }>(
 ): readonly Item[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -419,27 +422,27 @@ function SettingsFieldControl({
   readonly onChange: (value: string) => void;
 }) {
   const controlId = `hbar-app-ui-settings-field-${field.id}`;
-  const describedBy = field.error
-    ? `${controlId}-error`
-    : field.note
-      ? `${controlId}-note`
-      : undefined;
-  const control =
-    field.kind === 'select' ? (
-      <LumenSelect
+  let describedBy: string | undefined;
+  if (field.error) {
+    describedBy = `${controlId}-error`;
+  } else if (field.note) {
+    describedBy = `${controlId}-note`;
+  }
+
+  let control: React.ReactNode;
+  if (field.kind === 'select') {
+    control = (
+      <LumenChoiceSelect
         id={controlId}
+        label={field.label}
+        describedBy={describedBy}
+        options={field.options ?? []}
         value={value}
-        onChange={(event) => onChange(event.currentTarget.value)}
-        aria-label={field.label}
-        aria-describedby={describedBy}
-      >
-        {(field.options ?? []).map((option) => (
-          <option key={option.id} value={option.id}>
-            {option.label}
-          </option>
-        ))}
-      </LumenSelect>
-    ) : field.kind === 'textarea' ? (
+        onValueChange={onChange}
+      />
+    );
+  } else if (field.kind === 'textarea') {
+    control = (
       <LumenTextarea
         id={controlId}
         value={value}
@@ -448,7 +451,9 @@ function SettingsFieldControl({
         aria-label={field.label}
         aria-describedby={describedBy}
       />
-    ) : field.prefix ? (
+    );
+  } else if (field.prefix) {
+    control = (
       <div className="hbar-app-ui-settings-prefix-control">
         <span>{field.prefix}</span>
         <LumenInput
@@ -460,7 +465,9 @@ function SettingsFieldControl({
           aria-describedby={describedBy}
         />
       </div>
-    ) : (
+    );
+  } else {
+    control = (
       <LumenInput
         id={controlId}
         type={field.kind === 'url' ? 'url' : 'text'}
@@ -470,6 +477,18 @@ function SettingsFieldControl({
         aria-describedby={describedBy}
       />
     );
+  }
+
+  let supportingText: React.ReactNode = null;
+  if (field.error) {
+    supportingText = (
+      <small className="hbar-app-ui-settings-error" id={`${controlId}-error`}>
+        {field.error}
+      </small>
+    );
+  } else if (field.note) {
+    supportingText = <small id={`${controlId}-note`}>{field.note}</small>;
+  }
 
   return (
     <div className="hbar-app-ui-settings-row">
@@ -482,13 +501,7 @@ function SettingsFieldControl({
       </div>
       <div className="hbar-app-ui-settings-row-control">
         {control}
-        {field.error ? (
-          <small className="hbar-app-ui-settings-error" id={`${controlId}-error`}>
-            {field.error}
-          </small>
-        ) : field.note ? (
-          <small id={`${controlId}-note`}>{field.note}</small>
-        ) : null}
+        {supportingText}
         {field.kind === 'textarea' && field.maxLength !== undefined ? (
           <small>{`${value.length} / ${field.maxLength}`}</small>
         ) : null}
@@ -507,7 +520,7 @@ function ActionFooter({
   onSave,
 }: {
   readonly dirty: boolean;
-  readonly busy?: boolean;
+  readonly busy?: boolean | undefined;
   readonly unsaved: string;
   readonly cancel: string;
   readonly save: string;
@@ -664,7 +677,9 @@ function ProfileSettings(
             save={content.labels.save}
             onCancel={reset}
             onSave={() => {
-              if (hasErrors) return;
+              if (hasErrors) {
+                return;
+              }
               setDirty(false);
               report(onAction, 'save');
             }}
@@ -690,24 +705,19 @@ function Choice({
   readonly unavailable: string;
   readonly onChange: (id: string) => void;
 }) {
+  const controlId = React.useId();
   const items = uniquePreferenceItems(choices);
   const valid = items.some((item) => item.id === value);
   return (
-    <LumenSelect
-      value={valid ? value : ''}
-      aria-label={label}
+    <LumenChoiceSelect
+      id={controlId}
+      label={label}
+      placeholder={unavailable}
+      options={items}
+      value={valid ? value : null}
       disabled={disabled}
-      onChange={(event) => onChange(event.currentTarget.value)}
-    >
-      <option value="" disabled hidden={valid}>
-        {unavailable}
-      </option>
-      {items.map((item) => (
-        <option key={item.id} value={item.id}>
-          {item.label}
-        </option>
-      ))}
-    </LumenSelect>
+      onValueChange={onChange}
+    />
   );
 }
 
@@ -887,7 +897,9 @@ function MembersSettings(
   const visibleMembers = React.useMemo(() => uniqueLumenSettingsItems(members), [members]);
   const sendInvite = () => {
     const nextEmail = email.trim();
-    if (!nextEmail) return;
+    if (!nextEmail) {
+      return;
+    }
     const nextMember: LumenSettingsMember = {
       id: `invite-${nextEmail}`,
       initials: nextEmail.slice(0, 2).toUpperCase(),
@@ -924,17 +936,13 @@ function MembersSettings(
                 aria-label={content.labels.emailLabel}
                 onChange={(event) => setEmail(event.currentTarget.value)}
               />
-              <LumenSelect
+              <LumenChoiceSelect
+                id="settings-invite-role"
+                label={content.labels.roleLabel}
+                options={inviteRoles}
                 value={role}
-                aria-label={content.labels.roleLabel}
-                onChange={(event) => setRole(event.currentTarget.value)}
-              >
-                {inviteRoles.map((choice) => (
-                  <option key={choice.id} value={choice.id}>
-                    {choice.label}
-                  </option>
-                ))}
-              </LumenSelect>
+                onValueChange={setRole}
+              />
             </div>
             <LumenButton tone="primary" onClick={sendInvite}>
               <SettingsGlyph name="plus" />
@@ -971,13 +979,27 @@ function MembersSettings(
                     tone={member.status === 'invited' ? 'warning' : 'success'}
                   />
                   {member.roleChoices.length > 1 ? (
-                    <LumenSelect defaultValue={member.roleId} aria-label={content.labels.roleLabel}>
-                      {uniqueLumenSettingsItems(member.roleChoices).map((choice) => (
-                        <option key={choice.id} value={choice.id}>
-                          {choice.label}
-                        </option>
-                      ))}
-                    </LumenSelect>
+                    <LumenChoiceSelect
+                      id={`settings-member-role-${member.id}`}
+                      label={content.labels.roleLabel}
+                      options={uniqueLumenSettingsItems(member.roleChoices)}
+                      value={member.roleId}
+                      onValueChange={(id) =>
+                        setMembers((current) =>
+                          current.map((item) =>
+                            item.id === member.id
+                              ? {
+                                  ...item,
+                                  roleId: id,
+                                  role:
+                                    item.roleChoices.find((choice) => choice.id === id)?.label ??
+                                    id,
+                                }
+                              : item,
+                          ),
+                        )
+                      }
+                    />
                   ) : (
                     <span className="hbar-app-ui-settings-muted">{member.role}</span>
                   )}
@@ -990,16 +1012,11 @@ function MembersSettings(
           </div>
           <footer className="hbar-app-ui-settings-seat-footer">
             <span>{content.labels.seats(content.seatsUsed, content.seatsTotal)}</span>
-            <span
+            <LumenProgress
               className="hbar-app-ui-settings-seat-meter"
-              role="progressbar"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={seatProgress}
-              aria-label={content.labels.seats(content.seatsUsed, content.seatsTotal)}
-            >
-              <span style={{ inlineSize: `${seatProgress}%` }} />
-            </span>
+              label={content.labels.seats(content.seatsUsed, content.seatsTotal)}
+              value={seatProgress}
+            />
           </footer>
         </section>
       </div>
@@ -1244,7 +1261,9 @@ export function LumenSettingsForm(props: LumenSettingsFormProps) {
       </SettingsRoot>
     );
   const content = props.content ?? providerContent;
-  if (!content) return emptySettings(props);
+  if (!content) {
+    return emptySettings(props);
+  }
   switch (props.variant) {
     case 1:
       return content.workspaceReference ? (
@@ -1329,18 +1348,23 @@ function settingsFormVariant(variant: number, props: LumenSettingsFormVariantPro
 export function LumenSettingsForm01(props: LumenSettingsFormVariantProps) {
   return settingsFormVariant(1, props);
 }
+
 export function LumenSettingsForm02(props: LumenSettingsFormVariantProps) {
   return settingsFormVariant(2, props);
 }
+
 export function LumenSettingsForm03(props: LumenSettingsFormVariantProps) {
   return settingsFormVariant(3, props);
 }
+
 export function LumenSettingsForm04(props: LumenSettingsFormVariantProps) {
   return settingsFormVariant(4, props);
 }
+
 export function LumenSettingsForm05(props: LumenSettingsFormVariantProps) {
   return settingsFormVariant(5, props);
 }
+
 export function LumenSettingsForm06(props: LumenSettingsFormVariantProps) {
   return settingsFormVariant(6, props);
 }

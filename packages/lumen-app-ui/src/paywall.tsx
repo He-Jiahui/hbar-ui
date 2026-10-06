@@ -25,6 +25,7 @@ import {
   type LumenPaywall7ReferenceViewModel,
 } from './paywall-7-reference';
 import './paywall.css';
+import { LumenBadge, LumenProgress } from './ui-controls';
 
 export type LumenPaywallListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -519,13 +520,9 @@ function Plans(props: Omit<LumenPaywallProps, 'content'> & { content: LumenPaywa
                   <strong className="hbar-app-ui-paywall-plan-name">{plan.name}</strong>
                   <p>{plan.description}</p>
                 </div>
-                {plan.current ? (
-                  <span className="hbar-app-ui-paywall-plan-badge">{content.labels.current}</span>
-                ) : null}
+                {plan.current ? <LumenBadge value={content.labels.current} tone="info" /> : null}
                 {plan.featured ? (
-                  <span className="hbar-app-ui-paywall-plan-badge">
-                    {content.labels.recommended}
-                  </span>
+                  <LumenBadge value={content.labels.recommended} tone="info" />
                 ) : null}
               </header>
               <div className="hbar-app-ui-paywall-plan-price">
@@ -595,16 +592,12 @@ function Usage(props: Omit<LumenPaywallProps, 'content'> & { content: LumenPaywa
                   <strong>{meter.label}</strong>
                   <span>{meter.value}</span>
                 </div>
-                <div
+                <LumenProgress
                   className="hbar-app-ui-paywall-meter-track"
-                  role="progressbar"
-                  aria-label={meter.label}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-valuenow={progress}
-                >
-                  <span style={{ inlineSize: `${progress}%` }} />
-                </div>
+                  label={meter.label}
+                  value={progress}
+                  tone="info"
+                />
               </div>
             );
           })}
@@ -680,13 +673,16 @@ function Trial(props: Omit<LumenPaywallProps, 'content'> & { content: LumenPaywa
 function Reads(props: Omit<LumenPaywallProps, 'content'> & { content: LumenPaywallReadsContent }) {
   const { content, onAction } = props;
   const [email, setEmail] = React.useState('');
-  const progress = Math.max(0, Math.min(100, content.readProgress));
   return (
     <Root {...props} className="hbar-app-ui-paywall-reads-surface">
       <section className="hbar-app-ui-paywall-reads-card">
-        <div className="hbar-app-ui-paywall-read-progress" aria-hidden="true">
-          <span style={{ inlineSize: `${progress}%` }} />
-        </div>
+        <LumenProgress
+          className="hbar-app-ui-paywall-read-progress"
+          label={content.labels.eyebrow}
+          value={content.readProgress}
+          tone="info"
+          aria-hidden="true"
+        />
         <LumenText as="p" variant="label" tone="muted" className="hbar-app-ui-paywall-eyebrow">
           {content.labels.eyebrow}
         </LumenText>
@@ -932,21 +928,27 @@ function variant(value: number, props: LumenPaywallVariantProps) {
 export function LumenPaywall01(props: LumenPaywallVariantProps) {
   return variant(1, props);
 }
+
 export function LumenPaywall02(props: LumenPaywallVariantProps) {
   return variant(2, props);
 }
+
 export function LumenPaywall03(props: LumenPaywallVariantProps) {
   return variant(3, props);
 }
+
 export function LumenPaywall04(props: LumenPaywallVariantProps) {
   return variant(4, props);
 }
+
 export function LumenPaywall05(props: LumenPaywallVariantProps) {
   return variant(5, props);
 }
+
 export function LumenPaywall06(props: LumenPaywallVariantProps) {
   return variant(6, props);
 }
+
 export function LumenPaywall07(props: LumenPaywallVariantProps) {
   return variant(7, props);
 }

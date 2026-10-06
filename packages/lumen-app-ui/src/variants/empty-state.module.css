@@ -140,9 +140,6 @@
 .dropzone[data-dragging='true'] {
   box-shadow: inset 0 0 0 0.125rem var(--lumen-info);
 }
-.fileInput {
-  display: none;
-}
 
 @media (max-width: 48rem) {
   .body {

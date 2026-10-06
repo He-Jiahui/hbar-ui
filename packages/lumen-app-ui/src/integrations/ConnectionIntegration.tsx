@@ -1,16 +1,15 @@
 import { LumenToggleControl } from '../forms';
 import { ArrowUpRight, RefreshCw, Unplug } from './glyphs';
 import { useMemo, useState } from 'react';
-import type { LumenIntegrationsCompositionProps } from './primitives';
-import type { LumenIntegrationConnectionContent } from './content';
-import { uniqueLumenIntegrationItems } from './content';
 import {
+  type LumenIntegrationsCompositionProps,
   IntegrationButton,
   IntegrationEmpty,
   IntegrationFrame,
   IntegrationIcon,
   IntegrationStatus,
 } from './primitives';
+import { type LumenIntegrationConnectionContent, uniqueLumenIntegrationItems } from './content';
 
 export function ConnectionIntegration({
   spec,
@@ -166,3 +165,4 @@ export function ConnectionIntegration({
     </IntegrationFrame>
   );
 }
+('use client');

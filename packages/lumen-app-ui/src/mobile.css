@@ -103,6 +103,8 @@
   border-radius: 1.75rem;
   background: var(--lumen-contrast);
   box-shadow: 0 1rem 3rem color-mix(in srgb, var(--lumen-ink) 15%, transparent);
+  min-inline-size: 0;
+  flex-direction: column;
 }
 
 .lumen-mobile-header {
@@ -141,6 +143,7 @@
   color: var(--lumen-accent);
   font-size: 0.75rem;
   font-weight: 700;
+  min-inline-size: 0;
 }
 
 .lumen-mobile-content {
@@ -369,6 +372,8 @@
 .lumen-mobile-search input {
   min-inline-size: 0;
   flex: 1 1 auto;
+  background: color-mix(in srgb, var(--lumen-ink) 24%, transparent);
+  backdrop-filter: blur(0.25rem);
 }
 
 .lumen-mobile-tasks > button {
@@ -618,7 +623,92 @@
   max-inline-size: 100%;
   overflow: auto;
   padding: 1rem;
-  background: var(--lumen-reading);
+}
+.lumen-mobile-action-list {
+  display: flex;
+  max-inline-size: 100%;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+.lumen-mobile-action-list > button {
+  justify-content: flex-start;
+}
+.lumen-mobile-action-trigger {
+  border-radius: 999rem;
+}
+.lumen-mobile-search-results {
+  flex: 1 1 auto;
+}
+.lumen-mobile-search-dock {
+  display: flex;
+  min-inline-size: 0;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: 999rem;
+  background: var(--lumen-glass);
+}
+.lumen-mobile-search-dock.is-open {
+  border-color: var(--lumen-accent);
+}
+.lumen-mobile-search-dock input {
+  min-inline-size: 0;
+  flex: 1 1 auto;
+  border: 0;
+  background: transparent;
+}
+.lumen-mobile-search-dock input:focus {
+  outline: none;
+}
+.lumen-mobile-sheet {
+  display: flex;
+  max-block-size: 52%;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-block-start: 0.0625rem solid var(--lumen-edge);
+  border-radius: 1rem 1rem 0 0;
+  background: var(--lumen-glass);
+  box-shadow: 0 -0.75rem 2rem color-mix(in srgb, var(--lumen-ink) 10%, transparent);
+}
+.lumen-mobile-sheet.is-expanded {
+  max-block-size: 76%;
+  overflow: auto;
+}
+.lumen-mobile-sheet > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.lumen-mobile-shortcuts {
+  display: flex;
+  min-inline-size: 0;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.lumen-mobile-shortcuts > button {
+  flex: 1 1 8rem;
+}
+.lumen-mobile-segmented {
+  padding: 0.5rem 0.75rem 0;
+}
+.lumen-mobile-segmented > button {
+  flex: 1 1 0;
+}
+.lumen-mobile-menu.hbar-app-ui-dialog-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: color-mix(in srgb, var(--lumen-frost) 96%, var(--lumen-contrast));
 }
 
 .lumen-mobile-quick-action-panel {

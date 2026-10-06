@@ -83,8 +83,7 @@
 .lumen-data-table-toolbar,
 .lumen-data-table-reference-toolbar,
 .lumen-data-table-bulk,
-.lumen-data-table-pagination,
-.lumen-data-table-tabs {
+.lumen-data-table-pagination {
   display: flex;
   min-inline-size: 0;
   flex-wrap: wrap;
@@ -185,8 +184,7 @@
 }
 
 .lumen-data-table thead th {
-  position: sticky;
-  inset-block-start: 0;
+  position: static;
   z-index: 2;
   background: var(--lumen-reading);
   color: var(--lumen-muted);
@@ -450,6 +448,15 @@
   border: 0.0625rem solid var(--lumen-edge);
   border-radius: var(--lumen-radius-surface);
   background: var(--lumen-glass);
+  flex-wrap: wrap;
+}
+.lumen-data-table-master-detail > :nth-child(2n + 1) {
+  flex: 0.38 1 13rem;
+  min-inline-size: 13rem;
+}
+.lumen-data-table-master-detail > :nth-child(2n + 2) {
+  flex: 1 1 18rem;
+  min-inline-size: 18rem;
 }
 
 .lumen-data-table-master-detail > aside,
@@ -561,6 +568,8 @@
   border: 0.0625rem solid var(--lumen-edge);
   border-radius: var(--lumen-radius-surface);
   background: var(--lumen-glass);
+  align-items: center;
+  justify-content: center;
 }
 
 .lumen-data-table-skeleton > span {
@@ -569,6 +578,19 @@
   align-items: center;
   gap: 1rem;
   padding: 0.75rem;
+  flex-wrap: wrap;
+}
+.lumen-data-table-skeleton > span > :nth-child(3n + 1) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+.lumen-data-table-skeleton > span > :nth-child(3n + 2) {
+  flex: 0.5 1 0;
+  min-inline-size: 0;
+}
+.lumen-data-table-skeleton > span > :nth-child(3n + 3) {
+  flex: 0.3 1 0;
+  min-inline-size: 0;
 }
 
 .lumen-data-table-skeleton > span > i {
@@ -611,8 +633,7 @@
 
 .lumen-data-table-wide tbody th,
 .lumen-data-table-wide thead th:first-child {
-  position: sticky;
-  inset-inline-start: 0;
+  position: static;
   z-index: 1;
   background: var(--lumen-glass);
 }

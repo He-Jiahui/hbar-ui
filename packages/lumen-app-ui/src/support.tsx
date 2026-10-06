@@ -9,35 +9,40 @@ import './support-thread-reference.css';
 import { LumenSupportHelpReference } from './support-help-reference';
 import { LumenSupportAssistantReference } from './support-assistant-reference';
 import { LumenSupportRequestsReference } from './support-requests-reference';
-import type {
-  LumenSupportHelpReferenceLayout,
-  LumenSupportHelpReferenceFlow,
-  LumenSupportAssistantReferenceLayout,
-  LumenSupportAssistantReferenceFlow,
-  LumenSupportRequestsReferenceLayout,
-  LumenSupportRequestsReferenceFlow,
+import {
+  type LumenSupportHelpReferenceLayout,
+  type LumenSupportHelpReferenceFlow,
+  type LumenSupportAssistantReferenceLayout,
+  type LumenSupportAssistantReferenceFlow,
+  type LumenSupportRequestsReferenceLayout,
+  type LumenSupportRequestsReferenceFlow,
 } from './support/reference-content';
+import { LumenTabs } from './ui-controls';
 
 export interface LumenSupportListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
   readonly expectedMaximum: number;
 }
+
 export interface LumenSupportChoice {
   readonly id: string;
   readonly label: string;
   readonly disabled?: boolean | undefined;
 }
+
 export interface LumenSupportTopic {
   readonly id: string;
   readonly title: string;
   readonly detail: string;
   readonly count: string;
 }
+
 export interface LumenSupportArticle {
   readonly id: string;
   readonly title: string;
   readonly detail?: string | undefined;
 }
+
 export interface LumenSupportHelpContent {
   readonly labels: {
     readonly title: string;
@@ -58,11 +63,13 @@ export interface LumenSupportHelpContent {
   readonly referenceLayout?: LumenSupportHelpReferenceLayout | undefined;
   readonly referenceFlow?: LumenSupportHelpReferenceFlow | undefined;
 }
+
 export interface LumenSupportTicketContext {
   readonly id: string;
   readonly label: string;
   readonly value: string;
 }
+
 export interface LumenSupportTicketFormContent {
   readonly labels: {
     readonly title: string;
@@ -99,31 +106,34 @@ export interface LumenSupportTicketFormContent {
   readonly context: readonly LumenSupportTicketContext[];
   readonly beforeSending: readonly string[];
   readonly recentTickets: readonly LumenSupportArticle[];
-  readonly referenceFlow?: {
-    readonly areaId: string;
-    readonly workspaceId: string;
-    readonly priorityId: string;
-    readonly subject: string;
-    readonly description: string;
-    readonly attached: boolean;
-    readonly phase: 'idle' | 'pending' | 'confirmed' | 'failed';
-    readonly error: string | null;
-    readonly labels: {
-      readonly pending: string;
-      readonly confirmed: string;
-      readonly errorUnavailable: string;
-    };
-    readonly onAreaChange: (areaId: string) => void;
-    readonly onWorkspaceChange: (workspaceId: string) => void;
-    readonly onPriorityChange: (priorityId: string) => void;
-    readonly onSubjectChange: (subject: string) => void;
-    readonly onDescriptionChange: (description: string) => void;
-    readonly onAttachmentAdd: () => void;
-    readonly onAttachmentRemove: () => void;
-    readonly onSubmit: () => void;
-    readonly onSaveDraft: () => void;
-  } | undefined;
+  readonly referenceFlow?:
+    | {
+        readonly areaId: string;
+        readonly workspaceId: string;
+        readonly priorityId: string;
+        readonly subject: string;
+        readonly description: string;
+        readonly attached: boolean;
+        readonly phase: 'idle' | 'pending' | 'confirmed' | 'failed';
+        readonly error: string | null;
+        readonly labels: {
+          readonly pending: string;
+          readonly confirmed: string;
+          readonly errorUnavailable: string;
+        };
+        readonly onAreaChange: (areaId: string) => void;
+        readonly onWorkspaceChange: (workspaceId: string) => void;
+        readonly onPriorityChange: (priorityId: string) => void;
+        readonly onSubjectChange: (subject: string) => void;
+        readonly onDescriptionChange: (description: string) => void;
+        readonly onAttachmentAdd: () => void;
+        readonly onAttachmentRemove: () => void;
+        readonly onSubmit: () => void;
+        readonly onSaveDraft: () => void;
+      }
+    | undefined;
 }
+
 export interface LumenSupportMessage {
   readonly id: string;
   readonly sender: string;
@@ -134,6 +144,7 @@ export interface LumenSupportMessage {
   readonly attachment?: string | undefined;
   readonly own: boolean;
 }
+
 export interface LumenSupportThreadContent {
   readonly labels: {
     readonly title: string;
@@ -150,51 +161,60 @@ export interface LumenSupportThreadContent {
     readonly access: string;
     readonly empty: string;
     readonly emptyTimeline: string;
+    readonly currentUser?: string | undefined;
+    readonly currentUserAvatar?: string | undefined;
   };
   readonly messages: readonly LumenSupportMessage[];
   readonly timeline: readonly LumenSupportTicketContext[];
   readonly relatedArticle: LumenSupportArticle;
   readonly listStrategy: LumenSupportListStrategy;
-  readonly ownMessage?: {
-    readonly sender: string;
-    readonly avatar: string;
-    readonly time: string;
-    readonly role?: string | undefined;
-  } | undefined;
-  readonly referenceFlow?: {
-    readonly resolved: boolean;
-    readonly reply: string;
-    readonly replyPhase: 'idle' | 'pending' | 'confirmed' | 'failed';
-    readonly resolvePhase: 'idle' | 'pending' | 'confirmed' | 'failed';
-    readonly replyErrorCode: 'unavailable' | 'limit-reached' | null;
-    readonly resolveErrorCode: 'unavailable' | null;
-    readonly replyLimitReached: boolean;
-    readonly showResolutionControl?: boolean | undefined;
-    readonly labels: {
-      readonly replyLabel: string;
-      readonly replyPending: string;
-      readonly replyConfirmed: string;
-      readonly replyErrorUnavailable: string;
-      readonly replyLimitReached: string;
-      readonly resolvePending: string;
-      readonly resolveConfirmed: string;
-      readonly resolveErrorUnavailable: string;
-    };
-    readonly onReplyChange: (reply: string) => void;
-    readonly onSubmitReply: () => void;
-    readonly onToggleResolution: (resolved: boolean) => void;
-  } | undefined;
+  readonly ownMessage?:
+    | {
+        readonly sender: string;
+        readonly avatar: string;
+        readonly time: string;
+        readonly role?: string | undefined;
+      }
+    | undefined;
+  readonly referenceFlow?:
+    | {
+        readonly resolved: boolean;
+        readonly reply: string;
+        readonly replyPhase: 'idle' | 'pending' | 'confirmed' | 'failed';
+        readonly resolvePhase: 'idle' | 'pending' | 'confirmed' | 'failed';
+        readonly replyErrorCode: 'unavailable' | 'limit-reached' | null;
+        readonly resolveErrorCode: 'unavailable' | null;
+        readonly replyLimitReached: boolean;
+        readonly showResolutionControl?: boolean | undefined;
+        readonly labels: {
+          readonly replyLabel: string;
+          readonly replyPending: string;
+          readonly replyConfirmed: string;
+          readonly replyErrorUnavailable: string;
+          readonly replyLimitReached: string;
+          readonly resolvePending: string;
+          readonly resolveConfirmed: string;
+          readonly resolveErrorUnavailable: string;
+        };
+        readonly onReplyChange: (reply: string) => void;
+        readonly onSubmitReply: () => void;
+        readonly onToggleResolution: (resolved: boolean) => void;
+      }
+    | undefined;
 }
+
 export interface LumenSupportChatMessage {
   readonly id: string;
   readonly body: string;
   readonly own: boolean;
   readonly status?: string | undefined;
 }
+
 export interface LumenSupportAssistantAction {
   readonly id: string;
   readonly label: string;
 }
+
 export interface LumenSupportAssistantContent {
   readonly labels: {
     readonly trigger: string;
@@ -216,6 +236,7 @@ export interface LumenSupportAssistantContent {
   readonly referenceLayout?: LumenSupportAssistantReferenceLayout | undefined;
   readonly referenceFlow?: LumenSupportAssistantReferenceFlow | undefined;
 }
+
 export interface LumenSupportRequest {
   readonly id: string;
   readonly title: string;
@@ -225,6 +246,7 @@ export interface LumenSupportRequest {
   readonly tone: 'neutral' | 'success' | 'warning' | 'danger';
   readonly updated: string;
 }
+
 export interface LumenSupportRequestsContent {
   readonly labels: {
     readonly title: string;
@@ -249,6 +271,7 @@ export interface LumenSupportRequestsContent {
   readonly referenceLayout?: LumenSupportRequestsReferenceLayout | undefined;
   readonly referenceFlow?: LumenSupportRequestsReferenceFlow | undefined;
 }
+
 export interface LumenSupportContent {
   readonly help?: LumenSupportHelpContent | undefined;
   readonly ticket?: LumenSupportTicketFormContent | undefined;
@@ -256,14 +279,17 @@ export interface LumenSupportContent {
   readonly assistant?: LumenSupportAssistantContent | undefined;
   readonly requests?: LumenSupportRequestsContent | undefined;
 }
+
 export interface LumenSupportProviderProps {
   readonly content: LumenSupportContent;
   readonly children: React.ReactNode;
 }
+
 export interface LumenSupportAction {
   readonly actionId: string;
   readonly value?: string | undefined;
 }
+
 export interface LumenSupportProps {
   readonly variant: number;
   readonly variantId: string;
@@ -275,14 +301,19 @@ export interface LumenSupportProps {
   readonly state?: string | undefined;
   readonly visualMode?: string | undefined;
 }
+
 export type LumenSupportVariantProps = Omit<LumenSupportProps, 'variant' | 'variantId'>;
+
 const Context = React.createContext<LumenSupportContent | undefined>(undefined);
+
 export function LumenSupportProvider({ content, children }: LumenSupportProviderProps) {
   return <Context.Provider value={content}>{children}</Context.Provider>;
 }
+
 export function useLumenSupportContent() {
   return React.useContext(Context);
 }
+
 export function uniqueLumenSupportItems<T extends { readonly id: string }>(
   items: readonly T[],
 ): readonly T[] {
@@ -295,14 +326,17 @@ export function uniqueLumenSupportItems<T extends { readonly id: string }>(
     return true;
   });
 }
+
 export function selectLumenSupportItem<T extends { readonly id: string }>(
   items: readonly T[],
   id: string | undefined,
 ): T | undefined {
   return items.find((item) => item.id === id) ?? items[0];
 }
+
 const report = (fn: LumenSupportProps['onAction'], actionId: string, value?: string) =>
   fn?.(value === undefined ? { actionId } : { actionId, value });
+
 function Glyph({
   name,
 }: {
@@ -340,6 +374,7 @@ function Glyph({
     </svg>
   );
 }
+
 function Root({
   variant,
   variantId,
@@ -376,6 +411,7 @@ function Root({
     </LumenSurface>
   );
 }
+
 function Header({
   title,
   detail,
@@ -399,6 +435,7 @@ function Header({
     </header>
   );
 }
+
 function Empty({ children }: { readonly children: string }) {
   return (
     <LumenText as="p" className="lumen-support-empty" tone="muted">
@@ -406,6 +443,7 @@ function Empty({ children }: { readonly children: string }) {
     </LumenText>
   );
 }
+
 function Tabs({
   choices,
   selectedId,
@@ -418,19 +456,13 @@ function Tabs({
   readonly onChange: (id: string) => void;
 }) {
   return (
-    <div className="lumen-support-tabs" role="tablist" aria-label={label}>
-      {choices.map((item) => (
-        <LumenButton
-          key={item.id}
-          role="tab"
-          variant="text"
-          aria-selected={selectedId === item.id}
-          onClick={() => onChange(item.id)}
-        >
-          {item.label}
-        </LumenButton>
-      ))}
-    </div>
+    <LumenTabs
+      className="lumen-support-tabs"
+      label={label}
+      items={choices}
+      selectedId={selectedId ?? null}
+      onChange={onChange}
+    />
   );
 }
 
@@ -439,13 +471,22 @@ function Help(props: Omit<LumenSupportProps, 'content'> & { content: LumenSuppor
     return <LegacyHelp {...props} />;
   }
   return (
-    <Root {...props} className={['lumen-support-help-reference-root', props.className].filter(Boolean).join(' ')}>
-      <LumenSupportHelpReference content={props.content} layout={props.content.referenceLayout} onAction={props.onAction} />
+    <Root
+      {...props}
+      className={['lumen-support-help-reference-root', props.className].filter(Boolean).join(' ')}
+    >
+      <LumenSupportHelpReference
+        content={props.content}
+        layout={props.content.referenceLayout}
+        onAction={props.onAction}
+      />
     </Root>
   );
 }
 
-function LegacyHelp(props: Omit<LumenSupportProps, 'content'> & { content: LumenSupportHelpContent }) {
+function LegacyHelp(
+  props: Omit<LumenSupportProps, 'content'> & { content: LumenSupportHelpContent },
+) {
   const topics = uniqueLumenSupportItems(props.content.topics);
   const articles = uniqueLumenSupportItems(props.content.articles);
   const [query, setQuery] = React.useState('');
@@ -530,6 +571,7 @@ function LegacyHelp(props: Omit<LumenSupportProps, 'content'> & { content: Lumen
     </Root>
   );
 }
+
 function Ticket(
   props: Omit<LumenSupportProps, 'content'> & { content: LumenSupportTicketFormContent },
 ) {
@@ -555,7 +597,9 @@ function Ticket(
   const phase = flow?.phase ?? (submitted ? 'confirmed' : 'idle');
   const controlsLocked = Boolean(flow && (phase === 'pending' || phase === 'confirmed'));
   const areaControlId = flow ? `${generatedIdPrefix}-area` : `${props.variantId}-area`;
-  const workspaceControlId = flow ? `${generatedIdPrefix}-workspace` : `${props.variantId}-workspace`;
+  const workspaceControlId = flow
+    ? `${generatedIdPrefix}-workspace`
+    : `${props.variantId}-workspace`;
   const subjectControlId = flow ? `${generatedIdPrefix}-subject` : `${props.variantId}-subject`;
   const detailsControlId = flow ? `${generatedIdPrefix}-details` : `${props.variantId}-details`;
   const priority = selectLumenSupportItem(priorities, priorityId);
@@ -655,10 +699,7 @@ function Ticket(
                 ))}
               </LumenSelect>
             </LumenFormField>
-            <LumenFormField
-              controlId={workspaceControlId}
-              label={props.content.labels.workspace}
-            >
+            <LumenFormField controlId={workspaceControlId} label={props.content.labels.workspace}>
               <LumenSelect
                 disabled={controlsLocked}
                 value={selectLumenSupportItem(workspaces, workspaceId)?.id ?? ''}
@@ -672,10 +713,7 @@ function Ticket(
               </LumenSelect>
             </LumenFormField>
           </div>
-          <LumenFormField
-            controlId={subjectControlId}
-            label={props.content.labels.subject}
-          >
+          <LumenFormField controlId={subjectControlId} label={props.content.labels.subject}>
             <LumenInput
               disabled={controlsLocked}
               value={subject}
@@ -718,10 +756,7 @@ function Ticket(
               ))}
             </div>
           </fieldset>
-          <LumenFormField
-            controlId={detailsControlId}
-            label={props.content.labels.happened}
-          >
+          <LumenFormField controlId={detailsControlId} label={props.content.labels.happened}>
             <LumenTextarea
               disabled={controlsLocked}
               placeholder={props.content.labels.happenedPlaceholder}
@@ -810,6 +845,7 @@ function Ticket(
     </Root>
   );
 }
+
 function Thread(
   props: Omit<LumenSupportProps, 'content'> & { content: LumenSupportThreadContent },
 ) {
@@ -825,14 +861,9 @@ function Thread(
   const replyPending = flow?.replyPhase === 'pending';
   const resolutionPending = flow?.resolvePhase === 'pending';
   const replyLocked = Boolean(flow && (replyPending || resolutionPending || resolved));
-  const showResolutionControl = flow
-    ? flow.showResolutionControl ?? false
-    : true;
+  const showResolutionControl = flow ? (flow.showResolutionControl ?? false) : true;
   const ownMessage = props.content.ownMessage;
-  const contentClassName = [
-    props.className,
-    flow ? 'lumen-support-thread-reference' : '',
-  ]
+  const contentClassName = [props.className, flow ? 'lumen-support-thread-reference' : '']
     .filter(Boolean)
     .join(' ');
 
@@ -988,11 +1019,7 @@ function Thread(
               <LumenButton
                 type="submit"
                 tone="primary"
-                disabled={
-                  !reply.trim() ||
-                  replyLocked ||
-                  Boolean(flow?.replyLimitReached)
-                }
+                disabled={!reply.trim() || replyLocked || Boolean(flow?.replyLimitReached)}
               >
                 <Glyph name="send" />
                 {props.content.labels.send}
@@ -1055,6 +1082,7 @@ function Thread(
     </Root>
   );
 }
+
 function Assistant(
   props: Omit<LumenSupportProps, 'content'> & { content: LumenSupportAssistantContent },
 ) {
@@ -1062,8 +1090,17 @@ function Assistant(
     return <LegacyAssistant {...props} />;
   }
   return (
-    <Root {...props} className={['lumen-support-assistant-reference-root', props.className].filter(Boolean).join(' ')}>
-      <LumenSupportAssistantReference content={props.content} layout={props.content.referenceLayout} onAction={props.onAction} />
+    <Root
+      {...props}
+      className={['lumen-support-assistant-reference-root', props.className]
+        .filter(Boolean)
+        .join(' ')}
+    >
+      <LumenSupportAssistantReference
+        content={props.content}
+        layout={props.content.referenceLayout}
+        onAction={props.onAction}
+      />
     </Root>
   );
 }
@@ -1201,6 +1238,7 @@ function LegacyAssistant(
     </Root>
   );
 }
+
 function Requests(
   props: Omit<LumenSupportProps, 'content'> & { content: LumenSupportRequestsContent },
 ) {
@@ -1208,8 +1246,17 @@ function Requests(
     return <LegacyRequests {...props} />;
   }
   return (
-    <Root {...props} className={['lumen-support-requests-reference-root', props.className].filter(Boolean).join(' ')}>
-      <LumenSupportRequestsReference content={props.content} layout={props.content.referenceLayout} onAction={props.onAction} />
+    <Root
+      {...props}
+      className={['lumen-support-requests-reference-root', props.className]
+        .filter(Boolean)
+        .join(' ')}
+    >
+      <LumenSupportRequestsReference
+        content={props.content}
+        layout={props.content.referenceLayout}
+        onAction={props.onAction}
+      />
     </Root>
   );
 }
@@ -1314,9 +1361,11 @@ function LegacyRequests(
     </Root>
   );
 }
+
 function empty(props: LumenSupportProps) {
   return <Root {...props}>{null}</Root>;
 }
+
 export function LumenSupport(props: LumenSupportProps) {
   const providerContent = useLumenSupportContent();
   const content = props.content ?? providerContent;
@@ -1337,9 +1386,11 @@ export function LumenSupport(props: LumenSupportProps) {
   }
   return empty(props);
 }
+
 function variant(value: number, props: LumenSupportVariantProps) {
   return <LumenSupport {...props} variant={value} variantId={`hbar-app-ui-support-${value}`} />;
 }
+
 export const LumenSupport01 = (props: LumenSupportVariantProps) => variant(1, props),
   LumenSupport02 = (props: LumenSupportVariantProps) => variant(2, props),
   LumenSupport03 = (props: LumenSupportVariantProps) => variant(3, props),

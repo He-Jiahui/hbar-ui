@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { LumenChip } from './ui-controls';
 import {
   useConversationViewport,
   type LumenConversationScrollTarget,
@@ -10,7 +11,8 @@ import { LumenDisclosure } from './disclosure';
 import { LumenInput, LumenTextarea } from './forms';
 import { LumenFilePicker } from './file-picker';
 import LumenDivider from './LumenDivider';
-import LumenSurface, { type LumenSurfaceProps } from './LumenSurface';
+import LumenSurface from './LumenSurface';
+import { type LumenSurfaceProps } from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { LumenCompactMetrics } from './workspace-components';
 import './session-components.css';
@@ -398,26 +400,23 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
           {attachments.map((attachment) => {
             const originalId = attachment.id.slice(attachment.kind.length + 1);
             return (
-              <div
+              <LumenChip
                 className="lumen-attachment-chip"
-                data-kind={attachment.kind}
+                label={attachment.name}
                 key={attachment.id}
-              >
-                {attachment.kind === 'image' && attachment.previewUrl ? (
-                  <img src={attachment.previewUrl} alt={attachment.name} />
-                ) : (
-                  <SessionGlyph name="file" />
-                )}
-                <span title={attachment.name}>{attachment.name}</span>
-                <LumenIconButton
-                  label={props.labels.removeAttachment({ ...attachment, id: originalId })}
-                  size="s"
-                  disabled={props.submitting}
-                  onClick={() => props.onRemoveAttachment(originalId, attachment.kind)}
-                >
-                  <SessionGlyph name="remove" />
-                </LumenIconButton>
-              </div>
+                startAdornment={
+                  attachment.kind === 'image' && attachment.previewUrl ? (
+                    <img src={attachment.previewUrl} alt="" />
+                  ) : (
+                    <SessionGlyph name="file" />
+                  )
+                }
+                disabled={props.submitting}
+                removeAction={{
+                  label: props.labels.removeAttachment({ ...attachment, id: originalId }),
+                  onRemove: () => props.onRemoveAttachment(originalId, attachment.kind),
+                }}
+              />
             );
           })}
         </div>
@@ -530,12 +529,15 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
 
 export type LumenRunActivityStatus =
   'queued' | 'running' | 'waiting_approval' | 'completed' | 'cancelled' | 'failed' | 'interrupted';
+
 export type LumenRunPlanStepStatus = 'pending' | 'in_progress' | 'completed';
+
 export interface LumenRunPlan {
   runId: string | null;
   explanation?: string | undefined;
   steps: readonly { id: string; title: string; status: LumenRunPlanStepStatus }[];
 }
+
 export interface LumenRunActivityItem {
   id: string;
   label: string;
@@ -544,6 +546,7 @@ export interface LumenRunActivityItem {
   detail?: string | undefined;
   duration?: string | undefined;
 }
+
 export interface LumenRunActivityLabels {
   title: string;
   emptyTitle: string;
@@ -558,6 +561,7 @@ export interface LumenRunActivityLabels {
   countLabel: (count: number) => string;
   statusLabel: (status: LumenRunActivityStatus) => string;
 }
+
 export interface LumenRunActivityProps {
   runs: readonly LumenRunActivityItem[];
   labels: LumenRunActivityLabels;
@@ -739,11 +743,14 @@ export function LumenRunActivity({
 }
 
 export type LumenFailureMessage = string | ((cause: unknown) => string);
+
 export interface LumenDecisionState {
   status: 'idle' | 'pending' | 'complete';
   error?: string | undefined;
 }
+
 export type LumenApprovalDecision = 'deny' | 'allow' | 'allow_always';
+
 export interface LumenApprovalRequestLabels {
   title: string;
   detailsLabel: string;
@@ -755,6 +762,7 @@ export interface LumenApprovalRequestLabels {
   completeLabel: string;
   failureMessage: LumenFailureMessage;
 }
+
 export interface LumenApprovalRequestProps {
   id: string;
   tool: string;
@@ -867,6 +875,7 @@ export interface LumenQuestionnaireOption {
   label: string;
   description?: string | undefined;
 }
+
 export interface LumenQuestionnaireQuestion {
   id: string;
   header: string;
@@ -875,10 +884,12 @@ export interface LumenQuestionnaireQuestion {
   acceptsCustomAnswer?: boolean | undefined;
   secret?: boolean | undefined;
 }
+
 export interface LumenQuestionAnswer {
   kind: 'option' | 'custom';
   value: string;
 }
+
 export interface LumenQuestionnaireLabels {
   title: string;
   countLabel: (count: number) => string;
@@ -892,6 +903,7 @@ export interface LumenQuestionnaireLabels {
   rejectedMessage: string;
   failureMessage: LumenFailureMessage;
 }
+
 export interface LumenQuestionnaireProps {
   requestId: string;
   questions: readonly LumenQuestionnaireQuestion[];
@@ -1064,6 +1076,7 @@ export interface LumenCompactUsageMetric {
   value: string;
   detail?: string | undefined;
 }
+
 export interface LumenCompactUsageProps {
   density?: 'default' | 'inline' | undefined;
   title: string;

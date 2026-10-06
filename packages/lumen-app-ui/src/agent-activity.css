@@ -19,7 +19,7 @@
   gap: 1rem;
   min-width: 0;
   padding: 1rem 1.125rem;
-  border-block-end: 1px solid var(--lumen-line);
+  border-block-end: 0.0625rem solid var(--lumen-line);
 }
 
 .lumen-agent-activity-heading > div,
@@ -60,18 +60,29 @@
 .lumen-agent-activity-history-table ol,
 .lumen-agent-activity-attempt-list,
 .lumen-agent-activity-output-list {
-  display: grid;
+  display: flex;
   gap: 0.25rem;
   padding: 0;
   margin: 0;
   list-style: none;
+  min-inline-size: 0;
 }
 
 .lumen-agent-activity-list > li {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  display: flex;
   align-items: center;
   gap: 0.625rem;
+  min-inline-size: 0;
+}
+
+.lumen-agent-activity-list > li > :nth-child(2n + 1) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+
+.lumen-agent-activity-list > li > :nth-child(2n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
 }
 
 .lumen-agent-activity-row {
@@ -145,7 +156,9 @@
   block-size: var(--hbar-app-ui-icon-xs);
 }
 
-.hbar-app-ui-agent-activity-live-heading .lumen-agent-activity-glyph path:first-child:last-child[d^='M4.5'] {
+.hbar-app-ui-agent-activity-live-heading
+  .lumen-agent-activity-glyph
+  path:first-child:last-child[d^='M4.5'] {
   fill: none;
   stroke: currentcolor;
 }
@@ -217,7 +230,7 @@
   flex: 0 0 auto;
   inline-size: 0.5rem;
   block-size: 0.5rem;
-  border: 1px solid currentcolor;
+  border: 0.0625rem solid currentcolor;
   border-radius: 50%;
   color: var(--lumen-subtle);
   background: currentcolor;
@@ -239,18 +252,7 @@
 }
 
 .lumen-agent-activity-progress {
-  overflow: hidden;
   min-inline-size: 4rem;
-  block-size: 0.25rem;
-  background: var(--lumen-line);
-  border-radius: 999px;
-}
-
-.lumen-agent-activity-progress > span {
-  display: block;
-  block-size: 100%;
-  background: var(--lumen-info);
-  box-shadow: 0 0 var(--lumen-glow-near) color-mix(in srgb, var(--lumen-info) 55%, transparent);
 }
 
 .lumen-agent-activity-glyph {
@@ -402,7 +404,9 @@
   font-size: 0.8125rem;
 }
 
-.hbar-app-ui-agent-activity-nested .hbar-app-ui-agent-activity-group-row .hbar-app-ui-agent-activity-duration,
+.hbar-app-ui-agent-activity-nested
+  .hbar-app-ui-agent-activity-group-row
+  .hbar-app-ui-agent-activity-duration,
 .hbar-app-ui-agent-activity-child-list .hbar-app-ui-agent-activity-duration {
   color: var(--lumen-muted);
   font-size: 0.75rem;
@@ -495,18 +499,34 @@
 }
 
 .hbar-app-ui-agent-activity-child-list {
-  display: grid;
+  display: flex;
   gap: 0.5rem;
   padding: 0 0.75rem 0.75rem 1.5rem;
   margin: 0;
   list-style: none;
+  min-inline-size: 0;
 }
 
 .hbar-app-ui-agent-activity-child-list > li {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(4rem, 0.45fr) auto;
+  display: flex;
   align-items: center;
   gap: 0.75rem;
+  min-inline-size: 0;
+}
+
+.hbar-app-ui-agent-activity-child-list > li > :nth-child(3n + 1) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+
+.hbar-app-ui-agent-activity-child-list > li > :nth-child(3n + 2) {
+  flex: 0.45 1 4rem;
+  min-inline-size: 4rem;
+}
+
+.hbar-app-ui-agent-activity-child-list > li > :nth-child(3n + 3) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
 }
 
 .hbar-app-ui-agent-activity-deployment {
@@ -537,6 +557,22 @@
   margin-block-start: 0.25rem;
   color: var(--lumen-muted);
   font-size: 0.8125rem;
+  min-inline-size: 0;
+}
+
+.lumen-agent-activity-deployment-footer > :nth-child(3n + 1) {
+  flex: 1 1 5rem;
+  min-inline-size: 5rem;
+}
+
+.lumen-agent-activity-deployment-footer > :nth-child(3n + 2) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+
+.lumen-agent-activity-deployment-footer > :nth-child(3n + 3) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
 }
 
 .hbar-app-ui-agent-activity-deployment-summary .lumen-agent-activity-state-mark.is-running,
@@ -687,7 +723,6 @@
   .hbar-app-ui-agent-activity-deployment-run {
     block-size: calc(100dvh - 5.5625rem);
   }
-
 }
 
 .lumen-agent-activity-history-table {
@@ -802,12 +837,24 @@
   border-block-end-color: #f5f5f5;
 }
 
-.hbar-app-ui-agent-activity-history-table th:nth-child(1) { inline-size: 36%; }
-.hbar-app-ui-agent-activity-history-table th:nth-child(2) { inline-size: 15%; }
-.hbar-app-ui-agent-activity-history-table th:nth-child(3) { inline-size: 13%; }
-.hbar-app-ui-agent-activity-history-table th:nth-child(4) { inline-size: 12%; }
-.hbar-app-ui-agent-activity-history-table th:nth-child(5) { inline-size: 16%; }
-.hbar-app-ui-agent-activity-history-table th:nth-child(6) { inline-size: 8%; }
+.hbar-app-ui-agent-activity-history-table th:nth-child(1) {
+  inline-size: 36%;
+}
+.hbar-app-ui-agent-activity-history-table th:nth-child(2) {
+  inline-size: 15%;
+}
+.hbar-app-ui-agent-activity-history-table th:nth-child(3) {
+  inline-size: 13%;
+}
+.hbar-app-ui-agent-activity-history-table th:nth-child(4) {
+  inline-size: 12%;
+}
+.hbar-app-ui-agent-activity-history-table th:nth-child(5) {
+  inline-size: 16%;
+}
+.hbar-app-ui-agent-activity-history-table th:nth-child(6) {
+  inline-size: 8%;
+}
 
 .hbar-app-ui-agent-activity-history-table td:nth-child(6) {
   text-align: right;
@@ -850,7 +897,10 @@
   background: #fafafa;
 }
 
-.hbar-app-ui-agent-activity-history-table .hbar-app-ui-agent-activity-history-action-cell button > [data-edge] {
+.hbar-app-ui-agent-activity-history-table
+  .hbar-app-ui-agent-activity-history-action-cell
+  button
+  > [data-edge] {
   display: none;
 }
 
@@ -858,20 +908,34 @@
   background: #262626;
 }
 
-.hbar-app-ui-agent-activity-history-table .hbar-app-ui-agent-activity-history-action-cell button:hover {
+.hbar-app-ui-agent-activity-history-table
+  .hbar-app-ui-agent-activity-history-action-cell
+  button:hover {
   background: #404040;
 }
 
-[data-hbar-app-ui-theme='light'] .hbar-app-ui-agent-activity-history-table .hbar-app-ui-agent-activity-history-action-cell button {
+[data-hbar-app-ui-theme='light']
+  .hbar-app-ui-agent-activity-history-table
+  .hbar-app-ui-agent-activity-history-action-cell
+  button {
   background: #f5f5f5;
 }
 
-[data-hbar-app-ui-theme='light'] .hbar-app-ui-agent-activity-history-table .hbar-app-ui-agent-activity-history-action-cell button:hover {
+[data-hbar-app-ui-theme='light']
+  .hbar-app-ui-agent-activity-history-table
+  .hbar-app-ui-agent-activity-history-action-cell
+  button:hover {
   background: #e5e5e5;
 }
 
-.hbar-app-ui-agent-activity-history-table tr:hover .hbar-app-ui-agent-activity-history-action-cell button,
-.hbar-app-ui-agent-activity-history-table tr:focus-within .hbar-app-ui-agent-activity-history-action-cell button {
+.hbar-app-ui-agent-activity-history-table
+  tr:hover
+  .hbar-app-ui-agent-activity-history-action-cell
+  button,
+.hbar-app-ui-agent-activity-history-table
+  tr:focus-within
+  .hbar-app-ui-agent-activity-history-action-cell
+  button {
   opacity: 1;
 }
 
@@ -1014,12 +1078,46 @@
 
 .lumen-agent-activity-history-header,
 .lumen-agent-activity-history-table li {
-  display: grid;
-  grid-template-columns:
-    minmax(12rem, 1.75fr) minmax(8rem, 1fr) repeat(3, minmax(5rem, 0.65fr))
-    2.25rem;
+  display: flex;
   align-items: center;
   gap: 0.75rem;
+  min-inline-size: 0;
+}
+
+.lumen-agent-activity-history-header > :nth-child(6n + 1),
+.lumen-agent-activity-history-table li > :nth-child(6n + 1) {
+  flex: 1.75 1 12rem;
+  min-inline-size: 12rem;
+}
+
+.lumen-agent-activity-history-header > :nth-child(6n + 2),
+.lumen-agent-activity-history-table li > :nth-child(6n + 2) {
+  flex: 1 1 8rem;
+  min-inline-size: 8rem;
+}
+
+.lumen-agent-activity-history-header > :nth-child(6n + 3),
+.lumen-agent-activity-history-table li > :nth-child(6n + 3) {
+  flex: 0.65 1 5rem;
+  min-inline-size: 0;
+}
+
+.lumen-agent-activity-history-header > :nth-child(6n + 4),
+.lumen-agent-activity-history-table li > :nth-child(6n + 4) {
+  flex: 0.65 1 5rem;
+  min-inline-size: 0;
+}
+
+.lumen-agent-activity-history-header > :nth-child(6n + 5),
+.lumen-agent-activity-history-table li > :nth-child(6n + 5) {
+  flex: 0 1 8rem;
+  min-inline-size: 0;
+}
+
+.lumen-agent-activity-history-header > :nth-child(6n + 6),
+.lumen-agent-activity-history-table li > :nth-child(6n + 6) {
+  flex: 0 0 2.25rem;
+  min-inline-size: 0;
 }
 
 .lumen-agent-activity-history-header {
@@ -1033,15 +1131,37 @@
   border-radius: var(--lumen-radius-control, 0.375rem);
 }
 
-.lumen-agent-activity-history-table li:hover,
 .lumen-agent-activity-history-table li.is-selected {
   background: var(--lumen-glass);
 }
 
+.lumen-agent-activity-history-table li.is-empty > :first-child {
+  flex: 1 1 100%;
+  min-inline-size: 0;
+  color: var(--lumen-muted);
+}
+
 .hbar-app-ui-agent-activity-history-cell {
-  display: grid;
+  display: flex;
   gap: 0.125rem;
   min-width: 0;
+  min-inline-size: 0;
+}
+
+.lumen-agent-activity-history-table .hbar-app-ui-agent-activity-history-select {
+  min-inline-size: 0;
+  justify-content: flex-start;
+  padding-inline: 0;
+  text-align: start;
+}
+
+.hbar-app-ui-agent-activity-history-select strong {
+  overflow-wrap: anywhere;
+}
+
+.hbar-app-ui-agent-activity-history-action-cell {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .hbar-app-ui-agent-activity-history-cell small {
@@ -1102,7 +1222,10 @@
   border-radius: 0.375rem;
   background: transparent;
   color: var(--lumen-muted);
-  font: 500 0.8125rem/1.5 ui-sans-serif, system-ui, sans-serif;
+  font:
+    500 0.8125rem/1.5 ui-sans-serif,
+    system-ui,
+    sans-serif;
   cursor: pointer;
 }
 
@@ -1121,6 +1244,22 @@
   margin-inline-start: 2rem;
   color: var(--lumen-muted);
   font-size: 0.8125rem;
+  min-inline-size: 0;
+}
+
+.lumen-agent-activity-log-list > li > :nth-child(3n + 1) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+
+.lumen-agent-activity-log-list > li > :nth-child(3n + 2) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+
+.lumen-agent-activity-log-list > li > :nth-child(3n + 3) {
+  flex: 1 1 0;
+  min-inline-size: 0;
 }
 
 .hbar-app-ui-agent-activity-log .hbar-app-ui-agent-activity-heading > button {
@@ -1137,7 +1276,11 @@
   display: none;
 }
 
-.hbar-app-ui-agent-activity-log .hbar-app-ui-agent-activity-heading > button .lumen-agent-activity-glyph path:first-child:last-child[d^='M4.5'] {
+.hbar-app-ui-agent-activity-log
+  .hbar-app-ui-agent-activity-heading
+  > button
+  .lumen-agent-activity-glyph
+  path:first-child:last-child[d^='M4.5'] {
   fill: none;
   stroke: currentColor;
   stroke-width: 1.5;
@@ -1183,7 +1326,10 @@
   align-items: baseline;
   gap: 0.75rem;
   padding-block: 0.125rem;
-  font: 400 0.75rem/1.625 ui-sans-serif, system-ui, sans-serif;
+  font:
+    400 0.75rem/1.625 ui-sans-serif,
+    system-ui,
+    sans-serif;
 }
 
 .hbar-app-ui-agent-activity-log-time {
@@ -1285,10 +1431,12 @@
     font-size: 0;
   }
 
-  [data-hbar-app-ui-theme='dark'] .hbar-app-ui-agent-activity-log .hbar-app-ui-agent-activity-heading > button {
+  [data-hbar-app-ui-theme='dark']
+    .hbar-app-ui-agent-activity-log
+    .hbar-app-ui-agent-activity-heading
+    > button {
     background: color-mix(in srgb, var(--lumen-ink) 11%, transparent);
   }
-
 }
 
 @media (max-width: 18rem) {
@@ -1312,7 +1460,7 @@
 .lumen-agent-activity-output-list > li {
   padding: 0.75rem;
   background: var(--lumen-glass);
-  border: 1px solid var(--lumen-line);
+  border: 0.0625rem solid var(--lumen-line);
   border-radius: var(--lumen-radius-control, 0.375rem);
 }
 
@@ -1365,12 +1513,13 @@
   overflow: visible;
   border: 0.0625rem solid var(--lumen-line);
   border-radius: 0.75rem;
-  box-shadow: inset 0 0 0 0.25rem var(--lumen-contrast), inset 0 0 0 0.3125rem var(--lumen-line);
+  box-shadow:
+    inset 0 0 0 0.25rem var(--lumen-contrast),
+    inset 0 0 0 0.3125rem var(--lumen-line);
 }
 
-.hbar-app-ui-agent-activity-workers .hbar-app-ui-agent-activity-pane:has(
-    .hbar-app-ui-agent-activity-worker-list > li:nth-child(7)
-  ) {
+.hbar-app-ui-agent-activity-workers
+  .hbar-app-ui-agent-activity-pane:has(.hbar-app-ui-agent-activity-worker-list > li:nth-child(7)) {
   max-block-size: calc(100dvh - 4rem);
   overflow: auto;
 }
@@ -1432,14 +1581,20 @@
   color: var(--lumen-muted);
 }
 
-[data-hbar-app-ui-theme='dark'] .hbar-app-ui-agent-activity-workers .hbar-app-ui-agent-activity-heading h2,
+[data-hbar-app-ui-theme='dark']
+  .hbar-app-ui-agent-activity-workers
+  .hbar-app-ui-agent-activity-heading
+  h2,
 [data-hbar-app-ui-theme='dark'] .hbar-app-ui-agent-activity-worker-heading > span:first-child,
 [data-hbar-app-ui-theme='dark'] .hbar-app-ui-agent-activity-worker-heading > span:last-child {
   font-weight: 600;
 }
 
-[data-hbar-app-ui-theme='dark'] .hbar-app-ui-agent-activity-worker-list > li.without-progress:not(:last-child)
-  .hbar-app-ui-agent-activity-worker-detail > span:first-child {
+[data-hbar-app-ui-theme='dark']
+  .hbar-app-ui-agent-activity-worker-list
+  > li.without-progress:not(:last-child)
+  .hbar-app-ui-agent-activity-worker-detail
+  > span:first-child {
   color: var(--lumen-ink);
   font-weight: 600;
 }
@@ -1448,7 +1603,9 @@
   margin-block: 0.5rem 0.6875rem;
 }
 
-.hbar-app-ui-agent-activity-worker-list > li.without-progress .hbar-app-ui-agent-activity-worker-detail {
+.hbar-app-ui-agent-activity-worker-list
+  > li.without-progress
+  .hbar-app-ui-agent-activity-worker-detail {
   margin-block-start: 0.375rem;
 }
 
@@ -1461,7 +1618,10 @@
   box-shadow: none;
 }
 
-[data-hbar-app-ui-theme='light'] .hbar-app-ui-agent-activity-workers .lumen-agent-activity-progress > span {
+[data-hbar-app-ui-theme='light']
+  .hbar-app-ui-agent-activity-workers
+  .lumen-agent-activity-progress
+  > span {
   background: color-mix(in srgb, var(--lumen-ink) 40%, transparent);
 }
 
@@ -1506,13 +1666,18 @@
 }
 
 .hbar-app-ui-agent-activity-failure-body {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
+  min-inline-size: 0;
 }
 
 .hbar-app-ui-agent-activity-failure-body section {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
   gap: 0.625rem;
+  min-inline-size: 0;
 }
 
 .hbar-app-ui-agent-activity-failure-body h3,
@@ -1537,25 +1702,52 @@
 }
 
 .lumen-agent-activity-definition-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 0.5rem;
+  min-inline-size: 0;
+}
+
+.lumen-agent-activity-definition-list > * {
+  min-inline-size: 0;
 }
 
 .hbar-app-ui-agent-activity-definition-list > div,
 .lumen-agent-activity-attempt-list > li {
-  display: grid;
+  display: flex;
   gap: 0.25rem;
+  min-inline-size: 0;
 }
 
 .lumen-agent-activity-attempt-list > li {
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: flex-start;
+}
+
+.lumen-agent-activity-attempt-list,
+.lumen-agent-activity-output-list {
+  flex-direction: column;
+}
+
+.lumen-agent-activity-attempt-list > li > :nth-child(3n + 1) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+
+.lumen-agent-activity-attempt-list > li > :nth-child(3n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+
+.lumen-agent-activity-attempt-list > li > :nth-child(3n + 3) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
 }
 
 .lumen-agent-activity-output-list > li > div {
-  display: grid;
+  display: flex;
   gap: 0.25rem;
   min-width: 0;
+  min-inline-size: 0;
 }
 
 .lumen-agent-activity-output-list > li > div > span,
@@ -1598,7 +1790,9 @@
   font-size: 0.8125rem;
 }
 
-.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-heading .lumen-agent-activity-state-mark,
+.hbar-app-ui-agent-activity-failure
+  .hbar-app-ui-agent-activity-heading
+  .lumen-agent-activity-state-mark,
 .hbar-app-ui-agent-activity-error-title .lumen-agent-activity-state-mark {
   inline-size: 0.375rem;
   block-size: 0.375rem;
@@ -1687,17 +1881,26 @@
   color: var(--lumen-contrast);
 }
 
-.hbar-app-ui-agent-activity-failure .is-retry-queued .hbar-app-ui-agent-activity-action-row > button {
+.hbar-app-ui-agent-activity-failure
+  .is-retry-queued
+  .hbar-app-ui-agent-activity-action-row
+  > button {
   background: var(--lumen-line);
   color: var(--lumen-ink);
 }
 
-.hbar-app-ui-agent-activity-failure .is-retry-queued .hbar-app-ui-agent-activity-action-row > button:hover {
+.hbar-app-ui-agent-activity-failure
+  .is-retry-queued
+  .hbar-app-ui-agent-activity-action-row
+  > button:hover {
   background: color-mix(in srgb, var(--lumen-line) 90%, var(--lumen-ink));
   color: var(--lumen-ink);
 }
 
-.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-action-row .lumen-agent-activity-glyph path {
+.hbar-app-ui-agent-activity-failure
+  .hbar-app-ui-agent-activity-action-row
+  .lumen-agent-activity-glyph
+  path {
   fill: none;
   stroke: currentColor;
 }
@@ -1820,7 +2023,11 @@
   font-size: 0.8125rem;
 }
 
-.hbar-app-ui-agent-activity-failure .hbar-app-ui-agent-activity-output-list > li > div > p:last-child {
+.hbar-app-ui-agent-activity-failure
+  .hbar-app-ui-agent-activity-output-list
+  > li
+  > div
+  > p:last-child {
   color: var(--lumen-muted);
 }
 
@@ -1872,7 +2079,20 @@
   }
 
   .lumen-agent-activity-history-table li {
-    grid-template-columns: 1fr auto;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: start;
+  }
+
+  .lumen-agent-activity-history-table li > :nth-child(n) {
+    flex: 1 1 calc(50% - 0.25rem);
+    min-inline-size: 0;
+  }
+
+  .hbar-app-ui-agent-activity-history-cell {
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.5rem;
   }
 
   .hbar-app-ui-agent-activity-history-cell small {
@@ -1882,7 +2102,8 @@
 
   .hbar-app-ui-agent-activity-child-list > li,
   .lumen-agent-activity-attempt-list > li {
-    grid-template-columns: 1fr;
+    align-items: flex-start;
+    flex-wrap: wrap;
   }
 }
 

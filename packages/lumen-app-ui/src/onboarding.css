@@ -63,10 +63,18 @@
   font-weight: 700;
 }
 .lumen-onboarding-profile {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
-  grid-template-columns: minmax(18rem, 1fr) minmax(15rem, 0.6fr);
   gap: 1rem;
+  flex-wrap: wrap;
+}
+.lumen-onboarding-profile > :nth-child(2n + 1) {
+  flex: 1 1 18rem;
+  min-inline-size: 18rem;
+}
+.lumen-onboarding-profile > :nth-child(2n + 2) {
+  flex: 0.6 1 15rem;
+  min-inline-size: 15rem;
 }
 .lumen-onboarding-profile > main,
 .lumen-onboarding-profile > aside,
@@ -92,11 +100,15 @@
   font-size: 1rem;
 }
 .lumen-onboarding-metrics {
-  display: grid;
+  display: flex;
   inline-size: 100%;
   min-inline-size: 0;
-  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
   gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.lumen-onboarding-metrics > * {
+  flex: 1 1 7rem;
+  min-inline-size: 7rem;
 }
 .lumen-onboarding-metrics > div {
   display: flex;
@@ -119,10 +131,18 @@
   color: var(--lumen-success, #29965f);
 }
 .lumen-onboarding-step-layout {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
-  grid-template-columns: minmax(15rem, 0.42fr) minmax(18rem, 1fr);
   gap: 1rem;
+  flex-wrap: wrap;
+}
+.lumen-onboarding-step-layout > :nth-child(2n + 1) {
+  flex: 0.42 1 15rem;
+  min-inline-size: 15rem;
+}
+.lumen-onboarding-step-layout > :nth-child(2n + 2) {
+  flex: 1 1 18rem;
+  min-inline-size: 18rem;
 }
 .lumen-onboarding-step-layout > nav {
   display: flex;
@@ -136,11 +156,22 @@
   overscroll-behavior: contain;
 }
 .lumen-onboarding-step-layout > nav > button {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
-  grid-template-columns: auto minmax(0, 1fr) auto;
   justify-content: stretch;
   text-align: start;
+}
+.lumen-onboarding-step-layout > nav > button > :nth-child(3n + 1) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+.lumen-onboarding-step-layout > nav > button > :nth-child(3n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+.lumen-onboarding-step-layout > nav > button > :nth-child(3n + 3) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
 }
 .lumen-onboarding-step-layout > nav > button > span:first-child,
 .lumen-onboarding-checklist > article > span:first-child {
@@ -166,16 +197,7 @@
   align-items: flex-start;
 }
 .lumen-onboarding-progress {
-  display: flex;
   block-size: 0.375rem;
-  overflow: hidden;
-  border-radius: 999rem;
-  background: var(--lumen-edge);
-}
-.lumen-onboarding-progress > i {
-  block-size: 100%;
-  border-radius: inherit;
-  background: var(--lumen-accent);
 }
 .lumen-onboarding-checklist {
   display: flex;
@@ -184,9 +206,8 @@
   gap: 0.5rem;
 }
 .lumen-onboarding-checklist > article {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
-  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem;
@@ -194,16 +215,32 @@
   border-radius: var(--lumen-radius-control);
   background: var(--lumen-glass);
 }
+.lumen-onboarding-checklist > article > :nth-child(3n + 1) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+.lumen-onboarding-checklist > article > :nth-child(3n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+.lumen-onboarding-checklist > article > :nth-child(3n + 3) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
 .lumen-onboarding-checklist > article > div {
   display: flex;
   min-inline-size: 0;
   flex-direction: column;
 }
 .lumen-onboarding-use-cases {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
-  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
   gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.lumen-onboarding-use-cases > * {
+  flex: 1 1 10rem;
+  min-inline-size: 10rem;
 }
 .lumen-onboarding-use-cases > button {
   display: flex;
@@ -225,19 +262,26 @@
   gap: 0.25rem;
   border-block-end: 0.0625rem solid var(--lumen-edge);
 }
-.lumen-onboarding-tabs > button[aria-selected='true'] {
-  color: var(--lumen-accent);
-  box-shadow: inset 0 -0.125rem var(--lumen-accent);
-}
 .lumen-onboarding-primary {
   align-self: flex-end;
 }
 .lumen-onboarding-invite-form {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
-  grid-template-columns: minmax(12rem, 1fr) minmax(8rem, 0.35fr) auto;
   align-items: end;
   gap: 0.75rem;
+}
+.lumen-onboarding-invite-form > :nth-child(3n + 1) {
+  flex: 1 1 12rem;
+  min-inline-size: 12rem;
+}
+.lumen-onboarding-invite-form > :nth-child(3n + 2) {
+  flex: 0.35 1 8rem;
+  min-inline-size: 8rem;
+}
+.lumen-onboarding-invite-form > :nth-child(3n + 3) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
 }
 .lumen-onboarding-invitees {
   display: flex;
@@ -246,15 +290,26 @@
   gap: 0.5rem;
 }
 .lumen-onboarding-invitees > article {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
-  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem;
   border: 0.0625rem solid var(--lumen-edge);
   border-radius: var(--lumen-radius-control);
   background: var(--lumen-glass);
+}
+.lumen-onboarding-invitees > article > :nth-child(3n + 1) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+.lumen-onboarding-invitees > article > :nth-child(3n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+.lumen-onboarding-invitees > article > :nth-child(3n + 3) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
 }
 .lumen-onboarding-share {
   display: flex;
@@ -316,12 +371,16 @@
 @media (max-width: 48rem) {
   .lumen-onboarding-profile,
   .lumen-onboarding-step-layout {
-    grid-template-columns: minmax(0, 1fr);
+    flex-direction: column;
   }
   .lumen-onboarding-invite-form {
-    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+    flex-direction: column;
   }
-  .lumen-onboarding-invite-form > button {
-    justify-self: end;
+
+  .lumen-onboarding-invite-form > :nth-child(n) {
+    inline-size: 100%;
+    min-inline-size: 0;
+    flex: 0 0 auto;
   }
 }

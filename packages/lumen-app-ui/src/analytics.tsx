@@ -6,22 +6,34 @@ import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitiv
 import './analytics.css';
 import './analytics-reference.css';
 import LumenAnalyticsReference from './analytics-reference';
-import type { LumenAnalyticsReferenceContent } from './analytics-reference-contracts';
+import { type LumenAnalyticsReferenceContent } from './analytics-reference-contracts';
+import { LumenBulletProgress, LumenGauge, LumenProgress, LumenTabs } from './ui-controls';
+import {
+  LumenCandlestickChart,
+  LumenChart,
+  LumenComboChart,
+  LumenScatterChart,
+  type LumenChartPoint,
+  type LumenChartSeries,
+} from './ui-compositions';
 
 export interface LumenAnalyticsListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
   readonly expectedMaximum: number;
 }
+
 export interface LumenAnalyticsChoice {
   readonly id: string;
   readonly label: string;
   readonly disabled?: boolean | undefined;
 }
+
 export interface LumenAnalyticsPoint {
   readonly id: string;
   readonly value: number;
   readonly label?: string | undefined;
 }
+
 export interface LumenAnalyticsMetric {
   readonly id: string;
   readonly label: string;
@@ -31,6 +43,7 @@ export interface LumenAnalyticsMetric {
   readonly tone?: 'neutral' | 'success' | 'warning' | 'danger' | undefined;
   readonly series?: readonly LumenAnalyticsPoint[] | undefined;
 }
+
 export interface LumenAnalyticsRangeContent {
   readonly labels: {
     readonly title: string;
@@ -44,6 +57,7 @@ export interface LumenAnalyticsRangeContent {
   readonly metricsByRange: Readonly<Record<string, readonly LumenAnalyticsMetric[]>>;
   readonly listStrategy: LumenAnalyticsListStrategy;
 }
+
 export interface LumenAnalyticsAreaContent {
   readonly labels: {
     readonly title: string;
@@ -58,12 +72,14 @@ export interface LumenAnalyticsAreaContent {
   readonly cursorValue: string;
   readonly metrics: readonly LumenAnalyticsMetric[];
 }
+
 export interface LumenAnalyticsSeries {
   readonly id: string;
   readonly label: string;
   readonly values: readonly number[];
   readonly tone?: string | undefined;
 }
+
 export interface LumenAnalyticsGroupedContent {
   readonly labels: {
     readonly title: string;
@@ -76,6 +92,7 @@ export interface LumenAnalyticsGroupedContent {
   readonly initialSeriesIds: readonly string[];
   readonly listStrategy: LumenAnalyticsListStrategy;
 }
+
 export interface LumenAnalyticsStackedContent {
   readonly labels: {
     readonly title: string;
@@ -89,6 +106,7 @@ export interface LumenAnalyticsStackedContent {
   readonly totalValues: readonly number[];
   readonly shareValues: readonly number[];
 }
+
 export interface LumenAnalyticsDonutItem {
   readonly id: string;
   readonly label: string;
@@ -96,17 +114,20 @@ export interface LumenAnalyticsDonutItem {
   readonly percent: number;
   readonly tone?: string | undefined;
 }
+
 export interface LumenAnalyticsDonutContent {
   readonly labels: {
     readonly title: string;
     readonly detail: string;
     readonly chart: string;
     readonly select: (label: string) => string;
+    readonly percent?: ((value: number) => string) | undefined;
     readonly empty: string;
   };
   readonly initialItemId: string;
   readonly items: readonly LumenAnalyticsDonutItem[];
 }
+
 export interface LumenAnalyticsRankedItem {
   readonly id: string;
   readonly label: string;
@@ -114,6 +135,7 @@ export interface LumenAnalyticsRankedItem {
   readonly share: number;
   readonly series: readonly LumenAnalyticsPoint[];
 }
+
 export interface LumenAnalyticsRankedContent {
   readonly labels: {
     readonly title: string;
@@ -126,6 +148,7 @@ export interface LumenAnalyticsRankedContent {
   readonly items: readonly LumenAnalyticsRankedItem[];
   readonly listStrategy: LumenAnalyticsListStrategy;
 }
+
 export interface LumenAnalyticsCardsContent {
   readonly labels: {
     readonly title: string;
@@ -139,6 +162,7 @@ export interface LumenAnalyticsCardsContent {
   readonly metrics: readonly LumenAnalyticsMetric[];
   readonly listStrategy: LumenAnalyticsListStrategy;
 }
+
 export interface LumenAnalyticsFunnelStage {
   readonly id: string;
   readonly label: string;
@@ -146,23 +170,27 @@ export interface LumenAnalyticsFunnelStage {
   readonly detail: string;
   readonly tone?: 'neutral' | 'success' | 'warning' | 'danger' | undefined;
 }
+
 export interface LumenAnalyticsFunnelContent {
   readonly labels: {
     readonly title: string;
     readonly detail: string;
     readonly highlight: string;
     readonly progress: (label: string) => string;
+    readonly percent?: ((value: number) => string) | undefined;
     readonly empty: string;
   };
   readonly worstStageId: string;
   readonly stages: readonly LumenAnalyticsFunnelStage[];
   readonly listStrategy: LumenAnalyticsListStrategy;
 }
+
 export interface LumenAnalyticsHeatCell {
   readonly id: string;
   readonly label: string;
   readonly level: 0 | 1 | 2 | 3 | 4;
 }
+
 export interface LumenAnalyticsHeatmapContent {
   readonly labels: {
     readonly title: string;
@@ -177,12 +205,14 @@ export interface LumenAnalyticsHeatmapContent {
   readonly cells: readonly LumenAnalyticsHeatCell[];
   readonly listStrategy: LumenAnalyticsListStrategy;
 }
+
 export interface LumenAnalyticsGoal {
   readonly id: string;
   readonly label: string;
   readonly value: number;
   readonly valueLabel: string;
 }
+
 export interface LumenAnalyticsGoalsContent {
   readonly labels: {
     readonly title: string;
@@ -193,11 +223,13 @@ export interface LumenAnalyticsGoalsContent {
   };
   readonly goals: readonly LumenAnalyticsGoal[];
 }
+
 export interface LumenAnalyticsCohort {
   readonly id: string;
   readonly label: string;
   readonly values: readonly number[];
 }
+
 export interface LumenAnalyticsCohortContent {
   readonly labels: {
     readonly title: string;
@@ -205,18 +237,21 @@ export interface LumenAnalyticsCohortContent {
     readonly change: string;
     readonly cohort: string;
     readonly value: (cohort: string, period: string, value: number) => string;
+    readonly percent?: ((value: number) => string) | undefined;
     readonly empty: string;
   };
   readonly periods: readonly LumenAnalyticsChoice[];
   readonly cohorts: readonly LumenAnalyticsCohort[];
   readonly listStrategy: LumenAnalyticsListStrategy;
 }
+
 export interface LumenAnalyticsRankingItem {
   readonly id: string;
   readonly label: string;
   readonly value: number;
   readonly delta: number;
 }
+
 export interface LumenAnalyticsRankingContent {
   readonly labels: {
     readonly title: string;
@@ -229,6 +264,7 @@ export interface LumenAnalyticsRankingContent {
   readonly items: readonly LumenAnalyticsRankingItem[];
   readonly listStrategy: LumenAnalyticsListStrategy;
 }
+
 export interface LumenAnalyticsCandle {
   readonly id: string;
   readonly open: number;
@@ -237,6 +273,7 @@ export interface LumenAnalyticsCandle {
   readonly close: number;
   readonly volume: number;
 }
+
 export interface LumenAnalyticsCandlesContent {
   readonly labels: {
     readonly title: string;
@@ -249,6 +286,7 @@ export interface LumenAnalyticsCandlesContent {
   };
   readonly candles: readonly LumenAnalyticsCandle[];
 }
+
 export interface LumenAnalyticsScatterPoint {
   readonly id: string;
   readonly label: string;
@@ -256,6 +294,7 @@ export interface LumenAnalyticsScatterPoint {
   readonly y: number;
   readonly size: number;
 }
+
 export interface LumenAnalyticsScatterContent {
   readonly labels: {
     readonly title: string;
@@ -269,6 +308,7 @@ export interface LumenAnalyticsScatterContent {
   readonly nearestPointId: string;
   readonly points: readonly LumenAnalyticsScatterPoint[];
 }
+
 export interface LumenAnalyticsBulletItem {
   readonly id: string;
   readonly label: string;
@@ -276,6 +316,7 @@ export interface LumenAnalyticsBulletItem {
   readonly target: number;
   readonly detail: string;
 }
+
 export interface LumenAnalyticsBulletContent {
   readonly labels: {
     readonly title: string;
@@ -288,6 +329,7 @@ export interface LumenAnalyticsBulletContent {
   readonly items: readonly LumenAnalyticsBulletItem[];
   readonly listStrategy: LumenAnalyticsListStrategy;
 }
+
 export interface LumenAnalyticsComboContent {
   readonly labels: {
     readonly title: string;
@@ -302,6 +344,7 @@ export interface LumenAnalyticsComboContent {
   readonly bars: readonly LumenAnalyticsPoint[];
   readonly trend: readonly LumenAnalyticsPoint[];
 }
+
 export interface LumenAnalyticsContent {
   readonly reference?: LumenAnalyticsReferenceContent | undefined;
   readonly presentation?:
@@ -323,14 +366,17 @@ export interface LumenAnalyticsContent {
   readonly bullets?: LumenAnalyticsBulletContent | undefined;
   readonly combo?: LumenAnalyticsComboContent | undefined;
 }
+
 export interface LumenAnalyticsProviderProps {
   readonly content: LumenAnalyticsContent;
   readonly children: React.ReactNode;
 }
+
 export interface LumenAnalyticsAction {
   readonly actionId: string;
   readonly value?: string | undefined;
 }
+
 export interface LumenAnalyticsProps {
   readonly variant: number;
   readonly variantId: string;
@@ -342,14 +388,19 @@ export interface LumenAnalyticsProps {
   readonly state?: string | undefined;
   readonly visualMode?: string | undefined;
 }
+
 export type LumenAnalyticsVariantProps = Omit<LumenAnalyticsProps, 'variant' | 'variantId'>;
+
 const Context = React.createContext<LumenAnalyticsContent | undefined>(undefined);
+
 export function LumenAnalyticsProvider({ content, children }: LumenAnalyticsProviderProps) {
   return <Context.Provider value={content}>{children}</Context.Provider>;
 }
+
 export function useLumenAnalyticsContent() {
   return React.useContext(Context);
 }
+
 export function uniqueLumenAnalyticsItems<T extends { readonly id: string }>(
   items: readonly T[],
 ): readonly T[] {
@@ -362,14 +413,17 @@ export function uniqueLumenAnalyticsItems<T extends { readonly id: string }>(
     return true;
   });
 }
+
 export function selectLumenAnalyticsItem<T extends { readonly id: string }>(
   items: readonly T[],
   id: string | undefined,
 ): T | undefined {
   return items.find((item) => item.id === id) ?? items[0];
 }
+
 const report = (fn: LumenAnalyticsProps['onAction'], actionId: string, value?: string) =>
   fn?.(value === undefined ? { actionId } : { actionId, value });
+
 function Glyph({ name }: { name: 'up' | 'down' | 'crosshair' | 'pointer' | 'sort' | 'info' }) {
   const paths = {
     up: 'm4 10 4-5 4 5M8 5v8',
@@ -385,6 +439,7 @@ function Glyph({ name }: { name: 'up' | 'down' | 'crosshair' | 'pointer' | 'sort
     </svg>
   );
 }
+
 function Root({
   variant,
   variantId,
@@ -421,6 +476,7 @@ function Root({
     </LumenSurface>
   );
 }
+
 function Header({
   title,
   detail,
@@ -444,6 +500,7 @@ function Header({
     </header>
   );
 }
+
 function Empty({ children }: { readonly children: string }) {
   return (
     <LumenText as="p" className="lumen-analytics-empty" tone="muted">
@@ -451,6 +508,7 @@ function Empty({ children }: { readonly children: string }) {
     </LumenText>
   );
 }
+
 function Tabs({
   choices,
   selectedId,
@@ -463,50 +521,16 @@ function Tabs({
   readonly onChange: (id: string) => void;
 }) {
   return (
-    <div className="lumen-analytics-tabs" role="tablist" aria-label={label}>
-      {choices.map((item) => (
-        <LumenButton
-          key={item.id}
-          role="tab"
-          variant="text"
-          disabled={item.disabled}
-          aria-selected={selectedId === item.id}
-          onClick={() => onChange(item.id)}
-        >
-          {item.label}
-        </LumenButton>
-      ))}
-    </div>
+    <LumenTabs
+      className="lumen-analytics-tabs"
+      label={label}
+      items={choices}
+      selectedId={selectedId ?? null}
+      onChange={onChange}
+    />
   );
 }
-function Bars({
-  points,
-  label,
-  horizontal = false,
-}: {
-  readonly points: readonly LumenAnalyticsPoint[];
-  readonly label: string;
-  readonly horizontal?: boolean | undefined;
-}) {
-  return (
-    <div
-      className={horizontal ? 'lumen-analytics-bars is-horizontal' : 'lumen-analytics-bars'}
-      aria-label={label}
-    >
-      {uniqueLumenAnalyticsItems(points).map((point) => (
-        <i
-          key={point.id}
-          title={point.label}
-          style={
-            horizontal
-              ? { inlineSize: `${Math.max(2, Math.min(100, point.value))}%` }
-              : { blockSize: `${Math.max(2, Math.min(100, point.value))}%` }
-          }
-        />
-      ))}
-    </div>
-  );
-}
+
 function Progress({
   value,
   label,
@@ -516,21 +540,16 @@ function Progress({
   readonly label: string;
   readonly tone?: string | undefined;
 }) {
-  const bounded = Math.max(0, Math.min(100, value));
   return (
-    <span
+    <LumenProgress
       className="lumen-analytics-progress"
-      data-tone={tone}
-      role="progressbar"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={bounded}
-    >
-      <i style={{ inlineSize: `${bounded}%` }} />
-    </span>
+      label={label}
+      value={value}
+      tone={tone === 'warning' ? 'warning' : 'info'}
+    />
   );
 }
+
 function Metrics({
   items,
   empty,
@@ -553,7 +572,7 @@ function Metrics({
               </span>
             ) : null}
             {item.detail ? <small>{item.detail}</small> : null}
-            {item.series ? <Bars points={item.series} label={item.label} /> : null}
+            {item.series ? <Sparkline points={item.series} label={item.label} /> : null}
           </article>
         ))
       ) : (
@@ -591,11 +610,17 @@ function Range(
     </Root>
   );
 }
+
 function Area(
   props: Omit<LumenAnalyticsProps, 'content'> & { content: LumenAnalyticsAreaContent },
 ) {
   const points = uniqueLumenAnalyticsItems(props.content.points);
-  const [cursor, setCursor] = React.useState(48);
+  const [cursorId, setCursorId] = React.useState(points[Math.floor(points.length / 2)]?.id);
+  const cursorIndex = Math.max(
+    0,
+    points.findIndex((point) => point.id === cursorId),
+  );
+  const cursorPosition = Math.round((cursorIndex / Math.max(1, points.length - 1)) * 100);
   return (
     <Root {...props}>
       <Header
@@ -604,7 +629,13 @@ function Area(
         actions={
           <LumenButton
             variant="outlined"
-            onClick={() => setCursor((value) => (value + props.content.cursorStep) % 100)}
+            onClick={() => {
+              const next =
+                points[(cursorIndex + props.content.cursorStep) % Math.max(1, points.length)];
+              if (next) {
+                setCursorId(next.id);
+              }
+            }}
           >
             <Glyph name="crosshair" />
             {props.content.labels.moveCursor}
@@ -612,11 +643,23 @@ function Area(
         }
       />
       {points.length ? (
-        <div className="lumen-analytics-area" aria-label={props.content.labels.chart}>
-          <Bars points={points} label={props.content.labels.chart} />
-          <i style={{ insetInlineStart: `${cursor}%` }} />
-          <span>{props.content.labels.cursor(cursor, props.content.cursorValue)}</span>
-        </div>
+        <LumenChart
+          className="lumen-analytics-area-chart"
+          label={props.content.labels.chart}
+          kind="area"
+          series={[
+            {
+              id: 'area',
+              label: props.content.labels.chart,
+              points: chartPoints(points),
+              tone: 'info',
+            },
+          ]}
+          selectedPointId={cursorId}
+          cursorLabel={props.content.labels.cursor(cursorPosition, props.content.cursorValue)}
+          onPointChange={(point) => setCursorId(point.id)}
+          empty={props.content.labels.empty}
+        />
       ) : (
         <Empty>{props.content.labels.empty}</Empty>
       )}
@@ -624,6 +667,7 @@ function Area(
     </Root>
   );
 }
+
 function Grouped(
   props: Omit<LumenAnalyticsProps, 'content'> & { content: LumenAnalyticsGroupedContent },
 ) {
@@ -655,37 +699,35 @@ function Grouped(
         ))}
       </div>
       {active.length ? (
-        <div
-          className="lumen-analytics-grouped"
-          data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
-        >
-          {Array.from({ length: count }, (_, index) => (
-            <div key={index}>
-              {active.map((item) => {
-                const value = item.values[index] ?? 0;
-                return (
-                  <i
-                    key={item.id}
-                    title={props.content.labels.value(item.label, index, value)}
-                    style={{ blockSize: `${Math.max(2, Math.min(100, value))}%` }}
-                  />
-                );
-              })}
-            </div>
-          ))}
-        </div>
+        <LumenChart
+          className="lumen-analytics-grouped-chart"
+          label={props.content.labels.series}
+          kind="grouped-bar"
+          series={active.map((item, seriesIndex) => ({
+            id: item.id,
+            label: item.label,
+            tone: chartTone(seriesIndex),
+            points: Array.from({ length: count }, (_, index) => ({
+              id: `${item.id}-${index}`,
+              label: props.content.labels.value(item.label, index, item.values[index] ?? 0),
+              value: item.values[index] ?? 0,
+            })),
+          }))}
+          empty={props.content.labels.empty}
+        />
       ) : (
         <Empty>{props.content.labels.empty}</Empty>
       )}
     </Root>
   );
 }
+
 function Stacked(
   props: Omit<LumenAnalyticsProps, 'content'> & { content: LumenAnalyticsStackedContent },
 ) {
   const series = uniqueLumenAnalyticsItems(props.content.series);
   const [share, setShare] = React.useState(false);
-  const values = share ? props.content.shareValues : props.content.totalValues;
+  const pointCount = Math.max(0, ...series.map((item) => item.values.length));
   return (
     <Root {...props}>
       <Header
@@ -705,14 +747,29 @@ function Stacked(
       />
       {series.length ? (
         <React.Fragment>
-          <div className="lumen-analytics-stacked" aria-label={props.content.labels.chart}>
-            {series.map((item, index) => (
-              <i
-                key={item.id}
-                style={{ blockSize: `${Math.max(2, Math.min(100, values[index] ?? 0))}%` }}
-              />
-            ))}
-          </div>
+          <LumenChart
+            className="lumen-analytics-stacked-chart"
+            label={props.content.labels.chart}
+            kind="stacked-area"
+            series={series.map((item, seriesIndex) => ({
+              id: item.id,
+              label: item.label,
+              tone: chartTone(seriesIndex),
+              points: Array.from({ length: pointCount }, (_, index) => {
+                const raw = item.values[index] ?? 0;
+                const total = series.reduce(
+                  (sum, candidate) => sum + Math.max(0, candidate.values[index] ?? 0),
+                  0,
+                );
+                return {
+                  id: `${item.id}-${index}`,
+                  label: `${item.label} ${index + 1}`,
+                  value: share && total ? (raw / total) * 100 : raw,
+                };
+              }),
+            }))}
+            empty={props.content.labels.empty}
+          />
           <div className="lumen-analytics-legend">
             {series.map((item, index) => (
               <span key={item.id}>
@@ -728,6 +785,7 @@ function Stacked(
     </Root>
   );
 }
+
 function Donut(
   props: Omit<LumenAnalyticsProps, 'content'> & { content: LumenAnalyticsDonutContent },
 ) {
@@ -776,6 +834,7 @@ function Donut(
     </Root>
   );
 }
+
 function Ranked(
   props: Omit<LumenAnalyticsProps, 'content'> & { content: LumenAnalyticsRankedContent },
 ) {
@@ -804,7 +863,7 @@ function Ranked(
                 <small>{item.value}</small>
               </div>
               <Progress value={item.share} label={props.content.labels.progress(item.label)} />
-              <Bars points={item.series} label={props.content.labels.chart(item.label)} />
+              <Sparkline points={item.series} label={props.content.labels.chart(item.label)} />
             </article>
           ))
         ) : (
@@ -814,6 +873,7 @@ function Ranked(
     </Root>
   );
 }
+
 function Cards(
   props: Omit<LumenAnalyticsProps, 'content'> & { content: LumenAnalyticsCardsContent },
 ) {
@@ -877,6 +937,7 @@ function Cards(
     </Root>
   );
 }
+
 function Funnel(
   props: Omit<LumenAnalyticsProps, 'content'> & { content: LumenAnalyticsFunnelContent },
 ) {
@@ -926,6 +987,7 @@ function Funnel(
     </Root>
   );
 }
+
 function Heatmap(
   props: Omit<LumenAnalyticsProps, 'content'> & { content: LumenAnalyticsHeatmapContent },
 ) {
@@ -988,6 +1050,7 @@ function Heatmap(
     </Root>
   );
 }
+
 function Goals(
   props: Omit<LumenAnalyticsProps, 'content'> & { content: LumenAnalyticsGoalsContent },
 ) {
@@ -1014,21 +1077,12 @@ function Goals(
         {goals.length ? (
           goals.map((goal) => (
             <article key={goal.id}>
-              <span
+              <LumenGauge
                 className="lumen-analytics-gauge"
-                style={
-                  {
-                    '--progress': `${Math.max(0, Math.min(100, goal.value)) * 3.6}deg`,
-                  } as React.CSSProperties
-                }
-                role="progressbar"
-                aria-label={props.content.labels.progress(goal.label)}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={goal.value}
-              >
-                <strong>{goal.valueLabel}</strong>
-              </span>
+                label={props.content.labels.progress(goal.label)}
+                value={goal.value}
+                valueLabel={goal.valueLabel}
+              />
               <small>{goal.label}</small>
             </article>
           ))
@@ -1039,6 +1093,7 @@ function Goals(
     </Root>
   );
 }
+
 function Cohort(
   props: Omit<LumenAnalyticsProps, 'content'> & { content: LumenAnalyticsCohortContent },
 ) {
@@ -1097,6 +1152,7 @@ function Cohort(
     </Root>
   );
 }
+
 function Ranking(
   props: Omit<LumenAnalyticsProps, 'content'> & { content: LumenAnalyticsRankingContent },
 ) {
@@ -1140,6 +1196,7 @@ function Ranking(
     </Root>
   );
 }
+
 function Candles(
   props: Omit<LumenAnalyticsProps, 'content'> & { content: LumenAnalyticsCandlesContent },
 ) {
@@ -1157,34 +1214,20 @@ function Candles(
         }
       />
       {candles.length ? (
-        <React.Fragment>
-          <div className="lumen-analytics-candles" aria-label={props.content.labels.chart}>
-            {candles.map((item) => (
-              <span
-                key={item.id}
-                title={props.content.labels.candle(item)}
-                data-up={item.close >= item.open}
-              >
-                <i style={{ blockSize: `${Math.max(8, item.high - item.low)}%` }} />
-                <b style={{ blockSize: `${Math.max(5, Math.abs(item.close - item.open))}%` }} />
-              </span>
-            ))}
-          </div>
-          <div className="lumen-analytics-volume" aria-label={props.content.labels.volume}>
-            {candles.map((item) => (
-              <i
-                key={item.id}
-                style={{ blockSize: `${Math.max(2, Math.min(100, item.volume))}%` }}
-              />
-            ))}
-          </div>
-        </React.Fragment>
+        <LumenCandlestickChart
+          label={props.content.labels.chart}
+          volumeLabel={props.content.labels.volume}
+          points={candles.map((item) => ({ ...item, label: item.id }))}
+          itemLabel={(item) => props.content.labels.candle(item)}
+          empty={props.content.labels.empty}
+        />
       ) : (
         <Empty>{props.content.labels.empty}</Empty>
       )}
     </Root>
   );
 }
+
 function Scatter(
   props: Omit<LumenAnalyticsProps, 'content'> & { content: LumenAnalyticsScatterContent },
 ) {
@@ -1210,24 +1253,14 @@ function Scatter(
         }
       />
       {points.length ? (
-        <div className="lumen-analytics-scatter" aria-label={props.content.labels.chart}>
-          <span className="is-v" />
-          <span className="is-h" />
-          {points.map((item) => (
-            <LumenIconButton
-              key={item.id}
-              label={props.content.labels.point(item.label)}
-              aria-pressed={pointId === item.id}
-              style={{
-                insetInlineStart: `${Math.max(0, Math.min(100, item.x))}%`,
-                insetBlockStart: `${Math.max(0, Math.min(100, item.y))}%`,
-                inlineSize: `${Math.max(8, item.size)}px`,
-                blockSize: `${Math.max(8, item.size)}px`,
-              }}
-              onClick={() => setPointId(item.id)}
-            />
-          ))}
-        </div>
+        <LumenScatterChart
+          label={props.content.labels.chart}
+          points={points}
+          selectedPointId={pointId}
+          pointLabel={(item) => props.content.labels.point(item.label)}
+          onPointSelect={(item) => setPointId(item.id)}
+          empty={props.content.labels.empty}
+        />
       ) : (
         <Empty>{props.content.labels.empty}</Empty>
       )}
@@ -1237,6 +1270,7 @@ function Scatter(
     </Root>
   );
 }
+
 function Bullets(
   props: Omit<LumenAnalyticsProps, 'content'> & { content: LumenAnalyticsBulletContent },
 ) {
@@ -1270,17 +1304,12 @@ function Bullets(
           items.map((item) => (
             <article key={item.id}>
               <strong>{item.label}</strong>
-              <span
+              <LumenBulletProgress
                 className="lumen-analytics-bullet"
-                role="progressbar"
-                aria-label={props.content.labels.progress(item.label)}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={item.value}
-              >
-                <i style={{ inlineSize: `${Math.max(0, Math.min(100, item.value))}%` }} />
-                <b style={{ insetInlineStart: `${Math.max(0, Math.min(100, item.target))}%` }} />
-              </span>
+                label={props.content.labels.progress(item.label)}
+                value={item.value}
+                target={item.target}
+              />
               <small>{item.detail}</small>
             </article>
           ))
@@ -1291,6 +1320,7 @@ function Bullets(
     </Root>
   );
 }
+
 function Combo(
   props: Omit<LumenAnalyticsProps, 'content'> & { content: LumenAnalyticsComboContent },
 ) {
@@ -1308,24 +1338,14 @@ function Combo(
         }
       />
       {bars.length || trend.length ? (
-        <div className="lumen-analytics-combo">
-          <Bars points={bars} label={props.content.labels.bars} />
-          <svg
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
-            role="img"
-            aria-label={props.content.labels.trend}
-          >
-            <polyline
-              points={trend
-                .map(
-                  (point, index) =>
-                    `${(index / Math.max(1, trend.length - 1)) * 100},${100 - Math.max(0, Math.min(100, point.value))}`,
-                )
-                .join(' ')}
-            />
-          </svg>
-        </div>
+        <LumenComboChart
+          label={`${props.content.labels.bars}. ${props.content.labels.trend}`}
+          bars={chartPoints(bars)}
+          trend={chartPoints(trend)}
+          barsLabel={props.content.labels.bars}
+          trendLabel={props.content.labels.trend}
+          empty={props.content.labels.empty}
+        />
       ) : (
         <Empty>{props.content.labels.empty}</Empty>
       )}
@@ -1336,9 +1356,11 @@ function Combo(
     </Root>
   );
 }
+
 function empty(props: LumenAnalyticsProps) {
   return <Root {...props}>{null}</Root>;
 }
+
 export function LumenAnalytics(props: LumenAnalyticsProps) {
   const inheritedContent = useLumenAnalyticsContent();
   const content = props.content ?? inheritedContent;
@@ -1402,9 +1424,11 @@ export function LumenAnalytics(props: LumenAnalyticsProps) {
   }
   return empty(props);
 }
+
 function variant(value: number, props: LumenAnalyticsVariantProps) {
   return <LumenAnalytics {...props} variant={value} variantId={`hbar-app-ui-analytics-${value}`} />;
 }
+
 export const LumenAnalytics01 = (props: LumenAnalyticsVariantProps) => variant(1, props),
   LumenAnalytics02 = (props: LumenAnalyticsVariantProps) => variant(2, props),
   LumenAnalytics03 = (props: LumenAnalyticsVariantProps) => variant(3, props),
@@ -1421,3 +1445,28 @@ export const LumenAnalytics01 = (props: LumenAnalyticsVariantProps) => variant(1
   LumenAnalytics14 = (props: LumenAnalyticsVariantProps) => variant(14, props),
   LumenAnalytics15 = (props: LumenAnalyticsVariantProps) => variant(15, props),
   LumenAnalytics16 = (props: LumenAnalyticsVariantProps) => variant(16, props);
+
+function chartPoints(points: readonly LumenAnalyticsPoint[]): readonly LumenChartPoint[] {
+  return uniqueLumenAnalyticsItems(points).map((point) => ({
+    id: point.id,
+    label: point.label ?? point.id,
+    value: point.value,
+  }));
+}
+
+function chartTone(index: number): LumenChartSeries['tone'] {
+  return (['info', 'success', 'warning', 'danger'] as const)[index % 4];
+}
+
+function Sparkline({ points, label }: { points: readonly LumenAnalyticsPoint[]; label: string }) {
+  return (
+    <LumenChart
+      className="lumen-analytics-sparkline"
+      compact
+      label={label}
+      kind="line"
+      series={[{ id: 'sparkline', label, points: chartPoints(points), tone: 'info' }]}
+      empty=""
+    />
+  );
+}

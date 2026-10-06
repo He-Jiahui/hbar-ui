@@ -4,6 +4,7 @@ import { createRenderer, screen } from '@mui/internal-test-utils';
 import {
   LumenButton,
   LumenIconButton,
+  LumenIndicator,
   LumenNavigationButton,
   LumenProvider,
   LumenStatus,
@@ -95,7 +96,9 @@ describe('Lumen application primitives', () => {
       'page',
     );
     expect(screen.getByText('Supporting text')).to.have.attribute('data-tone', 'muted');
-    expect(screen.getByText('Connected')).to.have.attribute('data-tone', 'success');
+    expect(
+      screen.getByText('Connected').closest('[data-lumen-component="status"]'),
+    ).to.have.attribute('data-tone', 'success');
     expect(container.querySelectorAll('button [data-edge]')).to.have.length(0);
     expect(screen.getByRole('button', { name: 'Workspace' })).to.have.attribute(
       'data-lumen-state',
@@ -131,5 +134,27 @@ describe('Lumen application primitives', () => {
     );
     expect(screen.getByRole('button', { name: '正在同步' })).to.have.attribute('aria-busy', 'true');
     expect(container.querySelectorAll('button [data-edge]')).to.have.length(0);
+  });
+
+  it('retains an indicator through selection, running, disabled and idle states', () => {
+    const view = render(<LumenButton indicatorState="selected">Run</LumenButton>);
+    const button = screen.getByRole('button', { name: 'Run' });
+    const label = button.firstElementChild;
+    view.rerender(<LumenButton loading>Run</LumenButton>);
+    expect(button).to.have.attribute('data-lumen-state', 'running');
+    view.rerender(<LumenButton disabled>Run</LumenButton>);
+    expect(button).to.have.attribute('data-lumen-state', 'disabled');
+    view.rerender(<LumenButton>Run</LumenButton>);
+    expect(button).to.have.attribute('data-lumen-state', 'idle');
+    expect(button).to.have.attribute('data-lumen-indicator', 'lamp');
+    expect(screen.getByRole('button', { name: 'Run' })).to.equal(button);
+    expect(button.firstElementChild).to.equal(label);
+    view.rerender(
+      <LumenButton>
+        <LumenIndicator state="selected" />
+        Run
+      </LumenButton>,
+    );
+    expect(view.container.querySelectorAll('[data-state="selected"]')).to.have.length(1);
   });
 });

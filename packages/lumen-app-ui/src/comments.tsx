@@ -6,20 +6,37 @@ import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './comments.css';
 import './comments-discussion.css';
-import { LumenCommentsAnnotationReference, type LumenCommentsAnnotationReferenceContent } from './comments-annotation-reference';
-import { LumenCommentsCodeReviewReference, type LumenCommentsCodeReviewReferenceContent } from './comments-code-review-reference';
-import { LumenCommentsComposerReference, type LumenCommentsComposerReferenceContent } from './comments-composer-reference';
-import { LumenCommentsInboxReference, type LumenCommentsInboxReferenceContent } from './comments-inbox-reference';
-import { LumenCommentsCanvasReference, type LumenCommentsCanvasReferenceContent } from './comments-canvas-reference';
+import {
+  LumenCommentsAnnotationReference,
+  type LumenCommentsAnnotationReferenceContent,
+} from './comments-annotation-reference';
+import {
+  LumenCommentsCodeReviewReference,
+  type LumenCommentsCodeReviewReferenceContent,
+} from './comments-code-review-reference';
+import {
+  LumenCommentsComposerReference,
+  type LumenCommentsComposerReferenceContent,
+} from './comments-composer-reference';
+import {
+  LumenCommentsInboxReference,
+  type LumenCommentsInboxReferenceContent,
+} from './comments-inbox-reference';
+import {
+  LumenCommentsCanvasReference,
+  type LumenCommentsCanvasReferenceContent,
+} from './comments-canvas-reference';
 
 export interface LumenCommentsListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
   readonly expectedMaximum: number;
 }
+
 export interface LumenCommentsChoice {
   readonly id: string;
   readonly label: string;
 }
+
 export interface LumenCommentsMessage {
   readonly id: string;
   readonly initials: string;
@@ -32,6 +49,7 @@ export interface LumenCommentsMessage {
   readonly reactionCount?: number | undefined;
   readonly replies?: readonly LumenCommentsMessage[] | undefined;
 }
+
 export interface LumenCommentsDiscussionContent {
   readonly labels: {
     readonly title: string;
@@ -47,6 +65,7 @@ export interface LumenCommentsDiscussionContent {
   readonly messages: readonly LumenCommentsMessage[];
   readonly listStrategy: LumenCommentsListStrategy;
 }
+
 export interface LumenCommentsDiscussionReferenceContent {
   readonly labels: {
     readonly title: string;
@@ -58,7 +77,9 @@ export interface LumenCommentsDiscussionReferenceContent {
     readonly reply: string;
     readonly moreActions: (author: string) => string;
   };
-  readonly sortOptions: readonly (LumenCommentsChoice & { readonly direction: 'newest' | 'oldest' })[];
+  readonly sortOptions: readonly (LumenCommentsChoice & {
+    readonly direction: 'newest' | 'oldest';
+  })[];
   readonly sortId: string;
   readonly draft: string;
   readonly messages: readonly LumenCommentsMessage[];
@@ -67,6 +88,7 @@ export interface LumenCommentsDiscussionReferenceContent {
   readonly onDraftChange?: ((value: string) => void) | undefined;
   readonly onReactionToggle?: ((id: string) => void) | undefined;
 }
+
 export interface LumenCommentsAnnotation {
   readonly id: string;
   readonly before: string;
@@ -76,6 +98,7 @@ export interface LumenCommentsAnnotation {
   readonly author: string;
   readonly comment: string;
 }
+
 export interface LumenCommentsAnnotationContent {
   readonly labels: {
     readonly title: string;
@@ -87,11 +110,13 @@ export interface LumenCommentsAnnotationContent {
   readonly initialAnnotationId: string;
   readonly listStrategy: LumenCommentsListStrategy;
 }
+
 export interface LumenCommentsCodeLine {
   readonly id: string;
   readonly value: string;
   readonly tone: 'neutral' | 'added' | 'removed';
 }
+
 export interface LumenCommentsReviewContent {
   readonly labels: {
     readonly title: string;
@@ -104,10 +129,12 @@ export interface LumenCommentsReviewContent {
   readonly lines: readonly LumenCommentsCodeLine[];
   readonly suggestion: string;
 }
+
 export interface LumenCommentsMention {
   readonly id: string;
   readonly label: string;
 }
+
 export interface LumenCommentsComposerContent {
   readonly labels: {
     readonly title: string;
@@ -127,6 +154,7 @@ export interface LumenCommentsComposerContent {
   readonly mentions: readonly LumenCommentsMention[];
   readonly listStrategy: LumenCommentsListStrategy;
 }
+
 export interface LumenCommentsInboxItem {
   readonly id: string;
   readonly title: string;
@@ -134,6 +162,7 @@ export interface LumenCommentsInboxItem {
   readonly status: string;
   readonly resolved: boolean;
 }
+
 export interface LumenCommentsInboxContent {
   readonly labels: {
     readonly title: string;
@@ -148,6 +177,7 @@ export interface LumenCommentsInboxContent {
   readonly items: readonly LumenCommentsInboxItem[];
   readonly listStrategy: LumenCommentsListStrategy;
 }
+
 export interface LumenCommentsCanvasPin {
   readonly id: string;
   readonly label: string;
@@ -157,6 +187,7 @@ export interface LumenCommentsCanvasPin {
   readonly title: string;
   readonly body: string;
 }
+
 export interface LumenCommentsCanvasContent {
   readonly labels: {
     readonly canvas: string;
@@ -169,6 +200,7 @@ export interface LumenCommentsCanvasContent {
   readonly initialPinId: string;
   readonly listStrategy: LumenCommentsListStrategy;
 }
+
 export interface LumenCommentsContent {
   readonly referenceCanvas?: LumenCommentsCanvasReferenceContent | undefined;
   readonly referenceInbox?: LumenCommentsInboxReferenceContent | undefined;
@@ -183,14 +215,17 @@ export interface LumenCommentsContent {
   readonly inbox?: LumenCommentsInboxContent | undefined;
   readonly canvas?: LumenCommentsCanvasContent | undefined;
 }
+
 export interface LumenCommentsProviderProps {
   readonly content: LumenCommentsContent;
   readonly children: React.ReactNode;
 }
+
 export interface LumenCommentsAction {
   readonly actionId: string;
   readonly value?: string | undefined;
 }
+
 export interface LumenCommentsProps {
   readonly variant: number;
   readonly variantId: string;
@@ -202,32 +237,42 @@ export interface LumenCommentsProps {
   readonly state?: string | undefined;
   readonly visualMode?: string | undefined;
 }
+
 export type LumenCommentsVariantProps = Omit<LumenCommentsProps, 'variant' | 'variantId'>;
+
 const Context = React.createContext<LumenCommentsContent | undefined>(undefined);
+
 export function LumenCommentsProvider({ content, children }: LumenCommentsProviderProps) {
   return <Context.Provider value={content}>{children}</Context.Provider>;
 }
+
 export function useLumenCommentsContent() {
   return React.useContext(Context);
 }
+
 export function uniqueLumenCommentsItems<T extends { readonly id: string }>(
   items: readonly T[],
 ): readonly T[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) { return false; }
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
 }
+
 export function selectLumenCommentsItem<T extends { readonly id: string }>(
   items: readonly T[],
   id: string | undefined,
 ): T | undefined {
   return items.find((item) => item.id === id) ?? items[0];
 }
+
 const report = (fn: LumenCommentsProps['onAction'], actionId: string, value?: string) =>
   fn?.(value === undefined ? { actionId } : { actionId, value });
+
 function Glyph({ name }: { readonly name: string }) {
   const paths: Readonly<Record<string, string>> = {
     check: 'm3 8 3 3 7-7',
@@ -246,6 +291,7 @@ function Glyph({ name }: { readonly name: string }) {
     </svg>
   );
 }
+
 function Root({
   variant,
   variantId,
@@ -270,7 +316,16 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary={className?.includes('comments-canvas-reference') || className?.includes('comments-inbox-reference') || className?.includes('comments-composer-reference') || className?.includes('comments-code-review-reference') || className?.includes('comments-annotation-reference') || className?.includes('comments-discussion-reference') ? 'none' : 'horizontal'}
+      boundary={
+        className?.includes('comments-canvas-reference') ||
+        className?.includes('comments-inbox-reference') ||
+        className?.includes('comments-composer-reference') ||
+        className?.includes('comments-code-review-reference') ||
+        className?.includes('comments-annotation-reference') ||
+        className?.includes('comments-discussion-reference')
+          ? 'none'
+          : 'horizontal'
+      }
       className="lumen-comments-surface"
       contentClassName={contentClassName}
       data-lumen-component="comments"
@@ -282,6 +337,7 @@ function Root({
     </LumenSurface>
   );
 }
+
 function Header({ title, detail }: { readonly title: string; readonly detail: string }) {
   return (
     <header className="lumen-comments-header">
@@ -328,6 +384,7 @@ function Message({
     </article>
   );
 }
+
 function LegacyDiscussion(
   props: Omit<LumenCommentsProps, 'content'> & { content: LumenCommentsDiscussionContent },
 ) {
@@ -383,6 +440,7 @@ function LegacyDiscussion(
     </Root>
   );
 }
+
 function Discussion(
   props: Omit<LumenCommentsProps, 'content'> & { content: LumenCommentsDiscussionReferenceContent },
 ) {
@@ -393,42 +451,68 @@ function Discussion(
   const messages = uniqueLumenCommentsItems(content.messages);
   const ordered = sort?.direction === 'newest' ? [...messages].reverse() : messages;
   return (
-    <Root {...props} className={['lumen-comments-discussion-reference', props.className].filter(Boolean).join(' ')}>
+    <Root
+      {...props}
+      className={['lumen-comments-discussion-reference', props.className].filter(Boolean).join(' ')}
+    >
       <div className="lumen-comments-discussion">
         <header className="lumen-comments-discussion-header">
           <div>
             <h2>{content.labels.title}</h2>
             <p>{content.labels.detail}</p>
           </div>
-          <div className="lumen-comments-discussion-sort" role="tablist" aria-label={content.labels.sortLabel}>
+          <div
+            className="lumen-comments-discussion-sort"
+            role="tablist"
+            aria-label={content.labels.sortLabel}
+          >
             {content.sortOptions.map((option) => (
               <LumenButton
                 type="button"
                 role="tab"
                 aria-selected={sort?.id === option.id}
                 key={option.id}
-                onClick={() => { content.onSortChange?.(option.id); report(onAction, 'sort', option.id); }}
+                onClick={() => {
+                  content.onSortChange?.(option.id);
+                  report(onAction, 'sort', option.id);
+                }}
               >
                 {option.label}
               </LumenButton>
             ))}
           </div>
         </header>
-        <div className="lumen-comments-discussion-thread" data-hbar-app-ui-list-strategy={content.listStrategy.kind}>
+        <div
+          className="lumen-comments-discussion-thread"
+          data-hbar-app-ui-list-strategy={content.listStrategy.kind}
+        >
           {ordered.map((message) => {
             const pressed = message.reacted ?? false;
             return (
               <article className="lumen-comments-discussion-message" key={message.id}>
-                <span className="lumen-comments-discussion-avatar" aria-hidden="true">{message.initials}</span>
+                <span className="lumen-comments-discussion-avatar" aria-hidden="true">
+                  {message.initials}
+                </span>
                 <div className="lumen-comments-discussion-message-body">
                   <div className="lumen-comments-discussion-byline">
-                    <p><span className="lumen-comments-discussion-author">{message.author}</span><span>{message.role ? `${message.role} · ${message.meta}` : message.meta}</span></p>
+                    <p>
+                      <span className="lumen-comments-discussion-author">{message.author}</span>
+                      <span>
+                        {message.role ? `${message.role} · ${message.meta}` : message.meta}
+                      </span>
+                    </p>
                     <LumenButton
                       type="button"
                       className="lumen-comments-discussion-more"
                       aria-label={content.labels.moreActions(message.author)}
                       onClick={() => report(onAction, 'more', message.id)}
-                    ><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3" cy="8" r="1" /><circle cx="8" cy="8" r="1" /><circle cx="13" cy="8" r="1" /></svg></LumenButton>
+                    >
+                      <svg viewBox="0 0 16 16" aria-hidden="true">
+                        <circle cx="3" cy="8" r="1" />
+                        <circle cx="8" cy="8" r="1" />
+                        <circle cx="13" cy="8" r="1" />
+                      </svg>
+                    </LumenButton>
                   </div>
                   <p>{message.body}</p>
                   <div className="lumen-comments-discussion-actions">
@@ -442,12 +526,21 @@ function Discussion(
                           report(onAction, 'reaction', message.id);
                         }}
                       >
-                        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" /><path d="M5 9.5c1.5 2 4.5 2 6 0M5.8 6.5h.1m4.2 0h.1" /></svg>
+                        <svg viewBox="0 0 16 16" aria-hidden="true">
+                          <circle cx="8" cy="8" r="6" />
+                          <path d="M5 9.5c1.5 2 4.5 2 6 0M5.8 6.5h.1m4.2 0h.1" />
+                        </svg>
                         {message.reactionCount}
                       </LumenButton>
                     ) : null}
-                    <LumenButton type="button" className="lumen-comments-discussion-reply" onClick={() => report(onAction, 'reply', message.id)}>
-                      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 4-4 4 4 4M2 8h7c3 0 5 1 5 4" /></svg>
+                    <LumenButton
+                      type="button"
+                      className="lumen-comments-discussion-reply"
+                      onClick={() => report(onAction, 'reply', message.id)}
+                    >
+                      <svg viewBox="0 0 16 16" aria-hidden="true">
+                        <path d="m6 4-4 4 4 4M2 8h7c3 0 5 1 5 4" />
+                      </svg>
                       {content.labels.reply}
                     </LumenButton>
                   </div>
@@ -455,9 +548,18 @@ function Discussion(
                     <div className="lumen-comments-discussion-replies">
                       {uniqueLumenCommentsItems(message.replies).map((reply) => (
                         <div className="lumen-comments-discussion-message" key={reply.id}>
-                          <span className="lumen-comments-discussion-avatar" aria-hidden="true">{reply.initials}</span>
+                          <span className="lumen-comments-discussion-avatar" aria-hidden="true">
+                            {reply.initials}
+                          </span>
                           <div className="lumen-comments-discussion-message-body">
-                            <div className="lumen-comments-discussion-byline"><p><span className="lumen-comments-discussion-author">{reply.author}</span><span>{reply.meta}</span></p></div>
+                            <div className="lumen-comments-discussion-byline">
+                              <p>
+                                <span className="lumen-comments-discussion-author">
+                                  {reply.author}
+                                </span>
+                                <span>{reply.meta}</span>
+                              </p>
+                            </div>
                             <p>{reply.body}</p>
                           </div>
                         </div>
@@ -471,18 +573,24 @@ function Discussion(
         </div>
         <div className="lumen-comments-discussion-composer">
           <div className="lumen-comments-discussion-editor">
-          <label className="lumen-comments-discussion-label" htmlFor={composerId}>{content.labels.replyPlaceholder}</label>
-          <LumenTextarea
-            variant="plain"
-            id={composerId}
-            placeholder={content.labels.replyPlaceholder}
-            value={draft}
-            onChange={(event) => content.onDraftChange?.(event.currentTarget.value)}
-          />
+            <label className="lumen-comments-discussion-label" htmlFor={composerId}>
+              {content.labels.replyPlaceholder}
+            </label>
+            <LumenTextarea
+              variant="plain"
+              id={composerId}
+              placeholder={content.labels.replyPlaceholder}
+              value={draft}
+              onChange={(event) => content.onDraftChange?.(event.currentTarget.value)}
+            />
           </div>
           <div className="lumen-comments-discussion-footer">
             <p>{content.labels.helper}</p>
-            <LumenButton type="button" disabled={!draft.trim()} onClick={() => report(onAction, 'comment', draft)}>
+            <LumenButton
+              type="button"
+              disabled={!draft.trim()}
+              onClick={() => report(onAction, 'comment', draft)}
+            >
               {content.labels.comment}
             </LumenButton>
           </div>
@@ -491,6 +599,7 @@ function Discussion(
     </Root>
   );
 }
+
 function Annotation(
   props: Omit<LumenCommentsProps, 'content'> & { content: LumenCommentsAnnotationContent },
 ) {
@@ -535,6 +644,7 @@ function Annotation(
     </Root>
   );
 }
+
 function Review(
   props: Omit<LumenCommentsProps, 'content'> & { content: LumenCommentsReviewContent },
 ) {
@@ -567,6 +677,7 @@ function Review(
     </Root>
   );
 }
+
 function Composer(
   props: Omit<LumenCommentsProps, 'content'> & { content: LumenCommentsComposerContent },
 ) {
@@ -577,15 +688,25 @@ function Composer(
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
       <div className="lumen-comments-format">
         <LumenIconButton label={props.content.labels.bold}>
-          {props.content.labels.boldMark ? <strong>{props.content.labels.boldMark}</strong> : <Glyph name="bold" />}
+          {props.content.labels.boldMark ? (
+            <strong>{props.content.labels.boldMark}</strong>
+          ) : (
+            <Glyph name="bold" />
+          )}
         </LumenIconButton>
         <LumenIconButton label={props.content.labels.italic}>
-          {props.content.labels.italicMark ? <em>{props.content.labels.italicMark}</em> : <Glyph name="italic" />}
+          {props.content.labels.italicMark ? (
+            <em>{props.content.labels.italicMark}</em>
+          ) : (
+            <Glyph name="italic" />
+          )}
         </LumenIconButton>
         <LumenIconButton label={props.content.labels.mention} onClick={() => setOpen((v) => !v)}>
           {props.content.labels.mentionMark ?? <Glyph name="mention" />}
         </LumenIconButton>
-        <LumenIconButton label={props.content.labels.attach}>{props.content.labels.attachMark ?? <Glyph name="attach" />}</LumenIconButton>
+        <LumenIconButton label={props.content.labels.attach}>
+          {props.content.labels.attachMark ?? <Glyph name="attach" />}
+        </LumenIconButton>
       </div>
       {open ? (
         <div
@@ -624,6 +745,7 @@ function Composer(
     </Root>
   );
 }
+
 function Inbox(
   props: Omit<LumenCommentsProps, 'content'> & { content: LumenCommentsInboxContent },
 ) {
@@ -676,6 +798,7 @@ function Inbox(
     </Root>
   );
 }
+
 function Canvas(
   props: Omit<LumenCommentsProps, 'content'> & { content: LumenCommentsCanvasContent },
 ) {
@@ -725,61 +848,129 @@ function Canvas(
     </Root>
   );
 }
+
 function empty(props: LumenCommentsProps) {
   return <Root {...props}>{null}</Root>;
 }
+
 export function LumenComments(props: LumenCommentsProps) {
   const inheritedContent = useLumenCommentsContent();
   const c = props.content ?? inheritedContent;
   if (props.variant === 1) {
-    if (c?.referenceDiscussion) { return <Discussion {...props} content={c.referenceDiscussion} />; }
+    if (c?.referenceDiscussion) {
+      return <Discussion {...props} content={c.referenceDiscussion} />;
+    }
     return c?.discussion ? <LegacyDiscussion {...props} content={c.discussion} /> : empty(props);
   }
   if (props.variant === 2) {
     if (c?.referenceAnnotation) {
-      return <Root {...props} className={['lumen-comments-annotation-reference', 'hbar-app-ui-stage-padding-owner', props.className].filter(Boolean).join(' ')}>
-        <LumenCommentsAnnotationReference content={c.referenceAnnotation} onAction={props.onAction} />
-      </Root>;
+      return (
+        <Root
+          {...props}
+          className={[
+            'lumen-comments-annotation-reference',
+            'hbar-app-ui-stage-padding-owner',
+            props.className,
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        >
+          <LumenCommentsAnnotationReference
+            content={c.referenceAnnotation}
+            onAction={props.onAction}
+          />
+        </Root>
+      );
     }
     return c?.annotation ? <Annotation {...props} content={c.annotation} /> : empty(props);
   }
   if (props.variant === 3) {
     if (c?.referenceReview) {
-      return <Root {...props} className={['lumen-comments-code-review-reference', 'hbar-app-ui-stage-padding-owner', 'hbar-app-ui-full-canvas-owner', props.className].filter(Boolean).join(' ')}>
-        <LumenCommentsCodeReviewReference content={c.referenceReview} onAction={props.onAction} />
-      </Root>;
+      return (
+        <Root
+          {...props}
+          className={[
+            'lumen-comments-code-review-reference',
+            'hbar-app-ui-stage-padding-owner',
+            'hbar-app-ui-full-canvas-owner',
+            props.className,
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        >
+          <LumenCommentsCodeReviewReference content={c.referenceReview} onAction={props.onAction} />
+        </Root>
+      );
     }
     return c?.review ? <Review {...props} content={c.review} /> : empty(props);
   }
   if (props.variant === 4) {
     if (c?.referenceComposer) {
-      return <Root {...props} className={['lumen-comments-composer-reference', 'hbar-app-ui-stage-padding-owner', 'hbar-app-ui-full-canvas-owner', props.className].filter(Boolean).join(' ')}>
-        <LumenCommentsComposerReference content={c.referenceComposer} onAction={props.onAction} />
-      </Root>;
+      return (
+        <Root
+          {...props}
+          className={[
+            'lumen-comments-composer-reference',
+            'hbar-app-ui-stage-padding-owner',
+            'hbar-app-ui-full-canvas-owner',
+            props.className,
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        >
+          <LumenCommentsComposerReference content={c.referenceComposer} onAction={props.onAction} />
+        </Root>
+      );
     }
     return c?.composer ? <Composer {...props} content={c.composer} /> : empty(props);
   }
   if (props.variant === 5) {
     if (c?.referenceInbox) {
-      return <Root {...props} className={['lumen-comments-inbox-reference', 'hbar-app-ui-stage-padding-owner', 'hbar-app-ui-full-canvas-owner', props.className].filter(Boolean).join(' ')}>
-        <LumenCommentsInboxReference content={c.referenceInbox} onAction={props.onAction} />
-      </Root>;
+      return (
+        <Root
+          {...props}
+          className={[
+            'lumen-comments-inbox-reference',
+            'hbar-app-ui-stage-padding-owner',
+            'hbar-app-ui-full-canvas-owner',
+            props.className,
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        >
+          <LumenCommentsInboxReference content={c.referenceInbox} onAction={props.onAction} />
+        </Root>
+      );
     }
     return c?.inbox ? <Inbox {...props} content={c.inbox} /> : empty(props);
   }
   if (props.variant === 6) {
     if (c?.referenceCanvas) {
-      return <Root {...props} className={['lumen-comments-canvas-reference', 'hbar-app-ui-stage-padding-owner', 'hbar-app-ui-full-canvas-owner', props.className].filter(Boolean).join(' ')}>
-        <LumenCommentsCanvasReference content={c.referenceCanvas} onAction={props.onAction} />
-      </Root>;
+      return (
+        <Root
+          {...props}
+          className={[
+            'lumen-comments-canvas-reference',
+            'hbar-app-ui-stage-padding-owner',
+            'hbar-app-ui-full-canvas-owner',
+            props.className,
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        >
+          <LumenCommentsCanvasReference content={c.referenceCanvas} onAction={props.onAction} />
+        </Root>
+      );
     }
     return c?.canvas ? <Canvas {...props} content={c.canvas} /> : empty(props);
   }
   return empty(props);
 }
+
 const variant = (n: number, p: LumenCommentsVariantProps) => (
   <LumenComments {...p} variant={n} variantId={`hbar-app-ui-comments-${n}`} />
 );
+
 export const LumenComments01 = (p: LumenCommentsVariantProps) => variant(1, p),
   LumenComments02 = (p: LumenCommentsVariantProps) => variant(2, p),
   LumenComments03 = (p: LumenCommentsVariantProps) => variant(3, p),

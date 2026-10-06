@@ -6,7 +6,8 @@ import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
 import './data-table.css';
 import LumenDataTableReference from './data-table-reference';
-import type { LumenDataTableReferenceContent } from './data-table-reference-contracts';
+import { type LumenDataTableReferenceContent } from './data-table-reference-contracts';
+import { LumenTabs } from './ui-controls';
 
 export interface LumenDataTableListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -812,23 +813,13 @@ function States(
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
-      <div
+      <LumenTabs
         className="lumen-data-table-tabs"
-        role="tablist"
-        aria-label={props.content.labels.states}
-      >
-        {states.map((item) => (
-          <LumenButton
-            key={item.id}
-            role="tab"
-            variant="text"
-            aria-selected={selected?.id === item.id}
-            onClick={() => setStateId(item.id)}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+        label={props.content.labels.states}
+        items={states}
+        selectedId={selected?.id ?? null}
+        onChange={setStateId}
+      />
       {selected?.id === props.content.emptyStateId ? (
         <div className="lumen-data-table-state">
           <LumenText as="strong" variant="heading">
@@ -984,6 +975,7 @@ export function LumenDataTable(props: LumenDataTableProps) {
     result
   );
 }
+
 function renderTable(props: LumenDataTableProps, content: LumenDataTableContent | undefined) {
   if (!content) {
     return empty(props);
@@ -1071,10 +1063,17 @@ function variant(value: number, props: LumenDataTableVariantProps) {
 }
 
 export const LumenDataTable01 = (props: LumenDataTableVariantProps) => variant(1, props);
+
 export const LumenDataTable02 = (props: LumenDataTableVariantProps) => variant(2, props);
+
 export const LumenDataTable03 = (props: LumenDataTableVariantProps) => variant(3, props);
+
 export const LumenDataTable04 = (props: LumenDataTableVariantProps) => variant(4, props);
+
 export const LumenDataTable05 = (props: LumenDataTableVariantProps) => variant(5, props);
+
 export const LumenDataTable06 = (props: LumenDataTableVariantProps) => variant(6, props);
+
 export const LumenDataTable07 = (props: LumenDataTableVariantProps) => variant(7, props);
+
 export const LumenDataTable08 = (props: LumenDataTableVariantProps) => variant(8, props);

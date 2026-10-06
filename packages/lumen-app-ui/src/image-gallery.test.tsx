@@ -78,7 +78,7 @@ describe('controlled image gallery', () => {
   });
 
   it('does not mount full image or thumbnail URLs while closed', () => {
-    const { container } = render(
+    render(
       <LumenImageGallery
         {...defaults}
         open={false}
@@ -86,8 +86,8 @@ describe('controlled image gallery', () => {
         image={{ status: 'ready', url: 'blob:full-image' }}
       />,
     );
-    expect(container.querySelector('img')).to.equal(null);
-    expect(container.querySelector('dialog')?.hasAttribute('open')).to.equal(false);
+    expect(document.querySelector('.lumen-image-gallery-media img')).to.equal(null);
+    expect(screen.queryByRole('dialog')).to.equal(null);
   });
 
   it.each([
@@ -103,7 +103,7 @@ describe('controlled image gallery', () => {
       activeKey: '0',
     },
   ])('invalid controlled input stays closeable without slicing or showing media %#', (invalid) => {
-    const { container } = render(
+    render(
       <LumenImageGallery
         {...defaults}
         {...invalid}
@@ -112,7 +112,7 @@ describe('controlled image gallery', () => {
     );
     expect(screen.getByText(labels.unavailable)).not.to.equal(null);
     expect(screen.getByRole('button', { name: labels.close })).not.to.equal(null);
-    expect(container.querySelector('img')).to.equal(null);
+    expect(document.querySelector('.lumen-image-gallery-media img')).to.equal(null);
     expect(screen.queryByRole('button', { name: labels.next })).to.equal(null);
   });
 
@@ -130,14 +130,14 @@ describe('controlled image gallery', () => {
 
   it('keeps loading and recoverable/permanent read errors local with no stale ready image', async () => {
     const retry = vi.fn();
-    const { user, setProps, container } = render(
-      <LumenImageGallery {...defaults} onRetry={retry} />,
-    );
+    const { user, setProps } = render(<LumenImageGallery {...defaults} onRetry={retry} />);
     expect(screen.getByRole('status').textContent).to.equal(labels.loading);
     setProps({ image: { status: 'ready', url: 'blob:image-a' } });
-    expect(container.querySelector('img')?.getAttribute('src')).to.equal('blob:image-a');
+    expect(document.querySelector('.lumen-image-gallery-media img')?.getAttribute('src')).to.equal(
+      'blob:image-a',
+    );
     setProps({ image: { status: 'failed', errorText: '读取失败，可以重试', retryable: true } });
-    expect(container.querySelector('img')).to.equal(null);
+    expect(document.querySelector('.lumen-image-gallery-media img')).to.equal(null);
     expect(screen.getByRole('alert').textContent).to.equal('读取失败，可以重试');
     await user.click(screen.getByRole('button', { name: labels.retry }));
     expect(retry).toHaveBeenCalledTimes(1);
@@ -147,32 +147,30 @@ describe('controlled image gallery', () => {
 
   it('binds image decode errors to the original occurrence and URL', () => {
     const onImageError = vi.fn();
-    const { container, setProps } = render(
+    const { setProps } = render(
       <LumenImageGallery
         {...defaults}
         image={{ status: 'ready', url: 'blob:a' }}
         onImageError={onImageError}
       />,
     );
-    const original = container.querySelector('img');
+    const original = document.querySelector('.lumen-image-gallery-media img');
     original?.dispatchEvent(new Event('error'));
     expect(onImageError).toHaveBeenLastCalledWith('occurrence-a', 'blob:a');
     setProps({ activeKey: 'occurrence-b', image: { status: 'ready', url: 'blob:b' } });
-    expect(container.querySelector('img')).not.to.equal(original);
-    container.querySelector('img')?.dispatchEvent(new Event('error'));
+    expect(document.querySelector('.lumen-image-gallery-media img')).not.to.equal(original);
+    document.querySelector('.lumen-image-gallery-media img')?.dispatchEvent(new Event('error'));
     expect(onImageError).toHaveBeenLastCalledWith('occurrence-b', 'blob:b');
   });
 
-  it('delegates close and native cancel, never selects a file on either action', async () => {
+  it('delegates close and Escape, never selects a file on either action', async () => {
     const onClose = vi.fn();
     const onSelect = vi.fn();
     const { user } = render(
       <LumenImageGallery {...defaults} onClose={onClose} onSelect={onSelect} />,
     );
     await user.click(screen.getByRole('button', { name: labels.close }));
-    const cancel = new Event('cancel', { cancelable: true });
-    screen.getByRole('dialog').dispatchEvent(cancel);
-    expect(cancel.defaultPrevented).to.equal(true);
+    await user.keyboard('{Escape}');
     expect(onClose).toHaveBeenCalledTimes(2);
     expect(onSelect).toHaveBeenCalledTimes(0);
   });

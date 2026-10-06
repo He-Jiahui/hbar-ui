@@ -2,9 +2,15 @@ import { ArrowRight, Building2, Clock3, KeyRound, ShieldCheck, Users } from './g
 import { useId, useState } from 'react';
 import { LumenButton } from '../primitives';
 import { LumenInput } from '../forms';
-import type { LumenAuthCompositionProps } from './primitives';
-import type { LumenAuthEnterpriseContent } from './content';
-import { AuthBrand, AuthButton, AuthField, AuthFrame, AuthIcon } from './primitives';
+import {
+  type LumenAuthCompositionProps,
+  AuthBrand,
+  AuthButton,
+  AuthField,
+  AuthFrame,
+  AuthIcon,
+} from './primitives';
+import { type LumenAuthEnterpriseContent } from './content';
 
 export function EnterpriseAuthentication({
   spec,
@@ -13,7 +19,8 @@ export function EnterpriseAuthentication({
 }: LumenAuthCompositionProps & {
   readonly content: LumenAuthEnterpriseContent;
 }) {
-  if (content.referenceFlow) return <ReferenceEnterpriseAuthentication spec={spec} onAction={onAction} content={content} />;
+  if (content.referenceFlow)
+    return <ReferenceEnterpriseAuthentication spec={spec} onAction={onAction} content={content} />;
   return <LegacyEnterpriseAuthentication spec={spec} onAction={onAction} content={content} />;
 }
 
@@ -26,7 +33,9 @@ function ReferenceEnterpriseAuthentication({
   const emailId = useId();
   if (!flow) return null;
   const domain = flow.email.split('@')[1]?.trim().toLowerCase();
-  const alternate = flow.alternateOrganizations.find((entry) => domain === entry.organization.domain.toLowerCase());
+  const alternate = flow.alternateOrganizations.find(
+    (entry) => domain === entry.organization.domain.toLowerCase(),
+  );
   const matched = domain === content.organization.domain.toLowerCase() || Boolean(alternate);
   const organization = alternate?.organization ?? content.organization;
   const providerHint = alternate?.providerHint ?? content.labels.providerHint;
@@ -34,42 +43,150 @@ function ReferenceEnterpriseAuthentication({
   const lockedOut = alternate?.lockedOut ?? content.labels.lockedOut;
   const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(flow.email);
   return (
-    <AuthFrame spec={spec} onAction={onAction} className="hbar-app-ui-auth-enterprise-surface hbar-app-ui-auth-enterprise-reference">
+    <AuthFrame
+      spec={spec}
+      onAction={onAction}
+      className="hbar-app-ui-auth-enterprise-surface hbar-app-ui-auth-enterprise-reference"
+    >
       <div className="hbar-app-ui-auth-enterprise-layout hbar-app-ui-full-canvas-owner">
         <div className="hbar-app-ui-auth-enterprise-left">
-          <div className="hbar-app-ui-auth-enterprise-brand"><span>{content.labels.brand.slice(0, 1)}</span>{content.labels.brand}</div>
-          <form className="hbar-app-ui-auth-enterprise-form" noValidate onSubmit={(event) => { event.preventDefault(); if (validEmail && !flow.busy) flow.onContinue(); }}>
+          <div className="hbar-app-ui-auth-enterprise-brand">
+            <span>{content.labels.brand.slice(0, 1)}</span>
+            {content.labels.brand}
+          </div>
+          <form
+            className="hbar-app-ui-auth-enterprise-form"
+            noValidate
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (validEmail && !flow.busy) flow.onContinue();
+            }}
+          >
             <h1>{content.labels.title}</h1>
             <p className="hbar-app-ui-auth-enterprise-description">{content.labels.description}</p>
             <div className="hbar-app-ui-auth-enterprise-field">
               <label htmlFor={emailId}>{content.labels.emailLabel}</label>
-              <LumenInput id={emailId} variant="plain" type="email" autoComplete="email" value={flow.email} placeholder={content.labels.emailPlaceholder} onChange={(event) => flow.onEmailChange(event.currentTarget.value)} />
-              <p>{matched ? providerHint : validEmail ? flow.labels.unmatchedHint(domain ?? '') : flow.labels.emptyHint}</p>
+              <LumenInput
+                id={emailId}
+                variant="plain"
+                type="email"
+                autoComplete="email"
+                value={flow.email}
+                placeholder={content.labels.emailPlaceholder}
+                onChange={(event) => flow.onEmailChange(event.currentTarget.value)}
+              />
+              <p>
+                {matched
+                  ? providerHint
+                  : validEmail
+                    ? flow.labels.unmatchedHint(domain ?? '')
+                    : flow.labels.emptyHint}
+              </p>
             </div>
             <div className="hbar-app-ui-auth-enterprise-actions">
-              <LumenButton type="submit" indicator="none" className="hbar-app-ui-auth-enterprise-primary" disabled={!validEmail || flow.busy}>
-                {flow.busy ? flow.labels.redirecting : <><AuthIcon tier="md"><KeyRound /></AuthIcon>{matched ? content.labels.continueProvider(organization.provider) : flow.labels.continueUnmatched}<AuthIcon tier="sm"><ArrowRight /></AuthIcon></>}
+              <LumenButton
+                type="submit"
+                indicator="none"
+                className="hbar-app-ui-auth-enterprise-primary"
+                disabled={!validEmail || flow.busy}
+              >
+                {flow.busy ? (
+                  flow.labels.redirecting
+                ) : (
+                  <>
+                    <AuthIcon tier="md">
+                      <KeyRound />
+                    </AuthIcon>
+                    {matched
+                      ? content.labels.continueProvider(organization.provider)
+                      : flow.labels.continueUnmatched}
+                    <AuthIcon tier="sm">
+                      <ArrowRight />
+                    </AuthIcon>
+                  </>
+                )}
               </LumenButton>
-              <LumenButton type="button" indicator="none" className="hbar-app-ui-auth-enterprise-secondary" onClick={() => onAction?.({ variantId: spec.id, actionId: 'password' })}>{content.labels.passwordInstead}</LumenButton>
+              <LumenButton
+                type="button"
+                indicator="none"
+                className="hbar-app-ui-auth-enterprise-secondary"
+                onClick={() => onAction?.({ variantId: spec.id, actionId: 'password' })}
+              >
+                {content.labels.passwordInstead}
+              </LumenButton>
             </div>
             <p className="hbar-app-ui-auth-enterprise-audit">{content.labels.auditNote}</p>
           </form>
         </div>
         <aside className="hbar-app-ui-auth-enterprise-aside">
-          <p className="hbar-app-ui-auth-enterprise-eyebrow">{matched ? content.labels.matchedOrganization : flow.labels.noMatch}</p>
-          {matched ? <>
-          <div className="hbar-app-ui-auth-enterprise-org">
-            <span className="hbar-app-ui-auth-enterprise-org-mark"><AuthIcon tier="md"><Building2 /></AuthIcon></span>
-            <div><p>{organization.name}</p><p>{organization.domain}</p></div>
-          </div>
-          <div className="hbar-app-ui-auth-enterprise-metrics">
-            <div><span><AuthIcon tier="xs"><Users /></AuthIcon>{content.labels.directory}</span><p>{organization.memberCount}</p></div>
-            <div><span><AuthIcon tier="xs"><KeyRound /></AuthIcon>{content.labels.provider}</span><p>{organization.provider}</p></div>
-            <div><span><AuthIcon tier="xs"><Clock3 /></AuthIcon>{content.labels.sessionLength}</span><p>{organization.sessionLength}</p></div>
-          </div>
-          <ul className="hbar-app-ui-auth-enterprise-security">{securityChecks.map((item) => <li key={item}><AuthIcon tier="xs"><ShieldCheck /></AuthIcon>{item}</li>)}</ul>
-          <p className="hbar-app-ui-auth-enterprise-locked">{lockedOut}</p>
-          </> : <div className="hbar-app-ui-auth-enterprise-unknown"><span className="hbar-app-ui-auth-enterprise-org-mark"><AuthIcon tier="md"><Building2 /></AuthIcon></span><p>{flow.labels.lookupTitle}</p><p>{flow.labels.lookupDescription}</p></div>}
+          <p className="hbar-app-ui-auth-enterprise-eyebrow">
+            {matched ? content.labels.matchedOrganization : flow.labels.noMatch}
+          </p>
+          {matched ? (
+            <>
+              <div className="hbar-app-ui-auth-enterprise-org">
+                <span className="hbar-app-ui-auth-enterprise-org-mark">
+                  <AuthIcon tier="md">
+                    <Building2 />
+                  </AuthIcon>
+                </span>
+                <div>
+                  <p>{organization.name}</p>
+                  <p>{organization.domain}</p>
+                </div>
+              </div>
+              <div className="hbar-app-ui-auth-enterprise-metrics">
+                <div>
+                  <span>
+                    <AuthIcon tier="xs">
+                      <Users />
+                    </AuthIcon>
+                    {content.labels.directory}
+                  </span>
+                  <p>{organization.memberCount}</p>
+                </div>
+                <div>
+                  <span>
+                    <AuthIcon tier="xs">
+                      <KeyRound />
+                    </AuthIcon>
+                    {content.labels.provider}
+                  </span>
+                  <p>{organization.provider}</p>
+                </div>
+                <div>
+                  <span>
+                    <AuthIcon tier="xs">
+                      <Clock3 />
+                    </AuthIcon>
+                    {content.labels.sessionLength}
+                  </span>
+                  <p>{organization.sessionLength}</p>
+                </div>
+              </div>
+              <ul className="hbar-app-ui-auth-enterprise-security">
+                {securityChecks.map((item) => (
+                  <li key={item}>
+                    <AuthIcon tier="xs">
+                      <ShieldCheck />
+                    </AuthIcon>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <p className="hbar-app-ui-auth-enterprise-locked">{lockedOut}</p>
+            </>
+          ) : (
+            <div className="hbar-app-ui-auth-enterprise-unknown">
+              <span className="hbar-app-ui-auth-enterprise-org-mark">
+                <AuthIcon tier="md">
+                  <Building2 />
+                </AuthIcon>
+              </span>
+              <p>{flow.labels.lookupTitle}</p>
+              <p>{flow.labels.lookupDescription}</p>
+            </div>
+          )}
         </aside>
       </div>
     </AuthFrame>
@@ -180,3 +297,4 @@ function LegacyEnterpriseAuthentication({
     </AuthFrame>
   );
 }
+('use client');

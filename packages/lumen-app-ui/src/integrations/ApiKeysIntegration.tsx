@@ -1,5 +1,7 @@
+'use client';
+import * as React from 'react';
+import { LumenChip } from '../ui-controls';
 import { Copy, Eye, EyeOff, KeyRound, Plus, RotateCcw, Trash2 } from './glyphs';
-import { useMemo, useState } from 'react';
 import type { LumenIntegrationsCompositionProps } from './primitives';
 import type { LumenIntegrationApiKeysContent } from './content';
 import { uniqueLumenIntegrationItems } from './content';
@@ -11,16 +13,16 @@ import {
   IntegrationIconButton,
 } from './primitives';
 
-export function ApiKeysIntegration({
+export default function ApiKeysIntegration({
   spec,
   onAction,
   content,
 }: LumenIntegrationsCompositionProps & {
   readonly content: LumenIntegrationApiKeysContent;
 }) {
-  const keys = useMemo(() => uniqueLumenIntegrationItems(content.keys), [content.keys]);
-  const [revealedId, setRevealedId] = useState<string | undefined>();
-  const [revokedIds, setRevokedIds] = useState<ReadonlySet<string>>(() => new Set());
+  const keys = React.useMemo(() => uniqueLumenIntegrationItems(content.keys), [content.keys]);
+  const [revealedId, setRevealedId] = React.useState<string | undefined>();
+  const [revokedIds, setRevokedIds] = React.useState<ReadonlySet<string>>(() => new Set());
   const activeKeys = keys.filter((key) => !revokedIds.has(key.id));
 
   const reveal = (keyId: string) => {
@@ -35,11 +37,7 @@ export function ApiKeysIntegration({
   };
 
   return (
-    <IntegrationFrame
-      spec={spec}
-      onAction={onAction}
-      className="hbar-app-ui-integration-api-keys-surface"
-    >
+    <IntegrationFrame spec={spec} className="hbar-app-ui-integration-api-keys-surface">
       <main className="hbar-app-ui-integration-keys-page">
         <header className="hbar-app-ui-integration-topbar">
           <div>
@@ -137,7 +135,7 @@ export function ApiKeysIntegration({
                     </span>
                   </div>
                   <div className="hbar-app-ui-integration-key-cell" role="cell">
-                    <span className="hbar-app-ui-integration-scope-chip">{key.scope}</span>
+                    <LumenChip label={key.scope} />
                   </div>
                   <div className="hbar-app-ui-integration-key-cell" role="cell">
                     <span>{key.lastUsed}</span>

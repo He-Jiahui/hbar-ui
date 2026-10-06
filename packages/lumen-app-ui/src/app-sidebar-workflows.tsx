@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { LumenInput, LumenSelect } from './forms';
+import { LumenInput, LumenChoiceSelect } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { LumenAppSidebar, LumenSidebarAction } from './workbench';
@@ -15,25 +15,30 @@ import { AppSidebarFull, type LumenAppSidebarFullContent } from './app-sidebar-f
 import './app-sidebar-workflows.css';
 import './app-sidebar-practical-flow.css';
 import './app-sidebar-controlled-flow.css';
+import { LumenDrawer } from './ui-controls';
 
 export interface LumenAppSidebarListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
   readonly expectedMaximum: number;
 }
+
 export interface LumenAppSidebarItem {
   readonly id: string;
   readonly label: string;
   readonly detail?: string | undefined;
   readonly badge?: string | undefined;
 }
+
 export interface LumenAppSidebarGroup {
   readonly id: string;
   readonly label: string;
   readonly items: readonly LumenAppSidebarItem[];
 }
+
 export interface LumenAppSidebarTreeNode extends LumenAppSidebarItem {
   readonly children?: readonly LumenAppSidebarTreeNode[] | undefined;
 }
+
 export interface LumenAppSidebarContent {
   readonly presentation?:
     | {
@@ -86,14 +91,17 @@ export interface LumenAppSidebarContent {
   readonly profile: { readonly name: string; readonly detail: string; readonly avatar: string };
   readonly listStrategy: LumenAppSidebarListStrategy;
 }
+
 export interface LumenAppSidebarWorkflowsProviderProps {
   readonly content: LumenAppSidebarContent;
   readonly children: React.ReactNode;
 }
+
 export interface LumenAppSidebarWorkflowAction {
   readonly actionId: string;
   readonly value?: string | undefined;
 }
+
 export interface LumenAppSidebarWorkflowsProps {
   readonly variant: number;
   readonly variantId: string;
@@ -107,26 +115,32 @@ export interface LumenAppSidebarWorkflowsProps {
   /** Host owned controlled regions for production sidebar variants. */
   readonly slots?: LumenAppSidebarWorkflowSlots | undefined;
 }
+
 export interface LumenAppSidebarWorkflowSlots {
   readonly navigation?: React.ReactNode;
   readonly tree?: React.ReactNode;
   readonly drawer?: React.ReactNode;
   readonly actions?: React.ReactNode;
 }
+
 export type LumenAppSidebarWorkflowVariantProps = Omit<
   LumenAppSidebarWorkflowsProps,
   'variant' | 'variantId'
 >;
+
 const Context = React.createContext<LumenAppSidebarContent | undefined>(undefined);
+
 export function LumenAppSidebarWorkflowsProvider({
   content,
   children,
 }: LumenAppSidebarWorkflowsProviderProps) {
   return <Context.Provider value={content}>{children}</Context.Provider>;
 }
+
 export function useLumenAppSidebarWorkflowsContent() {
   return React.useContext(Context);
 }
+
 export function uniqueLumenAppSidebarItems<T extends { readonly id: string }>(items: readonly T[]) {
   const seen = new Set<string>();
   return items.filter((item) => {
@@ -137,6 +151,7 @@ export function uniqueLumenAppSidebarItems<T extends { readonly id: string }>(it
     return true;
   });
 }
+
 export function selectLumenAppSidebarItem<T extends { readonly id: string }>(
   items: readonly T[],
   id: string | undefined,
@@ -144,8 +159,10 @@ export function selectLumenAppSidebarItem<T extends { readonly id: string }>(
   const validItems = uniqueLumenAppSidebarItems(items);
   return validItems.find((item) => item.id === id) ?? validItems[0];
 }
+
 const report = (fn: LumenAppSidebarWorkflowsProps['onAction'], actionId: string, value?: string) =>
   fn?.(value === undefined ? { actionId } : { actionId, value });
+
 function Glyph({ name }: { name: 'menu' | 'area' | 'search' | 'next' | 'folder' | 'spark' }) {
   const paths = {
     menu: 'M2 4h12M2 8h12M2 12h12',
@@ -161,6 +178,7 @@ function Glyph({ name }: { name: 'menu' | 'area' | 'search' | 'next' | 'folder' 
     </svg>
   );
 }
+
 function Root({
   variant,
   variantId,
@@ -197,6 +215,7 @@ function Root({
     </LumenSurface>
   );
 }
+
 function Empty({ children }: { children: string }) {
   return (
     <LumenText as="p" className="lumen-app-sidebar-empty" tone="muted">
@@ -204,9 +223,11 @@ function Empty({ children }: { children: string }) {
     </LumenText>
   );
 }
+
 function allItems(content: LumenAppSidebarContent) {
   return uniqueLumenAppSidebarItems(content.groups.flatMap((group) => group.items));
 }
+
 function GroupedNavigation({
   content,
   selectedId,
@@ -251,6 +272,7 @@ function GroupedNavigation({
     </nav>
   );
 }
+
 function Primary(
   props: Omit<LumenAppSidebarWorkflowsProps, 'content'> & { content: LumenAppSidebarContent },
 ) {
@@ -272,7 +294,11 @@ function Primary(
       >
         <Glyph name="menu" />
       </LumenIconButton>
-      <div className="lumen-app-sidebar-primary" data-collapsed={collapsed} data-open={open}>
+      <div
+        className="lumen-app-sidebar-primary hbar-app-ui-app-sidebar-drawer"
+        data-collapsed={collapsed}
+        data-open={open}
+      >
         <LumenAppSidebar
           brand={props.content.labels.brand}
           title={props.content.labels.title}
@@ -310,7 +336,7 @@ function Primary(
       </div>
       {open ? (
         <LumenButton
-          className="lumen-app-sidebar-scrim"
+          className="lumen-app-sidebar-scrim hbar-app-ui-dialog-backdrop"
           aria-label={props.content.labels.close}
           onClick={() => setOpen(false)}
         />
@@ -318,6 +344,7 @@ function Primary(
     </Root>
   );
 }
+
 function Rail(
   props: Omit<LumenAppSidebarWorkflowsProps, 'content'> & { content: LumenAppSidebarContent },
 ) {
@@ -361,6 +388,7 @@ function Rail(
     </Root>
   );
 }
+
 function Scoped(
   props: Omit<LumenAppSidebarWorkflowsProps, 'content'> & { content: LumenAppSidebarContent },
 ) {
@@ -374,20 +402,16 @@ function Scoped(
   return (
     <Root {...props}>
       <aside className="lumen-app-sidebar-scoped">
-        <LumenSelect
-          aria-label={props.content.labels.scope}
-          value={selectLumenAppSidebarItem(scopes, scopeId)?.id ?? ''}
-          onChange={(event) => {
-            setScopeId(event.target.value);
-            report(props.onAction, 'scope', event.target.value);
+        <LumenChoiceSelect
+          id={`${props.variantId}-scope`}
+          label={props.content.labels.scope}
+          options={scopes}
+          value={selectLumenAppSidebarItem(scopes, scopeId)?.id ?? null}
+          onValueChange={(id) => {
+            setScopeId(id);
+            report(props.onAction, 'scope', id);
           }}
-        >
-          {scopes.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.label}
-            </option>
-          ))}
-        </LumenSelect>
+        />
         <label htmlFor="lumen-app-sidebar-search">
           <Glyph name="search" />
           <LumenInput
@@ -419,6 +443,7 @@ function Scoped(
     </Root>
   );
 }
+
 function Dual(
   props: Omit<LumenAppSidebarWorkflowsProps, 'content'> & { content: LumenAppSidebarContent },
 ) {
@@ -465,6 +490,7 @@ function Dual(
     </Root>
   );
 }
+
 function TreeNode({
   node,
   depth,
@@ -503,6 +529,7 @@ function TreeNode({
     </div>
   );
 }
+
 function Tree(
   props: Omit<LumenAppSidebarWorkflowsProps, 'content'> & { content: LumenAppSidebarContent },
 ) {
@@ -529,6 +556,7 @@ function Tree(
     </Root>
   );
 }
+
 function Drawer(
   props: Omit<LumenAppSidebarWorkflowsProps, 'content'> & { content: LumenAppSidebarContent },
 ) {
@@ -547,38 +575,39 @@ function Drawer(
           </LumenIconButton>
           <strong>{selectLumenAppSidebarItem(items, selectedId)?.label}</strong>
         </header>
-        {open ? (
-          <React.Fragment>
-            <LumenButton
-              className="lumen-app-sidebar-drawer-scrim"
-              aria-label={props.content.labels.close}
-              onClick={() => setOpen(false)}
-            />
-            <aside>
-              <LumenText as="h2" variant="heading">
-                {props.content.labels.brand}
-              </LumenText>
-              {items.map((item) => (
-                <LumenButton
-                  key={item.id}
-                  variant="text"
-                  aria-current={item.id === selectedId ? 'page' : undefined}
-                  onClick={() => {
-                    setSelectedId(item.id);
-                    setOpen(false);
-                    report(props.onAction, 'open', item.id);
-                  }}
-                >
-                  {item.label}
-                </LumenButton>
-              ))}
-            </aside>
-          </React.Fragment>
-        ) : null}
+        <LumenDrawer
+          contained
+          open={open}
+          side="start"
+          title={props.content.labels.brand}
+          closeLabel={props.content.labels.close}
+          onClose={() => setOpen(false)}
+          className="lumen-app-sidebar-demo-drawer"
+        >
+          <nav aria-label={props.content.labels.title}>
+            {items.map((item) => (
+              <LumenButton
+                key={item.id}
+                variant="text"
+                indicatorEdge="left"
+                aria-current={item.id === selectedId ? 'page' : undefined}
+                indicatorState={item.id === selectedId ? 'selected' : undefined}
+                onClick={() => {
+                  setSelectedId(item.id);
+                  setOpen(false);
+                  report(props.onAction, 'open', item.id);
+                }}
+              >
+                {item.label}
+              </LumenButton>
+            ))}
+          </nav>
+        </LumenDrawer>
       </div>
     </Root>
   );
 }
+
 function Full(
   props: Omit<LumenAppSidebarWorkflowsProps, 'content'> & { content: LumenAppSidebarContent },
 ) {
@@ -627,9 +656,11 @@ function Full(
     </Root>
   );
 }
+
 function empty(props: LumenAppSidebarWorkflowsProps) {
   return <Root {...props}>{null}</Root>;
 }
+
 export function LumenAppSidebarWorkflows(props: LumenAppSidebarWorkflowsProps) {
   const providerContent = useLumenAppSidebarWorkflowsContent();
   const content = props.content ?? providerContent;
@@ -667,6 +698,7 @@ export function LumenAppSidebarWorkflows(props: LumenAppSidebarWorkflowsProps) {
     view
   );
 }
+
 function AppSidebarWorkflowView(
   props: LumenAppSidebarWorkflowsProps & { readonly content: LumenAppSidebarContent },
 ) {
@@ -764,6 +796,7 @@ function AppSidebarWorkflowView(
   }
   return empty(props);
 }
+
 function variant(value: number, props: LumenAppSidebarWorkflowVariantProps) {
   return (
     <LumenAppSidebarWorkflows
@@ -773,6 +806,7 @@ function variant(value: number, props: LumenAppSidebarWorkflowVariantProps) {
     />
   );
 }
+
 export const LumenAppSidebar01 = (props: LumenAppSidebarWorkflowVariantProps) => variant(1, props),
   LumenAppSidebar02 = (props: LumenAppSidebarWorkflowVariantProps) => variant(2, props),
   LumenAppSidebar03 = (props: LumenAppSidebarWorkflowVariantProps) => variant(3, props),

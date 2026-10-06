@@ -8,11 +8,12 @@
 
 .lumen-app-dialog-stage {
   position: relative;
-  display: grid;
+  display: flex;
   min-inline-size: 0;
   min-block-size: 32rem;
   flex: 1 1 auto;
-  place-items: center;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
   padding: 1rem;
   background: transparent;
@@ -39,17 +40,21 @@
 .lumen-app-dialog-trigger.is-hidden {
   visibility: hidden;
 }
-.lumen-app-dialog-backdrop {
+.lumen-app-dialog-backdrop.hbar-app-ui-dialog-backdrop {
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: auto;
   padding: 1rem;
-  background: color-mix(in srgb, var(--lumen-ink) 36%, transparent);
+  background: color-mix(in srgb, var(--lumen-canvas) 42%, transparent);
+  backdrop-filter: blur(0.25rem);
+  min-inline-size: 0;
 }
 .lumen-app-dialog-backdrop.is-side {
-  place-items: stretch end;
+  align-items: stretch;
+  justify-content: end;
   padding: 0;
 }
 .lumen-app-dialog-panel {
@@ -58,10 +63,13 @@
   max-block-size: min(44rem, calc(100% - 1rem));
   flex-direction: column;
   overflow: hidden;
-  border: 0.0625rem solid var(--lumen-edge);
+  border: 0.0625rem solid var(--lumen-overlay-edge);
   border-radius: var(--lumen-radius-surface);
-  background: var(--lumen-reading);
-  box-shadow: 0 1rem 3rem color-mix(in srgb, var(--lumen-ink) 20%, transparent);
+  background: color-mix(in srgb, var(--lumen-canvas) 74%, transparent);
+  box-shadow:
+    0 0 1rem var(--lumen-overlay-glow-near),
+    0 0 2.75rem var(--lumen-overlay-glow-far);
+  backdrop-filter: blur(1.25rem);
 }
 .lumen-app-dialog-panel.is-side {
   inline-size: min(30rem, 100%);
@@ -123,12 +131,22 @@
 }
 .lumen-app-dialog-plan > div,
 .lumen-app-dialog-details > div {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
-  grid-template-columns: minmax(8rem, 0.7fr) minmax(10rem, 1fr);
   gap: 0.75rem;
   padding: 0.625rem 0;
   border-block-end: 0.0625rem solid var(--lumen-edge);
+  flex-wrap: wrap;
+}
+.lumen-app-dialog-plan > div,
+.lumen-app-dialog-details > div > :nth-child(2n + 1) {
+  flex: 0.7 1 8rem;
+  min-inline-size: 8rem;
+}
+.lumen-app-dialog-plan > div,
+.lumen-app-dialog-details > div > :nth-child(2n + 2) {
+  flex: 1 1 10rem;
+  min-inline-size: 10rem;
 }
 .lumen-app-dialog-plan dt,
 .lumen-app-dialog-details dt {
@@ -146,10 +164,14 @@
   color: var(--lumen-muted);
 }
 .lumen-app-dialog-metrics {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
-  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
   gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.lumen-app-dialog-metrics > * {
+  flex: 1 1 7rem;
+  min-inline-size: 7rem;
 }
 .lumen-app-dialog-metrics > div {
   display: flex;
@@ -169,9 +191,14 @@
   font-size: 0.75rem;
 }
 .lumen-app-dialog-progress {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(2rem, 1fr));
+  display: flex;
   gap: 0.35rem;
+  min-inline-size: 0;
+  flex-wrap: wrap;
+}
+.lumen-app-dialog-progress > * {
+  flex: 1 1 2rem;
+  min-inline-size: 2rem;
 }
 .lumen-app-dialog-progress > i {
   block-size: 0.25rem;
@@ -237,64 +264,43 @@
   flex-wrap: wrap;
   gap: 0.35rem;
 }
-.lumen-app-dialog-section > div > span {
-  padding: 0.4rem 0.55rem;
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: var(--lumen-radius-control);
-  background: var(--lumen-glass);
-  font-size: 0.75rem;
+.lumen-app-dialog-section > div > .lumen-chip {
+  color: var(--lumen-muted);
 }
 .lumen-app-dialog-section > p {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  display: flex;
   gap: 0.75rem;
+  min-inline-size: 0;
+}
+.lumen-app-dialog-section > p > :nth-child(2n + 1) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+.lumen-app-dialog-section > p > :nth-child(2n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
 }
 .lumen-app-dialog-section time {
   color: var(--lumen-muted);
 }
 .lumen-app-dialog-menu-stage {
-  display: grid;
+  display: flex;
   inline-size: 100%;
   min-block-size: 24rem;
-  place-items: start end;
+  align-items: start;
+  justify-content: end;
   padding: clamp(1rem, 5vw, 4rem);
+  min-inline-size: 0;
 }
 .lumen-app-dialog-menu-anchor {
   position: relative;
 }
-.lumen-app-dialog-menu {
-  position: absolute;
+.lumen-app-dialog-menu.hbar-app-ui-dialog-menu {
   inset-block-start: calc(100% + 0.4rem);
   inset-inline-end: 0;
-  z-index: 2;
-  display: flex;
   inline-size: min(18rem, 80vw);
-  flex-direction: column;
-  gap: 0.125rem;
+  max-block-size: min(22rem, 70vh);
   overflow: auto;
-  padding: 0.35rem;
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: var(--lumen-radius-surface);
-  background: var(--lumen-reading);
-  box-shadow: 0 0.75rem 2rem color-mix(in srgb, var(--lumen-ink) 16%, transparent);
-}
-.lumen-app-dialog-menu > button {
-  display: grid;
-  inline-size: 100%;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
-  justify-content: stretch;
-  text-align: start;
-}
-.lumen-app-dialog-menu hr {
-  inline-size: 100%;
-  margin: 0.25rem 0;
-  border: 0;
-  border-block-start: 0.0625rem solid var(--lumen-edge);
-}
-.lumen-app-dialog-menu kbd {
-  color: var(--lumen-muted);
-  font: inherit;
-  font-size: 0.75rem;
 }
 @media (max-width: 34rem) {
   .lumen-app-dialog-stage {
@@ -311,6 +317,6 @@
   }
   .lumen-app-dialog-plan > div,
   .lumen-app-dialog-details > div {
-    grid-template-columns: minmax(0, 1fr);
+    min-inline-size: 0;
   }
 }

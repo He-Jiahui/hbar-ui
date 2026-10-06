@@ -3,14 +3,8 @@
 import * as React from 'react';
 import { LumenInput } from '../forms';
 import { LumenButton } from '../primitives';
-import type { LumenAuthCompositionProps } from './primitives';
 import {
-  type LumenAuthQuote,
-  type LumenAuthQuoteContent,
-  type LumenAuthQuoteNavigationAction,
-  uniqueLumenAuthItems,
-} from './content';
-import {
+  type LumenAuthCompositionProps,
   AuthArrow,
   AuthBrand,
   AuthButton,
@@ -20,6 +14,12 @@ import {
   AuthPasswordButton,
   AuthProviderIcon,
 } from './primitives';
+import {
+  type LumenAuthQuote,
+  type LumenAuthQuoteContent,
+  type LumenAuthQuoteNavigationAction,
+  uniqueLumenAuthItems,
+} from './content';
 
 type QuoteAuthenticationProps = LumenAuthCompositionProps & {
   readonly content: LumenAuthQuoteContent;

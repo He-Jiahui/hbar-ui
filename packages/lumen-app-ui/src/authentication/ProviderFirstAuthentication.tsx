@@ -3,14 +3,14 @@
 import * as React from 'react';
 import { LumenInput } from '../forms';
 import { LumenButton } from '../primitives';
-import type {
-  LumenAuthProviderFirstContent,
-  LumenAuthProviderFirstContinuationRequest,
-  LumenAuthProviderFirstMode,
-  LumenAuthProviderFirstReferenceFlow,
-} from './content';
-import type { LumenAuthCompositionProps } from './primitives';
 import {
+  type LumenAuthProviderFirstContent,
+  type LumenAuthProviderFirstContinuationRequest,
+  type LumenAuthProviderFirstMode,
+  type LumenAuthProviderFirstReferenceFlow,
+} from './content';
+import {
+  type LumenAuthCompositionProps,
   AuthArrow,
   AuthBrand,
   AuthButton,

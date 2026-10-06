@@ -210,6 +210,8 @@ import { Button } from '@mui/material'; // Avoid in packages
 
 ## Agent Skills
 
+Lumen UI work uses [.agents/skills/lumen-design-language/SKILL.md](.agents/skills/lumen-design-language/SKILL.md) for the dark light-strip / light ink-strip design language, shared primitives, and MUI concept mapping.
+
 Packaged guidance for common integration topics lives under `skills/`. Each skill is a self-contained directory:
 
 | Skill                                                                  | Focus                                                       |

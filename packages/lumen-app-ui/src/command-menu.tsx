@@ -7,14 +7,17 @@ import {
   LumenCommandQuery,
   type LumenCommandListProps,
   type LumenCommandHints,
+  type LumenCommandItem,
 } from './command-list';
 import { LumenDialog } from './dialog';
 import { LumenInput, LumenSelect } from './forms';
 import LumenSurface from './LumenSurface';
+import { LumenPopover } from './ui-controls';
 import { LumenButton, LumenIconButton, LumenText } from './primitives';
 import './command-menu.css';
 
 export interface LumenCommandSurfaceContent extends LumenCommandListProps {
+  readonly navigation?: LumenNestedCommandSurfaceContent['navigation'] | undefined;
   readonly open: boolean;
   readonly title: string;
   readonly trigger: string;
@@ -141,7 +144,7 @@ export interface LumenCommandMenuContent {
   readonly presentation?:
     { readonly ownerId: string; readonly notice?: string | undefined } | undefined;
   readonly grouped?: LumenCommandSurfaceContent | undefined;
-  readonly quick?: LumenCommandSurfaceContent | undefined;
+  readonly quick?: LumenCommandSurfaceContent | LumenNestedCommandSurfaceContent | undefined;
   readonly rooms?: LumenCommandSurfaceContent | undefined;
   readonly search?: (LumenCommandOverlay & LumenSearchCommandsProps) | undefined;
   readonly invite?: (LumenCommandOverlay & LumenInviteCommandProps) | undefined;
@@ -526,10 +529,12 @@ export function LumenAssistantCommands(content: LumenAssistantCommandsProps) {
       aria-busy={content.busy || undefined}
       onSubmit={(event) => {
         event.preventDefault();
-        if (content.canAsk && !content.busy) content.onAsk();
+        if (content.canAsk && !content.busy) {
+          content.onAsk();
+        }
       }}
     >
-      <label>
+      <div>
         <CommandGlyph name="search" />
         <LumenInput
           type="search"
@@ -542,7 +547,7 @@ export function LumenAssistantCommands(content: LumenAssistantCommandsProps) {
           disabled={content.busy}
           onChange={(event) => content.onQueryChange(event.currentTarget.value)}
         />
-      </label>
+      </div>
       <div className="hbar-app-ui-assistant-empty">
         <CommandGlyph name="empty" />
         <LumenText as="h2" variant="heading">
@@ -647,10 +652,17 @@ function WorkflowCommandSurface({
   readonly content: LumenCommandOverlay | undefined;
   readonly children: React.ReactNode;
 }) {
+  let dialogKind = 'assistant';
+  if (props.variant === 3) {
+    dialogKind = 'search';
+  } else if (props.variant === 4) {
+    dialogKind = 'form';
+  }
+
   return (
     <CommandMenuRoot {...props}>
       {content ? (
-        <>
+        <React.Fragment>
           <LumenButton className="hbar-app-ui-command-trigger" onClick={content.onOpen}>
             {content.trigger}
           </LumenButton>
@@ -660,14 +672,14 @@ function WorkflowCommandSurface({
             title={content.title}
             closeLabel={content.closeLabel}
             onClose={content.onClose}
-            className={`hbar-app-ui-command-dialog hbar-app-ui-command-dialog-${props.variant === 3 ? 'search' : props.variant === 4 ? 'form' : 'assistant'}`}
+            className={`hbar-app-ui-command-dialog hbar-app-ui-command-dialog-${dialogKind}`}
             chromeless
           >
             <CommandPreviewContent presentation={props.content?.presentation}>
               {children}
             </CommandPreviewContent>
           </LumenDialog>
-        </>
+        </React.Fragment>
       ) : null}
     </CommandMenuRoot>
   );
@@ -679,8 +691,18 @@ export function LumenCommandMenu(props: LumenCommandMenuProps) {
   const ownedProps = { ...props, content };
   if (props.variant === 1)
     return <ListCommandSurface props={ownedProps} content={content.grouped} />;
-  if (props.variant === 2) return <ListCommandSurface props={ownedProps} content={content.quick} />;
-  if (props.variant === 6) return <ListCommandSurface props={ownedProps} content={content.rooms} />;
+  if (props.variant === 2) {
+    return content.quick?.navigation ? (
+      <NestedCommandSurface
+        props={ownedProps}
+        content={{ ...content.quick, navigation: content.quick.navigation }}
+      />
+    ) : (
+      <ListCommandSurface props={ownedProps} content={content.quick} />
+    );
+  }
+  if (props.variant === 6)
+    return <PopoverCommandSurface props={ownedProps} content={content.rooms} />;
   if (props.variant === 3) {
     return (
       <WorkflowCommandSurface props={ownedProps} content={content.search}>
@@ -715,18 +737,133 @@ function commandMenuVariant(variant: number, props: LumenCommandMenuVariantProps
 export function LumenCommandMenu01(props: LumenCommandMenuVariantProps) {
   return commandMenuVariant(1, props);
 }
+
 export function LumenCommandMenu02(props: LumenCommandMenuVariantProps) {
   return commandMenuVariant(2, props);
 }
+
 export function LumenCommandMenu03(props: LumenCommandMenuVariantProps) {
   return commandMenuVariant(3, props);
 }
+
 export function LumenCommandMenu04(props: LumenCommandMenuVariantProps) {
   return commandMenuVariant(4, props);
 }
+
 export function LumenCommandMenu05(props: LumenCommandMenuVariantProps) {
   return commandMenuVariant(5, props);
 }
+
 export function LumenCommandMenu06(props: LumenCommandMenuVariantProps) {
   return commandMenuVariant(6, props);
+}
+
+export interface LumenNestedCommandSurfaceContent extends LumenCommandSurfaceContent {
+  readonly navigation: {
+    readonly home: string;
+    readonly back: string;
+    readonly current: string;
+    readonly canGoBack: boolean;
+    readonly onBack: () => void;
+    readonly pages: readonly {
+      readonly id: string;
+      readonly title: string;
+      readonly items: readonly LumenCommandItem[];
+    }[];
+  };
+}
+
+function NestedCommandSurface({
+  props,
+  content,
+}: {
+  readonly props: LumenCommandMenuProps;
+  readonly content: LumenCommandSurfaceContent & {
+    readonly navigation: NonNullable<LumenCommandSurfaceContent['navigation']>;
+  };
+}) {
+  return (
+    <CommandMenuRoot {...props}>
+      {content ? (
+        <React.Fragment>
+          <LumenButton className="hbar-app-ui-command-trigger" onClick={content.onOpen}>
+            {content.trigger}
+          </LumenButton>
+          <LumenDialog
+            open={content.open}
+            title={content.title}
+            closeLabel={content.labels.close}
+            onClose={content.onClose}
+            className="hbar-app-ui-command-dialog hbar-app-ui-command-dialog-nested"
+            chromeless
+          >
+            <div className="hbar-app-ui-nested-command">
+              <header>
+                <LumenButton
+                  variant="text"
+                  size="s"
+                  disabled={!content.navigation.canGoBack}
+                  onClick={content.navigation.onBack}
+                >
+                  <CommandGlyph name="back" />
+                  {content.navigation.back}
+                </LumenButton>
+                <div>
+                  <LumenText as="small" tone="muted" variant="supporting">
+                    {content.navigation.home}
+                  </LumenText>
+                  <LumenText as="h2" variant="heading">
+                    {content.navigation.current}
+                  </LumenText>
+                </div>
+              </header>
+              <LumenCommandList
+                {...content}
+                breadcrumb={
+                  <LumenText as="p" tone="subtle" variant="supporting">
+                    {content.navigation.current}
+                  </LumenText>
+                }
+              />
+            </div>
+          </LumenDialog>
+        </React.Fragment>
+      ) : null}
+    </CommandMenuRoot>
+  );
+}
+
+function PopoverCommandSurface({
+  props,
+  content,
+}: {
+  readonly props: LumenCommandMenuProps;
+  readonly content: LumenCommandSurfaceContent | undefined;
+}) {
+  return (
+    <CommandMenuRoot {...props}>
+      {content ? (
+        <div className="hbar-app-ui-quick-command-anchor">
+          <LumenButton className="hbar-app-ui-command-trigger" onClick={content.onOpen}>
+            {content.trigger}
+          </LumenButton>
+          <LumenPopover
+            open={content.open}
+            label={content.title}
+            className="hbar-app-ui-quick-command-popover"
+          >
+            <header>
+              <LumenText as="h2" variant="heading">
+                {content.title}
+              </LumenText>
+              <LumenButton variant="text" size="s" onClick={content.onClose}>
+                {content.labels.close}
+              </LumenButton>
+            </header>
+            <LumenCommandList {...content} />
+          </LumenPopover>
+        </div>
+      ) : null}
+    </CommandMenuRoot>
+  );
 }

@@ -1,6 +1,5 @@
 import { ArrowLeft, Bookmark, Copy, List, Share2 } from './glyphs';
-import type { LumenNavbarArticleContent } from './content';
-import { uniqueLumenNavbarItems } from './content';
+import { type LumenNavbarArticleContent, uniqueLumenNavbarItems } from './content';
 import { useRef } from 'react';
 import { NavbarPopup } from './menu';
 import {
@@ -96,3 +95,4 @@ export function ArticleNavbar({
     </NavbarFrame>
   );
 }
+('use client');

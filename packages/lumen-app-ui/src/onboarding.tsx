@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { LumenFormField, LumenInput, LumenSelect } from './forms';
+import { LumenFormField, LumenInput, LumenChoiceSelect } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
 import {
@@ -33,23 +33,27 @@ import {
   type LumenOnboarding7ReferenceViewModel,
 } from './onboarding-7-reference';
 import './onboarding.css';
+import { LumenProgress, LumenTabs } from './ui-controls';
 
 export interface LumenOnboardingListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
   readonly expectedMaximum: number;
 }
+
 export interface LumenOnboardingChoice {
   readonly id: string;
   readonly label: string;
   readonly detail?: string | undefined;
   readonly disabled?: boolean | undefined;
 }
+
 export interface LumenOnboardingMetric {
   readonly id: string;
   readonly label: string;
   readonly value: string;
   readonly tone?: 'neutral' | 'success' | 'warning' | 'danger' | undefined;
 }
+
 export interface LumenOnboardingProfileContent {
   readonly labels: {
     readonly title: string;
@@ -63,6 +67,7 @@ export interface LumenOnboardingProfileContent {
   readonly initialRole: string;
   readonly metrics: readonly LumenOnboardingMetric[];
 }
+
 export interface LumenOnboardingStepsContent {
   readonly labels: {
     readonly title: string;
@@ -79,6 +84,7 @@ export interface LumenOnboardingStepsContent {
   readonly initialCompletedCount: number;
   readonly listStrategy: LumenOnboardingListStrategy;
 }
+
 export interface LumenOnboardingChecklistContent {
   readonly labels: {
     readonly title: string;
@@ -94,6 +100,7 @@ export interface LumenOnboardingChecklistContent {
   readonly initialCompletedCount: number;
   readonly listStrategy: LumenOnboardingListStrategy;
 }
+
 export interface LumenOnboardingUseCaseContent {
   readonly labels: {
     readonly title: string;
@@ -108,6 +115,7 @@ export interface LumenOnboardingUseCaseContent {
   readonly initialUseCaseId: string;
   readonly initialSizeId: string;
 }
+
 export interface LumenOnboardingInvitee {
   readonly id: string;
   readonly initials: string;
@@ -115,6 +123,7 @@ export interface LumenOnboardingInvitee {
   readonly status: string;
   readonly statusTone: 'neutral' | 'success' | 'warning' | 'danger';
 }
+
 export interface LumenOnboardingInviteContent {
   readonly labels: {
     readonly title: string;
@@ -134,6 +143,7 @@ export interface LumenOnboardingInviteContent {
   readonly shareLink: string;
   readonly listStrategy: LumenOnboardingListStrategy;
 }
+
 export interface LumenOnboardingCompleteContent {
   readonly labels: {
     readonly title: string;
@@ -148,6 +158,7 @@ export interface LumenOnboardingCompleteContent {
   readonly primaryValue: string;
   readonly secondaryValue: string;
 }
+
 export interface LumenOnboardingSlugContent {
   readonly labels: {
     readonly steps: string;
@@ -165,6 +176,7 @@ export interface LumenOnboardingSlugContent {
   readonly initialSlug: string;
   readonly baseUrl: string;
 }
+
 export interface LumenOnboardingContent {
   readonly profile?: LumenOnboardingProfileContent | undefined;
   readonly profileReference?: LumenOnboarding1ReferenceViewModel | undefined;
@@ -181,14 +193,17 @@ export interface LumenOnboardingContent {
   readonly complete?: LumenOnboardingCompleteContent | undefined;
   readonly slug?: LumenOnboardingSlugContent | undefined;
 }
+
 export interface LumenOnboardingProviderProps {
   readonly content: LumenOnboardingContent;
   readonly children: React.ReactNode;
 }
+
 export interface LumenOnboardingAction {
   readonly actionId: string;
   readonly value?: string | undefined;
 }
+
 export interface LumenOnboardingProps {
   readonly variant: number;
   readonly variantId: string;
@@ -200,49 +215,57 @@ export interface LumenOnboardingProps {
   readonly state?: string | undefined;
   readonly visualMode?: string | undefined;
 }
+
 export type LumenOnboardingVariantProps = Omit<LumenOnboardingProps, 'variant' | 'variantId'>;
 
 const Context = React.createContext<LumenOnboardingContent | undefined>(undefined);
+
 export function LumenOnboardingProvider({ content, children }: LumenOnboardingProviderProps) {
   return <Context.Provider value={content}>{children}</Context.Provider>;
 }
+
 export function useLumenOnboardingContent() {
   return React.useContext(Context);
 }
+
 export function uniqueLumenOnboardingItems<T extends { readonly id: string }>(
   items: readonly T[],
 ): readonly T[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
 }
+
 export function selectLumenOnboardingItem<T extends { readonly id: string }>(
   items: readonly T[],
   id: string | undefined,
 ): T | undefined {
   return items.find((item) => item.id === id) ?? items[0];
 }
+
 const report = (fn: LumenOnboardingProps['onAction'], actionId: string, value?: string) =>
   fn?.(value === undefined ? { actionId } : { actionId, value });
 
 function Glyph({ name }: { name: 'check' | 'chevron' | 'mail' | 'copy' }) {
-  const d =
-    name === 'check'
-      ? 'm3 8 3 3 7-7'
-      : name === 'chevron'
-        ? 'm6 3 5 5-5 5'
-        : name === 'mail'
-          ? 'M2 3h12v10H2Zm0 1 6 5 6-5'
-          : 'M6 5h7v9H6ZM3 2h7v3';
+  const paths = {
+    check: 'm3 8 3 3 7-7',
+    chevron: 'm6 3 5 5-5 5',
+    mail: 'M2 3h12v10H2Zm0 1 6 5 6-5',
+    copy: 'M6 5h7v9H6ZM3 2h7v3',
+  } as const;
+  const d = paths[name];
   return (
     <svg className="lumen-onboarding-glyph" viewBox="0 0 16 16" aria-hidden="true">
       <path d={d} />
     </svg>
   );
 }
+
 function Root({
   variant,
   variantId,
@@ -279,6 +302,7 @@ function Root({
     </LumenSurface>
   );
 }
+
 function Header({ title, detail }: { title: string; detail: string }) {
   return (
     <header className="lumen-onboarding-header">
@@ -293,6 +317,7 @@ function Header({ title, detail }: { title: string; detail: string }) {
     </header>
   );
 }
+
 function Metrics({ metrics }: { metrics: readonly LumenOnboardingMetric[] }) {
   return (
     <dl className="lumen-onboarding-metrics">
@@ -305,6 +330,7 @@ function Metrics({ metrics }: { metrics: readonly LumenOnboardingMetric[] }) {
     </dl>
   );
 }
+
 function Profile(
   props: Omit<LumenOnboardingProps, 'content'> & { content: LumenOnboardingProfileContent },
 ) {
@@ -349,6 +375,7 @@ function Profile(
     </Root>
   );
 }
+
 function Steps(
   props: Omit<LumenOnboardingProps, 'content'> & { content: LumenOnboardingStepsContent },
 ) {
@@ -372,25 +399,15 @@ function Steps(
         <nav data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}>
           {steps.length ? (
             steps.map((step, stepIndex) => (
-              <LumenButton
+              <OnboardingStepButton
                 key={step.id}
-                variant={stepIndex === index ? 'solid' : 'text'}
-                disabled={step.disabled}
-                onClick={() => setIndex(stepIndex)}
-              >
-                <span>{stepIndex < completed ? <Glyph name="check" /> : stepIndex + 1}</span>
-                <span>
-                  <strong>{step.label}</strong>
-                  <small>
-                    {stepIndex < completed
-                      ? props.content.labels.complete
-                      : stepIndex === index
-                        ? props.content.labels.current
-                        : props.content.labels.pending}
-                  </small>
-                </span>
-                <Glyph name="chevron" />
-              </LumenButton>
+                step={step}
+                stepIndex={stepIndex}
+                currentIndex={index}
+                completed={completed}
+                labels={props.content.labels}
+                onSelect={setIndex}
+              />
             ))
           ) : (
             <LumenText as="p" tone="muted">
@@ -421,6 +438,7 @@ function Steps(
     </Root>
   );
 }
+
 function Checklist(
   props: Omit<LumenOnboardingProps, 'content'> & { content: LumenOnboardingChecklistContent },
 ) {
@@ -435,16 +453,12 @@ function Checklist(
         title={props.content.labels.title}
         detail={props.content.labels.detail(completed, tasks.length)}
       />
-      <span
+      <LumenProgress
         className="lumen-onboarding-progress"
-        role="progressbar"
-        aria-label={props.content.labels.progress}
-        aria-valuenow={progress}
-        aria-valuemin={0}
-        aria-valuemax={100}
-      >
-        <i style={{ inlineSize: `${progress}%` }} />
-      </span>
+        label={props.content.labels.progress}
+        value={progress}
+        tone="info"
+      />
       <div
         className="lumen-onboarding-checklist"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
@@ -485,6 +499,7 @@ function Checklist(
     </Root>
   );
 }
+
 function UseCase(
   props: Omit<LumenOnboardingProps, 'content'> & { content: LumenOnboardingUseCaseContent },
 ) {
@@ -521,23 +536,13 @@ function UseCase(
           </LumenText>
         )}
       </div>
-      <div
+      <LumenTabs
         className="lumen-onboarding-tabs"
-        role="tablist"
-        aria-label={props.content.labels.teamSize}
-      >
-        {sizes.map((item) => (
-          <LumenButton
-            key={item.id}
-            role="tab"
-            variant="text"
-            aria-selected={size?.id === item.id}
-            onClick={() => setSizeId(item.id)}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+        label={props.content.labels.teamSize}
+        items={sizes}
+        selectedId={size?.id ?? null}
+        onChange={setSizeId}
+      />
       <LumenButton
         className="lumen-onboarding-primary"
         tone="primary"
@@ -551,6 +556,7 @@ function UseCase(
     </Root>
   );
 }
+
 function Invite(
   props: Omit<LumenOnboardingProps, 'content'> & { content: LumenOnboardingInviteContent },
 ) {
@@ -570,17 +576,13 @@ function Invite(
           value={email}
           onChange={(event) => setEmail(event.currentTarget.value)}
         />
-        <LumenSelect
-          aria-label={props.content.labels.role}
+        <LumenChoiceSelect
+          id="onboarding-invite-role"
+          label={props.content.labels.role}
+          options={roles}
           value={roleId}
-          onChange={(event) => setRoleId(event.currentTarget.value)}
-        >
-          {roles.map((role) => (
-            <option key={role.id} value={role.id}>
-              {role.label}
-            </option>
-          ))}
-        </LumenSelect>
+          onValueChange={setRoleId}
+        />
         <LumenButton
           tone="primary"
           disabled={!email.trim()}
@@ -625,6 +627,7 @@ function Invite(
     </Root>
   );
 }
+
 function Complete(
   props: Omit<LumenOnboardingProps, 'content'> & { content: LumenOnboardingCompleteContent },
 ) {
@@ -659,6 +662,7 @@ function Complete(
     </Root>
   );
 }
+
 function Slug(
   props: Omit<LumenOnboardingProps, 'content'> & { content: LumenOnboardingSlugContent },
 ) {
@@ -669,20 +673,13 @@ function Slug(
   const step = selectLumenOnboardingItem(steps, stepId);
   return (
     <Root {...props}>
-      <div className="lumen-onboarding-tabs" role="tablist" aria-label={props.content.labels.steps}>
-        {steps.map((item) => (
-          <LumenButton
-            key={item.id}
-            role="tab"
-            variant="text"
-            aria-selected={step?.id === item.id}
-            disabled={item.disabled}
-            onClick={() => setStepId(item.id)}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+      <LumenTabs
+        className="lumen-onboarding-tabs"
+        label={props.content.labels.steps}
+        items={steps}
+        selectedId={step?.id ?? null}
+        onChange={setStepId}
+      />
       <article className="lumen-onboarding-slug">
         <Header title={step?.label ?? ''} detail={step?.detail ?? props.content.labels.detail} />
         <LumenFormField
@@ -722,9 +719,11 @@ function Slug(
     </Root>
   );
 }
+
 function empty(props: LumenOnboardingProps) {
   return <Root {...props}>{null}</Root>;
 }
+
 export function LumenOnboarding(props: LumenOnboardingProps) {
   const inheritedContent = useLumenOnboardingContent();
   const content = props.content ?? inheritedContent;
@@ -842,15 +841,61 @@ export function LumenOnboarding(props: LumenOnboardingProps) {
   }
   return empty(props);
 }
+
 function variant(value: number, props: LumenOnboardingVariantProps) {
   return (
     <LumenOnboarding {...props} variant={value} variantId={`hbar-app-ui-onboarding-${value}`} />
   );
 }
+
 export const LumenOnboarding01 = (props: LumenOnboardingVariantProps) => variant(1, props);
+
 export const LumenOnboarding02 = (props: LumenOnboardingVariantProps) => variant(2, props);
+
 export const LumenOnboarding03 = (props: LumenOnboardingVariantProps) => variant(3, props);
+
 export const LumenOnboarding04 = (props: LumenOnboardingVariantProps) => variant(4, props);
+
 export const LumenOnboarding05 = (props: LumenOnboardingVariantProps) => variant(5, props);
+
 export const LumenOnboarding06 = (props: LumenOnboardingVariantProps) => variant(6, props);
+
 export const LumenOnboarding07 = (props: LumenOnboardingVariantProps) => variant(7, props);
+
+function OnboardingStepButton({
+  step,
+  stepIndex,
+  currentIndex,
+  completed,
+  labels,
+  onSelect,
+}: {
+  readonly step: LumenOnboardingChoice;
+  readonly stepIndex: number;
+  readonly currentIndex: number;
+  readonly completed: number;
+  readonly labels: LumenOnboardingStepsContent['labels'];
+  readonly onSelect: (index: number) => void;
+}) {
+  let statusLabel = labels.pending;
+  if (stepIndex < completed) {
+    statusLabel = labels.complete;
+  } else if (stepIndex === currentIndex) {
+    statusLabel = labels.current;
+  }
+
+  return (
+    <LumenButton
+      variant={stepIndex === currentIndex ? 'solid' : 'text'}
+      disabled={step.disabled}
+      onClick={() => onSelect(stepIndex)}
+    >
+      <span>{stepIndex < completed ? <Glyph name="check" /> : stepIndex + 1}</span>
+      <span>
+        <strong>{step.label}</strong>
+        <small>{statusLabel}</small>
+      </span>
+      <Glyph name="chevron" />
+    </LumenButton>
+  );
+}

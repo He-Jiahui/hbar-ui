@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { LumenFormField, LumenInput, LumenSelect } from './forms';
+import { LumenFormField, LumenInput, LumenCheckBox, LumenChoiceSelect } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import InformationReference from './wizard/InformationReference';
@@ -19,17 +19,21 @@ import './wizard-environment-reference.css';
 import './wizard-review-reference.css';
 import './wizard-migration-reference.css';
 import './wizard-shipping-reference.css';
+import { LumenProgress, LumenRadioGroup } from './ui-controls';
 
 export interface LumenWizardListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
   readonly expectedMaximum: number;
 }
+
 export interface LumenWizardChoice {
   readonly id: string;
   readonly label: string;
   readonly detail?: string | undefined;
 }
+
 export interface LumenWizardStep extends LumenWizardChoice {}
+
 export interface LumenWizardFieldValue {
   readonly id: string;
   readonly label: string;
@@ -37,6 +41,7 @@ export interface LumenWizardFieldValue {
   readonly type?: 'text' | 'email' | 'tel' | 'date' | undefined;
   readonly required?: boolean | undefined;
 }
+
 export interface LumenWizardReferenceField {
   readonly id: string;
   readonly label: string;
@@ -46,6 +51,7 @@ export interface LumenWizardReferenceField {
   readonly prefix?: string | undefined;
   readonly options?: readonly LumenWizardChoice[] | undefined;
 }
+
 export interface LumenWizardReferenceInvoiceField {
   readonly id: string;
   readonly label: string;
@@ -56,35 +62,43 @@ export interface LumenWizardReferenceInvoiceField {
   readonly information?: boolean | undefined;
   readonly clear?: boolean | undefined;
 }
+
 export interface LumenWizardReferenceUpgradePlan extends LumenWizardChoice {
   readonly price: string;
   readonly badge?: string | undefined;
 }
+
 export interface LumenWizardReferenceUpgradeRow {
   readonly id: string;
   readonly label: string;
   readonly detail?: string | undefined;
   readonly value: string;
 }
+
 export interface LumenWizardReferenceEnvironmentService extends LumenWizardChoice {
-  readonly icon: 'database' | 'cache' | 'storage' | 'queue' | 'clock' | 'search' | 'activity' | 'log';
+  readonly icon:
+    'database' | 'cache' | 'storage' | 'queue' | 'clock' | 'search' | 'activity' | 'log';
   readonly deploySeconds: number;
 }
+
 export interface LumenWizardReferenceReviewSection {
   readonly id: string;
   readonly title: string;
   readonly rows: readonly { readonly id: string; readonly label: string; readonly value: string }[];
 }
+
 export interface LumenWizardReferenceMigrationTask extends LumenWizardChoice {
   readonly status: 'complete' | 'running' | 'queued' | 'warning';
   readonly action?: string | undefined;
 }
+
 export interface LumenWizardReferenceShippingQuestion {
   readonly id: string;
   readonly title: string;
   readonly detail: string;
   readonly options: readonly LumenWizardChoice[];
 }
+
 export interface LumenWizardInformationContent {
   readonly labels: {
     readonly title: string;
@@ -100,6 +114,7 @@ export interface LumenWizardInformationContent {
   readonly fields: readonly LumenWizardFieldValue[];
   readonly listStrategy: LumenWizardListStrategy;
 }
+
 export interface LumenWizardInvoiceContent {
   readonly labels: {
     readonly title: string;
@@ -122,15 +137,18 @@ export interface LumenWizardInvoiceContent {
   readonly note: string;
   readonly listStrategy: LumenWizardListStrategy;
 }
+
 export interface LumenWizardPlan extends LumenWizardChoice {
   readonly price: string;
   readonly badge?: string | undefined;
 }
+
 export interface LumenWizardSummaryRow {
   readonly id: string;
   readonly label: string;
   readonly value: string;
 }
+
 export interface LumenWizardUpgradeContent {
   readonly labels: {
     readonly title: string;
@@ -147,7 +165,9 @@ export interface LumenWizardUpgradeContent {
   readonly totals: Readonly<Record<string, string>>;
   readonly listStrategy: LumenWizardListStrategy;
 }
+
 export interface LumenWizardService extends LumenWizardChoice {}
+
 export interface LumenWizardEnvironmentContent {
   readonly labels: {
     readonly title: string;
@@ -163,10 +183,12 @@ export interface LumenWizardEnvironmentContent {
   readonly initialServiceIds: readonly string[];
   readonly listStrategy: LumenWizardListStrategy;
 }
+
 export interface LumenWizardReviewSection extends LumenWizardChoice {
   readonly value: string;
   readonly status?: string | undefined;
 }
+
 export interface LumenWizardReviewContent {
   readonly labels: {
     readonly title: string;
@@ -180,10 +202,12 @@ export interface LumenWizardReviewContent {
   readonly sections: readonly LumenWizardReviewSection[];
   readonly listStrategy: LumenWizardListStrategy;
 }
+
 export interface LumenWizardMigrationItem extends LumenWizardChoice {
   readonly status: string;
   readonly progress: number;
 }
+
 export interface LumenWizardMigrationContent {
   readonly labels: {
     readonly title: string;
@@ -196,6 +220,7 @@ export interface LumenWizardMigrationContent {
   readonly items: readonly LumenWizardMigrationItem[];
   readonly listStrategy: LumenWizardListStrategy;
 }
+
 export interface LumenWizardShippingContent {
   readonly labels: {
     readonly title: string;
@@ -211,153 +236,168 @@ export interface LumenWizardShippingContent {
   readonly onOptionChange?: ((optionId: string) => void) | undefined;
   readonly listStrategy: LumenWizardListStrategy;
 }
+
 export interface LumenWizardContent {
-  readonly referenceShipping?: {
-    readonly labels: {
-      readonly progress: (step: number, total: number) => string;
-      readonly question: (step: number) => string;
-      readonly previous: string;
-      readonly continue: string;
-      readonly finish: string;
-      readonly skip: string;
-      readonly empty: string;
-    };
-    readonly questions: readonly LumenWizardReferenceShippingQuestion[];
-    readonly currentQuestionId: string;
-    readonly selectedOptionIds: Readonly<Record<string, string | undefined>>;
-    readonly listStrategy: LumenWizardListStrategy;
-    readonly onQuestionChange: (questionId: string) => void;
-    readonly onOptionChange: (questionId: string, optionId: string) => void;
-  } | undefined;
-  readonly referenceMigration?: {
-    readonly labels: {
-      readonly title: string;
-      readonly detail: string;
-      readonly remaining: string;
-      readonly progress: (value: number) => string;
-      readonly progressBar: string;
-      readonly safety: string;
-      readonly cancel: string;
-      readonly background: string;
-      readonly empty: string;
-    };
-    readonly tasks: readonly LumenWizardReferenceMigrationTask[];
-    readonly progress: number;
-    readonly progressStep: number;
-    readonly progressIntervalMs: number;
-    readonly progressCeiling: number;
-    readonly listStrategy: LumenWizardListStrategy;
-  } | undefined;
-  readonly referenceReview?: {
-    readonly labels: {
-      readonly title: string;
-      readonly detail: string;
-      readonly edit: string;
-      readonly editSection: (title: string) => string;
-      readonly confirmation: string;
-      readonly back: string;
-      readonly send: string;
-      readonly empty: string;
-    };
-    readonly steps: readonly LumenWizardStep[];
-    readonly currentStepId: string;
-    readonly completedStepIds: readonly string[];
-    readonly sections: readonly LumenWizardReferenceReviewSection[];
-    readonly confirmed: boolean;
-    readonly listStrategy: LumenWizardListStrategy;
-    readonly onConfirmationChange: (checked: boolean) => void;
-  } | undefined;
-  readonly referenceEnvironment?: {
-    readonly labels: {
-      readonly title: string;
-      readonly detail: string;
-      readonly back: string;
-      readonly save: string;
-      readonly heading: string;
-      readonly subtitle: string;
-      readonly group: string;
-      readonly safety: string;
-      readonly selection: (count: number, total: number) => string;
-      readonly estimate: (seconds: number) => string;
-      readonly next: string;
-      readonly empty: string;
-    };
-    readonly steps: readonly LumenWizardStep[];
-    readonly currentStepId: string;
-    readonly completedStepIds: readonly string[];
-    readonly services: readonly LumenWizardReferenceEnvironmentService[];
-    readonly selectedServiceIds: readonly string[];
-    readonly listStrategy: LumenWizardListStrategy;
-    readonly onServiceToggle: (serviceId: string) => void;
-  } | undefined;
-  readonly referenceUpgrade?: {
-    readonly labels: {
-      readonly title: string;
-      readonly detail: string;
-      readonly draft: string;
-      readonly plan: string;
-      readonly seatNote: string;
-      readonly invoice: string;
-      readonly annual: string;
-      readonly due: string;
-      readonly totalDetail: string;
-      readonly footer: string;
-      readonly next: string;
-    };
-    readonly steps: readonly LumenWizardStep[];
-    readonly plans: readonly LumenWizardReferenceUpgradePlan[];
-    readonly summaryRows: readonly LumenWizardReferenceUpgradeRow[];
-    readonly metadataRows: readonly LumenWizardReferenceUpgradeRow[];
-    readonly total: string;
-    readonly listStrategy: LumenWizardListStrategy;
-    readonly stepId: string;
-    readonly selectedPlanId: string;
-    readonly onStepChange: (stepId: string) => void;
-    readonly onPlanChange: (planId: string) => void;
-  } | undefined;
-  readonly referenceInvoice?: {
-    readonly labels: {
-      readonly title: string;
-      readonly progress: (step: number, total: number) => string;
-      readonly progressBar: string;
-      readonly close: string;
-      readonly customer: string;
-      readonly customerDetail: string;
-      readonly customerGroup: string;
-      readonly customerGroupDetail: string;
-      readonly required: string;
-      readonly terms: string;
-      readonly termsDetail: string;
-      readonly currencyBadge: string;
-      readonly termsBadge: string;
-      readonly clearCustomer: string;
-      readonly save: string;
-      readonly next: string;
-    };
-    readonly step: number;
-    readonly totalSteps: number;
-    readonly listStrategy: LumenWizardListStrategy;
-    readonly customerFields: readonly LumenWizardReferenceInvoiceField[];
-    readonly termsFields: readonly LumenWizardReferenceInvoiceField[];
-    readonly onFieldChange: (fieldId: string, value: string) => void;
-  } | undefined;
-  readonly referenceInformation?: {
-    readonly labels: {
-      readonly title: string;
-      readonly detail: string;
-      readonly emailHint: string;
-      readonly back: string;
-      readonly next: string;
-      readonly steps: string;
-      readonly required: string;
-      readonly empty: string;
-    };
-    readonly steps: readonly LumenWizardStep[];
-    readonly fields: readonly LumenWizardReferenceField[];
-    readonly stepId: string;
-    readonly onStepChange: (stepId: string) => void;
-    readonly onFieldChange: (fieldId: string, value: string) => void;
-  } | undefined;
+  readonly referenceShipping?:
+    | {
+        readonly labels: {
+          readonly progress: (step: number, total: number) => string;
+          readonly question: (step: number) => string;
+          readonly previous: string;
+          readonly continue: string;
+          readonly finish: string;
+          readonly skip: string;
+          readonly empty: string;
+        };
+        readonly questions: readonly LumenWizardReferenceShippingQuestion[];
+        readonly currentQuestionId: string;
+        readonly selectedOptionIds: Readonly<Record<string, string | undefined>>;
+        readonly listStrategy: LumenWizardListStrategy;
+        readonly onQuestionChange: (questionId: string) => void;
+        readonly onOptionChange: (questionId: string, optionId: string) => void;
+      }
+    | undefined;
+  readonly referenceMigration?:
+    | {
+        readonly labels: {
+          readonly title: string;
+          readonly detail: string;
+          readonly remaining: string;
+          readonly progress: (value: number) => string;
+          readonly progressBar: string;
+          readonly safety: string;
+          readonly cancel: string;
+          readonly background: string;
+          readonly empty: string;
+        };
+        readonly tasks: readonly LumenWizardReferenceMigrationTask[];
+        readonly progress: number;
+        readonly progressStep: number;
+        readonly progressIntervalMs: number;
+        readonly progressCeiling: number;
+        readonly listStrategy: LumenWizardListStrategy;
+      }
+    | undefined;
+  readonly referenceReview?:
+    | {
+        readonly labels: {
+          readonly title: string;
+          readonly detail: string;
+          readonly edit: string;
+          readonly editSection: (title: string) => string;
+          readonly confirmation: string;
+          readonly back: string;
+          readonly send: string;
+          readonly empty: string;
+        };
+        readonly steps: readonly LumenWizardStep[];
+        readonly currentStepId: string;
+        readonly completedStepIds: readonly string[];
+        readonly sections: readonly LumenWizardReferenceReviewSection[];
+        readonly confirmed: boolean;
+        readonly listStrategy: LumenWizardListStrategy;
+        readonly onConfirmationChange: (checked: boolean) => void;
+      }
+    | undefined;
+  readonly referenceEnvironment?:
+    | {
+        readonly labels: {
+          readonly title: string;
+          readonly detail: string;
+          readonly back: string;
+          readonly save: string;
+          readonly heading: string;
+          readonly subtitle: string;
+          readonly group: string;
+          readonly safety: string;
+          readonly selection: (count: number, total: number) => string;
+          readonly estimate: (seconds: number) => string;
+          readonly next: string;
+          readonly empty: string;
+        };
+        readonly steps: readonly LumenWizardStep[];
+        readonly currentStepId: string;
+        readonly completedStepIds: readonly string[];
+        readonly services: readonly LumenWizardReferenceEnvironmentService[];
+        readonly selectedServiceIds: readonly string[];
+        readonly listStrategy: LumenWizardListStrategy;
+        readonly onServiceToggle: (serviceId: string) => void;
+      }
+    | undefined;
+  readonly referenceUpgrade?:
+    | {
+        readonly labels: {
+          readonly title: string;
+          readonly detail: string;
+          readonly draft: string;
+          readonly plan: string;
+          readonly seatNote: string;
+          readonly invoice: string;
+          readonly annual: string;
+          readonly due: string;
+          readonly totalDetail: string;
+          readonly footer: string;
+          readonly next: string;
+        };
+        readonly steps: readonly LumenWizardStep[];
+        readonly plans: readonly LumenWizardReferenceUpgradePlan[];
+        readonly summaryRows: readonly LumenWizardReferenceUpgradeRow[];
+        readonly metadataRows: readonly LumenWizardReferenceUpgradeRow[];
+        readonly total: string;
+        readonly listStrategy: LumenWizardListStrategy;
+        readonly stepId: string;
+        readonly selectedPlanId: string;
+        readonly onStepChange: (stepId: string) => void;
+        readonly onPlanChange: (planId: string) => void;
+      }
+    | undefined;
+  readonly referenceInvoice?:
+    | {
+        readonly labels: {
+          readonly title: string;
+          readonly progress: (step: number, total: number) => string;
+          readonly progressBar: string;
+          readonly close: string;
+          readonly customer: string;
+          readonly customerDetail: string;
+          readonly customerGroup: string;
+          readonly customerGroupDetail: string;
+          readonly required: string;
+          readonly terms: string;
+          readonly termsDetail: string;
+          readonly currencyBadge: string;
+          readonly termsBadge: string;
+          readonly clearCustomer: string;
+          readonly save: string;
+          readonly next: string;
+        };
+        readonly step: number;
+        readonly totalSteps: number;
+        readonly listStrategy: LumenWizardListStrategy;
+        readonly customerFields: readonly LumenWizardReferenceInvoiceField[];
+        readonly termsFields: readonly LumenWizardReferenceInvoiceField[];
+        readonly onFieldChange: (fieldId: string, value: string) => void;
+      }
+    | undefined;
+  readonly referenceInformation?:
+    | {
+        readonly labels: {
+          readonly title: string;
+          readonly detail: string;
+          readonly emailHint: string;
+          readonly back: string;
+          readonly next: string;
+          readonly steps: string;
+          readonly required: string;
+          readonly empty: string;
+        };
+        readonly steps: readonly LumenWizardStep[];
+        readonly fields: readonly LumenWizardReferenceField[];
+        readonly stepId: string;
+        readonly onStepChange: (stepId: string) => void;
+        readonly onFieldChange: (fieldId: string, value: string) => void;
+      }
+    | undefined;
   readonly information?: LumenWizardInformationContent | undefined;
   readonly invoice?: LumenWizardInvoiceContent | undefined;
   readonly upgrade?: LumenWizardUpgradeContent | undefined;
@@ -366,14 +406,17 @@ export interface LumenWizardContent {
   readonly migration?: LumenWizardMigrationContent | undefined;
   readonly shipping?: LumenWizardShippingContent | undefined;
 }
+
 export interface LumenWizardProviderProps {
   readonly content: LumenWizardContent;
   readonly children: React.ReactNode;
 }
+
 export interface LumenWizardAction {
   readonly actionId: string;
   readonly value?: string | undefined;
 }
+
 export interface LumenWizardProps {
   readonly variant: number;
   readonly variantId: string;
@@ -385,15 +428,19 @@ export interface LumenWizardProps {
   readonly state?: string | undefined;
   readonly visualMode?: string | undefined;
 }
+
 export type LumenWizardVariantProps = Omit<LumenWizardProps, 'variant' | 'variantId'>;
 
 const Context = React.createContext<LumenWizardContent | undefined>(undefined);
+
 export function LumenWizardProvider({ content, children }: LumenWizardProviderProps) {
   return <Context.Provider value={content}>{children}</Context.Provider>;
 }
+
 export function useLumenWizardContent() {
   return React.useContext(Context);
 }
+
 export function uniqueLumenWizardItems<T extends { readonly id: string }>(items: readonly T[]) {
   const seen = new Set<string>();
   return items.filter((item) => {
@@ -404,12 +451,14 @@ export function uniqueLumenWizardItems<T extends { readonly id: string }>(items:
     return true;
   });
 }
+
 export function selectLumenWizardItem<T extends { readonly id: string }>(
   items: readonly T[],
   id: string | undefined,
 ) {
   return items.find((item) => item.id === id) ?? items[0];
 }
+
 const report = (fn: LumenWizardProps['onAction'], actionId: string, value?: string) =>
   fn?.(value === undefined ? { actionId } : { actionId, value });
 
@@ -427,6 +476,7 @@ function Glyph({ name }: { name: 'back' | 'next' | 'close' | 'check' | 'service'
     </svg>
   );
 }
+
 function Root({
   variant,
   variantId,
@@ -437,7 +487,14 @@ function Root({
   className,
   children,
 }: Omit<LumenWizardProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
-  const plain = variant === 1 || Boolean(className?.includes('hbar-app-ui-wizard-invoice-reference')) || Boolean(className?.includes('hbar-app-ui-wizard-upgrade-reference')) || Boolean(className?.includes('hbar-app-ui-wizard-environment-reference')) || Boolean(className?.includes('hbar-app-ui-wizard-review-reference')) || Boolean(className?.includes('hbar-app-ui-wizard-migration-reference')) || Boolean(className?.includes('hbar-app-ui-wizard-shipping-reference'));
+  const plain =
+    variant === 1 ||
+    Boolean(className?.includes('hbar-app-ui-wizard-invoice-reference')) ||
+    Boolean(className?.includes('hbar-app-ui-wizard-upgrade-reference')) ||
+    Boolean(className?.includes('hbar-app-ui-wizard-environment-reference')) ||
+    Boolean(className?.includes('hbar-app-ui-wizard-review-reference')) ||
+    Boolean(className?.includes('hbar-app-ui-wizard-migration-reference')) ||
+    Boolean(className?.includes('hbar-app-ui-wizard-shipping-reference'));
   const contentClassName = [
     'lumen-wizard-stage',
     `hbar-app-ui-wizard-variant-${variant}`,
@@ -464,9 +521,11 @@ function Root({
     </LumenSurface>
   );
 }
+
 function Frame({ children }: { readonly children: React.ReactNode }) {
   return <div className="lumen-wizard-frame">{children}</div>;
 }
+
 function Header({
   title,
   detail,
@@ -490,9 +549,11 @@ function Header({
     </header>
   );
 }
+
 function Footer({ children }: { readonly children: React.ReactNode }) {
   return <footer className="lumen-wizard-footer">{children}</footer>;
 }
+
 function StepRail({
   steps,
   currentId,
@@ -520,6 +581,7 @@ function StepRail({
     </nav>
   );
 }
+
 function Empty({ children }: { readonly children: string }) {
   return (
     <LumenText as="p" className="lumen-wizard-empty" tone="muted">
@@ -527,6 +589,7 @@ function Empty({ children }: { readonly children: string }) {
     </LumenText>
   );
 }
+
 function Information(
   props: Omit<LumenWizardProps, 'content'> & { content: LumenWizardInformationContent },
 ) {
@@ -612,6 +675,7 @@ function Information(
     </Root>
   );
 }
+
 function Invoice(
   props: Omit<LumenWizardProps, 'content'> & { content: LumenWizardInvoiceContent },
 ) {
@@ -667,34 +731,28 @@ function Invoice(
                 controlId="wizard-invoice-currency"
                 label={props.content.labels.currency}
               >
-                <LumenSelect
-                  value={selectLumenWizardItem(currencies, currencyId)?.id ?? ''}
-                  onChange={(event) => {
-                    setCurrencyId(event.target.value);
-                    report(props.onAction, 'currency', event.target.value);
+                <LumenChoiceSelect
+                  id="wizard-invoice-currency"
+                  label={props.content.labels.currency}
+                  options={currencies}
+                  value={selectLumenWizardItem(currencies, currencyId)?.id ?? null}
+                  onValueChange={(id) => {
+                    setCurrencyId(id);
+                    report(props.onAction, 'currency', id);
                   }}
-                >
-                  {currencies.map((choice) => (
-                    <option key={choice.id} value={choice.id}>
-                      {choice.label}
-                    </option>
-                  ))}
-                </LumenSelect>
+                />
               </LumenFormField>
               <LumenFormField controlId="wizard-invoice-terms" label={props.content.labels.terms}>
-                <LumenSelect
-                  value={selectLumenWizardItem(terms, termsId)?.id ?? ''}
-                  onChange={(event) => {
-                    setTermsId(event.target.value);
-                    report(props.onAction, 'terms', event.target.value);
+                <LumenChoiceSelect
+                  id="wizard-invoice-terms"
+                  label={props.content.labels.terms}
+                  options={terms}
+                  value={selectLumenWizardItem(terms, termsId)?.id ?? null}
+                  onValueChange={(id) => {
+                    setTermsId(id);
+                    report(props.onAction, 'terms', id);
                   }}
-                >
-                  {terms.map((choice) => (
-                    <option key={choice.id} value={choice.id}>
-                      {choice.label}
-                    </option>
-                  ))}
-                </LumenSelect>
+                />
               </LumenFormField>
             </div>
             <LumenText as="p" tone="muted">
@@ -715,6 +773,7 @@ function Invoice(
     </Root>
   );
 }
+
 function Upgrade(
   props: Omit<LumenWizardProps, 'content'> & { content: LumenWizardUpgradeContent },
 ) {
@@ -732,34 +791,30 @@ function Upgrade(
               {props.content.labels.plans}
             </LumenText>
             {plans.length ? (
-              <div
+              <LumenRadioGroup
                 className="lumen-wizard-choice-list hbar-app-ui-wizard-plan-list"
-                role="radiogroup"
-                aria-label={props.content.labels.plans}
-                data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
-              >
-                {plans.map((item) => (
-                  <LumenButton
-                    key={item.id}
-                    variant="outlined"
-                    role="radio"
-                    aria-checked={item.id === plan?.id}
-                    onClick={() => {
-                      setPlanId(item.id);
-                      report(props.onAction, 'plan', item.id);
-                    }}
-                  >
-                    <span>
-                      <strong>{item.label}</strong>
-                      <small>{item.detail}</small>
-                    </span>
-                    <span>
+                name={`${props.variantId}-plan`}
+                label={props.content.labels.plans}
+                hideLabel
+                appearance="card"
+                value={plan?.id ?? null}
+                listStrategyKind={props.content.listStrategy.kind}
+                options={plans.map((item) => ({
+                  id: item.id,
+                  label: item.label,
+                  description: item.detail,
+                  endAdornment: (
+                    <React.Fragment>
                       {item.badge ? <LumenStatus value={item.badge} tone="success" /> : null}
                       <b>{item.price}</b>
-                    </span>
-                  </LumenButton>
-                ))}
-              </div>
+                    </React.Fragment>
+                  ),
+                }))}
+                onValueChange={(id) => {
+                  setPlanId(id);
+                  report(props.onAction, 'plan', id);
+                }}
+              />
             ) : (
               <Empty>{props.content.labels.empty}</Empty>
             )}
@@ -793,6 +848,7 @@ function Upgrade(
     </Root>
   );
 }
+
 function Environment(
   props: Omit<LumenWizardProps, 'content'> & { content: LumenWizardEnvironmentContent },
 ) {
@@ -837,19 +893,13 @@ function Environment(
               data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
             >
               {services.map((service) => (
-                <LumenButton
+                <LumenCheckBox
                   key={service.id}
-                  variant="outlined"
-                  role="checkbox"
-                  aria-checked={selected.has(service.id)}
-                  onClick={() => toggle(service.id)}
-                >
-                  <Glyph name={selected.has(service.id) ? 'check' : 'service'} />
-                  <span>
-                    <strong>{service.label}</strong>
-                    <small>{service.detail}</small>
-                  </span>
-                </LumenButton>
+                  label={service.label}
+                  description={service.detail}
+                  checked={selected.has(service.id)}
+                  onChange={() => toggle(service.id)}
+                />
               ))}
             </div>
           ) : (
@@ -873,6 +923,7 @@ function Environment(
     </Root>
   );
 }
+
 function Review(props: Omit<LumenWizardProps, 'content'> & { content: LumenWizardReviewContent }) {
   const sections = uniqueLumenWizardItems(props.content.sections);
   const [submitted, setSubmitted] = React.useState(false);
@@ -900,9 +951,11 @@ function Review(props: Omit<LumenWizardProps, 'content'> & { content: LumenWizar
                     <LumenText as="h2" variant="heading">
                       {section.label}
                     </LumenText>
-                    <LumenText as="p" tone="muted">
-                      {section.detail}
-                    </LumenText>
+                    {section.detail ? (
+                      <LumenText as="p" tone="muted">
+                        {section.detail}
+                      </LumenText>
+                    ) : null}
                   </div>
                   <strong>{section.value}</strong>
                   {section.status ? <LumenStatus value={section.status} tone="success" /> : null}
@@ -940,6 +993,7 @@ function Review(props: Omit<LumenWizardProps, 'content'> & { content: LumenWizar
     </Root>
   );
 }
+
 function Migration(
   props: Omit<LumenWizardProps, 'content'> & { content: LumenWizardMigrationContent },
 ) {
@@ -968,16 +1022,12 @@ function Migration(
                         tone={value === 100 ? 'success' : 'neutral'}
                       />
                     </div>
-                    <div
+                    <LumenProgress
                       className="lumen-wizard-progress"
-                      role="progressbar"
-                      aria-label={item.label}
-                      aria-valuemin={0}
-                      aria-valuemax={100}
-                      aria-valuenow={value}
-                    >
-                      <i style={{ inlineSize: `${value}%` }} />
-                    </div>
+                      label={item.label}
+                      value={value}
+                      tone={value === 100 ? 'success' : 'info'}
+                    />
                     <LumenText as="small" tone="muted">
                       {props.content.labels.progress(value)}
                     </LumenText>
@@ -1006,6 +1056,7 @@ function Migration(
     </Root>
   );
 }
+
 function Shipping(
   props: Omit<LumenWizardProps, 'content'> & { content: LumenWizardShippingContent },
 ) {
@@ -1069,15 +1120,26 @@ function Shipping(
     </Root>
   );
 }
+
 function empty(props: LumenWizardProps) {
   return <Root {...props}>{null}</Root>;
 }
+
 export function LumenWizard(props: LumenWizardProps) {
   const providerContent = useLumenWizardContent();
   const content = props.content ?? providerContent;
   if (props.variant === 1) {
     if (content?.referenceInformation) {
-      return <Root {...props} className={[props.className, 'hbar-app-ui-wizard-information-reference'].filter(Boolean).join(' ')}><InformationReference content={content} /></Root>;
+      return (
+        <Root
+          {...props}
+          className={[props.className, 'hbar-app-ui-wizard-information-reference']
+            .filter(Boolean)
+            .join(' ')}
+        >
+          <InformationReference content={content} />
+        </Root>
+      );
     }
     return content?.information ? (
       <Information {...props} content={content.information} />
@@ -1087,19 +1149,46 @@ export function LumenWizard(props: LumenWizardProps) {
   }
   if (props.variant === 2) {
     if (content?.referenceInvoice) {
-      return <Root {...props} className={[props.className, 'hbar-app-ui-wizard-invoice-reference'].filter(Boolean).join(' ')}><InvoiceReference content={content} /></Root>;
+      return (
+        <Root
+          {...props}
+          className={[props.className, 'hbar-app-ui-wizard-invoice-reference']
+            .filter(Boolean)
+            .join(' ')}
+        >
+          <InvoiceReference content={content} />
+        </Root>
+      );
     }
     return content?.invoice ? <Invoice {...props} content={content.invoice} /> : empty(props);
   }
   if (props.variant === 3) {
     if (content?.referenceUpgrade) {
-      return <Root {...props} className={[props.className, 'hbar-app-ui-wizard-upgrade-reference'].filter(Boolean).join(' ')}><UpgradeReference content={content} /></Root>;
+      return (
+        <Root
+          {...props}
+          className={[props.className, 'hbar-app-ui-wizard-upgrade-reference']
+            .filter(Boolean)
+            .join(' ')}
+        >
+          <UpgradeReference content={content} />
+        </Root>
+      );
     }
     return content?.upgrade ? <Upgrade {...props} content={content.upgrade} /> : empty(props);
   }
   if (props.variant === 4) {
     if (content?.referenceEnvironment) {
-      return <Root {...props} className={[props.className, 'hbar-app-ui-wizard-environment-reference'].filter(Boolean).join(' ')}><EnvironmentReference content={content} /></Root>;
+      return (
+        <Root
+          {...props}
+          className={[props.className, 'hbar-app-ui-wizard-environment-reference']
+            .filter(Boolean)
+            .join(' ')}
+        >
+          <EnvironmentReference content={content} />
+        </Root>
+      );
     }
     return content?.environment ? (
       <Environment {...props} content={content.environment} />
@@ -1109,27 +1198,68 @@ export function LumenWizard(props: LumenWizardProps) {
   }
   if (props.variant === 5) {
     if (content?.referenceReview) {
-      return <Root {...props} className={[props.className, 'hbar-app-ui-wizard-review-reference', 'hbar-app-ui-stage-padding-owner'].filter(Boolean).join(' ')}><ReviewReference content={content} /></Root>;
+      return (
+        <Root
+          {...props}
+          className={[
+            props.className,
+            'hbar-app-ui-wizard-review-reference',
+            'hbar-app-ui-stage-padding-owner',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        >
+          <ReviewReference content={content} />
+        </Root>
+      );
     }
     return content?.review ? <Review {...props} content={content.review} /> : empty(props);
   }
   if (props.variant === 6) {
     if (content?.referenceMigration) {
-      return <Root {...props} className={[props.className, 'hbar-app-ui-wizard-migration-reference', 'hbar-app-ui-stage-padding-owner'].filter(Boolean).join(' ')}><MigrationReference content={content} /></Root>;
+      return (
+        <Root
+          {...props}
+          className={[
+            props.className,
+            'hbar-app-ui-wizard-migration-reference',
+            'hbar-app-ui-stage-padding-owner',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        >
+          <MigrationReference content={content} />
+        </Root>
+      );
     }
     return content?.migration ? <Migration {...props} content={content.migration} /> : empty(props);
   }
   if (props.variant === 7) {
     if (content?.referenceShipping) {
-      return <Root {...props} className={[props.className, 'hbar-app-ui-wizard-shipping-reference', 'hbar-app-ui-stage-padding-owner'].filter(Boolean).join(' ')}><ShippingReference content={content} /></Root>;
+      return (
+        <Root
+          {...props}
+          className={[
+            props.className,
+            'hbar-app-ui-wizard-shipping-reference',
+            'hbar-app-ui-stage-padding-owner',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        >
+          <ShippingReference content={content} />
+        </Root>
+      );
     }
     return content?.shipping ? <Shipping {...props} content={content.shipping} /> : empty(props);
   }
   return empty(props);
 }
+
 function variant(value: number, props: LumenWizardVariantProps) {
   return <LumenWizard {...props} variant={value} variantId={`hbar-app-ui-wizard-${value}`} />;
 }
+
 export const LumenWizard01 = (props: LumenWizardVariantProps) => variant(1, props),
   LumenWizard02 = (props: LumenWizardVariantProps) => variant(2, props),
   LumenWizard03 = (props: LumenWizardVariantProps) => variant(3, props),

@@ -4,7 +4,7 @@ import * as React from 'react';
 import { LumenToggleControl } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import type { LumenToolCallsIntent, LumenToolCallsViewModel } from './tool-calls/view-model';
+import { type LumenToolCallsIntent, type LumenToolCallsViewModel } from './tool-calls/view-model';
 import './tool-calls.css';
 import './tool-calls/controlled-flow.css';
 
@@ -210,6 +210,7 @@ export interface LumenToolCallsProps {
 export type LumenToolCallsVariantProps = Omit<LumenToolCallsProps, 'variant' | 'variantId'>;
 
 const ToolCallsContentContext = React.createContext<LumenToolCallsContent | undefined>(undefined);
+
 const ToolCallsViewModelContext = React.createContext<LumenToolCallsViewModel | undefined>(
   undefined,
 );
@@ -257,9 +258,15 @@ function dispatch(
 }
 
 function toolStateTone(state: LumenToolCallsState): 'neutral' | 'success' | 'warning' | 'danger' {
-  if (state === 'complete' || state === 'approved') return 'success';
-  if (state === 'failed') return 'danger';
-  if (state === 'running' || state === 'streaming' || state === 'needs-approval') return 'warning';
+  if (state === 'complete' || state === 'approved') {
+    return 'success';
+  }
+  if (state === 'failed') {
+    return 'danger';
+  }
+  if (state === 'running' || state === 'streaming' || state === 'needs-approval') {
+    return 'warning';
+  }
   return 'neutral';
 }
 
@@ -399,7 +406,6 @@ function ToolTrace(
   const items = uniqueLumenToolCallsItems(content.items);
   const [openId, setOpenId] = React.useState(content.activeItemId);
   const activeItem = selectLumenToolCallsItem(items, openId);
-  React.useEffect(() => setOpenId(content.activeItemId), [content.activeItemId]);
 
   return (
     <ToolCallsRoot {...props} className="hbar-app-ui-tool-calls-trace">
@@ -619,7 +625,6 @@ function ToolDiffResult(
   const files = uniqueLumenToolCallsItems(content.files);
   const [openFileId, setOpenFileId] = React.useState(content.activeFileId);
   const openFile = selectLumenToolCallsItem(files, openFileId);
-  React.useEffect(() => setOpenFileId(content.activeFileId), [content.activeFileId]);
 
   return (
     <ToolCallsRoot {...props} className="hbar-app-ui-tool-calls-diff">
@@ -835,8 +840,12 @@ function ToolCommandOutput(
 function permissionTone(
   tone: LumenToolCallsPermissionAction['tone'],
 ): 'neutral' | 'primary' | 'danger' {
-  if (tone === 'accent') return 'primary';
-  if (tone === 'danger') return 'danger';
+  if (tone === 'accent') {
+    return 'primary';
+  }
+  if (tone === 'danger') {
+    return 'danger';
+  }
   return 'neutral';
 }
 
@@ -1058,18 +1067,23 @@ function toolCallsVariant(variant: number, props: LumenToolCallsVariantProps) {
 export function LumenToolCalls01(props: LumenToolCallsVariantProps) {
   return toolCallsVariant(1, props);
 }
+
 export function LumenToolCalls02(props: LumenToolCallsVariantProps) {
   return toolCallsVariant(2, props);
 }
+
 export function LumenToolCalls03(props: LumenToolCallsVariantProps) {
   return toolCallsVariant(3, props);
 }
+
 export function LumenToolCalls04(props: LumenToolCallsVariantProps) {
   return toolCallsVariant(4, props);
 }
+
 export function LumenToolCalls05(props: LumenToolCallsVariantProps) {
   return toolCallsVariant(5, props);
 }
+
 export function LumenToolCalls06(props: LumenToolCallsVariantProps) {
   return toolCallsVariant(6, props);
 }

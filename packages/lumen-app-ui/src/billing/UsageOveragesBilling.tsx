@@ -1,5 +1,6 @@
+'use client';
+import * as React from 'react';
 import { Bell, Bolt, Database, Mail, Users } from './glyphs';
-import { useMemo, useState } from 'react';
 import type { LumenBillingCompositionProps } from './primitives';
 import type { LumenBillingUsageContent, LumenBillingUsageMeter } from './content';
 import {
@@ -27,17 +28,19 @@ function UsageMeterIcon({ meter }: { readonly meter: LumenBillingUsageMeter }) {
   }
 }
 
-export function UsageOveragesBilling({
+export default function UsageOveragesBilling({
   spec,
   onAction,
   content,
 }: LumenBillingCompositionProps & {
   readonly content: LumenBillingUsageContent;
 }) {
-  const periods = useMemo(() => {
+  const periods = React.useMemo(() => {
     const seen = new Set<string>();
     return content.periods.filter((period) => {
-      if (seen.has(period.id)) return false;
+      if (seen.has(period.id)) {
+        return false;
+      }
       seen.add(period.id);
       return true;
     });
@@ -45,10 +48,10 @@ export function UsageOveragesBilling({
   const initialPeriod = periods.some((period) => period.id === content.initialPeriodId)
     ? content.initialPeriodId
     : (periods[0]?.id ?? '');
-  const [periodId, setPeriodId] = useState(initialPeriod);
+  const [periodId, setPeriodId] = React.useState(initialPeriod);
 
   return (
-    <BillingFrame spec={spec} onAction={onAction} className="hbar-app-ui-billing-usage-surface">
+    <BillingFrame spec={spec} className="hbar-app-ui-billing-usage-surface">
       <main className="hbar-app-ui-billing-usage-page">
         <header className="hbar-app-ui-billing-topbar">
           <div>

@@ -3,13 +3,10 @@
 import * as React from 'react';
 import { LumenInput } from '../forms';
 import { LumenButton } from '../primitives';
-import type {
-  LumenAuthTwoStepContent,
-  LumenAuthTwoStepReferenceFlow,
-} from './content';
+import { type LumenAuthTwoStepContent, type LumenAuthTwoStepReferenceFlow } from './content';
 import { ArrowRight, Mail } from './glyphs';
-import type { LumenAuthCompositionProps } from './primitives';
 import {
+  type LumenAuthCompositionProps,
   AuthArrow,
   AuthBrand,
   AuthCard,
@@ -210,11 +207,7 @@ function ControlledTwoStepAuthentication({
   );
 }
 
-function LegacyTwoStepAuthentication({
-  spec,
-  onAction,
-  content,
-}: TwoStepAuthenticationProps) {
+function LegacyTwoStepAuthentication({ spec, onAction, content }: TwoStepAuthenticationProps) {
   const [step, setStep] = React.useState<1 | 2>(1);
   const [email, setEmail] = React.useState(content.initialEmail);
   const [password, setPassword] = React.useState('');
@@ -223,11 +216,14 @@ function LegacyTwoStepAuthentication({
   const [busy, setBusy] = React.useState<'continue' | 'sign-in' | null>(null);
   const timeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  React.useEffect(() => () => {
-    if (timeout.current) {
-      clearTimeout(timeout.current);
-    }
-  }, []);
+  React.useEffect(
+    () => () => {
+      if (timeout.current) {
+        clearTimeout(timeout.current);
+      }
+    },
+    [],
+  );
 
   const schedule = (action: () => void, delay: number) => {
     if (timeout.current) {
@@ -290,8 +286,15 @@ function LegacyTwoStepAuthentication({
                   />
                   {invalidEmail && <small role="alert">{content.labels.invalidEmail}</small>}
                 </div>
-                <LumenButton type="submit" indicator="none" disabled={busy === 'continue'} className="hbar-app-ui-auth-two-step-primary">
-                  {busy === 'continue' ? <span className="hbar-app-ui-auth-two-step-spinner" aria-hidden="true" /> : null}
+                <LumenButton
+                  type="submit"
+                  indicator="none"
+                  disabled={busy === 'continue'}
+                  className="hbar-app-ui-auth-two-step-primary"
+                >
+                  {busy === 'continue' ? (
+                    <span className="hbar-app-ui-auth-two-step-spinner" aria-hidden="true" />
+                  ) : null}
                   {busy === 'continue' ? content.labels.continuing : content.labels.continueLabel}
                   {busy === 'continue' ? null : <AuthArrow />}
                 </LumenButton>
@@ -302,7 +305,9 @@ function LegacyTwoStepAuthentication({
                 className="hbar-app-ui-auth-two-step-secondary"
                 onClick={() => onAction?.({ variantId: spec.id, actionId: 'magic-link' })}
               >
-                <AuthIcon tier="sm"><Mail /></AuthIcon>
+                <AuthIcon tier="sm">
+                  <Mail />
+                </AuthIcon>
                 {content.labels.magicLink}
               </LumenButton>
             </div>
@@ -321,10 +326,13 @@ function LegacyTwoStepAuthentication({
                   setStep(1);
                 }}
               >
-                <AuthArrow back />{content.labels.back}
+                <AuthArrow back />
+                {content.labels.back}
               </LumenButton>
               <div className="hbar-app-ui-auth-two-step-account">
-                <span className="hbar-app-ui-auth-two-step-avatar" aria-hidden="true">{content.account.initials}</span>
+                <span className="hbar-app-ui-auth-two-step-avatar" aria-hidden="true">
+                  {content.account.initials}
+                </span>
                 <div>
                   <strong>{content.account.name}</strong>
                   <small>{content.account.organization}</small>
@@ -337,7 +345,9 @@ function LegacyTwoStepAuthentication({
                     type="button"
                     indicator="none"
                     onClick={() => onAction?.({ variantId: spec.id, actionId: 'forgot-password' })}
-                  >{content.labels.forgotPassword}</LumenButton>
+                  >
+                    {content.labels.forgotPassword}
+                  </LumenButton>
                 </div>
                 <div className="hbar-app-ui-auth-input-wrap">
                   <LumenInput
@@ -357,8 +367,15 @@ function LegacyTwoStepAuthentication({
                     onToggle={() => setVisible((current) => !current)}
                   />
                 </div>
-                <LumenButton type="submit" indicator="none" disabled={busy === 'sign-in'} className="hbar-app-ui-auth-two-step-primary">
-                  {busy === 'sign-in' && <span className="hbar-app-ui-auth-two-step-spinner" aria-hidden="true" />}
+                <LumenButton
+                  type="submit"
+                  indicator="none"
+                  disabled={busy === 'sign-in'}
+                  className="hbar-app-ui-auth-two-step-primary"
+                >
+                  {busy === 'sign-in' && (
+                    <span className="hbar-app-ui-auth-two-step-spinner" aria-hidden="true" />
+                  )}
                   {busy === 'sign-in' ? content.labels.signingIn : content.labels.signIn}
                 </LumenButton>
               </form>

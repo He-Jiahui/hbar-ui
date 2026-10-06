@@ -65,9 +65,10 @@ describe('Lumen application components', () => {
       'data-invalid',
       'true',
     );
-    expect(
-      container.querySelectorAll('[data-boundary="horizontal"] > [data-tone="danger"]'),
-    ).to.have.length(2);
+    expect(container.querySelector('[data-boundary="horizontal"]')).to.have.attribute(
+      'data-lumen-tone',
+      'danger',
+    );
   });
 
   it('keeps combobox selection and open state in the host', async () => {
@@ -152,6 +153,7 @@ describe('Lumen application components', () => {
     const input = screen.getByRole('combobox');
     await user.click(input);
     await user.keyboard('{ArrowDown}');
+    await user.keyboard('{ArrowDown}');
     expect(onValueChange).not.toHaveBeenCalled();
     expect(input.getAttribute('aria-activedescendant')).to.contain('-1');
     await user.keyboard('{Enter}');
@@ -161,7 +163,7 @@ describe('Lumen application components', () => {
   });
 
   it('renders bounded page, tool, monitoring, and dialog regions', () => {
-    const { container } = render(
+    render(
       <LumenProvider appearance={appearance} withCssBaseline={false}>
         <LumenPageHeader
           title="Status"
@@ -179,7 +181,7 @@ describe('Lumen application components', () => {
             empty="Empty"
           />
         </LumenToolPane>
-        <LumenDialog open={false} title="Preferences" closeLabel="Close" onClose={() => undefined}>
+        <LumenDialog open title="Preferences" closeLabel="Close" onClose={() => undefined}>
           Dialog body
         </LumenDialog>
       </LumenProvider>,
@@ -189,7 +191,9 @@ describe('Lumen application components', () => {
     expect(screen.getByRole('region', { name: 'Files' })).not.toBeNull();
     expect(screen.getByRole('img', { name: 'Activity' })).not.toBeNull();
     expect(screen.getByText('Dialog body')).not.toBeNull();
-    const dialogSurface = container.querySelector('dialog > [data-boundary="horizontal"]');
+    const dialogSurface = screen
+      .getByRole('dialog', { name: 'Preferences' })
+      .querySelector('[data-boundary="horizontal"]');
     expect(dialogSurface).not.to.equal(null);
     expect(dialogSurface?.querySelectorAll('[role="separator"]')).to.have.length(1);
   });
@@ -471,7 +475,7 @@ describe('Lumen application components', () => {
     await user.click(screen.getByRole('radio', { name: /Fast/ }));
     const composer = screen.getByRole('textbox', { name: 'Prompt' }).closest('form');
     expect(composer).to.have.attribute('data-boundary', 'horizontal');
-    expect(composer?.querySelectorAll(':scope > [data-state="selected"]')).to.have.length(2);
+    expect(composer).to.have.attribute('data-lumen-state', 'selected');
     expect(onChange).toHaveBeenCalled();
     expect(onSubmit).toHaveBeenCalledTimes(1);
     expect(onDecision).toHaveBeenCalledWith('approval', 'allow');

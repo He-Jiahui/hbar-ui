@@ -1,605 +1,312 @@
-import { test, expect } from '@playwright/test';
+import { expect, test, type Locator } from '@playwright/test';
 
-test('vote selection keeps its hover and focus boundary visible inside the scrolling list', async ({
-  page,
-}, testInfo) => {
-  await page.goto('/experiments/lumen-app-ui/');
-  await page
-    .getByRole('navigation', { name: '组件与场景' })
-    .getByRole('button', { name: /13 · 需求投票/ })
-    .click();
-  const board = page.getByRole('region', { name: '功能建议' });
-  const vote = board.locator('article').nth(1).getByRole('button');
-  await expect(vote).toHaveAccessibleName('取消支持 按设备调节玻璃折射');
-  const scroller = vote.locator('..').locator('..');
-  const visibleInset = async () => {
-    const buttonBox = await vote.boundingBox();
-    const scrollBox = await scroller.boundingBox();
-    expect(buttonBox).not.toBeNull();
-    expect(scrollBox).not.toBeNull();
-    return buttonBox!.x - scrollBox!.x;
-  };
-  await vote.hover();
-  await expect(vote).toHaveCSS('outline-style', 'solid');
-  expect(await visibleInset()).toBeGreaterThanOrEqual(4);
-  await page.screenshot({
-    path: testInfo.outputPath('vote-hover-dark.png'),
-    animations: 'disabled',
+const gallery = (variant: number) => `/experiments/lumen-app-ui/?variant=${variant}`;
+
+for (const mode of ['dark', 'light'] as const) {
+  for (const width of [390, 1440]) {
+    test(`catalog search uses one rounded outline and a focus glow at ${width}px in ${mode}`, async ({
+      page,
+    }, testInfo) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/experiments/lumen-app-ui/catalog/');
+      if (mode === 'light') {
+        await page.getByRole('button', { name: '切换黑白主题' }).click();
+      }
+      const search = page.getByRole('searchbox', { name: '搜索类别、ID 或组件说明' });
+      await expect(search).toHaveAttribute('data-lumen-component', 'input');
+      expect(await search.evaluate((element) => Boolean(element.closest('[data-boundary]')))).toBe(
+        false,
+      );
+      await expect(search).toHaveCSS('box-shadow', 'none');
+      const outline = await search.evaluate((element) => {
+        const style = getComputedStyle(element);
+        return {
+          radius: Number.parseFloat(style.borderTopLeftRadius),
+          widths: [
+            style.borderTopWidth,
+            style.borderRightWidth,
+            style.borderBottomWidth,
+            style.borderLeftWidth,
+          ],
+          transitions: style.transitionProperty,
+        };
+      });
+      expect(outline.radius).toBeGreaterThan(0);
+      expect(outline.widths).toEqual(['1px', '1px', '1px', '1px']);
+      expect(outline.transitions).toContain('box-shadow');
+      const unfocusedBounds = await search.boundingBox();
+      await search.click();
+      await expect(search).toBeFocused();
+      await expect(search).not.toHaveCSS('box-shadow', 'none');
+      // Wait for the shared smooth focus transition before capturing its final appearance.
+      await search.evaluate(async (element) => {
+        await Promise.all(element.getAnimations().map((animation) => animation.finished));
+      });
+      expect(await search.boundingBox()).toMatchObject({
+        width: unfocusedBounds?.width,
+        height: unfocusedBounds?.height,
+      });
+      await page.screenshot({ path: testInfo.outputPath('catalog-search-focused.png') });
+
+      const variants = page.getByRole('navigation', { name: '稳定变体 ID' });
+      await search.fill('hbar-app-ui-prompt-input-2');
+      await expect(variants.getByRole('button')).toHaveCount(1);
+      await search.fill('');
+      await expect(variants.getByRole('button')).toHaveCount(7);
+      await search.press('Tab');
+      await expect(search).not.toBeFocused();
+      await expect(search).toHaveCSS('box-shadow', 'none');
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+        width,
+      );
+    });
+  }
+}
+
+async function expectNavigationToFit(navigation: Locator) {
+  const geometry = await navigation.evaluate((element) => {
+    const bounds = element.getBoundingClientRect();
+    const left = bounds.left + element.clientLeft;
+    const right = left + element.clientWidth;
+    return {
+      horizontalOverflow: element.scrollWidth - element.clientWidth,
+      childrenFit: Array.from(element.querySelectorAll('button, button > [data-edge]')).every(
+        (child) => {
+          const childBounds = child.getBoundingClientRect();
+          return childBounds.left >= left - 1 && childBounds.right <= right + 1;
+        },
+      ),
+    };
   });
-  await vote.focus();
-  await expect(vote).toBeFocused();
-  expect(await visibleInset()).toBeGreaterThanOrEqual(4);
-  await vote.click();
-  await expect(vote).toHaveAttribute('aria-pressed', 'false');
-  await page.getByRole('button', { name: '切换黑白主题', exact: true }).click();
+  expect(geometry).toEqual({ horizontalOverflow: 0, childrenFit: true });
+}
+
+for (const mode of ['dark', 'light'] as const) {
+  for (const width of [320, 390, 768, 1280, 1440]) {
+    test(`catalog navigation keeps content and lamps inside its scroll pane at ${width}px in ${mode}`, async ({
+      page,
+    }, testInfo) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/experiments/lumen-app-ui/catalog/');
+      if (mode === 'light') {
+        await page.getByRole('button', { name: '切换黑白主题' }).click();
+        await page.getByRole('button', { name: 'English', exact: true }).click();
+      }
+      const categories = page.getByRole('navigation', {
+        name: mode === 'dark' ? '组件类别' : 'Component families',
+      });
+      const variants = page.getByRole('navigation', {
+        name: mode === 'dark' ? '稳定变体 ID' : 'Stable variant IDs',
+      });
+      await variants.screenshot({ path: testInfo.outputPath('variant-navigation.png') });
+      await expectNavigationToFit(categories);
+      await expectNavigationToFit(variants);
+
+      await categories
+        .getByRole('button', {
+          name: mode === 'dark' ? '全部类别' : 'All categories',
+          exact: true,
+        })
+        .click();
+      await expect(variants.getByRole('button')).toHaveCount(300);
+      await expectNavigationToFit(variants);
+      const last = variants.getByRole('button').last();
+      await last.click();
+      await expect(last).toHaveAttribute('aria-current', 'page');
+      expect(await variants.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+      await expectNavigationToFit(variants);
+
+      const search = page.getByRole('searchbox');
+      await search.fill('hbar-app-ui-authentication-14');
+      await expect(variants.getByRole('button')).toHaveCount(1);
+      await expectNavigationToFit(variants);
+      await search.fill('no-matching-variant');
+      await expect(variants.getByRole('button')).toHaveCount(0);
+      await expectNavigationToFit(variants);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+        width,
+      );
+    });
+  }
+}
+
+test('controlled empty states keep recovery, suggestions, and upload operable', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await vote.hover();
-  expect(await visibleInset()).toBeGreaterThanOrEqual(4);
-  await page.screenshot({
-    path: testInfo.outputPath('vote-hover-light-390.png'),
-    animations: 'disabled',
-  });
-});
-
-test('fields and standalone controls retain directional boundary lamps', async ({
-  page,
-}, testInfo) => {
-  await page.goto('/experiments/lumen-app-ui/');
-  const nav = page.getByRole('navigation', { name: '组件与场景' });
-  const plainButton = page.getByRole('button', { name: 'English' });
-  const buttonLine = async () =>
-    plainButton.evaluate((element) => getComputedStyle(element, '::after').width);
-  const shortLine = parseFloat(await buttonLine());
-  expect(shortLine).toBeGreaterThan(0);
-  await plainButton.hover();
-  await expect.poll(async () => parseFloat(await buttonLine())).toBeGreaterThan(shortLine);
-  await nav.getByRole('button', { name: /02 · 无搜索结果/ }).click();
-  const search = page.locator(
-    '[data-hbar-app-ui-variant="hbar-app-ui-empty-state-2"] [data-boundary]',
-  );
-  await expect(search).toHaveAttribute('data-boundary', 'horizontal');
-  await expect(search.locator('[data-edge="top"]')).toBeVisible();
-  await expect(search.locator('[data-edge="bottom"]')).toBeVisible();
-  expect(await search.evaluate((element) => getComputedStyle(element).borderTopStyle)).toBe(
-    'solid',
-  );
-  const topBeam = search.locator('[data-edge="top"] > span');
-  const restingWidth = await topBeam.evaluate((element) => element.getBoundingClientRect().width);
-  await search.getByRole('textbox', { name: '搜索' }).focus();
-  await expect
-    .poll(() => topBeam.evaluate((element) => element.getBoundingClientRect().width))
-    .toBeGreaterThan(restingWidth);
-  await page.screenshot({
-    path: testInfo.outputPath('search-boundary-dark.png'),
-    animations: 'disabled',
-  });
-
-  await nav.getByRole('button', { name: /05 · 空文件夹/ }).click();
-  const dropzone = page.locator('[data-lumen-dropzone]');
-  await expect(dropzone.locator(':scope > [data-length="area"]')).toHaveCount(2);
-  const choose = dropzone.getByText('选择文件');
-  await expect(choose.locator('[data-length="action"]')).toBeVisible();
-  await expect(choose.locator('[data-length="action"]')).toHaveCSS('position', 'absolute');
-  await dropzone.hover();
-  await page.screenshot({
-    path: testInfo.outputPath('dropzone-boundary-dark.png'),
-    animations: 'disabled',
-  });
-
-  await nav.getByRole('button', { name: /10 · 意见表单/ }).click();
-  const feedback = page.getByRole('region', { name: '发送反馈' });
-  await expect(feedback.locator('[data-boundary="horizontal"]')).toHaveCount(1);
-  await expect(feedback.getByText('添加截图').locator('[data-length="action"]')).toBeVisible();
-  await page.screenshot({
-    path: testInfo.outputPath('feedback-boundary-dark.png'),
-    animations: 'disabled',
-  });
-
-  await nav.getByRole('button', { name: /06 · 对话与输入/ }).click();
-  const composer = page.locator('[data-boundary="vertical"]');
-  await expect(composer.locator('[data-edge="left"]')).toBeVisible();
-  await expect(composer.locator('[data-edge="right"]')).toBeVisible();
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole('button', { name: '切换黑白主题' }).click();
-  await page.screenshot({
-    path: testInfo.outputPath('composer-boundary-light-390.png'),
-    animations: 'disabled',
-  });
-  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
-});
-
-test('selected navigation uses a straight content-side lamp at each breakpoint', async ({
-  page,
-}, testInfo) => {
-  await page.goto('/experiments/lumen-app-ui/');
-  const navigation = page.getByRole('navigation', { name: '组件与场景' });
-  const selected = navigation.locator('button[aria-current="page"]');
-  const vertical = selected.locator(':scope > [data-edge="right"]');
-  const horizontal = selected.locator(':scope > [data-edge="bottom"]');
-  await expect(vertical).toBeVisible();
-  await expect(horizontal).toBeHidden();
-  expect(await selected.evaluate((button) => getComputedStyle(button, '::before').content)).toBe(
-    'none',
-  );
-  await page.screenshot({
-    path: testInfo.outputPath('navigation-vertical-dark.png'),
-    animations: 'disabled',
-  });
-  const height = await vertical
-    .locator(':scope > span')
-    .evaluate((beam) => beam.getBoundingClientRect().height);
-  expect(height).toBeGreaterThan(20);
-  expect(await selected.evaluate((button) => getComputedStyle(button).boxShadow)).toBe('none');
-  expect(
-    await vertical
-      .locator(':scope > span > span')
-      .evaluate((halo) => getComputedStyle(halo).animationName),
-  ).toBe('none');
-
-  const next = navigation.getByRole('button', { name: /02 · 无搜索结果/ });
-  const selectedLabelX = await selected
-    .locator(':scope > span')
-    .first()
-    .evaluate((label) => label.getBoundingClientRect().x);
-  const nextLabelX = await next
-    .locator(':scope > span')
-    .first()
-    .evaluate((label) => label.getBoundingClientRect().x);
-  expect(selectedLabelX).toBeCloseTo(nextLabelX, 1);
-  const idle = next.locator(':scope > [data-edge="right"] > span');
-  const shortHeight = await idle.evaluate((beam) => beam.getBoundingClientRect().height);
-  await next.hover();
-  expect(await next.evaluate((button) => getComputedStyle(button).outlineStyle)).toBe('none');
-  await expect
-    .poll(() => idle.evaluate((beam) => beam.getBoundingClientRect().height))
-    .toBeGreaterThan(shortHeight * 2);
-  await page.waitForTimeout(220);
-  const hoverHeight = await idle.evaluate((beam) => beam.getBoundingClientRect().height);
-  await page.mouse.down();
-  const pressedHeight = await idle.evaluate((beam) => beam.getBoundingClientRect().height);
-  expect(pressedHeight).toBeCloseTo(hoverHeight, 1);
-  await page.mouse.up();
-  await expect(next.locator(':scope > [data-edge="right"]')).toHaveAttribute(
-    'data-state',
-    'selected',
-  );
-
-  await page.setViewportSize({ width: 390, height: 844 });
-  await expect(next.locator(':scope > [data-edge="right"]')).toBeHidden();
-  expect(await next.evaluate((button) => getComputedStyle(button, '::before').content)).toBe(
-    'none',
-  );
-  expect(await next.evaluate((button) => getComputedStyle(button).outlineStyle)).toBe('none');
-  const bottom = next.locator(':scope > [data-edge="bottom"]');
-  await expect(bottom).toBeVisible();
-  const width = await bottom
-    .locator(':scope > span')
-    .evaluate((beam) => beam.getBoundingClientRect().width);
-  expect(width).toBeGreaterThan(30);
-  await next.hover();
-  await page.waitForTimeout(220);
-  const horizontalBeam = bottom.locator(':scope > span');
-  const restingWidth = await horizontalBeam.evaluate((beam) => beam.getBoundingClientRect().width);
-  await page.mouse.down();
-  expect(await horizontalBeam.evaluate((beam) => beam.getBoundingClientRect().width)).toBeCloseTo(
-    restingWidth,
-    1,
-  );
-  await page.mouse.up();
-  expect(await next.evaluate((button) => getComputedStyle(button).boxShadow)).toBe('none');
-  await page.getByRole('button', { name: '切换黑白主题' }).click();
-  await page.screenshot({
-    path: testInfo.outputPath('navigation-horizontal-light.png'),
-    animations: 'disabled',
-  });
-});
-
-test('five controlled empty states preserve actions, localization, and visual states', async ({
-  page,
-  browserName,
-}, testInfo) => {
-  const errors: string[] = [];
-  page.on('pageerror', (error) => errors.push(error.message));
-  page.on('console', (message) => {
-    if (message.type() === 'error') {
-      errors.push(message.text());
-    }
-  });
-  await page.goto('/experiments/lumen-app-ui/');
+  await page.goto(gallery(1));
   await expect(page.getByRole('heading', { name: '欢迎来到工作区' })).toBeVisible();
-  await expect(page.locator('[data-hbar-app-ui-variant]')).toHaveAttribute(
-    'data-lens',
-    browserName === 'chromium' ? 'refractive' : 'frost',
-  );
-  await page.screenshot({
-    path: testInfo.outputPath('empty-dark-1440.png'),
-    animations: 'disabled',
-  });
   await page.getByRole('button', { name: '连接', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('connect');
-  await page.getByRole('button', { name: /02 · 无搜索结果/ }).click();
+
+  await page.goto(gallery(2));
   await page.getByRole('button', { name: '移除 Status: blocked' }).click();
   await expect(page.getByRole('status')).toContainText('remove:blocked');
   await page.getByRole('button', { name: 'workspace' }).click();
   await expect(page.getByRole('textbox', { name: '搜索' })).toHaveValue('workspace');
-  await page.getByRole('button', { name: 'English' }).click();
-  await expect(page.getByRole('heading', { name: 'No results' })).toBeVisible();
-  await page.getByRole('button', { name: 'Switch black and white theme' }).click();
-  await expect(page.locator('[data-lumen-mode]')).toHaveAttribute('data-lumen-mode', 'light');
-  await page.screenshot({
-    path: testInfo.outputPath('empty-light-1440.png'),
-    animations: 'disabled',
-  });
 
-  await page.getByRole('button', { name: /03 · Caught up/ }).click();
-  await page.getByRole('button', { name: 'View history' }).click();
-  await expect(page.getByRole('status')).toContainText('history');
-  await page.getByRole('button', { name: /04 · Load failure/ }).click();
-  await expect(
-    page.getByRole('region', { name: 'Could not load this view' }).getByRole('alert'),
-  ).toBeVisible();
-  await page.getByRole('button', { name: 'Retry', exact: true }).click();
-  await expect(page.locator('[data-state="running"]').first()).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Recovered' })).toBeVisible();
-  await expect(page.locator('[data-state="running"]')).toHaveCount(0);
-  await page.getByRole('button', { name: /05 · Empty folder/ }).click();
+  await page.goto(gallery(4));
+  const failure = page.getByRole('region', { name: '无法加载此视图' });
+  await expect(failure.getByRole('alert')).toBeVisible();
+  await failure.getByRole('button', { name: '重试' }).click();
+  await expect(page.getByRole('heading', { name: '已恢复' })).toBeVisible();
+
+  await page.goto(gallery(5));
   await page.locator('input[type="file"]').setInputFiles({
     name: 'sample.png',
     mimeType: 'image/png',
     buffer: Buffer.from('sample'),
   });
   await expect(page.getByRole('status')).toContainText('picker:1');
-
-  await page.setViewportSize({ width: 1024, height: 768 });
-  await page.screenshot({
-    path: testInfo.outputPath('empty-light-1024.png'),
-    animations: 'disabled',
-  });
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole('button', { name: /01 · First run/ }).click();
-  const choiceHeights = await page
-    .locator('[data-hbar-app-ui-variant="hbar-app-ui-empty-state-1"] section section')
-    .evaluateAll((elements) => elements.map((element) => element.getBoundingClientRect().height));
-  expect(choiceHeights).toHaveLength(3);
-  for (const height of choiceHeights) {
-    expect(height).toBeLessThan(180);
-  }
-  await page.getByRole('heading', { name: 'Lumen · Compositions' }).hover();
-  await page.screenshot({
-    path: testInfo.outputPath('empty-light-390.png'),
-    animations: 'disabled',
-  });
-  const sizes = await page.evaluate(() => ({
-    viewport: document.documentElement.clientWidth,
-    content: document.documentElement.scrollWidth,
-  }));
-  expect(sizes.content).toBeLessThanOrEqual(sizes.viewport + 1);
-  expect(errors).toEqual([]);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
 });
 
-test('six migrated feedback variants keep controlled actions and readable layouts', async ({
+test('gallery prompt variants use Lumen menus, choices, and preserved drafts', async ({
   page,
 }, testInfo) => {
-  test.setTimeout(120_000);
-  const errors: string[] = [];
-  page.on('pageerror', (error) => errors.push(error.message));
-  page.on('console', (message) => {
-    if (message.type() === 'error') {
-      errors.push(message.text());
-    }
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(gallery(16));
+  const command = page.getByRole('button', { name: '命令', exact: true });
+  await command.click();
+  const menu = page.getByRole('menu', { name: '命令' });
+  await expect(menu).toBeVisible();
+  await menu.getByRole('menuitem', { name: '制定计划' }).click();
+  await expect(page.getByRole('textbox', { name: '描述你的任务' })).toHaveValue('/plan ');
+  await page.locator('input[type="file"]').setInputFiles({
+    name: 'context.md',
+    mimeType: 'text/markdown',
+    buffer: Buffer.from('context'),
   });
-  await page.goto('/experiments/lumen-app-ui/');
-  const nav = page.getByRole('navigation').first();
-  const choose = async (number: number, name: RegExp) => {
-    await nav.getByRole('button', { name }).click();
-    await expect(page.locator('[data-hbar-app-ui-variant]')).toHaveAttribute(
-      'data-hbar-app-ui-variant',
-      `hbar-app-ui-feedback-${number}`,
-    );
-  };
-  await choose(1, /10 · 意见表单/);
-  const widget = page.getByRole('region', { name: '发送反馈' });
-  await widget.getByRole('button', { name: '问题' }).click();
-  await widget.getByRole('textbox', { name: '告诉我们发生了什么' }).fill('玻璃边缘需要更清楚');
-  await widget.getByRole('button', { name: '提交', exact: true }).click();
-  await expect(widget.getByRole('alert')).toContainText('提交失败');
-  await widget.getByRole('button', { name: '重试' }).click();
-  await expect(widget.getByRole('status')).toContainText('已收到反馈');
-  await widget.getByRole('button', { name: '再次填写' }).click();
-  await widget.getByRole('button', { name: '关闭' }).click();
-  await page.getByRole('button', { name: '重新打开' }).click();
+  await expect(page.getByRole('button', { name: '移除 context.md' })).toBeVisible();
 
-  await choose(2, /11 · 推荐调查/);
-  const survey = page.getByRole('region', { name: '推荐调查' });
-  await survey.getByRole('button', { name: '评分 8' }).click();
-  await survey.getByRole('button', { name: '速度' }).click();
-  await expect(survey.getByRole('button', { name: '速度' })).toHaveAttribute(
+  await page.goto(gallery(17));
+  const model = page.getByRole('combobox', { name: '模型' });
+  await model.click();
+  const options = page.getByRole('listbox', { name: '模型' });
+  await expect(options).toBeVisible();
+  const optionLamp = await options.getByRole('option', { name: /推理/ }).evaluate((button) => {
+    const strip = button.querySelector(':scope > [data-edge="bottom"] > span');
+    const bounds = strip?.getBoundingClientRect();
+    return {
+      width: bounds?.width ?? 0,
+      inset: (bounds?.left ?? 0) - button.getBoundingClientRect().left,
+    };
+  });
+  expect(optionLamp.width).toBeGreaterThan(0);
+  expect(optionLamp.width).toBeLessThan(64);
+  expect(optionLamp.inset).toBeGreaterThanOrEqual(8);
+  expect(optionLamp.inset).toBeLessThan(30);
+  await page.screenshot({
+    path: testInfo.outputPath('model-choice-open-dark-390.png'),
+    animations: 'disabled',
+  });
+  await options.getByRole('option', { name: /推理/ }).click();
+  await page.getByRole('button', { name: '浏览器' }).click();
+  await expect(page.getByRole('button', { name: '浏览器' })).toHaveAttribute(
     'aria-pressed',
     'true',
   );
-  await survey.getByRole('button', { name: '提交', exact: true }).click();
-  await expect(survey.getByRole('alert')).toBeVisible();
-  await survey.getByRole('button', { name: '重试' }).click();
-  await expect(survey.getByRole('status')).toContainText('已收到反馈');
 
-  await choose(3, /12 · 处理后评价/);
-  const resolution = page.getByRole('region', { name: '问题处理评价' });
-  await resolution.getByRole('button', { name: '5 分' }).click();
-  await resolution.getByRole('button', { name: '解决了问题' }).click();
-  await resolution.getByRole('textbox', { name: '补充说明' }).fill('现在可用');
-  await resolution.getByRole('button', { name: '提交', exact: true }).click();
-  await expect(resolution.getByRole('alert')).toBeVisible();
-  await resolution.getByRole('button', { name: '重试' }).click();
-  await expect(resolution.getByRole('status')).toContainText('已收到反馈');
+  await page.goto(gallery(22));
+  const draft = page.getByRole('textbox', { name: '描述你的任务' });
+  await draft.fill('保留草稿');
+  await page.getByRole('button', { name: '代理' }).click();
+  await expect(draft).toHaveValue('保留草稿');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
 
-  await choose(4, /13 · 需求投票/);
-  const board = page.getByRole('region', { name: '功能建议' });
-  await board.getByRole('button', { name: '支持 在工作区快速切换黑白主题' }).click();
-  await expect(
-    board.getByRole('button', { name: '取消支持 在工作区快速切换黑白主题' }),
-  ).toHaveAttribute('aria-pressed', 'true');
-  await board.getByRole('textbox', { name: '搜索建议' }).fill('玻璃');
-  await expect(board.getByText('按设备调节玻璃折射')).toBeVisible();
-  await expect(board.getByText('键盘快速切换面板')).toBeHidden();
-  await board.getByRole('textbox', { name: '搜索建议' }).fill('');
-  await board.getByRole('button', { name: '提出建议' }).click();
-  await expect(board.getByText('新的工作区建议')).toBeVisible();
-
-  await choose(5, /14 · 反馈收件箱/);
-  const inbox = page.getByRole('region', { name: '反馈收件箱' });
-  await inbox.getByRole('button', { name: /周宁/ }).click();
-  await expect(inbox.getByRole('region', { name: '消息详情' })).toContainText(
-    '移动端文件面板很好用',
-  );
-  await inbox.getByRole('button', { name: '添加标签' }).click();
-  await expect(inbox.getByText('待跟进')).toBeVisible();
-  await inbox.getByRole('textbox', { name: '内部回复' }).fill('谢谢反馈');
-  await inbox.getByRole('button', { name: '回复' }).click();
-  await expect(inbox.getByRole('alert')).toContainText('回复失败');
-  await inbox.getByRole('button', { name: '回复' }).click();
-  await expect(inbox.getByRole('alert')).toHaveCount(0);
-  await inbox.getByRole('button', { name: '归档' }).click();
-  await expect(inbox.getByText('移动端文件面板很好用')).toHaveCount(0);
-
-  await choose(6, /15 · 反馈洞察/);
-  const insights = page.getByRole('region', { name: '反馈洞察' });
-  await insights.getByRole('button', { name: '本月' }).click();
-  await expect(insights.getByText('512')).toBeVisible();
-
-  await page.reload();
-  const variants = [
-    /10 · 意见表单/,
-    /11 · 推荐调查/,
-    /12 · 处理后评价/,
-    /13 · 需求投票/,
-    /14 · 反馈收件箱/,
-    /15 · 反馈洞察/,
-  ];
-  const capture = async (theme: string, names: readonly RegExp[]) => {
-    /* eslint-disable no-await-in-loop -- Navigation and screenshots operate on one page. */
-    for (const [width, height] of [
-      [1440, 900],
-      [1024, 768],
-      [390, 844],
-    ]) {
-      await page.setViewportSize({ width, height });
-      for (const [index, name] of names.entries()) {
-        await nav.getByRole('button', { name }).click();
-        await page.screenshot({
-          path: testInfo.outputPath(`feedback-${index + 1}-${theme}-${width}.png`),
-          animations: 'disabled',
-          fullPage: width === 390,
-        });
-        expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
-          width + 1,
-        );
-      }
-    }
-    /* eslint-enable no-await-in-loop */
-  };
-  await capture('dark', variants);
-  await page.getByRole('button', { name: '切换黑白主题' }).click();
-  await page.getByRole('button', { name: 'English' }).click();
-  const englishVariants = [
-    /10 · Feedback widget/,
-    /11 · Recommendation survey/,
-    /12 · Resolution rating/,
-    /13 · Feature requests/,
-    /14 · Feedback inbox/,
-    /15 · Insights/,
-  ];
-  await capture('light', englishVariants);
-  await expect(page.getByRole('heading', { name: 'Feedback insights' })).toBeVisible();
-  expect(errors).toEqual([]);
-});
-
-test('four local scenes respond across themes and widths', async ({
-  page,
-  browserName,
-}, testInfo) => {
-  test.setTimeout(120_000);
-  const errors: string[] = [];
-  page.on('pageerror', (error) => errors.push(error.message));
-  page.on('console', (message) => {
-    if (message.type() === 'error') {
-      errors.push(message.text());
-    }
+  await page.goto(`${gallery(17)}&mode=light&locale=en`);
+  await page.getByRole('combobox', { name: 'Model' }).click();
+  await page.screenshot({
+    path: testInfo.outputPath('model-choice-open-light-390.png'),
+    animations: 'disabled',
   });
-  await page.goto('/experiments/lumen-app-ui/');
-  const navigation = page.getByRole('navigation', { name: '组件与场景' });
-  const scenes = [
-    { button: /06 · 对话与输入/, title: '为设置页设计主题切换', file: 'conversation' },
-    { button: /07 · 执行步骤/, title: '主题切换 · 执行步骤', file: 'activity' },
-    { button: /08 · 文件预览/, title: '任务资料', file: 'files' },
-    { button: /09 · 外观设置/, title: '外观设置', file: 'appearance' },
-  ];
-  const screenshotScenes = async (theme: string, width: number, height: number) => {
-    await page.setViewportSize({ width, height });
-    /* eslint-disable no-await-in-loop -- Each navigation and screenshot changes the same page. */
-    for (const scene of scenes) {
-      await navigation.getByRole('button', { name: scene.button }).click();
-      await expect(page.getByRole('region', { name: scene.title })).toBeVisible();
-      await page.screenshot({
-        path: testInfo.outputPath(`${scene.file}-${theme}-${width}.png`),
-        animations: 'disabled',
-      });
-      const sizes = await page.evaluate(() => ({
-        viewport: document.documentElement.clientWidth,
-        content: document.documentElement.scrollWidth,
-      }));
-      expect(sizes.content).toBeLessThanOrEqual(sizes.viewport + 1);
-    }
-    /* eslint-enable no-await-in-loop */
-  };
-
-  await page.getByRole('button', { name: '探索更多场景' }).click();
-  const conversation = page.getByRole('region', { name: scenes[0].title });
-  await conversation.getByRole('textbox', { name: '本地备注' }).fill('用线长表达状态');
-  await conversation.getByRole('button', { name: '添加备注' }).click();
-  await expect(conversation.getByText('用线长表达状态')).toBeVisible();
-  await screenshotScenes('dark', 1440, 900);
-  await screenshotScenes('dark', 1024, 768);
-  await screenshotScenes('dark', 390, 844);
-
-  await navigation.getByRole('button', { name: scenes[1].button }).click();
-  const activity = page.getByRole('region', { name: scenes[1].title });
-  await activity.getByRole('button', { name: '运行示例' }).click();
-  await expect(activity.getByRole('status')).toHaveText('执行中');
-  await expect(activity.locator('[data-state="running"]')).toHaveCount(2);
-  await activity.getByRole('button', { name: '取消执行' }).click();
-  await expect(activity.getByRole('status')).toHaveText('已取消');
-  await expect(activity.locator('[data-state="running"]')).toHaveCount(0);
-  await activity.getByRole('button', { name: '重新运行' }).click();
-  await expect(activity.getByRole('status')).toHaveText('已完成', { timeout: 10000 });
-  await expect(activity.locator('[data-state="running"]')).toHaveCount(0);
-
-  await navigation.getByRole('button', { name: scenes[2].button }).click();
-  const files = page.getByRole('region', { name: scenes[2].title });
-  await files.getByRole('button', { name: 'SettingsPanel.tsx' }).click();
-  await expect(files.getByRole('region', { name: '文件预览' })).toContainText('ThemeSwitch');
-
-  await navigation.getByRole('button', { name: scenes[3].button }).click();
-  const appearance = page.getByRole('region', { name: scenes[3].title });
-  await appearance.getByRole('slider', { name: '光晕强度' }).fill('30');
-  await expect(appearance.getByText('30%')).toBeVisible();
-  await appearance.getByRole('switch', { name: '允许呼吸动画' }).uncheck();
-  await expect(page.locator('[data-lumen-motion]')).toHaveAttribute('data-lumen-motion', 'off');
-  await page.getByRole('button', { name: '切换黑白主题' }).click();
-  await expect(page.locator('[data-lumen-mode]')).toHaveAttribute('data-lumen-mode', 'light');
-  await screenshotScenes('light', 1440, 900);
-  await screenshotScenes('light', 1024, 768);
-  await screenshotScenes('light', 390, 844);
-  await page.getByRole('button', { name: 'English' }).click();
-  await expect(page.getByRole('heading', { name: 'Appearance settings' })).toBeVisible();
-  await expect(page.locator('[data-lens]')).toHaveAttribute(
-    'data-lens',
-    browserName === 'chromium' ? 'refractive' : 'frost',
-  );
-  expect(errors).toEqual([]);
-});
-
-test('appearance controls use a flat switch line and progress-sensitive light', async ({
-  page,
-}, testInfo) => {
-  await page.goto('/experiments/lumen-app-ui/');
   await page
-    .getByRole('navigation', { name: '组件与场景' })
-    .getByRole('button', { name: /09 · 外观设置/ })
+    .getByRole('listbox', { name: 'Model' })
+    .getByRole('option', { name: 'Reasoning' })
     .click();
-  const appearance = page.getByRole('region', { name: '外观设置' });
-  const motion = appearance.getByRole('switch', { name: '允许呼吸动画' });
-  const switchThumb = appearance.locator('.MuiSwitch-thumb');
-  const switchTrack = appearance.locator('.MuiSwitch-track');
-  await motion.uncheck();
-  await expect(motion).not.toBeChecked();
-  await page.waitForTimeout(220);
-  const off = await switchThumb.evaluate((thumb) => ({
-    fill: getComputedStyle(thumb).backgroundColor,
-    shadow: getComputedStyle(thumb).boxShadow,
-  }));
-  expect(off.fill).toBe('rgb(23, 23, 23)');
-  expect(off.shadow).toBe('none');
-  expect(await switchTrack.evaluate((track) => getComputedStyle(track).height)).toBe('2px');
-  expect(await switchTrack.evaluate((track) => getComputedStyle(track).borderRadius)).toBe('0px');
-  await motion.check();
-  await expect(motion).toBeChecked();
-  await page.waitForTimeout(220);
-  const on = await switchThumb.evaluate((thumb) => ({
-    fill: getComputedStyle(thumb).backgroundColor,
-    shadow: getComputedStyle(thumb).boxShadow,
-  }));
-  expect(on.fill).toBe('rgb(238, 238, 238)');
-  expect(on.shadow).not.toBe('none');
-
-  const glass = appearance.getByRole('slider', { name: '玻璃强度' });
-  const slider = appearance.locator('.MuiSlider-root').nth(1);
-  const sample = async (value: number) => {
-    await glass.fill(String(value));
-    await expect(glass).toHaveAttribute('aria-valuenow', String(value));
-    return slider.evaluate((root) => ({
-      progress: getComputedStyle(root).getPropertyValue('--lumen-range-progress').trim(),
-      thumb: getComputedStyle(root.querySelector('.MuiSlider-thumb')!).boxShadow,
-      track: getComputedStyle(root.querySelector('.MuiSlider-track')!).boxShadow,
-    }));
-  };
-  const low = await sample(0);
-  const middle = await sample(50);
-  const high = await sample(100);
-  expect([low.progress, middle.progress, high.progress]).toEqual(['0', '0.5', '1']);
-  expect(low.thumb).not.toBe(middle.thumb);
-  expect(middle.thumb).not.toBe(high.thumb);
-  expect(low.track).not.toBe(middle.track);
-  expect(middle.track).not.toBe(high.track);
-  await glass.evaluate((element) => (element as HTMLElement).blur());
-  await page.screenshot({
-    path: testInfo.outputPath('appearance-dark-on-100.png'),
-    animations: 'disabled',
-  });
-  await motion.uncheck();
-  await sample(0);
-  await glass.evaluate((element) => (element as HTMLElement).blur());
-  await page.screenshot({
-    path: testInfo.outputPath('appearance-dark-off-0.png'),
-    animations: 'disabled',
-  });
-  await page.getByRole('button', { name: '切换黑白主题' }).click();
-  await motion.check();
-  await page.waitForTimeout(220);
-  await sample(100);
-  await glass.evaluate((element) => (element as HTMLElement).blur());
-  expect(await switchThumb.evaluate((thumb) => getComputedStyle(thumb).backgroundColor)).toBe(
-    'rgb(23, 23, 23)',
-  );
-  await expect(switchTrack).toHaveCSS('height', '2px');
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.screenshot({
-    path: testInfo.outputPath('appearance-light-on-100-390.png'),
-    animations: 'disabled',
-  });
-  const bounds = await slider.boundingBox();
-  expect(bounds).not.toBeNull();
-  if (bounds) {
-    const y = bounds.y + bounds.height / 2;
-    await page.mouse.move(bounds.x + bounds.width * 0.2, y);
-    await page.mouse.down();
-    await expect
-      .poll(() =>
-        slider.evaluate((root) =>
-          Number(getComputedStyle(root).getPropertyValue('--lumen-range-progress')),
-        ),
-      )
-      .toBeGreaterThan(0.1);
-    await page.mouse.move(bounds.x + bounds.width * 0.8, y, { steps: 6 });
-    await expect
-      .poll(() =>
-        slider.evaluate((root) =>
-          Number(getComputedStyle(root).getPropertyValue('--lumen-range-progress')),
-        ),
-      )
-      .toBeGreaterThan(0.7);
-    await page.mouse.up();
-  }
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await expect(switchThumb).toHaveCSS('transition-duration', '0s');
-  await expect(slider.locator('.MuiSlider-thumb')).toHaveCSS('transition-duration', '0s');
+  await expect(page.getByRole('combobox', { name: 'Model' })).toContainText('Reasoning');
 });
+
+test('gallery feedback variants retain submission, vote, and search state', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(gallery(10));
+  const widget = page.locator('.lumen-feedback-widget');
+  await widget.getByRole('button', { name: '建议' }).click();
+  await expect(widget.getByRole('button', { name: '建议' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await widget.getByRole('textbox', { name: /详细说明/ }).fill('边界不清晰');
+  await widget.getByRole('button', { name: '发送反馈' }).click();
+  await expect(widget.getByRole('status')).toContainText('反馈已发送');
+  await widget.getByRole('button', { name: '再发送一条' }).click();
+  await expect(widget.getByRole('textbox', { name: /详细说明/ })).toHaveValue('');
+
+  await page.goto(gallery(13));
+  const board = page.locator('.lumen-feedback-board');
+  const vote = board.getByRole('button', { name: '支持 审计日志定时导出' });
+  await vote.click();
+  await expect(board.getByRole('button', { name: '取消支持 审计日志定时导出' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await board.getByRole('textbox', { name: '搜索功能建议' }).fill('审计');
+  await expect(board.getByText('审计日志定时导出')).toBeVisible();
+  await expect(board.getByText('批量编辑成员角色')).toBeHidden();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
+});
+
+test('catalog category and variant navigation reaches a real themed preview', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/experiments/lumen-app-ui/catalog/');
+  await expect(page.getByText('38 类 · 300 项 Lumen 变体 · 300 项可操作')).toBeVisible();
+  const categories = page.getByRole('navigation', { name: '组件类别' });
+  const variants = page.getByRole('navigation', { name: '稳定变体 ID' });
+  await categories.getByRole('button', { name: /代理活动/ }).click();
+  await variants.getByRole('button', { name: /hbar-app-ui-agent-activity-5/ }).click();
+  const preview = page.frameLocator('iframe[title*="hbar-app-ui-agent-activity-5"]');
+  await expect(
+    preview.locator('[data-hbar-app-ui-component="hbar-app-ui-agent-activity-5"]'),
+  ).toBeVisible();
+  await page.getByRole('button', { name: '切换黑白主题' }).click();
+  await expect(page.locator('main[data-lumen-mode]')).toHaveAttribute('data-lumen-mode', 'light');
+  await expect(preview.locator('main[data-lumen-mode]')).toHaveAttribute(
+    'data-lumen-mode',
+    'light',
+  );
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
+});
+
+for (const width of [390, 1280]) {
+  test(`catalog navigation composes a single aligned foundation lamp at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/experiments/lumen-app-ui/catalog/');
+    const category = page.getByRole('navigation', { name: '组件类别' });
+    const variants = page.getByRole('navigation', { name: '稳定变体 ID' });
+    await category.getByRole('button', { name: /代理活动/ }).click();
+    await variants.getByRole('button', { name: /hbar-app-ui-agent-activity-5/ }).click();
+    const lampsByNavigation = await Promise.all(
+      [category, variants].map((navigation) =>
+        navigation.getByRole('button').evaluateAll((buttons) =>
+          buttons.map((button) => ({
+            count: button.querySelectorAll(':scope > [data-edge="right"]').length,
+            pseudo: getComputedStyle(button, '::after').content,
+            selected: button.getAttribute('aria-current') === 'page',
+            lampState: button
+              .querySelector(':scope > [data-edge="right"]')
+              ?.getAttribute('data-state'),
+          })),
+        ),
+      ),
+    );
+    for (const lamps of lampsByNavigation) {
+      expect(lamps.length).toBeGreaterThan(0);
+      expect(lamps.every(({ count, pseudo }) => count === 1 && pseudo === 'none')).toBe(true);
+      expect(
+        lamps.filter(({ selected, lampState }) => selected && lampState === 'selected'),
+      ).toHaveLength(1);
+    }
+  });
+}

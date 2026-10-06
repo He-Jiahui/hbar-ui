@@ -37,7 +37,6 @@
   stroke-width: 1.5;
 }
 .lumen-support-header,
-.lumen-support-tabs,
 .lumen-support-contact,
 .lumen-support-actions,
 .lumen-support-attachments,
@@ -81,19 +80,38 @@
   min-inline-size: 0;
   flex: 1 1 auto;
 }
+.lumen-support > .lumen-support-search {
+  inline-size: 100%;
+  flex: 0 0 auto;
+}
 .lumen-support-topics {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
-  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
   gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.lumen-support-topics > * {
+  flex: 1 1 13rem;
+  min-inline-size: 13rem;
 }
 .lumen-support-topics > button {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
-  grid-template-columns: auto minmax(0, 1fr) auto;
   justify-content: stretch;
   padding: 0.875rem;
   text-align: start;
+}
+.lumen-support-topics > button > :nth-child(3n + 1) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+.lumen-support-topics > button > :nth-child(3n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+.lumen-support-topics > button > :nth-child(3n + 3) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
 }
 .lumen-support-topics > button > span:nth-child(2),
 .lumen-support-contact > span:nth-child(2) {
@@ -112,14 +130,16 @@
   font-style: normal;
 }
 .lumen-support-icon {
-  display: grid;
+  display: flex;
   inline-size: 2rem;
   block-size: 2rem;
-  place-items: center;
+  align-items: center;
+  justify-content: center;
   border-radius: var(--lumen-radius-control);
   background: color-mix(in srgb, var(--lumen-accent) 12%, transparent);
   color: var(--lumen-accent);
   font-weight: 700;
+  min-inline-size: 0;
 }
 .lumen-support-articles {
   display: flex;
@@ -128,12 +148,24 @@
   gap: 0.35rem;
 }
 .lumen-support-articles > button {
-  display: grid;
+  display: flex;
   inline-size: 100%;
-  grid-template-columns: minmax(0, 1fr) auto auto;
   justify-content: stretch;
   border-block-end: 0.0625rem solid var(--lumen-edge);
   text-align: start;
+  min-inline-size: 0;
+}
+.lumen-support-articles > button > :nth-child(3n + 1) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+.lumen-support-articles > button > :nth-child(3n + 2) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+.lumen-support-articles > button > :nth-child(3n + 3) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
 }
 .lumen-support-contact {
   padding: 0.875rem;
@@ -145,10 +177,18 @@
   flex: 1 1 14rem;
 }
 .lumen-support-ticket {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
-  grid-template-columns: minmax(0, 1.45fr) minmax(14rem, 0.65fr);
   gap: 1rem;
+  flex-wrap: wrap;
+}
+.lumen-support-ticket > :nth-child(2n + 1) {
+  flex: 1.45 1 0;
+  min-inline-size: 0;
+}
+.lumen-support-ticket > :nth-child(2n + 2) {
+  flex: 0.65 1 14rem;
+  min-inline-size: 14rem;
 }
 .lumen-support-ticket > form,
 .lumen-support-ticket > aside {
@@ -163,9 +203,18 @@
   gap: 0.5rem;
 }
 .lumen-support-two-column {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
   gap: 0.75rem;
+  min-inline-size: 0;
+  flex-wrap: wrap;
+}
+.lumen-support-two-column > :nth-child(2n + 1) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+.lumen-support-two-column > :nth-child(2n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
 }
 .lumen-support-suggestions,
 .lumen-support-ticket > aside > section {
@@ -181,16 +230,6 @@
 .lumen-support-suggestions > button {
   justify-content: flex-start;
   text-align: start;
-}
-.lumen-support fieldset {
-  padding: 0.75rem;
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: var(--lumen-radius-control);
-}
-.lumen-support fieldset > div {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
 }
 .lumen-support-attachments > span {
   display: flex;
@@ -228,11 +267,19 @@
   gap: 0.5rem;
 }
 .lumen-support-thread {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
   min-block-size: 28rem;
-  grid-template-columns: minmax(0, 1.45fr) minmax(14rem, 0.6fr);
   gap: 1rem;
+  flex-wrap: wrap;
+}
+.lumen-support-thread > :nth-child(2n + 1) {
+  flex: 1.45 1 0;
+  min-inline-size: 0;
+}
+.lumen-support-thread > :nth-child(2n + 2) {
+  flex: 0.6 1 14rem;
+  min-inline-size: 14rem;
 }
 .lumen-support-thread > section,
 .lumen-support-thread > aside {
@@ -251,21 +298,31 @@
   list-style: none;
 }
 .lumen-support-messages > li {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  display: flex;
   align-items: start;
   gap: 0.75rem;
+  min-inline-size: 0;
+}
+.lumen-support-messages > li > :nth-child(2n + 1) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+.lumen-support-messages > li > :nth-child(2n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
 }
 .lumen-support-avatar {
-  display: grid;
+  display: flex;
   inline-size: 2rem;
   block-size: 2rem;
-  place-items: center;
+  align-items: center;
+  justify-content: center;
   border-radius: 999rem;
   background: var(--lumen-glass);
   color: var(--lumen-muted);
   font-size: 0.7rem;
   font-weight: 700;
+  min-inline-size: 0;
 }
 .lumen-support-avatar.is-own {
   color: var(--lumen-accent);
@@ -318,8 +375,16 @@
   background: var(--lumen-glass);
 }
 .lumen-support-access {
-  display: grid !important;
-  grid-template-columns: auto minmax(0, 1fr);
+  display: flex !important;
+  min-inline-size: 0;
+}
+.lumen-support-access > :nth-child(2n + 1) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+.lumen-support-access > :nth-child(2n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
 }
 .lumen-support-assistant {
   display: flex;
@@ -334,12 +399,24 @@
   box-shadow: 0 1rem 3rem color-mix(in srgb, var(--lumen-ink) 15%, transparent);
 }
 .lumen-support-assistant > header {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem;
   border-block-end: 0.0625rem solid var(--lumen-edge);
+  min-inline-size: 0;
+}
+.lumen-support-assistant > header > :nth-child(3n + 1) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+.lumen-support-assistant > header > :nth-child(3n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+.lumen-support-assistant > header > :nth-child(3n + 3) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
 }
 .lumen-support-assistant > header > span:nth-child(2) {
   display: flex;
@@ -403,13 +480,6 @@
   gap: 0.5rem;
   color: var(--lumen-muted);
 }
-.lumen-support-tabs {
-  border-block-end: 0.0625rem solid var(--lumen-edge);
-}
-.lumen-support-tabs > button[aria-selected='true'] {
-  color: var(--lumen-accent);
-  box-shadow: inset 0 -0.125rem var(--lumen-accent);
-}
 .lumen-support-request-tools {
   justify-content: space-between;
 }
@@ -422,7 +492,7 @@
   border-radius: var(--lumen-radius-control);
 }
 .lumen-support-requests > [role='row'] {
-  display: grid;
+  display: flex;
   min-inline-size: 46rem;
   grid-template-columns:
     minmax(5rem, 0.4fr) minmax(16rem, 1.4fr) minmax(9rem, 0.7fr) minmax(7rem, 0.6fr)
@@ -431,6 +501,26 @@
   gap: 0.75rem;
   padding: 0.625rem;
   border-block-end: 0.0625rem solid var(--lumen-edge);
+}
+.lumen-support-requests > [role='row'] > :nth-child(5n + 1) {
+  flex: 0.4 1 5rem;
+  min-inline-size: 5rem;
+}
+.lumen-support-requests > [role='row'] > :nth-child(5n + 2) {
+  flex: 1.4 1 16rem;
+  min-inline-size: 16rem;
+}
+.lumen-support-requests > [role='row'] > :nth-child(5n + 3) {
+  flex: 0.7 1 9rem;
+  min-inline-size: 9rem;
+}
+.lumen-support-requests > [role='row'] > :nth-child(5n + 4) {
+  flex: 0.6 1 7rem;
+  min-inline-size: 0;
+}
+.lumen-support-requests > [role='row'] > :nth-child(5n + 5) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
 }
 .lumen-support-requests > div[role='row'] {
   color: var(--lumen-muted);
@@ -456,7 +546,7 @@
 @media (max-width: 48rem) {
   .lumen-support-ticket,
   .lumen-support-thread {
-    grid-template-columns: minmax(0, 1fr);
+    flex-direction: column;
   }
   .lumen-support-ticket > aside,
   .lumen-support-thread > aside {
@@ -465,6 +555,6 @@
 }
 @media (max-width: 36rem) {
   .lumen-support-two-column {
-    grid-template-columns: minmax(0, 1fr);
+    flex-direction: column;
   }
 }

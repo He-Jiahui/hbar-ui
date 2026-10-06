@@ -1,33 +1,38 @@
 'use client';
 
 import * as React from 'react';
-import { LumenCheckBoxControl, LumenSelect, LumenTextarea } from './forms';
+import { LumenCheckBoxControl, LumenTextarea, LumenChoiceSelect } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './ai-chat.css';
 import './ai-chat-controlled-flow.css';
-import type { LumenAiChatReferenceViewModel } from './ai-chat/reference-content';
+import { type LumenAiChatReferenceViewModel } from './ai-chat/reference-content';
 import { ReferenceAiChat } from './ai-chat/ReferenceAiChat';
+import { LumenProgress, LumenTabs } from './ui-controls';
 
 export interface LumenAiChatListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
   readonly expectedMaximum: number;
 }
+
 export interface LumenAiChatChoice {
   readonly id: string;
   readonly label: string;
   readonly detail?: string | undefined;
 }
+
 export interface LumenAiChatMessage extends LumenAiChatChoice {
   readonly author: string;
   readonly own?: boolean | undefined;
   readonly tone?: 'neutral' | 'success' | 'warning' | undefined;
 }
+
 export interface LumenAiChatProviderChoice extends LumenAiChatChoice {
   readonly context: string;
   readonly cost: string;
   readonly status: string;
 }
+
 export interface LumenAiChatContent {
   readonly referenceViewModel?: LumenAiChatReferenceViewModel | undefined;
   readonly labels: {
@@ -107,14 +112,17 @@ export interface LumenAiChatContent {
   readonly initialEffortId: string;
   readonly listStrategy: LumenAiChatListStrategy;
 }
+
 export interface LumenAiChatProviderProps {
   readonly content: LumenAiChatContent;
   readonly children: React.ReactNode;
 }
+
 export interface LumenAiChatAction {
   readonly actionId: string;
   readonly value?: string | undefined;
 }
+
 export interface LumenAiChatProps {
   readonly variant: number;
   readonly variantId: string;
@@ -134,14 +142,19 @@ export interface LumenAiChatProps {
       }
     | undefined;
 }
+
 export type LumenAiChatVariantProps = Omit<LumenAiChatProps, 'variant' | 'variantId'>;
+
 const Context = React.createContext<LumenAiChatContent | undefined>(undefined);
+
 export function LumenAiChatProvider({ content, children }: LumenAiChatProviderProps) {
   return <Context.Provider value={content}>{children}</Context.Provider>;
 }
+
 export function useLumenAiChatContent() {
   return React.useContext(Context);
 }
+
 export function uniqueLumenAiChatItems<T extends { readonly id: string }>(items: readonly T[]) {
   const seen = new Set<string>();
   return items.filter((item) => {
@@ -152,14 +165,17 @@ export function uniqueLumenAiChatItems<T extends { readonly id: string }>(items:
     return true;
   });
 }
+
 export function selectLumenAiChatItem<T extends { readonly id: string }>(
   items: readonly T[],
   id: string | undefined,
 ) {
   return items.find((item) => item.id === id) ?? items[0];
 }
+
 const report = (fn: LumenAiChatProps['onAction'], actionId: string, value?: string) =>
   fn?.(value === undefined ? { actionId } : { actionId, value });
+
 function Glyph({
   name,
 }: {
@@ -183,6 +199,7 @@ function Glyph({
     </svg>
   );
 }
+
 function Root({
   variant,
   variantId,
@@ -219,6 +236,7 @@ function Root({
     </LumenSurface>
   );
 }
+
 function Header({
   title,
   detail,
@@ -238,10 +256,11 @@ function Header({
           {detail}
         </LumenText>
       </div>
-      {actions}
+      {actions ? <div className="lumen-ai-chat-header-actions">{actions}</div> : null}
     </header>
   );
 }
+
 function Empty({ children }: { children: string }) {
   return (
     <LumenText as="p" className="lumen-ai-chat-empty" tone="muted">
@@ -249,6 +268,7 @@ function Empty({ children }: { children: string }) {
     </LumenText>
   );
 }
+
 function Bubble({ message }: { message: LumenAiChatMessage }) {
   return (
     <article
@@ -264,6 +284,7 @@ function Bubble({ message }: { message: LumenAiChatMessage }) {
     </article>
   );
 }
+
 function Transcript({
   content,
   messages = content.messages,
@@ -285,6 +306,7 @@ function Transcript({
     </div>
   );
 }
+
 function Composer({
   content,
   onAction,
@@ -319,6 +341,7 @@ function Composer({
     </form>
   );
 }
+
 function Thread(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAiChatContent }) {
   return (
     <Root {...props}>
@@ -328,6 +351,7 @@ function Thread(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAiCha
     </Root>
   );
 }
+
 function Artifact(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAiChatContent }) {
   const versions = uniqueLumenAiChatItems(props.content.artifactVersions);
   const [versionId, setVersionId] = React.useState(props.content.initialArtifactVersionId);
@@ -338,26 +362,16 @@ function Artifact(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAiC
         title={props.content.labels.artifactTitle}
         detail={props.content.labels.artifactDetail}
         actions={
-          <div
+          <LumenTabs
             className="lumen-ai-chat-tabs"
-            role="tablist"
-            aria-label={props.content.labels.artifactVersions}
-          >
-            {versions.map((item) => (
-              <LumenButton
-                key={item.id}
-                variant="text"
-                role="tab"
-                aria-selected={item.id === version?.id}
-                onClick={() => {
-                  setVersionId(item.id);
-                  report(props.onAction, 'version', item.id);
-                }}
-              >
-                {item.label}
-              </LumenButton>
-            ))}
-          </div>
+            label={props.content.labels.artifactVersions}
+            items={versions}
+            selectedId={version?.id ?? null}
+            onChange={(id) => {
+              setVersionId(id);
+              report(props.onAction, 'version', id);
+            }}
+          />
         }
       />
       <div className="lumen-ai-chat-artifact">
@@ -389,6 +403,7 @@ function Artifact(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAiC
     </Root>
   );
 }
+
 function Embedded(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAiChatContent }) {
   const suggestions = uniqueLumenAiChatItems(props.content.suggestions);
   return (
@@ -424,6 +439,7 @@ function Embedded(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAiC
     </Root>
   );
 }
+
 function ContextAware(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAiChatContent }) {
   const models = uniqueLumenAiChatItems(props.content.models);
   const [modelId, setModelId] = React.useState(props.content.initialModelId);
@@ -440,25 +456,21 @@ function ContextAware(props: Omit<LumenAiChatProps, 'content'> & { content: Lume
             <LumenButton variant="outlined" onClick={() => setSettings((value) => !value)}>
               {props.content.labels.settings}
             </LumenButton>
-            <LumenSelect
-              aria-label={props.content.labels.model}
-              value={model?.id ?? ''}
-              onChange={(event) => {
-                setModelId(event.target.value);
-                report(props.onAction, 'model', event.target.value);
+            <LumenChoiceSelect
+              id="ai-chat-context-model"
+              label={props.content.labels.model}
+              options={models}
+              value={model?.id ?? null}
+              onValueChange={(id) => {
+                setModelId(id);
+                report(props.onAction, 'model', id);
               }}
-            >
-              {models.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.label}
-                </option>
-              ))}
-            </LumenSelect>
+            />
           </React.Fragment>
         }
       />
       {settings ? (
-        <aside className="lumen-ai-chat-settings">
+        <aside className="lumen-ai-chat-settings hbar-app-ui-dialog-menu">
           <label>
             <LumenCheckBoxControl defaultChecked />
             {props.content.labels.includeContext}
@@ -474,21 +486,14 @@ function ContextAware(props: Omit<LumenAiChatProps, 'content'> & { content: Lume
           <span>{props.content.labels.contextWindow}</span>
           <strong>{props.content.labels.contextUsage(used)}</strong>
         </div>
-        <div
-          role="progressbar"
-          aria-label={props.content.labels.contextWindow}
-          aria-valuenow={used}
-          aria-valuemin={0}
-          aria-valuemax={100}
-        >
-          <i style={{ inlineSize: `${used}%` }} />
-        </div>
+        <LumenProgress label={props.content.labels.contextWindow} value={used} tone="info" />
       </div>
       <Transcript content={props.content} />
       <Composer content={props.content} onAction={props.onAction} />
     </Root>
   );
 }
+
 function Approval(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAiChatContent }) {
   const [approved, setApproved] = React.useState(false);
   return (
@@ -542,6 +547,7 @@ function Approval(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAiC
     </Root>
   );
 }
+
 function Agents(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAiChatContent }) {
   const agents = uniqueLumenAiChatItems(props.content.agents);
   const [agentId, setAgentId] = React.useState(props.content.initialAgentId);
@@ -609,6 +615,7 @@ function Agents(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAiCha
     </Root>
   );
 }
+
 function Citations(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAiChatContent }) {
   const sources = uniqueLumenAiChatItems(props.content.sources);
   return (
@@ -648,6 +655,7 @@ function Citations(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAi
     </Root>
   );
 }
+
 function Voice(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAiChatContent }) {
   const [recording, setRecording] = React.useState(false);
   return (
@@ -702,6 +710,7 @@ function Voice(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAiChat
     </Root>
   );
 }
+
 function Models(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAiChatContent }) {
   const providers = uniqueLumenAiChatItems(props.content.providers);
   const efforts = uniqueLumenAiChatItems(props.content.efforts);
@@ -770,19 +779,16 @@ function Models(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAiCha
             </dl>
             <label>
               {props.content.labels.effort}
-              <LumenSelect
-                value={selectLumenAiChatItem(efforts, effortId)?.id ?? ''}
-                onChange={(event) => {
-                  setEffortId(event.target.value);
-                  report(props.onAction, 'effort', event.target.value);
+              <LumenChoiceSelect
+                id="ai-chat-provider-effort"
+                label={props.content.labels.effort}
+                options={efforts}
+                value={selectLumenAiChatItem(efforts, effortId)?.id ?? null}
+                onValueChange={(id) => {
+                  setEffortId(id);
+                  report(props.onAction, 'effort', id);
                 }}
-              >
-                {efforts.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.label}
-                  </option>
-                ))}
-              </LumenSelect>
+              />
             </label>
           </main>
         ) : null}
@@ -791,9 +797,11 @@ function Models(props: Omit<LumenAiChatProps, 'content'> & { content: LumenAiCha
     </Root>
   );
 }
+
 function empty(props: LumenAiChatProps) {
   return <Root {...props}>{null}</Root>;
 }
+
 export function LumenAiChat(props: LumenAiChatProps) {
   const providerContent = useLumenAiChatContent();
   if (props.controlled) {
@@ -855,9 +863,11 @@ export function LumenAiChat(props: LumenAiChatProps) {
   }
   return empty(props);
 }
+
 function variant(value: number, props: LumenAiChatVariantProps) {
   return <LumenAiChat {...props} variant={value} variantId={`hbar-app-ui-ai-chat-${value}`} />;
 }
+
 export const LumenAiChat01 = (props: LumenAiChatVariantProps) => variant(1, props),
   LumenAiChat02 = (props: LumenAiChatVariantProps) => variant(2, props),
   LumenAiChat03 = (props: LumenAiChatVariantProps) => variant(3, props),

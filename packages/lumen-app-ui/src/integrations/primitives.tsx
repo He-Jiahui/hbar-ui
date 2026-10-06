@@ -1,7 +1,9 @@
-import { LumenButton } from '../primitives';
+import { LumenButton, LumenIconButton, LumenStatus } from '../primitives';
 import LumenSurface from '../LumenSurface';
-import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
-import type { LumenIntegrationTone } from './content';
+import * as React from 'react';
+import { forwardRef, type ButtonHTMLAttributes } from 'react';
+import { type LumenIntegrationTone } from './content';
+import { LumenProgress } from '../ui-controls';
 
 export interface LumenIntegrationsCompositionProps {
   readonly spec: {
@@ -29,7 +31,7 @@ export function IntegrationFrame({
   className,
   children,
 }: LumenIntegrationsCompositionProps & {
-  readonly children: ReactNode;
+  readonly children: React.ReactNode;
   readonly className?: string | undefined;
 }) {
   const contentClassName = [
@@ -67,16 +69,17 @@ export function IntegrationIcon({
   tier = 'sm',
   label,
 }: {
-  readonly children: ReactNode;
-  readonly tier?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  readonly children: React.ReactNode;
+  readonly tier?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | undefined;
   readonly label?: string | undefined;
 }) {
-  if (label)
+  if (label) {
     return (
       <span className={`hbar-app-ui-integration-icon hbar-app-ui-icon-${tier}`} aria-label={label}>
         {children}
       </span>
     );
+  }
   return (
     <span className={`hbar-app-ui-integration-icon hbar-app-ui-icon-${tier}`} aria-hidden="true">
       {children}
@@ -106,19 +109,21 @@ export const IntegrationButton = forwardRef<
 export function IntegrationIconButton({
   children,
   label,
+  className,
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & {
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
   readonly label: string;
 }) {
   return (
-    <IntegrationButton
+    <LumenIconButton
       {...props}
-      className={`hbar-app-ui-integration-icon-button ${props.className ?? ''}`}
+      label={label}
+      className={`hbar-app-ui-integration-icon-button ${className ?? ''}`}
       aria-label={props['aria-label'] ?? label}
       title={props.title ?? label}
     >
       {children}
-    </IntegrationButton>
+    </LumenIconButton>
   );
 }
 
@@ -129,11 +134,14 @@ export function IntegrationStatus({
   readonly value: string;
   readonly tone?: LumenIntegrationTone | undefined;
 }) {
+  const tones = {
+    neutral: 'neutral',
+    positive: 'success',
+    warning: 'warning',
+    danger: 'danger',
+  } as const;
   return (
-    <span className={`hbar-app-ui-integration-status hbar-app-ui-integration-status-${tone}`}>
-      <i aria-hidden="true" />
-      {value}
-    </span>
+    <LumenStatus className="hbar-app-ui-integration-status" value={value} tone={tones[tone]} />
   );
 }
 
@@ -146,21 +154,19 @@ export function IntegrationProgress({
   readonly label: string;
   readonly tone?: LumenIntegrationTone | undefined;
 }) {
-  const bounded = Math.max(0, Math.min(100, value));
+  const tones = {
+    neutral: 'info',
+    positive: 'success',
+    warning: 'warning',
+    danger: 'danger',
+  } as const;
   return (
-    <span
+    <LumenProgress
       className="hbar-app-ui-integration-progress"
-      role="progressbar"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={bounded}
-    >
-      <i
-        className={`hbar-app-ui-integration-progress-fill hbar-app-ui-integration-progress-${tone}`}
-        style={{ inlineSize: `${bounded}%` }}
-      />
-    </span>
+      label={label}
+      value={value}
+      tone={tones[tone]}
+    />
   );
 }
 

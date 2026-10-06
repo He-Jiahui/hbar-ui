@@ -19,15 +19,20 @@ import {
   type LumenSuggestionsReferenceContent,
 } from './editor-suggestions-reference';
 import { LumenReaderReference, type LumenReaderReferenceContent } from './editor-reader-reference';
+import { LumenBadge, LumenTabs } from './ui-controls';
 
 export type LumenEditorFormattingAction =
   'bold' | 'italic' | 'strikethrough' | 'inline-code' | 'link';
+
 export type LumenMarkdownMode = 'write' | 'split' | 'preview';
+
 export type LumenSuggestionAction = 'accept' | 'resolve';
+
 export interface LumenEditorListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
   readonly expectedMaximum: number;
 }
+
 export interface LumenRichTextEditorLabels {
   readonly blockMenuLabel: string;
   readonly formattingToolbarLabel: string;
@@ -41,6 +46,7 @@ export interface LumenRichTextEditorLabels {
   readonly documentTitleLabel: string;
   readonly documentBodyLabel: string;
 }
+
 export interface LumenRichTextDocument {
   readonly id: string;
   readonly title: string;
@@ -49,17 +55,20 @@ export interface LumenRichTextDocument {
   readonly statistics: readonly string[];
   readonly footerNote: string;
 }
+
 export interface LumenRichTextChange {
   readonly documentId: string;
   readonly field: 'title' | 'body';
   readonly value: string;
 }
+
 export interface LumenRichTextEditorContent {
   readonly labels: LumenRichTextEditorLabels;
   readonly document: LumenRichTextDocument;
   readonly saved: boolean;
   readonly onChange?: ((change: LumenRichTextChange) => void) | undefined;
 }
+
 export interface LumenMarkdownWorkspaceLabels {
   readonly modeTabsLabel: string;
   readonly modeLabel: (mode: LumenMarkdownMode) => string;
@@ -67,6 +76,7 @@ export interface LumenMarkdownWorkspaceLabels {
   readonly previewPanelLabel: string;
   readonly sourceInputLabel: string;
 }
+
 export interface LumenMarkdownDocument {
   readonly id: string;
   readonly fileName: string;
@@ -74,6 +84,7 @@ export interface LumenMarkdownDocument {
   readonly source: string;
   readonly preview: React.ReactNode;
 }
+
 export interface LumenMarkdownWorkspaceContent {
   readonly labels: LumenMarkdownWorkspaceLabels;
   readonly document: LumenMarkdownDocument;
@@ -81,12 +92,14 @@ export interface LumenMarkdownWorkspaceContent {
   readonly onSourceChange?: ((documentId: string, value: string) => void) | undefined;
   readonly onModeChange?: ((mode: LumenMarkdownMode) => void) | undefined;
 }
+
 export interface LumenCodeFile {
   readonly id: string;
   readonly name: string;
   readonly source: string;
   readonly dirty?: boolean | undefined;
 }
+
 export interface LumenCodeWorkspaceLabels {
   readonly openFilesLabel: string;
   readonly closeFileLabel: (fileName: string) => string;
@@ -98,6 +111,7 @@ export interface LumenCodeWorkspaceLabels {
   readonly warningLabel: (count: number) => string;
   readonly emptyFilesLabel: string;
 }
+
 export interface LumenCodeWorkspaceFooter {
   readonly cursor: string;
   readonly language: string;
@@ -105,6 +119,7 @@ export interface LumenCodeWorkspaceFooter {
   readonly indentation: string;
   readonly warningCount: number;
 }
+
 export interface LumenCodeWorkspaceContent {
   readonly labels: LumenCodeWorkspaceLabels;
   readonly files: readonly LumenCodeFile[];
@@ -116,15 +131,18 @@ export interface LumenCodeWorkspaceContent {
   readonly onCloseFile?: ((fileId: string) => void) | undefined;
   readonly onRunChange?: ((running: boolean) => void) | undefined;
 }
+
 export type LumenEditorInlineSegment =
   | { readonly kind: 'text'; readonly value: string }
   | { readonly kind: 'strong'; readonly value: string }
   | { readonly kind: 'emphasis'; readonly value: string }
   | { readonly kind: 'suggestion'; readonly suggestionId: string; readonly value: string };
+
 export interface LumenSuggestionDocumentParagraph {
   readonly id: string;
   readonly segments: readonly LumenEditorInlineSegment[];
 }
+
 export interface LumenSuggestion {
   readonly id: string;
   readonly initials: string;
@@ -135,6 +153,7 @@ export interface LumenSuggestion {
   readonly detail: string;
   readonly primaryAction: LumenSuggestionAction;
 }
+
 export interface LumenSuggestionReviewLabels {
   readonly suggestionPanelLabel: string;
   readonly acceptAllLabel: string;
@@ -146,12 +165,14 @@ export interface LumenSuggestionReviewLabels {
   readonly remainingCountLabel: (count: number) => string;
   readonly emptySuggestionsLabel: string;
 }
+
 export interface LumenSuggestionReviewDocument {
   readonly id: string;
   readonly title: string;
   readonly summary: string;
   readonly paragraphs: readonly LumenSuggestionDocumentParagraph[];
 }
+
 export interface LumenSuggestionReviewContent {
   readonly labels: LumenSuggestionReviewLabels;
   readonly document: LumenSuggestionReviewDocument;
@@ -161,12 +182,14 @@ export interface LumenSuggestionReviewContent {
     ((suggestionId: string, action: LumenSuggestionAction | 'dismiss') => void) | undefined;
   readonly onOpenSuggestion?: ((suggestionId: string) => void) | undefined;
 }
+
 export interface LumenReaderSection {
   readonly id: string;
   readonly label: string;
   readonly title: string;
   readonly paragraphs: readonly string[];
 }
+
 export interface LumenLongDocumentReaderLabels {
   readonly outlineLabel: string;
   readonly documentOutlineLabel: string;
@@ -176,6 +199,7 @@ export interface LumenLongDocumentReaderLabels {
   readonly emptyOutlineLabel: string;
   readonly breadcrumbSeparator: string;
 }
+
 export interface LumenLongDocumentReaderContent {
   readonly labels: LumenLongDocumentReaderLabels;
   readonly workspaceLabel: string;
@@ -189,6 +213,7 @@ export interface LumenLongDocumentReaderContent {
   readonly onFocusModeChange?: ((enabled: boolean) => void) | undefined;
   readonly onOutlineOpenChange?: ((open: boolean) => void) | undefined;
 }
+
 export interface LumenEditorContent {
   readonly referenceRichText?: LumenRichEditorReferenceContent | undefined;
   readonly referenceMarkdown?: LumenMarkdownReferenceContent | undefined;
@@ -201,14 +226,17 @@ export interface LumenEditorContent {
   readonly suggestions?: LumenSuggestionReviewContent | undefined;
   readonly reader?: LumenLongDocumentReaderContent | undefined;
 }
+
 export interface LumenEditorProviderProps {
   readonly content: LumenEditorContent;
   readonly children: React.ReactNode;
 }
+
 export interface LumenEditorAction {
   readonly actionId: string;
   readonly value?: string | undefined;
 }
+
 export interface LumenEditorProps {
   readonly variant: number;
   readonly variantId: string;
@@ -228,55 +256,47 @@ export interface LumenEditorProps {
       }
     | undefined;
 }
+
 export type LumenEditorVariantProps = Omit<LumenEditorProps, 'variant' | 'variantId'>;
 
 const EditorContentContext = React.createContext<LumenEditorContent | undefined>(undefined);
+
 export function LumenEditorProvider({ content, children }: LumenEditorProviderProps) {
   return <EditorContentContext.Provider value={content}>{children}</EditorContentContext.Provider>;
 }
+
 export function useLumenEditorContent() {
   return React.useContext(EditorContentContext);
 }
+
 export function uniqueLumenEditorItems<Item extends { readonly id: string }>(
   items: readonly Item[],
 ): readonly Item[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
 }
+
 export function selectLumenEditorItem<Item extends { readonly id: string }>(
   items: readonly Item[],
   selectedId: string | undefined,
 ): Item | undefined {
   return items.find((item) => item.id === selectedId) ?? items[0];
 }
+
 function report(onAction: LumenEditorProps['onAction'], actionId: string, value?: string) {
   onAction?.(value === undefined ? { actionId } : { actionId, value });
 }
 
-function Glyph({ name }: { readonly name: string }) {
+function Glyph({ name }: { readonly name: keyof typeof glyphPaths }) {
   return (
     <svg className="lumen-editor-glyph" viewBox="0 0 16 16" aria-hidden="true">
-      <path
-        d={
-          name === 'close'
-            ? 'm4 4 8 8m0-8-8 8'
-            : name === 'play'
-              ? 'm5 3 8 5-8 5Z'
-              : name === 'panel'
-                ? 'M2.5 3h11v10h-11zM6 3v10'
-                : name === 'focus'
-                  ? 'M6 3H3v3m7-3h3v3m0 4v3h-3m-4 0H3v-3'
-                  : name === 'check'
-                    ? 'm3.5 8 3 3 6-6'
-                    : name === 'message'
-                      ? 'M2.5 3.5h11v7h-6l-3.5 3v-3H2.5z'
-                      : 'M3 8h10'
-        }
-      />
+      <path d={glyphPaths[name]} />
     </svg>
   );
 }
@@ -330,10 +350,6 @@ function RichText(
     title: content.document.title,
     body: content.document.body,
   }));
-  React.useEffect(
-    () => setDraft({ title: content.document.title, body: content.document.body }),
-    [content.document.body, content.document.id, content.document.title],
-  );
   const saved =
     content.saved && draft.title === content.document.title && draft.body === content.document.body;
   const edit = (field: 'title' | 'body', value: string) => {
@@ -421,10 +437,6 @@ function Markdown(
   const { content, onAction } = props;
   const [mode, setMode] = React.useState(content.initialMode);
   const [source, setSource] = React.useState(content.document.source);
-  React.useEffect(() => {
-    setMode(content.initialMode);
-    setSource(content.document.source);
-  }, [content.document.id, content.document.source, content.initialMode]);
   const modes: readonly LumenMarkdownMode[] = ['write', 'split', 'preview'];
   return (
     <Root
@@ -436,23 +448,17 @@ function Markdown(
           <h1>{content.document.fileName}</h1>
           <p>{content.document.summary}</p>
         </div>
-        <div role="tablist" aria-label={content.labels.modeTabsLabel}>
-          {modes.map((item) => (
-            <LumenButton
-              variant="text"
-              role="tab"
-              aria-selected={mode === item}
-              key={item}
-              onClick={() => {
-                setMode(item);
-                content.onModeChange?.(item);
-                report(onAction, 'mode', item);
-              }}
-            >
-              {content.labels.modeLabel(item)}
-            </LumenButton>
-          ))}
-        </div>
+        <LumenTabs
+          label={content.labels.modeTabsLabel}
+          items={modes.map((item) => ({ id: item, label: content.labels.modeLabel(item) }))}
+          selectedId={mode}
+          onChange={(id) => {
+            const next = id as LumenMarkdownMode;
+            setMode(next);
+            content.onModeChange?.(next);
+            report(onAction, 'mode', next);
+          }}
+        />
       </header>
       <main className="hbar-app-ui-editor-markdown-main">
         {mode !== 'preview' ? (
@@ -486,10 +492,6 @@ function Code(props: Omit<LumenEditorProps, 'content'> & { content: LumenCodeWor
   const [activeId, setActiveId] = React.useState(content.activeFileId);
   const [closed, setClosed] = React.useState<ReadonlySet<string>>(() => new Set());
   const [running, setRunning] = React.useState(false);
-  React.useEffect(() => {
-    setActiveId(content.activeFileId);
-    setClosed(new Set());
-  }, [content.activeFileId, content.files]);
   const open = files.filter((file) => !closed.has(file.id));
   const active = selectLumenEditorItem(open, activeId);
   const lines = active?.source.split('\n') ?? [];
@@ -506,36 +508,44 @@ function Code(props: Omit<LumenEditorProps, 'content'> & { content: LumenCodeWor
   };
   return (
     <Root {...props} className="hbar-app-ui-editor-code">
-      <header
-        className="hbar-app-ui-editor-code-tabs"
-        role="tablist"
-        aria-label={content.labels.openFilesLabel}
-      >
-        <div>
-          {open.map((file) => (
-            <div className="hbar-app-ui-editor-code-file" key={file.id}>
-              <LumenButton
-                variant="text"
-                role="tab"
-                aria-selected={active?.id === file.id}
-                onClick={() => {
-                  setActiveId(file.id);
-                  content.onSelectFile?.(file.id);
-                  report(onAction, 'file', file.id);
-                }}
-              >
-                <span>{file.name}</span>
-                {file.dirty ? <i aria-label={content.labels.unsavedLabel} /> : null}
-              </LumenButton>
+      <header className="hbar-app-ui-editor-code-tabs">
+        <LumenTabs
+          className="hbar-app-ui-editor-code-file-list"
+          label={content.labels.openFilesLabel}
+          items={open.map((file) => ({ id: file.id, label: file.name }))}
+          selectedId={active?.id ?? null}
+          onChange={(id) => {
+            setActiveId(id);
+            content.onSelectFile?.(id);
+            report(onAction, 'file', id);
+          }}
+          renderLabel={(item) => {
+            const file = open.find((candidate) => candidate.id === item.id);
+            return (
+              <React.Fragment>
+                <span>{item.label}</span>
+                {file?.dirty ? (
+                  <LumenBadge
+                    variant="dot"
+                    value={content.labels.unsavedLabel}
+                    aria-label={content.labels.unsavedLabel}
+                  />
+                ) : null}
+              </React.Fragment>
+            );
+          }}
+          renderTrailing={(item) => {
+            const file = open.find((candidate) => candidate.id === item.id);
+            return file ? (
               <LumenIconButton
                 label={content.labels.closeFileLabel(file.name)}
                 onClick={() => close(file)}
               >
                 <Glyph name="close" />
               </LumenIconButton>
-            </div>
-          ))}
-        </div>
+            ) : null;
+          }}
+        />
         <LumenButton
           onClick={() =>
             setRunning((current) => {
@@ -601,13 +611,17 @@ function Inline({
   readonly onOpen: (id: string) => void;
 }) {
   return (
-    <>
+    <React.Fragment>
       {segments.map((segment, index) => {
         const key =
           segment.kind === 'suggestion' ? segment.suggestionId : `${segment.kind}-${index}`;
-        if (segment.kind === 'strong') return <strong key={key}>{segment.value}</strong>;
-        if (segment.kind === 'emphasis') return <em key={key}>{segment.value}</em>;
-        if (segment.kind === 'suggestion')
+        if (segment.kind === 'strong') {
+          return <strong key={key}>{segment.value}</strong>;
+        }
+        if (segment.kind === 'emphasis') {
+          return <em key={key}>{segment.value}</em>;
+        }
+        if (segment.kind === 'suggestion') {
           return (
             <LumenButton
               variant="text"
@@ -618,9 +632,10 @@ function Inline({
               {segment.value}
             </LumenButton>
           );
+        }
         return <span key={key}>{segment.value}</span>;
       })}
-    </>
+    </React.Fragment>
   );
 }
 
@@ -750,21 +765,13 @@ function Reader(
   const [outline, setOutline] = React.useState(content.initialOutlineOpen);
   const [focusId, setFocusId] = React.useState(content.initialFocusSectionId);
   const [focus, setFocus] = React.useState(content.initialFocusMode);
+  const outlineId = React.useId();
   const selected = selectLumenEditorItem(sections, focusId);
-  React.useEffect(() => {
-    setOutline(content.initialOutlineOpen);
-    setFocusId(content.initialFocusSectionId);
-    setFocus(content.initialFocusMode);
-  }, [
-    content.initialFocusMode,
-    content.initialFocusSectionId,
-    content.initialOutlineOpen,
-    content.sections,
-  ]);
   return (
     <Root {...props} className={`hbar-app-ui-editor-reader${focus ? ' is-focus-mode' : ''}`}>
       {outline ? (
         <aside
+          id={outlineId}
           className="hbar-app-ui-editor-reader-outline"
           data-hbar-app-ui-expected-maximum={content.listStrategy.expectedMaximum}
           data-hbar-app-ui-list-strategy={content.listStrategy.kind}
@@ -776,6 +783,8 @@ function Reader(
                 <LumenButton
                   variant="text"
                   aria-current={selected?.id === section.id ? 'location' : undefined}
+                  indicatorEdge="left"
+                  indicatorState={selected?.id === section.id ? 'selected' : undefined}
                   key={section.id}
                   onClick={() => {
                     setFocusId(section.id);
@@ -797,6 +806,8 @@ function Reader(
         <header className="hbar-app-ui-editor-reader-toolbar">
           <LumenIconButton
             label={content.labels.toggleOutlineLabel}
+            aria-expanded={outline}
+            aria-controls={outline ? outlineId : undefined}
             onClick={() => {
               const next = !outline;
               setOutline(next);
@@ -860,6 +871,7 @@ function empty(props: LumenEditorProps) {
     </Root>
   );
 }
+
 export function LumenEditor(props: LumenEditorProps) {
   const inheritedContent = useLumenEditorContent();
   if (props.slots) {
@@ -933,21 +945,37 @@ export function LumenEditor(props: LumenEditorProps) {
     return content?.reader ? <Reader {...props} content={content.reader} /> : empty(props);
   return empty(props);
 }
+
 function variant(value: number, props: LumenEditorVariantProps) {
   return <LumenEditor {...props} variant={value} variantId={`hbar-app-ui-editor-${value}`} />;
 }
+
 export function LumenEditor01(props: LumenEditorVariantProps) {
   return variant(1, props);
 }
+
 export function LumenEditor02(props: LumenEditorVariantProps) {
   return variant(2, props);
 }
+
 export function LumenEditor03(props: LumenEditorVariantProps) {
   return variant(3, props);
 }
+
 export function LumenEditor04(props: LumenEditorVariantProps) {
   return variant(4, props);
 }
+
 export function LumenEditor05(props: LumenEditorVariantProps) {
   return variant(5, props);
 }
+
+const glyphPaths = {
+  close: 'm4 4 8 8m0-8-8 8',
+  play: 'm5 3 8 5-8 5Z',
+  panel: 'M2.5 3h11v10h-11zM6 3v10',
+  focus: 'M6 3H3v3m7-3h3v3m0 4v3h-3m-4 0H3v-3',
+  check: 'm3.5 8 3 3 6-6',
+  message: 'M2.5 3.5h11v7h-6l-3.5 3v-3H2.5z',
+  minus: 'M3 8h10',
+} as const;

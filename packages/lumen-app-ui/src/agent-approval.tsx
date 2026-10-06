@@ -288,10 +288,12 @@ export interface LumenAgentApprovalProviderProps {
   readonly content: LumenAgentApprovalContent;
   readonly children: React.ReactNode;
 }
+
 export interface LumenAgentApprovalAction {
   readonly actionId: string;
   readonly value?: string | undefined;
 }
+
 export interface LumenAgentApprovalProps {
   readonly variant: number;
   readonly variantId: string;
@@ -304,11 +306,13 @@ export interface LumenAgentApprovalProps {
   readonly visualMode?: string | undefined;
   readonly controlled?: { readonly body: React.ReactNode } | undefined;
 }
+
 export type LumenAgentApprovalVariantProps = Omit<LumenAgentApprovalProps, 'variant' | 'variantId'>;
 
 const ApprovalContentContext = React.createContext<LumenAgentApprovalContent | undefined>(
   undefined,
 );
+
 const ApprovalPresentationContext =
   React.createContext<LumenAgentApprovalContent['presentation']>(undefined);
 
@@ -1296,20 +1300,27 @@ export function LumenAgentApproval(props: LumenAgentApprovalProps) {
 }
 
 function createAgentApprovalVariant(variant: number) {
-  const Component = (props: LumenAgentApprovalVariantProps) => (
-    <LumenAgentApproval
-      {...props}
-      variant={variant}
-      variantId={`hbar-app-ui-agent-approval-${variant}`}
-    />
-  );
+  function Component(props: LumenAgentApprovalVariantProps) {
+    return (
+      <LumenAgentApproval
+        {...props}
+        variant={variant}
+        variantId={`hbar-app-ui-agent-approval-${variant}`}
+      />
+    );
+  }
   Component.displayName = `LumenAgentApproval${String(variant).padStart(2, '0')}`;
   return Component;
 }
 
 export const LumenAgentApproval01 = createAgentApprovalVariant(1);
+
 export const LumenAgentApproval02 = createAgentApprovalVariant(2);
+
 export const LumenAgentApproval03 = createAgentApprovalVariant(3);
+
 export const LumenAgentApproval04 = createAgentApprovalVariant(4);
+
 export const LumenAgentApproval05 = createAgentApprovalVariant(5);
+
 export const LumenAgentApproval06 = createAgentApprovalVariant(6);

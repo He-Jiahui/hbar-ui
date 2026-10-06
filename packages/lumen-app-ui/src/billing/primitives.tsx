@@ -1,12 +1,14 @@
-import { LumenButton } from '../primitives';
+import { LumenButton, LumenStatus } from '../primitives';
 import LumenSurface from '../LumenSurface';
-import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
-import type {
-  LumenBillingMetric,
-  LumenBillingTone,
-  LumenBillingValueRow,
-  LumenBillingWorkflowStep,
+import * as React from 'react';
+import { forwardRef, type ButtonHTMLAttributes } from 'react';
+import {
+  type LumenBillingMetric,
+  type LumenBillingTone,
+  type LumenBillingValueRow,
+  type LumenBillingWorkflowStep,
 } from './content';
+import { LumenProgress } from '../ui-controls';
 
 export interface LumenBillingCompositionProps {
   readonly spec: {
@@ -34,7 +36,7 @@ export function BillingFrame({
   className,
   children,
 }: LumenBillingCompositionProps & {
-  readonly children: ReactNode;
+  readonly children: React.ReactNode;
   readonly className?: string | undefined;
 }) {
   const contentClassName = [
@@ -72,8 +74,8 @@ export function BillingIcon({
   tier = 'sm',
   label,
 }: {
-  readonly children: ReactNode;
-  readonly tier?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  readonly children: React.ReactNode;
+  readonly tier?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | undefined;
   readonly label?: string | undefined;
 }) {
   if (label) {
@@ -110,9 +112,11 @@ export const BillingButton = forwardRef<
 export function BillingIconButton({
   children,
   label,
+  tier = 'sm',
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & {
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
   readonly label: string;
+  readonly tier?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | undefined;
 }) {
   return (
     <BillingButton
@@ -121,7 +125,7 @@ export function BillingIconButton({
       aria-label={props['aria-label'] ?? label}
       title={props.title ?? label}
     >
-      {children}
+      <BillingIcon tier={tier}>{children}</BillingIcon>
     </BillingButton>
   );
 }
@@ -133,12 +137,13 @@ export function BillingStatus({
   readonly value: string;
   readonly tone?: LumenBillingTone | undefined;
 }) {
-  return (
-    <span className={`hbar-app-ui-billing-status hbar-app-ui-billing-status-${tone}`}>
-      <i aria-hidden="true" />
-      {value}
-    </span>
-  );
+  const tones = {
+    neutral: 'neutral',
+    positive: 'success',
+    warning: 'warning',
+    danger: 'danger',
+  } as const;
+  return <LumenStatus className="hbar-app-ui-billing-status" value={value} tone={tones[tone]} />;
 }
 
 export function BillingProgress({
@@ -150,21 +155,19 @@ export function BillingProgress({
   readonly label: string;
   readonly tone?: LumenBillingTone | undefined;
 }) {
-  const bounded = Math.max(0, Math.min(100, value));
+  const tones = {
+    neutral: 'info',
+    positive: 'success',
+    warning: 'warning',
+    danger: 'danger',
+  } as const;
   return (
-    <span
+    <LumenProgress
       className="hbar-app-ui-billing-progress"
-      role="progressbar"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={bounded}
-    >
-      <i
-        className={`hbar-app-ui-billing-progress-fill hbar-app-ui-billing-progress-${tone}`}
-        style={{ inlineSize: `${bounded}%` }}
-      />
-    </span>
+      label={label}
+      value={value}
+      tone={tones[tone]}
+    />
   );
 }
 
@@ -228,12 +231,21 @@ export function BillingWorkflowSteps({
     0,
     steps.findIndex((step) => step.id === activeId),
   );
+  const stepClassName = (index: number) => {
+    if (index === activeIndex) {
+      return 'is-active';
+    }
+    if (index < activeIndex) {
+      return 'is-complete';
+    }
+    return '';
+  };
   return (
     <ol className="hbar-app-ui-billing-workflow-steps">
       {steps.map((step, index) => (
         <li
           key={step.id}
-          className={index === activeIndex ? 'is-active' : index < activeIndex ? 'is-complete' : ''}
+          className={stepClassName(index)}
           aria-current={index === activeIndex ? 'step' : undefined}
         >
           <span>{index + 1}</span>

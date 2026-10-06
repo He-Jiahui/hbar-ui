@@ -6,23 +6,32 @@ import {
   LumenFeedbackWidgetReference,
   type LumenFeedbackWidgetReferenceContent,
 } from './feedback-widget-reference';
-import {LumenFeedbackSurveyReference, type LumenFeedbackSurveyReferenceContent} from './feedback-survey-reference';
-import {LumenFeedbackRatingReference, type LumenFeedbackRatingReferenceContent} from './feedback-rating-reference';
-import {LumenFeedbackBoardReference, type LumenFeedbackBoardReferenceContent} from './feedback-board-reference';
-import {LumenFeedbackInboxReference, type LumenFeedbackInboxReferenceContent} from './feedback-inbox-reference';
+import {
+  LumenFeedbackSurveyReference,
+  type LumenFeedbackSurveyReferenceContent,
+} from './feedback-survey-reference';
+import {
+  LumenFeedbackRatingReference,
+  type LumenFeedbackRatingReferenceContent,
+} from './feedback-rating-reference';
+import {
+  LumenFeedbackBoardReference,
+  type LumenFeedbackBoardReferenceContent,
+} from './feedback-board-reference';
+import {
+  LumenFeedbackInboxReference,
+  type LumenFeedbackInboxReferenceContent,
+} from './feedback-inbox-reference';
 import {
   LumenFeedbackInsightsReference,
   type LumenFeedbackInsightsReferenceContent,
 } from './feedback-insights-reference';
-import {
-  HbarAppUiFeedback01,
-  HbarAppUiFeedback02,
-  HbarAppUiFeedback03,
-  HbarAppUiFeedback04,
-  HbarAppUiFeedback05,
-  HbarAppUiFeedback06,
-} from './variants/Feedback';
 import './feedback-workflows.css';
+import { LumenInput, LumenTextarea } from './forms';
+import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
+import { LumenChart } from './ui';
+import { LumenChip, LumenProgress, LumenTabs } from './ui-controls';
+import { HbarAppUiFeedback04 } from './variants/Feedback';
 
 export type LumenFeedbackListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -174,6 +183,7 @@ export interface LumenFeedbackInboxMetric {
 export interface LumenFeedbackInboxDetail {
   readonly threadId: string;
   readonly sentiment: string;
+  readonly sentimentTone?: 'neutral' | 'success' | 'warning' | 'danger' | undefined;
   readonly body: string;
   readonly tags: readonly string[];
   readonly metrics: readonly LumenFeedbackInboxMetric[];
@@ -312,7 +322,9 @@ export function uniqueLumenFeedbackItems<Item extends { readonly id: string }>(
 ): readonly Item[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.id)) return false;
+    if (seen.has(item.id)) {
+      return false;
+    }
     seen.add(item.id);
     return true;
   });
@@ -326,6 +338,7 @@ export function selectLumenFeedbackItem<Item extends { readonly id: string }>(
 }
 
 const idleSubmission = { status: 'idle', error: null } as const;
+
 type WorkflowSubmission = {
   readonly status: 'idle' | 'submitting' | 'sent' | 'failed';
   readonly error: string | null;
@@ -346,7 +359,7 @@ function CompatibilityMarker({
 }) {
   return (
     <div
-      className={className}
+      className={`lumen-feedback ${className}`}
       data-hbar-app-ui-list-strategy={strategy?.kind}
       data-hbar-app-ui-expected-maximum={strategy?.expectedMaximum}
     >
@@ -367,46 +380,106 @@ function Widget({
   const [attachmentName, setAttachmentName] = React.useState<string | null>(null);
   const [submission, setSubmission] = React.useState<WorkflowSubmission>(idleSubmission);
   return (
-    <CompatibilityMarker className="hbar-app-ui-feedback-modal">
-      <HbarAppUiFeedback01
-        copy={{
-          title: content.labels.title,
-          detail: content.labels.description,
-          empty: content.labels.promptPlaceholder,
-          submit: content.labels.send,
-          submitting: content.labels.send,
-          sent: content.labels.sentTitle,
-          retry: content.labels.send,
-          reset: content.labels.sendAnother,
-          typeLabel: content.labels.typeGroup,
-          messageLabel: content.labels.prompt,
-          messagePlaceholder: content.labels.promptPlaceholder,
-          attachment: content.labels.attachment,
-          close: content.labels.close,
-        }}
-        content={{ id: 'feedback-widget', types: content.types, attachmentName }}
-        state={{ text, selectedId, submission }}
-        actions={{
-          onTypeChange: (_id, value) => {
-            setSelectedId(value);
-            report(onAction, 'change-type', value);
-          },
-          onTextChange: (_id, value) => setText(value.slice(0, content.maximumCharacters)),
-          onAttach: (_id, file) => {
-            setAttachmentName(file.name);
-            report(onAction, 'attach', file.name);
-          },
-          onSubmit: (_id, typeId) => {
-            setSubmission({ status: 'sent', error: null });
-            report(onAction, 'send', typeId);
-          },
-          onClose: () => report(onAction, 'close'),
-          onReset: () => {
-            setText('');
-            setSubmission(idleSubmission);
-          },
-        }}
+    <CompatibilityMarker className="lumen-feedback-widget">
+      <FeedbackHeader
+        title={content.labels.title}
+        detail={content.labels.description}
+        action={
+          <LumenButton variant="text" onClick={() => report(onAction, 'close')}>
+            {content.labels.close}
+          </LumenButton>
+        }
       />
+      {submission.status === 'sent' ? (
+        <div className="lumen-feedback-sent" role="status">
+          <LumenStatus value={content.labels.sentTitle} tone="success" />
+          <LumenText as="p" tone="muted">
+            {content.labels.sentDescription(
+              content.types.find((item) => item.id === selectedId)?.label ?? '',
+            )}
+          </LumenText>
+          <LumenButton
+            variant="outlined"
+            onClick={() => {
+              setText('');
+              setAttachmentName(null);
+              setSubmission(idleSubmission);
+            }}
+          >
+            {content.labels.sendAnother}
+          </LumenButton>
+        </div>
+      ) : (
+        <form
+          className="lumen-feedback-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (!selectedId || !text.trim()) {
+              return;
+            }
+            setSubmission({ status: 'sent', error: null });
+            report(onAction, 'send', selectedId);
+          }}
+        >
+          <div className="lumen-feedback-pills" role="group" aria-label={content.labels.typeGroup}>
+            {content.types.map((type) => (
+              <LumenButton
+                key={type.id}
+                variant={selectedId === type.id ? 'solid' : 'outlined'}
+                aria-pressed={selectedId === type.id}
+                onClick={() => {
+                  setSelectedId(type.id);
+                  report(onAction, 'change-type', type.id);
+                }}
+              >
+                {type.label}
+              </LumenButton>
+            ))}
+          </div>
+          <label className="lumen-feedback-field">
+            <LumenText as="span" variant="label">
+              {content.labels.prompt}
+            </LumenText>
+            <LumenTextarea
+              value={text}
+              maxLength={content.maximumCharacters}
+              placeholder={content.labels.promptPlaceholder}
+              onChange={(event) => setText(event.currentTarget.value)}
+            />
+            <small>{content.labels.characterCount(text.length, content.maximumCharacters)}</small>
+          </label>
+          <div className="lumen-feedback-attachment">
+            <LumenButton
+              variant="outlined"
+              onClick={() => {
+                const next = attachmentName ? null : content.attachment.name;
+                setAttachmentName(next);
+                report(onAction, 'attach', next ?? '');
+              }}
+            >
+              {content.labels.attachment}
+            </LumenButton>
+            <span>{attachmentName ?? content.attachment.countLabel}</span>
+          </div>
+          <LumenText as="small" tone="muted">
+            {content.labels.privacyNotice}
+          </LumenText>
+          <div className="lumen-feedback-actions">
+            <LumenButton
+              variant="text"
+              onClick={() => {
+                setText('');
+                setAttachmentName(null);
+              }}
+            >
+              {content.labels.cancel}
+            </LumenButton>
+            <LumenButton type="submit" tone="primary" disabled={!selectedId || !text.trim()}>
+              {content.labels.send}
+            </LumenButton>
+          </div>
+        </form>
+      )}
     </CompatibilityMarker>
   );
 }
@@ -423,50 +496,94 @@ function Survey({
   const [comment, setComment] = React.useState('');
   const [submission, setSubmission] = React.useState<WorkflowSubmission>(idleSubmission);
   return (
-    <CompatibilityMarker
-      className="hbar-app-ui-feedback-score-scale"
-      strategy={content.listStrategy}
-    >
-      <HbarAppUiFeedback02
-        copy={{
-          title: content.labels.question,
-          detail: content.labels.eyebrow,
-          empty: content.labels.scorePrompt,
-          submit: content.labels.submit,
-          submitting: content.labels.submit,
-          sent: content.labels.submitted,
-          retry: content.labels.submit,
-          reset: content.labels.submitted,
-          scale: content.labels.scoreGroup,
-          low: content.labels.scoreLow,
-          high: content.labels.scoreHigh,
-          reasons: content.labels.reasonGroup,
-          comment: content.labels.commentPlaceholder,
-          later: content.labels.later,
-          scoreLabel: content.labels.scoreAccessible,
-        }}
-        content={{ id: 'feedback-survey', scores: content.scores, reasons: content.reasons }}
-        state={{ score, reasonIds, comment, submission }}
-        actions={{
-          onScoreChange: (_id, value) => {
-            setScore(value);
-            report(onAction, 'select-score', String(value));
-          },
-          onReasonToggle: (_id, value) => {
-            setReasonIds((current) =>
-              current.includes(value) ? current.filter((id) => id !== value) : [...current, value],
-            );
-            report(onAction, 'toggle-reason', value);
-          },
-          onCommentChange: (_id, value) => setComment(value),
-          onSubmit: (_id, value) => {
+    <CompatibilityMarker className="lumen-feedback-survey" strategy={content.listStrategy}>
+      <FeedbackHeader title={content.labels.question} detail={content.labels.eyebrow} />
+      {submission.status === 'sent' ? (
+        <div className="lumen-feedback-sent" role="status">
+          <LumenStatus value={content.labels.submitted} tone="success" />
+        </div>
+      ) : (
+        <form
+          className="lumen-feedback-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (score === null) {
+              return;
+            }
             setSubmission({ status: 'sent', error: null });
-            report(onAction, 'submit', String(value));
-          },
-          onLater: () => report(onAction, 'later'),
-          onReset: () => setSubmission(idleSubmission),
-        }}
-      />
+            report(onAction, 'submit', String(score));
+          }}
+        >
+          <div className="lumen-feedback-score" role="group" aria-label={content.labels.scoreGroup}>
+            {content.scores.map((value) => (
+              <LumenButton
+                key={value}
+                size="s"
+                variant={score === value ? 'solid' : 'outlined'}
+                aria-label={content.labels.scoreAccessible(value)}
+                aria-pressed={score === value}
+                onClick={() => {
+                  setScore(value);
+                  setReasonIds([]);
+                  report(onAction, 'select-score', String(value));
+                }}
+              >
+                {value}
+              </LumenButton>
+            ))}
+          </div>
+          <div className="lumen-feedback-scale-labels">
+            <span>{content.labels.scoreLow}</span>
+            <span>{content.labels.scoreHigh}</span>
+          </div>
+          {score === null ? (
+            <LumenText as="p" tone="muted">
+              {content.labels.scorePrompt}
+            </LumenText>
+          ) : (
+            <div className="lumen-feedback-followup">
+              <LumenText as="strong" variant="label">
+                {content.labels.reasonGroup}
+              </LumenText>
+              <div className="lumen-feedback-pills">
+                {content.reasons.map((reason) => (
+                  <LumenButton
+                    key={reason.id}
+                    variant={reasonIds.includes(reason.id) ? 'solid' : 'outlined'}
+                    aria-pressed={reasonIds.includes(reason.id)}
+                    onClick={() => {
+                      setReasonIds((current) =>
+                        current.includes(reason.id)
+                          ? current.filter((id) => id !== reason.id)
+                          : [...current, reason.id],
+                      );
+                      report(onAction, 'toggle-reason', reason.id);
+                    }}
+                  >
+                    {reason.label}
+                  </LumenButton>
+                ))}
+              </div>
+              <LumenTextarea
+                value={comment}
+                placeholder={content.labels.commentPlaceholder}
+                onChange={(event) => setComment(event.currentTarget.value)}
+              />
+            </div>
+          )}
+          <LumenText as="small" tone="muted">
+            {content.labels.note}
+          </LumenText>
+          <div className="lumen-feedback-actions">
+            <LumenButton variant="text" onClick={() => report(onAction, 'later')}>
+              {content.labels.later}
+            </LumenButton>
+            <LumenButton type="submit" tone="primary" disabled={score === null}>
+              {content.labels.submit}
+            </LumenButton>
+          </div>
+        </form>
+      )}
     </CompatibilityMarker>
   );
 }
@@ -479,54 +596,100 @@ function PostResolution({
   onAction: LumenFeedbackProps['onAction'];
 }) {
   const [rating, setRating] = React.useState<number | null>(null);
+  const [hoverRating, setHoverRating] = React.useState<number | null>(null);
   const [reasonId, setReasonId] = React.useState<string | null>(null);
   const [comment, setComment] = React.useState('');
   const [submission, setSubmission] = React.useState<WorkflowSubmission>(idleSubmission);
   return (
-    <CompatibilityMarker
-      className="hbar-app-ui-feedback-rating-fieldset"
-      strategy={content.listStrategy}
-    >
-      <HbarAppUiFeedback03
-        copy={{
-          title: content.labels.question,
-          detail: content.ticket.header,
-          empty: content.labels.reasonGroup,
-          submit: content.labels.submit,
-          submitting: content.labels.submit,
-          sent: content.labels.submitted,
-          retry: content.labels.submit,
-          reset: content.labels.submitted,
-          rating: content.labels.ratingGroup,
-          reasons: content.labels.reasonGroup,
-          comment: content.labels.commentPlaceholder,
-          skip: content.labels.noThanks,
-        }}
-        content={{
-          id: content.ticket.ticketId,
-          ticket: content.ticket.summary,
-          ratings: content.ratings,
-          reasons: content.reasons,
-        }}
-        state={{ rating, reasonId, comment, submission }}
-        actions={{
-          onRatingChange: (_id, value) => {
-            setRating(value);
-            report(onAction, 'select-rating', String(value));
-          },
-          onReasonChange: (_id, value) => {
-            setReasonId(value);
-            report(onAction, 'select-reason', value);
-          },
-          onCommentChange: (_id, value) => setComment(value),
-          onSubmit: (_id, value, reason) => {
+    <CompatibilityMarker className="lumen-feedback-rating" strategy={content.listStrategy}>
+      <FeedbackHeader title={content.labels.question} detail={content.ticket.header} />
+      <article className="lumen-feedback-ticket">
+        <span className="lumen-feedback-avatar">{content.ticket.initials}</span>
+        <div>
+          <strong>{content.ticket.subject}</strong>
+          <small>{content.ticket.detail}</small>
+        </div>
+        <LumenStatus value={content.ticket.ticketId} tone="neutral" />
+      </article>
+      {submission.status === 'sent' ? (
+        <div className="lumen-feedback-sent" role="status">
+          <LumenStatus value={content.labels.submitted} tone="success" />
+        </div>
+      ) : (
+        <form
+          className="lumen-feedback-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (rating === null) {
+              return;
+            }
             setSubmission({ status: 'sent', error: null });
-            report(onAction, 'submit', `${value}:${reason ?? ''}`);
-          },
-          onSkip: () => report(onAction, 'no-thanks'),
-          onReset: () => setSubmission(idleSubmission),
-        }}
-      />
+            report(onAction, 'submit', `${rating}:${reasonId ?? ''}`);
+          }}
+        >
+          <div
+            className="lumen-feedback-stars"
+            role="group"
+            aria-label={content.labels.ratingGroup}
+          >
+            {content.ratings.map((option) => {
+              const active = option.value <= (hoverRating ?? rating ?? 0);
+              return (
+                <LumenIconButton
+                  key={option.value}
+                  label={option.label}
+                  tone={active ? 'primary' : 'neutral'}
+                  aria-pressed={rating === option.value}
+                  onMouseEnter={() => setHoverRating(option.value)}
+                  onMouseLeave={() => setHoverRating(null)}
+                  onClick={() => {
+                    setRating(option.value);
+                    setReasonId(null);
+                    report(onAction, 'select-rating', String(option.value));
+                  }}
+                >
+                  <FeedbackGlyph name="star" />
+                </LumenIconButton>
+              );
+            })}
+          </div>
+          {rating !== null ? (
+            <div className="lumen-feedback-followup">
+              <LumenText as="strong" variant="label">
+                {content.labels.reasonGroup}
+              </LumenText>
+              <div className="lumen-feedback-pills">
+                {content.reasons.map((reason) => (
+                  <LumenButton
+                    key={reason.id}
+                    variant={reasonId === reason.id ? 'solid' : 'outlined'}
+                    aria-pressed={reasonId === reason.id}
+                    onClick={() => {
+                      setReasonId(reason.id);
+                      report(onAction, 'select-reason', reason.id);
+                    }}
+                  >
+                    {reason.label}
+                  </LumenButton>
+                ))}
+              </div>
+              <LumenTextarea
+                value={comment}
+                placeholder={content.labels.commentPlaceholder}
+                onChange={(event) => setComment(event.currentTarget.value)}
+              />
+            </div>
+          ) : null}
+          <div className="lumen-feedback-actions">
+            <LumenButton variant="text" onClick={() => report(onAction, 'no-thanks')}>
+              {content.labels.noThanks}
+            </LumenButton>
+            <LumenButton type="submit" tone="primary" disabled={rating === null}>
+              {content.labels.submit}
+            </LumenButton>
+          </div>
+        </form>
+      )}
     </CompatibilityMarker>
   );
 }
@@ -611,54 +774,135 @@ function Inbox({
     content.initialThreadId ?? threads[0]?.id ?? null,
   );
   const [note, setNote] = React.useState('');
-  const mappedThreads = threads.map((thread) => {
-    const detail = content.details.find((item) => item.threadId === thread.id);
-    return {
-      id: thread.id,
-      sender: thread.sender,
-      subject: thread.subject,
-      metadata: content.labels.threadMeta(thread.account, thread.channel, thread.relativeTime),
-      unread: Boolean(thread.unread),
-      body: detail?.body ?? '',
-      sentiment: detail?.sentiment ?? '',
-      tone: detail?.sentiment.toLocaleLowerCase().includes('negative')
-        ? ('danger' as const)
-        : ('neutral' as const),
-      tags: (detail?.tags ?? []).map((tag) => ({ id: tag, label: tag })),
-    };
-  });
+  const [tagDraft, setTagDraft] = React.useState('');
+  const [addedTags, setAddedTags] = React.useState<readonly string[]>([]);
+  const selectedThread = threads.find((thread) => thread.id === selectedId) ?? threads[0];
+  const detail = content.details.find((item) => item.threadId === selectedThread?.id);
   return (
-    <CompatibilityMarker
-      className="hbar-app-ui-feedback-thread-detail"
-      strategy={content.listStrategy}
-    >
-      <HbarAppUiFeedback05
-        copy={{
-          title: content.labels.title,
-          detail: content.labels.summary,
-          empty: content.labels.empty,
-          threads: content.labels.title,
-          detailLabel: content.labels.detailLabel,
-          note: content.labels.internalNotePlaceholder,
-          addTag: content.labels.addTag,
-          reply: content.labels.reply,
-          archive: content.labels.archive,
-          archiving: content.labels.archive,
-        }}
-        content={{ inboxId: 'feedback-inbox', threads: mappedThreads }}
-        state={{ selectedId, note, busyId: null, error: null }}
-        actions={{
-          onSelect: (_id, value) => {
-            setSelectedId(value);
-            setNote('');
-            report(onAction, 'open-thread', value);
-          },
-          onNoteChange: (_id, value) => setNote(value),
-          onAddTag: (value) => report(onAction, 'add-tag', value),
-          onReply: (value) => report(onAction, 'reply', value),
-          onArchive: (value) => report(onAction, 'archive', value),
-        }}
+    <CompatibilityMarker className="lumen-feedback-inbox" strategy={content.listStrategy}>
+      <FeedbackHeader
+        title={content.labels.title}
+        detail={content.labels.summary}
+        action={
+          <LumenButton variant="outlined" onClick={() => report(onAction, 'archive-read')}>
+            {content.labels.archiveRead}
+          </LumenButton>
+        }
       />
+      <div className="lumen-feedback-inbox-layout">
+        <div className="lumen-feedback-thread-list">
+          {threads.map((thread) => (
+            <LumenButton
+              key={thread.id}
+              variant={selectedThread?.id === thread.id ? 'solid' : 'text'}
+              aria-label={content.labels.openThread(thread.subject)}
+              onClick={() => {
+                setSelectedId(thread.id);
+                setNote('');
+                setTagDraft('');
+                setAddedTags([]);
+                report(onAction, 'open-thread', thread.id);
+              }}
+            >
+              <span className="lumen-feedback-avatar">{thread.initials}</span>
+              <span>
+                <strong>{thread.subject}</strong>
+                <small>
+                  {content.labels.threadMeta(thread.account, thread.channel, thread.relativeTime)}
+                </small>
+              </span>
+              {thread.unread ? <i aria-hidden="true" /> : null}
+            </LumenButton>
+          ))}
+        </div>
+        {selectedThread && detail ? (
+          <article className="lumen-feedback-thread-detail" aria-label={content.labels.detailLabel}>
+            <header>
+              <div>
+                <strong>{selectedThread.sender}</strong>
+                <small>{selectedThread.subject}</small>
+              </div>
+              <LumenStatus value={detail.sentiment} tone={detail.sentimentTone} />
+            </header>
+            <p>{detail.body}</p>
+            <div className="lumen-feedback-pills">
+              {[...detail.tags, ...addedTags].map((tag) => (
+                <LumenChip key={tag} label={tag} startAdornment={<FeedbackGlyph name="tag" />} />
+              ))}
+            </div>
+            <div className="lumen-feedback-tag-editor">
+              <LumenInput
+                value={tagDraft}
+                aria-label={content.labels.addTag}
+                placeholder={content.labels.addTag}
+                onChange={(event) => setTagDraft(event.currentTarget.value)}
+              />
+              <LumenButton
+                variant="outlined"
+                disabled={!tagDraft.trim()}
+                onClick={() => {
+                  const tag = tagDraft.trim();
+                  if (!tag || detail.tags.includes(tag) || addedTags.includes(tag)) {
+                    return;
+                  }
+                  setAddedTags((current) => [...current, tag]);
+                  setTagDraft('');
+                  report(onAction, 'add-tag', tag);
+                }}
+              >
+                {content.labels.addTag}
+              </LumenButton>
+            </div>
+            <dl className="lumen-feedback-metrics">
+              {detail.metrics.map((metric) => (
+                <div key={metric.id}>
+                  <dt>{metric.label}</dt>
+                  <dd>{metric.value}</dd>
+                </div>
+              ))}
+            </dl>
+            <LumenTextarea
+              value={note}
+              placeholder={content.labels.internalNotePlaceholder}
+              onChange={(event) => setNote(event.currentTarget.value)}
+            />
+            <div className="lumen-feedback-actions">
+              <LumenButton
+                variant="text"
+                disabled={!note.trim()}
+                onClick={() => {
+                  report(onAction, 'add-note', selectedThread.id);
+                  setNote('');
+                }}
+              >
+                {content.labels.addInternalNote}
+              </LumenButton>
+              <LumenButton
+                variant="text"
+                onClick={() => report(onAction, 'create-issue', selectedThread.id)}
+              >
+                {content.labels.createIssue}
+              </LumenButton>
+              <LumenButton
+                variant="outlined"
+                onClick={() => report(onAction, 'archive', selectedThread.id)}
+              >
+                {content.labels.archive}
+              </LumenButton>
+              <LumenButton
+                tone="primary"
+                onClick={() => report(onAction, 'reply', selectedThread.id)}
+              >
+                {content.labels.reply}
+              </LumenButton>
+            </div>
+          </article>
+        ) : (
+          <LumenText as="p" tone="muted">
+            {content.labels.empty}
+          </LumenText>
+        )}
+      </div>
     </CompatibilityMarker>
   );
 }
@@ -671,50 +915,75 @@ function Insights({
   onAction: LumenFeedbackProps['onAction'];
 }) {
   const [periodId, setPeriodId] = React.useState(content.initialPeriodId);
-  const maximumVolume = Math.max(1, ...content.volume.map((point) => point.value));
   return (
-    <CompatibilityMarker
-      className="hbar-app-ui-feedback-volume-chart"
-      strategy={content.listStrategy}
-    >
-      <HbarAppUiFeedback06
-        copy={{
-          title: content.labels.title,
-          detail: content.labels.description,
-          empty: content.labels.responsesPerDay,
-          period: content.labels.periodGroup,
-          sentiment: content.labels.sentiment,
-          themes: content.labels.topThemes,
-          volume: content.labels.weeklyVolume,
-          retry: content.labels.weeklyVolume,
-        }}
-        content={{
-          reportId: 'feedback-insights',
-          periods: content.periods,
-          metrics: content.metrics,
-          sentiment: content.sentiment,
-          themes: content.themes.map((theme) => ({
-            id: theme.id,
-            label: theme.label,
-            value: `${theme.mentions} ${theme.changeLabel}`,
-            percent: theme.progress,
-          })),
-          volume: content.volume.map((point) => ({
-            id: point.id,
-            label: point.label,
-            value: String(point.value),
-            percent: (point.value / maximumVolume) * 100,
-          })),
-        }}
-        state={{ periodId, loading: false, error: null }}
-        actions={{
-          onPeriodChange: (_id, value) => {
-            setPeriodId(value);
-            report(onAction, 'change-period', value);
-          },
-          onRetry: () => report(onAction, 'retry'),
+    <CompatibilityMarker className="lumen-feedback-insights" strategy={content.listStrategy}>
+      <FeedbackHeader title={content.labels.title} detail={content.labels.description} />
+      <LumenTabs
+        className="lumen-feedback-tabs"
+        label={content.labels.periodGroup}
+        items={content.periods}
+        selectedId={periodId}
+        onChange={(id) => {
+          setPeriodId(id);
+          report(onAction, 'change-period', id);
         }}
       />
+      <dl className="lumen-feedback-metrics">
+        {content.metrics.map((metric) => (
+          <div key={metric.id}>
+            <dt>{metric.label}</dt>
+            <dd>{metric.value}</dd>
+            <small>{metric.detail}</small>
+          </div>
+        ))}
+      </dl>
+      <div className="lumen-feedback-insight-columns">
+        <section aria-label={content.labels.sentiment}>
+          <LumenText as="h3" variant="label">
+            {content.labels.sentiment}
+          </LumenText>
+          {content.sentiment.map((sentiment) => (
+            <div className="lumen-feedback-insight-row" key={sentiment.id}>
+              <span>{sentiment.label}</span>
+              <b>{sentiment.value}</b>
+              <FeedbackProgress value={sentiment.percent} label={sentiment.label} />
+            </div>
+          ))}
+        </section>
+        <section aria-label={content.labels.topThemes}>
+          <LumenText as="h3" variant="label">
+            {content.labels.topThemes}
+          </LumenText>
+          {content.themes.map((theme) => (
+            <div className="lumen-feedback-insight-row" key={theme.id}>
+              <span>{theme.label}</span>
+              <b>{[theme.mentions, theme.changeLabel].join(' · ')}</b>
+              <FeedbackProgress value={theme.progress} label={theme.label} />
+            </div>
+          ))}
+        </section>
+      </div>
+      <LumenChart
+        kind="bar"
+        label={content.labels.weeklyVolume}
+        series={[
+          {
+            id: 'responses',
+            label: content.labels.responsesPerDay,
+            tone: 'info',
+            points: content.volume.map((point) => ({
+              id: point.id,
+              label: point.label,
+              value: point.value,
+            })),
+          },
+        ]}
+        empty={content.labels.responsesPerDay}
+      />
+      <div className="lumen-feedback-period-caption">
+        <span>{content.labels.periodStart}</span>
+        <span>{content.labels.periodEnd}</span>
+      </div>
     </CompatibilityMarker>
   );
 }
@@ -776,7 +1045,9 @@ export function LumenFeedback(props: LumenFeedbackProps) {
           'lumen-feedback-widget-reference',
           'hbar-app-ui-stage-padding-owner',
           'hbar-app-ui-full-canvas-owner',
-        ].filter(Boolean).join(' ')}
+        ]
+          .filter(Boolean)
+          .join(' ')}
       >
         <LumenFeedbackWidgetReference content={content.referenceWidget} onAction={props.onAction} />
       </FeedbackRoot>
@@ -793,7 +1064,9 @@ export function LumenFeedback(props: LumenFeedbackProps) {
           'lumen-feedback-survey-reference',
           'hbar-app-ui-full-canvas-owner',
           'hbar-app-ui-stage-padding-owner',
-        ].filter(Boolean).join(' ')}
+        ]
+          .filter(Boolean)
+          .join(' ')}
       >
         <LumenFeedbackSurveyReference content={content.referenceSurvey} onAction={props.onAction} />
       </FeedbackRoot>
@@ -802,10 +1075,18 @@ export function LumenFeedback(props: LumenFeedbackProps) {
     view = <Survey content={content.survey} onAction={props.onAction} />;
   if (props.variant === 3 && content?.referenceRating)
     return (
-      <FeedbackRoot {...props} boundary="none" className={[
-        props.className, 'lumen-feedback-rating-reference', 'hbar-app-ui-full-canvas-owner',
-        'hbar-app-ui-stage-padding-owner',
-      ].filter(Boolean).join(' ')}>
+      <FeedbackRoot
+        {...props}
+        boundary="none"
+        className={[
+          props.className,
+          'lumen-feedback-rating-reference',
+          'hbar-app-ui-full-canvas-owner',
+          'hbar-app-ui-stage-padding-owner',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+      >
         <LumenFeedbackRatingReference content={content.referenceRating} onAction={props.onAction} />
       </FeedbackRoot>
     );
@@ -813,10 +1094,18 @@ export function LumenFeedback(props: LumenFeedbackProps) {
     view = <PostResolution content={content.postResolution} onAction={props.onAction} />;
   if (props.variant === 4 && content?.referenceBoard)
     return (
-      <FeedbackRoot {...props} boundary="none" className={[
-        props.className, 'lumen-feedback-board-reference', 'hbar-app-ui-full-canvas-owner',
-        'hbar-app-ui-stage-padding-owner',
-      ].filter(Boolean).join(' ')}>
+      <FeedbackRoot
+        {...props}
+        boundary="none"
+        className={[
+          props.className,
+          'lumen-feedback-board-reference',
+          'hbar-app-ui-full-canvas-owner',
+          'hbar-app-ui-stage-padding-owner',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+      >
         <LumenFeedbackBoardReference content={content.referenceBoard} onAction={props.onAction} />
       </FeedbackRoot>
     );
@@ -824,10 +1113,18 @@ export function LumenFeedback(props: LumenFeedbackProps) {
     view = <FeatureBoard content={content.featureBoard} onAction={props.onAction} />;
   if (props.variant === 5 && content?.referenceInbox)
     return (
-      <FeedbackRoot {...props} boundary="none" className={[
-        props.className, 'lumen-feedback-inbox-reference', 'hbar-app-ui-full-canvas-owner',
-        'hbar-app-ui-stage-padding-owner',
-      ].filter(Boolean).join(' ')}>
+      <FeedbackRoot
+        {...props}
+        boundary="none"
+        className={[
+          props.className,
+          'lumen-feedback-inbox-reference',
+          'hbar-app-ui-full-canvas-owner',
+          'hbar-app-ui-stage-padding-owner',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+      >
         <LumenFeedbackInboxReference content={content.referenceInbox} onAction={props.onAction} />
       </FeedbackRoot>
     );
@@ -843,9 +1140,14 @@ export function LumenFeedback(props: LumenFeedbackProps) {
           'lumen-feedback-insights-reference',
           'hbar-app-ui-full-canvas-owner',
           'hbar-app-ui-stage-padding-owner',
-        ].filter(Boolean).join(' ')}
+        ]
+          .filter(Boolean)
+          .join(' ')}
       >
-        <LumenFeedbackInsightsReference content={content.referenceInsights} onAction={props.onAction} />
+        <LumenFeedbackInsightsReference
+          content={content.referenceInsights}
+          onAction={props.onAction}
+        />
       </FeedbackRoot>
     );
   if (props.variant === 6 && content?.insights)
@@ -854,16 +1156,66 @@ export function LumenFeedback(props: LumenFeedbackProps) {
 }
 
 function createFeedbackVariant(variant: number) {
-  const Component = (props: LumenFeedbackVariantProps) => (
-    <LumenFeedback {...props} variant={variant} variantId={`hbar-app-ui-feedback-${variant}`} />
-  );
+  function Component(props: LumenFeedbackVariantProps) {
+    return (
+      <LumenFeedback {...props} variant={variant} variantId={`hbar-app-ui-feedback-${variant}`} />
+    );
+  }
   Component.displayName = `LumenFeedback${String(variant).padStart(2, '0')}`;
   return Component;
 }
 
 export const LumenFeedback01 = createFeedbackVariant(1);
+
 export const LumenFeedback02 = createFeedbackVariant(2);
+
 export const LumenFeedback03 = createFeedbackVariant(3);
+
 export const LumenFeedback04 = createFeedbackVariant(4);
+
 export const LumenFeedback05 = createFeedbackVariant(5);
+
 export const LumenFeedback06 = createFeedbackVariant(6);
+
+function FeedbackGlyph({ name }: { name: 'close' | 'star' | 'vote' | 'tag' }) {
+  return (
+    <svg className="lumen-feedback-glyph" viewBox="0 0 16 16" aria-hidden="true">
+      {name === 'close' ? <path d="m4 4 8 8m0-8-8 8" /> : null}
+      {name === 'star' ? (
+        <path d="m8 2 1.8 3.6 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4-2.9-2.8 4-.6Z" />
+      ) : null}
+      {name === 'vote' ? <path d="M8 13V3m0 0L4 7m4-4 4 4" /> : null}
+      {name === 'tag' ? <path d="M3 3h5l5 5-5 5-5-5Zm3 3h.01" /> : null}
+    </svg>
+  );
+}
+
+function FeedbackHeader({
+  title,
+  detail,
+  action,
+}: {
+  title: string;
+  detail: string;
+  action?: React.ReactNode;
+}) {
+  return (
+    <header className="lumen-feedback-header">
+      <div>
+        <LumenText as="h2" variant="heading">
+          {title}
+        </LumenText>
+        <LumenText as="p" tone="muted" variant="supporting">
+          {detail}
+        </LumenText>
+      </div>
+      {action}
+    </header>
+  );
+}
+
+function FeedbackProgress({ value, label }: { value: number; label: string }) {
+  return (
+    <LumenProgress className="lumen-feedback-progress" label={label} value={value} tone="info" />
+  );
+}

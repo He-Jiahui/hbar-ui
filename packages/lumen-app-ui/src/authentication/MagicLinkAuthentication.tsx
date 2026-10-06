@@ -4,13 +4,16 @@ import * as React from 'react';
 import { MailCheck } from 'lucide-react';
 import { LumenInput } from '../forms';
 import { LumenButton } from '../primitives';
-import type {
-  LumenAuthMagicLinkContent,
-  LumenAuthMagicLinkReferenceFlow,
-} from './content';
+import { type LumenAuthMagicLinkContent, type LumenAuthMagicLinkReferenceFlow } from './content';
 import { ExternalLink, RotateCcw } from './glyphs';
-import type { LumenAuthCompositionProps } from './primitives';
-import { AuthArrow, AuthBrand, AuthCard, AuthFrame, AuthIcon } from './primitives';
+import {
+  type LumenAuthCompositionProps,
+  AuthArrow,
+  AuthBrand,
+  AuthCard,
+  AuthFrame,
+  AuthIcon,
+} from './primitives';
 
 export interface MagicLinkAuthenticationProps extends LumenAuthCompositionProps {
   readonly content: LumenAuthMagicLinkContent;
@@ -44,16 +47,47 @@ function ControlledMagicLinkAuthentication({
           {flow.phase === 'sent' ? (
             <>
               <div className="hbar-app-ui-auth-magic-link-emblem">
-                <AuthIcon tier="sm"><MailCheck /></AuthIcon>
+                <AuthIcon tier="sm">
+                  <MailCheck />
+                </AuthIcon>
               </div>
               <h1>{content.labels.title}</h1>
               <p className="hbar-app-ui-auth-magic-link-description">
-                {content.labels.descriptionBeforeEmail}<span className="hbar-app-ui-auth-magic-link-email">{flow.email}{content.labels.descriptionEmailSuffix}</span>{content.labels.descriptionAfterEmail}
+                {content.labels.descriptionBeforeEmail}
+                <span className="hbar-app-ui-auth-magic-link-email">
+                  {flow.email}
+                  {content.labels.descriptionEmailSuffix}
+                </span>
+                {content.labels.descriptionAfterEmail}
               </p>
               <div className="hbar-app-ui-auth-magic-link-summary">
-                <div><span className="hbar-app-ui-auth-magic-link-summary-label">{content.labels.sentTo}</span><span className="hbar-app-ui-auth-magic-link-summary-value" title={flow.email}>{flow.email}</span></div>
-                <div><span className="hbar-app-ui-auth-magic-link-summary-label">{content.labels.expires}</span><span className="hbar-app-ui-auth-magic-link-summary-value">{content.expiry}</span></div>
-                <div><span className="hbar-app-ui-auth-magic-link-summary-label">{content.labels.requestedFrom}</span><span className="hbar-app-ui-auth-magic-link-summary-value" title={content.requestedFromValue}>{content.requestedFromValue}</span></div>
+                <div>
+                  <span className="hbar-app-ui-auth-magic-link-summary-label">
+                    {content.labels.sentTo}
+                  </span>
+                  <span className="hbar-app-ui-auth-magic-link-summary-value" title={flow.email}>
+                    {flow.email}
+                  </span>
+                </div>
+                <div>
+                  <span className="hbar-app-ui-auth-magic-link-summary-label">
+                    {content.labels.expires}
+                  </span>
+                  <span className="hbar-app-ui-auth-magic-link-summary-value">
+                    {content.expiry}
+                  </span>
+                </div>
+                <div>
+                  <span className="hbar-app-ui-auth-magic-link-summary-label">
+                    {content.labels.requestedFrom}
+                  </span>
+                  <span
+                    className="hbar-app-ui-auth-magic-link-summary-value"
+                    title={content.requestedFromValue}
+                  >
+                    {content.requestedFromValue}
+                  </span>
+                </div>
               </div>
               <div className="hbar-app-ui-auth-magic-link-actions">
                 <LumenButton
@@ -63,7 +97,10 @@ function ControlledMagicLinkAuthentication({
                   className="hbar-app-ui-auth-magic-link-primary"
                   onClick={() => flow.onNavigate('open-mail')}
                 >
-                  {content.labels.openMail}<AuthIcon tier="sm"><ExternalLink /></AuthIcon>
+                  {content.labels.openMail}
+                  <AuthIcon tier="sm">
+                    <ExternalLink />
+                  </AuthIcon>
                 </LumenButton>
                 <LumenButton
                   type="button"
@@ -73,8 +110,14 @@ function ControlledMagicLinkAuthentication({
                   disabled={flow.seconds > 0}
                   onClick={flow.onResend}
                 >
-                  <AuthIcon tier="sm"><RotateCcw /></AuthIcon>
-                  <span className="hbar-app-ui-auth-magic-link-resend-label">{flow.seconds > 0 ? content.labels.resend(flow.seconds) : content.labels.resendReady}</span>
+                  <AuthIcon tier="sm">
+                    <RotateCcw />
+                  </AuthIcon>
+                  <span className="hbar-app-ui-auth-magic-link-resend-label">
+                    {flow.seconds > 0
+                      ? content.labels.resend(flow.seconds)
+                      : content.labels.resendReady}
+                  </span>
                 </LumenButton>
               </div>
               <p className="hbar-app-ui-auth-magic-link-helper">{content.labels.noEmail}</p>
@@ -85,7 +128,8 @@ function ControlledMagicLinkAuthentication({
                 className="hbar-app-ui-auth-magic-link-different"
                 onClick={flow.onDifferentEmail}
               >
-                <AuthArrow back />{content.labels.differentEmail}
+                <AuthArrow back />
+                {content.labels.differentEmail}
               </LumenButton>
             </>
           ) : (
@@ -94,7 +138,9 @@ function ControlledMagicLinkAuthentication({
                 <AuthBrand label={content.labels.formBrand} compact plain />
               </div>
               <h1>{content.labels.formTitle}</h1>
-              <p className="hbar-app-ui-auth-magic-link-description">{content.labels.formDescription}</p>
+              <p className="hbar-app-ui-auth-magic-link-description">
+                {content.labels.formDescription}
+              </p>
               <form
                 noValidate
                 onSubmit={(event) => {
@@ -122,7 +168,9 @@ function ControlledMagicLinkAuthentication({
                   aria-live="polite"
                   data-invalid={flow.invalidEmail || undefined}
                 >
-                  {flow.invalidEmail ? content.labels.formInvalidEmail : content.labels.formEmailHelper}
+                  {flow.invalidEmail
+                    ? content.labels.formInvalidEmail
+                    : content.labels.formEmailHelper}
                 </p>
                 <LumenButton
                   type="submit"
@@ -153,11 +201,7 @@ function ControlledMagicLinkAuthentication({
   );
 }
 
-function LegacyMagicLinkAuthentication({
-  spec,
-  onAction,
-  content,
-}: MagicLinkAuthenticationProps) {
+function LegacyMagicLinkAuthentication({ spec, onAction, content }: MagicLinkAuthenticationProps) {
   const [phase, setPhase] = React.useState<'sent' | 'form'>('sent');
   const [email, setEmail] = React.useState(content.email);
   const [invalidEmail, setInvalidEmail] = React.useState(false);
@@ -193,16 +237,47 @@ function LegacyMagicLinkAuthentication({
           {phase === 'sent' ? (
             <>
               <div className="hbar-app-ui-auth-magic-link-emblem">
-                <AuthIcon tier="sm"><MailCheck /></AuthIcon>
+                <AuthIcon tier="sm">
+                  <MailCheck />
+                </AuthIcon>
               </div>
               <h1>{content.labels.title}</h1>
               <p className="hbar-app-ui-auth-magic-link-description">
-                {content.labels.descriptionBeforeEmail}<span className="hbar-app-ui-auth-magic-link-email">{email}{content.labels.descriptionEmailSuffix}</span>{content.labels.descriptionAfterEmail}
+                {content.labels.descriptionBeforeEmail}
+                <span className="hbar-app-ui-auth-magic-link-email">
+                  {email}
+                  {content.labels.descriptionEmailSuffix}
+                </span>
+                {content.labels.descriptionAfterEmail}
               </p>
               <div className="hbar-app-ui-auth-magic-link-summary">
-                <div><span className="hbar-app-ui-auth-magic-link-summary-label">{content.labels.sentTo}</span><span className="hbar-app-ui-auth-magic-link-summary-value" title={email}>{email}</span></div>
-                <div><span className="hbar-app-ui-auth-magic-link-summary-label">{content.labels.expires}</span><span className="hbar-app-ui-auth-magic-link-summary-value">{content.expiry}</span></div>
-                <div><span className="hbar-app-ui-auth-magic-link-summary-label">{content.labels.requestedFrom}</span><span className="hbar-app-ui-auth-magic-link-summary-value" title={content.requestedFromValue}>{content.requestedFromValue}</span></div>
+                <div>
+                  <span className="hbar-app-ui-auth-magic-link-summary-label">
+                    {content.labels.sentTo}
+                  </span>
+                  <span className="hbar-app-ui-auth-magic-link-summary-value" title={email}>
+                    {email}
+                  </span>
+                </div>
+                <div>
+                  <span className="hbar-app-ui-auth-magic-link-summary-label">
+                    {content.labels.expires}
+                  </span>
+                  <span className="hbar-app-ui-auth-magic-link-summary-value">
+                    {content.expiry}
+                  </span>
+                </div>
+                <div>
+                  <span className="hbar-app-ui-auth-magic-link-summary-label">
+                    {content.labels.requestedFrom}
+                  </span>
+                  <span
+                    className="hbar-app-ui-auth-magic-link-summary-value"
+                    title={content.requestedFromValue}
+                  >
+                    {content.requestedFromValue}
+                  </span>
+                </div>
               </div>
               <div className="hbar-app-ui-auth-magic-link-actions">
                 <LumenButton
@@ -211,7 +286,10 @@ function LegacyMagicLinkAuthentication({
                   className="hbar-app-ui-auth-magic-link-primary"
                   onClick={() => onAction?.({ variantId: spec.id, actionId: 'open-mail' })}
                 >
-                  {content.labels.openMail}<AuthIcon tier="sm"><ExternalLink /></AuthIcon>
+                  {content.labels.openMail}
+                  <AuthIcon tier="sm">
+                    <ExternalLink />
+                  </AuthIcon>
                 </LumenButton>
                 <LumenButton
                   type="button"
@@ -223,8 +301,12 @@ function LegacyMagicLinkAuthentication({
                     onAction?.({ variantId: spec.id, actionId: 'resend' });
                   }}
                 >
-                  <AuthIcon tier="sm"><RotateCcw /></AuthIcon>
-                  <span className="hbar-app-ui-auth-magic-link-resend-label">{seconds > 0 ? content.labels.resend(seconds) : content.labels.resendReady}</span>
+                  <AuthIcon tier="sm">
+                    <RotateCcw />
+                  </AuthIcon>
+                  <span className="hbar-app-ui-auth-magic-link-resend-label">
+                    {seconds > 0 ? content.labels.resend(seconds) : content.labels.resendReady}
+                  </span>
                 </LumenButton>
               </div>
               <p className="hbar-app-ui-auth-magic-link-helper">{content.labels.noEmail}</p>
@@ -238,7 +320,8 @@ function LegacyMagicLinkAuthentication({
                   onAction?.({ variantId: spec.id, actionId: 'different-email' });
                 }}
               >
-                <AuthArrow back />{content.labels.differentEmail}
+                <AuthArrow back />
+                {content.labels.differentEmail}
               </LumenButton>
             </>
           ) : (
@@ -247,7 +330,9 @@ function LegacyMagicLinkAuthentication({
                 <AuthBrand label={content.labels.formBrand} compact plain />
               </div>
               <h1>{content.labels.formTitle}</h1>
-              <p className="hbar-app-ui-auth-magic-link-description">{content.labels.formDescription}</p>
+              <p className="hbar-app-ui-auth-magic-link-description">
+                {content.labels.formDescription}
+              </p>
               <form noValidate onSubmit={sendLink}>
                 <label htmlFor={`${spec.id}-email`}>{content.labels.formEmailLabel}</label>
                 <LumenInput
@@ -264,10 +349,18 @@ function LegacyMagicLinkAuthentication({
                     setInvalidEmail(false);
                   }}
                 />
-                <p className="hbar-app-ui-auth-magic-link-form-help" aria-live="polite" data-invalid={invalidEmail || undefined}>
+                <p
+                  className="hbar-app-ui-auth-magic-link-form-help"
+                  aria-live="polite"
+                  data-invalid={invalidEmail || undefined}
+                >
                   {invalidEmail ? content.labels.formInvalidEmail : content.labels.formEmailHelper}
                 </p>
-                <LumenButton type="submit" indicator="none" className="hbar-app-ui-auth-magic-link-primary">
+                <LumenButton
+                  type="submit"
+                  indicator="none"
+                  className="hbar-app-ui-auth-magic-link-primary"
+                >
                   {content.labels.formSubmit}
                 </LumenButton>
               </form>
@@ -277,7 +370,9 @@ function LegacyMagicLinkAuthentication({
                   type="button"
                   indicator="none"
                   onClick={() => onAction?.({ variantId: spec.id, actionId: 'password-sign-in' })}
-                >{content.labels.formPasswordSignIn}</LumenButton>
+                >
+                  {content.labels.formPasswordSignIn}
+                </LumenButton>
               </p>
             </>
           )}

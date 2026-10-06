@@ -1,32 +1,29 @@
-import { LumenSelect } from '../forms';
+'use client';
+import * as React from 'react';
+import { LumenChoiceSelect } from '../forms';
 import { Check, LockKeyhole, ShieldCheck } from './glyphs';
-import { useMemo, useState } from 'react';
 import type { LumenIntegrationsCompositionProps } from './primitives';
 import type { LumenIntegrationConsentContent } from './content';
 import { selectLumenIntegrationItem, uniqueLumenIntegrationItems } from './content';
 import { IntegrationButton, IntegrationFrame, IntegrationIcon } from './primitives';
 
-export function ConsentIntegration({
+export default function ConsentIntegration({
   spec,
   onAction,
   content,
 }: LumenIntegrationsCompositionProps & {
   readonly content: LumenIntegrationConsentContent;
 }) {
-  const workspaces = useMemo(
+  const workspaces = React.useMemo(
     () => uniqueLumenIntegrationItems(content.workspaces),
     [content.workspaces],
   );
   const initialWorkspace = selectLumenIntegrationItem(workspaces, content.initialWorkspaceId);
-  const [workspaceId, setWorkspaceId] = useState(initialWorkspace?.id ?? '');
-  const [authorized, setAuthorized] = useState(false);
+  const [workspaceId, setWorkspaceId] = React.useState(initialWorkspace?.id ?? '');
+  const [authorized, setAuthorized] = React.useState(false);
 
   return (
-    <IntegrationFrame
-      spec={spec}
-      onAction={onAction}
-      className="hbar-app-ui-integration-consent-surface"
-    >
+    <IntegrationFrame spec={spec} className="hbar-app-ui-integration-consent-surface">
       <main className="hbar-app-ui-integration-consent-page">
         <section className="hbar-app-ui-integration-consent-card">
           <div className="hbar-app-ui-integration-consent-brands">
@@ -39,35 +36,30 @@ export function ConsentIntegration({
             <h1>{content.title}</h1>
             <p>{content.description}</p>
           </header>
-          <label
+          <div
             className="hbar-app-ui-integration-field"
-            htmlFor={`hbar-app-ui-integration-workspace-${spec.id}`}
           >
             <span>{content.labels.workspaceLabel}</span>
             <span className="hbar-app-ui-integration-workspace-select">
               <IntegrationIcon tier="sm">
                 <ShieldCheck />
               </IntegrationIcon>
-              <LumenSelect
+              <LumenChoiceSelect
                 id={`hbar-app-ui-integration-workspace-${spec.id}`}
+                label={content.labels.workspaceLabel}
+                options={workspaces}
                 value={workspaceId}
-                onChange={(event) => {
-                  setWorkspaceId(event.target.value);
+                onValueChange={(id) => {
+                  setWorkspaceId(id);
                   onAction?.({
                     variantId: spec.id,
                     actionId: 'select-workspace',
-                    value: event.target.value,
+                    value: id,
                   });
                 }}
-              >
-                {workspaces.map((workspace) => (
-                  <option key={workspace.id} value={workspace.id}>
-                    {workspace.label}
-                  </option>
-                ))}
-              </LumenSelect>
+              />
             </span>
-          </label>
+          </div>
           <ul
             className="hbar-app-ui-integration-permission-list"
             data-hbar-app-ui-list-strategy={content.listStrategy.kind}

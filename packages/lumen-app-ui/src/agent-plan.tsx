@@ -30,6 +30,7 @@ export interface LumenAgentPlanStep {
   readonly target?: string | undefined;
   readonly estimate?: string | undefined;
   readonly duration?: string | undefined;
+  readonly dependency?: { readonly id: string; readonly label: string } | undefined;
 }
 
 export interface LumenAgentPlanChecklistContent {
@@ -240,6 +241,7 @@ export interface LumenAgentPlanProps {
 export type LumenAgentPlanVariantProps = Omit<LumenAgentPlanProps, 'variant' | 'variantId'>;
 
 const AgentPlanContentContext = React.createContext<LumenAgentPlanContent | undefined>(undefined);
+
 const AgentPlanPresentationContext =
   React.createContext<LumenAgentPlanContent['presentation']>(undefined);
 
@@ -603,6 +605,7 @@ function PlanTree(
                         <li key={item.id} data-step-id={item.id} data-state={item.state}>
                           <span className="lumen-plan-tree-number">{index + 1}</span>
                           <span className="lumen-plan-tree-title">{item.title}</span>
+                          {item.dependency ? <small>{item.dependency.label}</small> : null}
                           {item.state === 'failed' ? (
                             <LumenButton
                               type="button"
@@ -1177,18 +1180,23 @@ function agentPlanVariant(variant: number, variantProps: LumenAgentPlanVariantPr
 export function LumenAgentPlan01(props: LumenAgentPlanVariantProps) {
   return agentPlanVariant(1, props);
 }
+
 export function LumenAgentPlan02(props: LumenAgentPlanVariantProps) {
   return agentPlanVariant(2, props);
 }
+
 export function LumenAgentPlan03(props: LumenAgentPlanVariantProps) {
   return agentPlanVariant(3, props);
 }
+
 export function LumenAgentPlan04(props: LumenAgentPlanVariantProps) {
   return agentPlanVariant(4, props);
 }
+
 export function LumenAgentPlan05(props: LumenAgentPlanVariantProps) {
   return agentPlanVariant(5, props);
 }
+
 export function LumenAgentPlan06(props: LumenAgentPlanVariantProps) {
   return agentPlanVariant(6, props);
 }

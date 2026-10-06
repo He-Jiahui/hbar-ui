@@ -1,6 +1,6 @@
 import * as React from 'react';
-import type { LumenShape } from './appearance';
-import type { LumenState, LumenTone } from './LumenIndicator';
+import { type LumenShape } from './appearance';
+import { type LumenState, type LumenTone } from './LumenIndicator';
 import styles from './field.module.css';
 
 export interface LumenFieldProps extends React.HTMLAttributes<HTMLDivElement> {

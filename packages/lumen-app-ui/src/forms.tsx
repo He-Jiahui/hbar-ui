@@ -1,11 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import type { LumenSize } from './appearance';
+import { type LumenSize } from './appearance';
 import LumenField from './LumenField';
-import LumenSurface from './LumenSurface';
 import { LumenFloatingSurface, useFloatingTrigger } from './floating-surface';
-import { LumenButton, LumenIconButton, LumenText } from './primitives';
+import { LumenButton, LumenIconButton, LumenText, type LumenButtonProps } from './primitives';
+import { LumenChip } from './ui-controls';
+import LumenAnchoredPopup from './anchored-popup';
 
 export type LumenFieldVariant = 'boundary' | 'outlined' | 'plain' | 'boxed';
 
@@ -233,6 +234,7 @@ export const LumenInput = React.forwardRef<HTMLInputElement, LumenInputProps>(fu
     <input
       {...other}
       ref={ref}
+      data-lumen-component="input"
       className={controlClass(className)}
       data-size={size ?? (typeof compatibilitySize === 'string' ? compatibilitySize : undefined)}
       data-lumen-variant={lumenVariant}
@@ -265,6 +267,7 @@ export const LumenTextarea = React.forwardRef<HTMLTextAreaElement, LumenTextarea
       <textarea
         {...other}
         ref={ref}
+        data-lumen-component="textarea"
         className={controlClass(className)}
         data-size={size ?? (typeof compatibilitySize === 'string' ? compatibilitySize : undefined)}
         data-lumen-variant={lumenVariant}
@@ -299,6 +302,7 @@ export const LumenSelect = React.forwardRef<HTMLSelectElement, LumenSelectProps>
       <select
         {...other}
         ref={ref}
+        data-lumen-component="select"
         className={controlClass(className)}
         data-size={size ?? (typeof compatibilitySize === 'string' ? compatibilitySize : undefined)}
         data-lumen-variant={lumenVariant}
@@ -476,6 +480,9 @@ export interface LumenComboBoxProps {
   describedBy?: string | undefined;
   'aria-label'?: string | undefined;
   'aria-labelledby'?: string | undefined;
+  'aria-describedby'?: string | undefined;
+  'aria-invalid'?: React.AriaAttributes['aria-invalid'];
+  required?: boolean | undefined;
   loadMoreLabel?: string | undefined;
   onLoadMore?: (() => void) | undefined;
   onQueryChange: (query: string) => void;
@@ -520,6 +527,9 @@ export function LumenComboBox({
   loading = false,
   invalid = false,
   describedBy,
+  'aria-describedby': ariaDescribedBy,
+  'aria-invalid': ariaInvalid,
+  required,
   'aria-label': ariaLabel,
   'aria-labelledby': ariaLabelledBy,
   loadMoreLabel,
@@ -536,16 +546,17 @@ export function LumenComboBox({
   const available = React.useMemo(() => items.filter((option) => !option.disabled), [items]);
   const [activeId, setActiveId] = React.useState<string | null>(null);
   const optionRefs = React.useRef(new Map<string, HTMLButtonElement>());
+  const resolvedInvalid = invalid || ariaInvalid === true || ariaInvalid === 'true';
 
   React.useEffect(() => {
     if (!open) {
       setActiveId(null);
       return;
     }
-    if (!available.some((option) => option.id === activeId)) {
-      setActiveId(available.find((option) => option.id === value)?.id ?? available[0]?.id ?? null);
+    if (activeId !== null && !available.some((option) => option.id === activeId)) {
+      setActiveId(null);
     }
-  }, [activeId, available, open, value]);
+  }, [activeId, available, open]);
 
   React.useEffect(() => {
     if (!open || activeId === null) return;
@@ -578,7 +589,8 @@ export function LumenComboBox({
     if (current < 0) {
       next = direction > 0 ? 0 : available.length - 1;
     }
-    setActiveId(available[next]!.id);
+    const option = available[next];
+    if (option) setActiveId(option.id);
   };
   let optionContent: React.ReactNode;
   if (loading) {
@@ -638,7 +650,7 @@ export function LumenComboBox({
       className="lumen-combobox-control lumen-effect"
       data-size={size}
       data-variant={variant}
-      data-invalid={invalid || undefined}
+      data-invalid={resolvedInvalid || undefined}
     >
       <LumenInput
         id={id}
@@ -647,6 +659,7 @@ export function LumenComboBox({
         value={query}
         placeholder={placeholder}
         disabled={disabled}
+        required={required}
         size={size}
         variant="plain"
         aria-autocomplete="list"
@@ -657,8 +670,8 @@ export function LumenComboBox({
             ? `${listboxId}-${items.findIndex((option) => option.id === activeId)}`
             : undefined
         }
-        aria-describedby={describedBy}
-        aria-invalid={invalid || undefined}
+        aria-describedby={ariaDescribedBy ?? describedBy}
+        aria-invalid={ariaInvalid ?? (invalid || undefined)}
         aria-label={ariaLabel}
         aria-labelledby={ariaLabelledBy}
         title={query}
@@ -707,7 +720,11 @@ export function LumenComboBox({
       {lumenVariant !== 'outlined' ? (
         control
       ) : (
-        <LumenField boundary={boundary} invalid={invalid} state={disabled ? 'disabled' : 'idle'}>
+        <LumenField
+          boundary={boundary}
+          invalid={resolvedInvalid}
+          state={disabled ? 'disabled' : 'idle'}
+        >
           {control}
         </LumenField>
       )}
@@ -754,6 +771,8 @@ export interface LumenMultiSelectProps extends Omit<
   options: readonly LumenControlOption[];
   labels: LumenMultiSelectLabels;
   onValuesChange: (values: readonly string[]) => void;
+  /** Retain selections across paged catalogs; discard only when the host supplies a complete catalog. */
+  unknownValuePolicy?: 'retain' | 'discard' | undefined;
 }
 
 export function LumenMultiSelect({
@@ -763,10 +782,14 @@ export function LumenMultiSelect({
   disabled,
   size,
   onValuesChange,
+  unknownValuePolicy = 'retain',
   ...comboBox
 }: LumenMultiSelectProps) {
   const uniqueOptionItems = uniqueOptions(options);
-  const uniqueValues = [...new Set(values)];
+  const uniqueValues = [...new Set(values)].filter(
+    (value) =>
+      unknownValuePolicy === 'retain' || uniqueOptionItems.some((option) => option.id === value),
+  );
   const selected = uniqueValues.map(
     (value) =>
       uniqueOptionItems.find((option) => option.id === value) ?? { id: value, label: value },
@@ -778,26 +801,16 @@ export function LumenMultiSelect({
       {selected.length > 0 ? (
         <div className="lumen-multi-select-values">
           {selected.map((option) => (
-            <LumenSurface
-              boundary="horizontal"
+            <LumenChip
               className="lumen-multi-select-value"
               key={option.id}
-              material="frost"
-            >
-              <div className="lumen-multi-select-value-content">
-                <LumenText as="span">{option.label}</LumenText>
-                <LumenIconButton
-                  label={labels.remove(option.label)}
-                  size={size}
-                  disabled={disabled}
-                  onClick={() =>
-                    onValuesChange(uniqueValues.filter((value) => value !== option.id))
-                  }
-                >
-                  <FormGlyph name="close" />
-                </LumenIconButton>
-              </div>
-            </LumenSurface>
+              label={option.label}
+              disabled={disabled}
+              removeAction={{
+                label: labels.remove(option.label),
+                onRemove: () => onValuesChange(uniqueValues.filter((value) => value !== option.id)),
+              }}
+            />
           ))}
         </div>
       ) : null}
@@ -810,6 +823,197 @@ export function LumenMultiSelect({
         disabled={disabled}
         onValueChange={(value) => onValuesChange([...uniqueValues, value])}
       />
+    </div>
+  );
+}
+
+export interface LumenFileButtonProps extends Omit<
+  LumenButtonProps,
+  'children' | 'onChange' | 'onClick' | 'type'
+> {
+  label: React.ReactNode;
+  accept?: string | undefined;
+  multiple?: boolean | undefined;
+  onFiles: (files: readonly File[]) => void;
+}
+
+export function LumenFileButton({
+  label,
+  accept,
+  multiple,
+  onFiles,
+  disabled,
+  className,
+  ...buttonProps
+}: LumenFileButtonProps) {
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  return (
+    <span className="lumen-file-button">
+      <LumenButton
+        {...buttonProps}
+        className={className}
+        disabled={disabled}
+        onClick={() => inputRef.current?.click()}
+      >
+        {label}
+      </LumenButton>
+      <input
+        ref={inputRef}
+        data-lumen-component="file-input"
+        hidden
+        tabIndex={-1}
+        type="file"
+        accept={accept}
+        multiple={multiple}
+        onChange={(event) => {
+          const files = Array.from(event.target.files ?? []);
+          if (files.length) {
+            onFiles(files);
+          }
+          event.target.value = '';
+        }}
+      />
+    </span>
+  );
+}
+
+export interface LumenChoiceSelectProps {
+  id: string;
+  label: string;
+  placeholder?: string | undefined;
+  describedBy?: string | undefined;
+  options: readonly LumenControlOption[];
+  value: string | null;
+  onValueChange: (id: string) => void;
+  size?: LumenSize | undefined;
+  disabled?: boolean | undefined;
+  className?: string | undefined;
+}
+
+export function LumenChoiceSelect({
+  id,
+  label,
+  placeholder,
+  describedBy,
+  options,
+  value,
+  onValueChange,
+  size,
+  disabled = false,
+  className,
+}: LumenChoiceSelectProps) {
+  const [open, setOpen] = React.useState(false);
+  const [activeId, setActiveId] = React.useState<string | null>(null);
+  const rootRef = React.useRef<HTMLDivElement>(null);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const items = uniqueOptions(options);
+  const available = items.filter((item) => !item.disabled);
+  const current = items.find((item) => item.id === value);
+  const active = available.find((item) => item.id === activeId);
+  const listId = `${id}-choices`;
+  const optionId = (itemId: string) => `${id}-choice-${encodeURIComponent(itemId)}`;
+  const select = (item: LumenControlOption) => {
+    if (item.disabled) {
+      return;
+    }
+    onValueChange(item.id);
+    setOpen(false);
+    setActiveId(null);
+  };
+  const move = (direction: 1 | -1) => {
+    if (!available.length) {
+      return;
+    }
+    const index = available.findIndex((item) => item.id === (active?.id ?? value));
+    let next = (index + direction + available.length) % available.length;
+    if (index < 0) {
+      next = direction > 0 ? 0 : available.length - 1;
+    }
+    setActiveId(available[next]?.id ?? null);
+  };
+  return (
+    <div
+      ref={rootRef}
+      className={['lumen-choice-select', className].filter(Boolean).join(' ')}
+      onBlur={(event) => {
+        if (!rootRef.current?.contains(event.relatedTarget)) {
+          setOpen(false);
+          setActiveId(null);
+        }
+      }}
+    >
+      <LumenButton
+        id={id}
+        ref={triggerRef}
+        role="combobox"
+        aria-label={label}
+        aria-describedby={describedBy}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls={open ? listId : undefined}
+        aria-activedescendant={open && active ? optionId(active.id) : undefined}
+        disabled={disabled}
+        size={size}
+        variant="outlined"
+        className="lumen-choice-select-trigger"
+        onClick={() => {
+          setOpen((wasOpen) => !wasOpen);
+          setActiveId(current && !current.disabled ? current.id : (available[0]?.id ?? null));
+        }}
+        onKeyDown={(event) => {
+          if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            setOpen(true);
+            move(event.key === 'ArrowDown' ? 1 : -1);
+          } else if (open && (event.key === 'Home' || event.key === 'End')) {
+            event.preventDefault();
+            setActiveId((event.key === 'Home' ? available[0] : available.at(-1))?.id ?? null);
+          } else if (open && event.key === 'Enter' && active) {
+            event.preventDefault();
+            select(active);
+          } else if (event.key === 'Escape') {
+            event.preventDefault();
+            setOpen(false);
+            setActiveId(null);
+          }
+        }}
+      >
+        <span>{current?.label ?? placeholder ?? label}</span>
+        <FormGlyph name="chevron" />
+      </LumenButton>
+      {open && !disabled ? (
+        <LumenAnchoredPopup
+          anchorRef={triggerRef}
+          onDismiss={() => {
+            setOpen(false);
+            setActiveId(null);
+          }}
+          id={listId}
+          role="listbox"
+          aria-label={label}
+          className="lumen-choice-select-list"
+        >
+          {items.map((item) => (
+            <LumenButton
+              key={item.id}
+              id={optionId(item.id)}
+              role="option"
+              tabIndex={-1}
+              aria-selected={item.id === value}
+              data-active={item.id === activeId || undefined}
+              disabled={item.disabled}
+              size={size}
+              variant="text"
+              onMouseDown={(event) => event.preventDefault()}
+              onPointerMove={() => !item.disabled && setActiveId(item.id)}
+              onClick={() => select(item)}
+            >
+              <span>{item.label}</span>
+              {item.id === value ? <FormGlyph name="check" /> : null}
+            </LumenButton>
+          ))}
+        </LumenAnchoredPopup>
+      ) : null}
     </div>
   );
 }

@@ -1,13 +1,14 @@
 'use client';
 
 import * as React from 'react';
-import { LumenCheckBoxControl, LumenInput } from './forms';
+import { LumenCheckBoxControl, LumenInput, LumenChoiceSelect } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './list.css';
 import './list-reference.css';
 import LumenListReference from './list-reference';
-import type { LumenListReferenceContent } from './list-reference-contracts';
+import { type LumenListReferenceContent } from './list-reference-contracts';
+import { LumenProgress, LumenTabs } from './ui-controls';
 
 export interface LumenListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -107,6 +108,7 @@ export interface LumenListQueueContent {
 
 export interface LumenListAsset {
   readonly id: string;
+  readonly kindId?: string | undefined;
   readonly name: string;
   readonly detail: string;
 }
@@ -115,11 +117,15 @@ export interface LumenListAssetsContent {
   readonly labels: {
     readonly title: string;
     readonly detail: (count: number) => string;
+    readonly filters?: string | undefined;
     readonly clear: string;
     readonly select: (name: string) => string;
     readonly archive: (count: number) => string;
     readonly empty: string;
   };
+  readonly filters?: readonly LumenListChoice[] | undefined;
+  readonly allFilterId?: string | undefined;
+  readonly initialFilterId?: string | undefined;
   readonly assets: readonly LumenListAsset[];
   readonly listStrategy: LumenListStrategy;
 }
@@ -129,6 +135,7 @@ export interface LumenListDelivery {
   readonly status: string;
   readonly tone: 'neutral' | 'success' | 'warning' | 'danger';
   readonly endpoint: string;
+  readonly endpointId?: string | undefined;
   readonly payload: string;
   readonly failed: boolean;
 }
@@ -138,11 +145,15 @@ export interface LumenListDeliveriesContent {
     readonly title: string;
     readonly detail: string;
     readonly failedOnly: string;
+    readonly endpoint?: string | undefined;
     readonly expand: (id: string) => string;
     readonly collapse: (id: string) => string;
     readonly replay: string;
     readonly empty: string;
   };
+  readonly endpoints?: readonly LumenListChoice[] | undefined;
+  readonly allEndpointId?: string | undefined;
+  readonly initialEndpointId?: string | undefined;
   readonly deliveries: readonly LumenListDelivery[];
   readonly listStrategy: LumenListStrategy;
 }
@@ -151,6 +162,7 @@ export interface LumenListSupplier {
   readonly id: string;
   readonly name: string;
   readonly category: string;
+  readonly categoryId?: string | undefined;
   readonly status: string;
   readonly tone: 'neutral' | 'success' | 'warning' | 'danger';
 }
@@ -167,6 +179,9 @@ export interface LumenListSuppliersContent {
     readonly status: string;
     readonly empty: string;
   };
+  readonly categories?: readonly LumenListChoice[] | undefined;
+  readonly allCategoryId?: string | undefined;
+  readonly initialCategoryId?: string | undefined;
   readonly suppliers: readonly LumenListSupplier[];
   readonly listStrategy: LumenListStrategy;
 }
@@ -199,6 +214,7 @@ export interface LumenListContact {
   readonly letterId: string;
   readonly avatar: string;
   readonly meta: string;
+  readonly relationshipId?: string | undefined;
 }
 
 export interface LumenListContactsContent {
@@ -209,6 +225,9 @@ export interface LumenListContactsContent {
     readonly letters: string;
     readonly empty: string;
   };
+  readonly relationships?: readonly LumenListChoice[] | undefined;
+  readonly allRelationshipId?: string | undefined;
+  readonly initialRelationshipId?: string | undefined;
   readonly letters: readonly LumenListChoice[];
   readonly initialLetterId: string;
   readonly contacts: readonly LumenListContact[];
@@ -249,10 +268,13 @@ export interface LumenListLeaderboardContent {
     readonly title: string;
     readonly detail: string;
     readonly measures: string;
+    readonly periods?: string | undefined;
     readonly empty: string;
   };
   readonly measures: readonly LumenListChoice[];
   readonly initialMeasureId: string;
+  readonly periods?: readonly LumenListChoice[] | undefined;
+  readonly initialPeriodId?: string | undefined;
   readonly entries: readonly LumenListLeaderboardEntry[];
   readonly listStrategy: LumenListStrategy;
 }
@@ -356,6 +378,7 @@ function Glyph({
   name,
 }: {
   name:
+    | 'check'
     | 'chevron'
     | 'filter'
     | 'up'
@@ -369,6 +392,7 @@ function Glyph({
     | 'file';
 }) {
   const paths = {
+    check: 'm3 8 3 3 7-7',
     chevron: 'm6 3 5 5-5 5',
     filter: 'M2.5 3h11L9.3 8v4l-2.6 1V8z',
     up: 'm4 9 4-4 4 4',
@@ -461,19 +485,7 @@ function Empty({ children }: { readonly children: string }) {
 }
 
 function Progress({ value, label }: { readonly value: number; readonly label: string }) {
-  const bounded = Math.max(0, Math.min(100, value));
-  return (
-    <span
-      className="lumen-list-progress"
-      role="progressbar"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={bounded}
-    >
-      <i style={{ inlineSize: `${bounded}%` }} />
-    </span>
-  );
+  return <LumenProgress className="lumen-list-progress" label={label} value={value} tone="info" />;
 }
 
 function Metrics(props: Omit<LumenListProps, 'content'> & { content: LumenListMetricsContent }) {
@@ -527,7 +539,7 @@ function Metrics(props: Omit<LumenListProps, 'content'> & { content: LumenListMe
 }
 
 function Spend(props: Omit<LumenListProps, 'content'> & { content: LumenListSpendContent }) {
-  const periods = uniqueLumenListItems(props.content.periods);
+  const periods = uniqueLumenListItems(props.content.periods ?? []);
   const items = uniqueLumenListItems(props.content.items);
   const [periodId, setPeriodId] = React.useState(props.content.initialPeriodId);
   const [selectedId, setSelectedId] = React.useState(props.content.initialSelectedId);
@@ -539,20 +551,13 @@ function Spend(props: Omit<LumenListProps, 'content'> & { content: LumenListSpen
         title={props.content.labels.title}
         detail={props.content.labels.detail(period?.label ?? '')}
       />
-      <div className="lumen-list-tabs" role="tablist" aria-label={props.content.labels.periods}>
-        {periods.map((item) => (
-          <LumenButton
-            key={item.id}
-            role="tab"
-            variant="text"
-            disabled={item.disabled}
-            aria-selected={period?.id === item.id}
-            onClick={() => setPeriodId(item.id)}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+      <LumenTabs
+        className="lumen-list-tabs"
+        label={props.content.labels.periods}
+        items={periods}
+        selectedId={period?.id ?? null}
+        onChange={setPeriodId}
+      />
       <div
         className="lumen-list-ranked"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
@@ -637,6 +642,7 @@ function Security(props: Omit<LumenListProps, 'content'> & { content: LumenListS
 
 function Queue(props: Omit<LumenListProps, 'content'> & { content: LumenListQueueContent }) {
   const [items, setItems] = React.useState(() => [...uniqueLumenListItems(props.content.items)]);
+  const [draggedId, setDraggedId] = React.useState<string>();
   const move = (index: number, direction: -1 | 1) => {
     const target = index + direction;
     if (target < 0 || target >= items.length) {
@@ -660,7 +666,33 @@ function Queue(props: Omit<LumenListProps, 'content'> & { content: LumenListQueu
           data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
         >
           {items.map((item, index) => (
-            <li key={item.id}>
+            <li
+              key={item.id}
+              draggable
+              onDragStart={() => setDraggedId(item.id)}
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={() => {
+                if (!draggedId || draggedId === item.id) {
+                  return;
+                }
+                setItems((current) => {
+                  const from = current.findIndex((entry) => entry.id === draggedId);
+                  const to = current.findIndex((entry) => entry.id === item.id);
+                  if (from < 0 || to < 0) {
+                    return current;
+                  }
+                  const next = [...current];
+                  const [dragged] = next.splice(from, 1);
+                  if (!dragged) {
+                    return current;
+                  }
+                  next.splice(to, 0, dragged);
+                  report(props.onAction, 'reorder', next.map((entry) => entry.id).join('|'));
+                  return next;
+                });
+                setDraggedId(undefined);
+              }}
+            >
               <span>{index + 1}</span>
               <strong>{item.title}</strong>
               <LumenIconButton
@@ -693,6 +725,11 @@ function Queue(props: Omit<LumenListProps, 'content'> & { content: LumenListQueu
 function Assets(props: Omit<LumenListProps, 'content'> & { content: LumenListAssetsContent }) {
   const assets = uniqueLumenListItems(props.content.assets);
   const [selectedIds, setSelectedIds] = React.useState<readonly string[]>([]);
+  const filters = uniqueLumenListItems(props.content.filters ?? []);
+  const [filterId, setFilterId] = React.useState(props.content.initialFilterId);
+  const visibleAssets = filters.length
+    ? assets.filter((asset) => filterId === props.content.allFilterId || asset.kindId === filterId)
+    : assets;
   return (
     <Root {...props}>
       <Header
@@ -709,24 +746,39 @@ function Assets(props: Omit<LumenListProps, 'content'> & { content: LumenListAss
           </LumenButton>
         }
       />
+      {props.content.labels.filters && filters.length ? (
+        <div className="lumen-list-pills" role="group" aria-label={props.content.labels.filters}>
+          {filters.map((filter) => (
+            <LumenButton
+              key={filter.id}
+              variant={filter.id === filterId ? 'solid' : 'outlined'}
+              aria-pressed={filter.id === filterId}
+              onClick={() => setFilterId(filter.id)}
+            >
+              {filter.label}
+            </LumenButton>
+          ))}
+        </div>
+      ) : null}
       <div
         className="lumen-list-assets"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
       >
-        {assets.length ? (
-          assets.map((asset) => (
+        {visibleAssets.length ? (
+          visibleAssets.map((asset) => (
             <label key={asset.id} htmlFor={`lumen-list-asset-${asset.id}`}>
               <LumenCheckBoxControl
                 id={`lumen-list-asset-${asset.id}`}
                 aria-label={props.content.labels.select(asset.name)}
                 checked={selectedIds.includes(asset.id)}
-                onChange={(event) =>
+                onChange={(event) => {
+                  const checked = event.currentTarget.checked;
                   setSelectedIds((current) =>
-                    event.currentTarget.checked
+                    checked
                       ? [...current.filter((id) => id !== asset.id), asset.id]
                       : current.filter((id) => id !== asset.id),
-                  )
-                }
+                  );
+                }}
               />
               <span>
                 <strong>{asset.name}</strong>
@@ -753,7 +805,7 @@ function Assets(props: Omit<LumenListProps, 'content'> & { content: LumenListAss
   );
 }
 
-function Deliveries(
+function DeliveriesLegacy(
   props: Omit<LumenListProps, 'content'> & { content: LumenListDeliveriesContent },
 ) {
   const deliveries = uniqueLumenListItems(props.content.deliveries);
@@ -822,7 +874,7 @@ function Deliveries(
   );
 }
 
-function Suppliers(
+function SuppliersLegacy(
   props: Omit<LumenListProps, 'content'> & { content: LumenListSuppliersContent },
 ) {
   const suppliers = uniqueLumenListItems(props.content.suppliers);
@@ -954,7 +1006,9 @@ function Inbox(props: Omit<LumenListProps, 'content'> & { content: LumenListInbo
   );
 }
 
-function Contacts(props: Omit<LumenListProps, 'content'> & { content: LumenListContactsContent }) {
+function ContactsLegacy(
+  props: Omit<LumenListProps, 'content'> & { content: LumenListContactsContent },
+) {
   const letters = uniqueLumenListItems(props.content.letters);
   const contacts = uniqueLumenListItems(props.content.contacts);
   const [letterId, setLetterId] = React.useState(props.content.initialLetterId);
@@ -1043,7 +1097,7 @@ function Runbook(props: Omit<LumenListProps, 'content'> & { content: LumenListRu
                   report(props.onAction, 'step', step.id);
                 }}
               >
-                <span>{complete ? '✓' : index + 1}</span>
+                <span>{complete ? <Glyph name="check" /> : index + 1}</span>
                 <strong>{step.title}</strong>
                 <small>{complete ? props.content.labels.done : props.content.labels.pending}</small>
               </LumenButton>
@@ -1057,10 +1111,10 @@ function Runbook(props: Omit<LumenListProps, 'content'> & { content: LumenListRu
   );
 }
 
-function Leaderboard(
+function LeaderboardLegacy(
   props: Omit<LumenListProps, 'content'> & { content: LumenListLeaderboardContent },
 ) {
-  const measures = uniqueLumenListItems(props.content.measures);
+  const measures = uniqueLumenListItems(props.content.measures ?? []);
   const entries = uniqueLumenListItems(props.content.entries);
   const [measureId, setMeasureId] = React.useState(props.content.initialMeasureId);
   const measure = selectLumenListItem(measures, measureId);
@@ -1129,6 +1183,17 @@ function TreeBranch({
               variant="text"
               aria-expanded={branch ? open : undefined}
               aria-label={accessibleLabel}
+              onKeyDown={(event) => {
+                if (!branch || !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+                event.preventDefault();
+                const expand = event.key === 'ArrowRight';
+                setOpenIds((current) => {
+                  const next = new Set(current);
+                  if (expand) next.add(node.id);
+                  else next.delete(node.id);
+                  return next;
+                });
+              }}
               onClick={() => {
                 if (branch) {
                   setOpenIds((current) => {
@@ -1269,3 +1334,296 @@ export const LumenList01 = (props: LumenListVariantProps) => variant(1, props),
   LumenList10 = (props: LumenListVariantProps) => variant(10, props),
   LumenList11 = (props: LumenListVariantProps) => variant(11, props),
   LumenList12 = (props: LumenListVariantProps) => variant(12, props);
+
+function DeliveriesEnhanced(
+  props: Omit<LumenListProps, 'content'> & { content: LumenListDeliveriesContent },
+) {
+  const deliveries = uniqueLumenListItems(props.content.deliveries);
+  const endpoints = uniqueLumenListItems(props.content.endpoints ?? []);
+  const [failedOnly, setFailedOnly] = React.useState(false);
+  const [endpointId, setEndpointId] = React.useState(props.content.initialEndpointId);
+  const [openId, setOpenId] = React.useState<string>();
+  const visible = deliveries.filter(
+    (delivery) =>
+      (!failedOnly || delivery.failed) &&
+      (endpointId === props.content.allEndpointId || delivery.endpointId === endpointId),
+  );
+  return (
+    <Root {...props}>
+      <Header
+        title={props.content.labels.title}
+        detail={props.content.labels.detail}
+        actions={
+          <LumenButton
+            variant={failedOnly ? 'solid' : 'outlined'}
+            onClick={() => setFailedOnly((value) => !value)}
+          >
+            <Glyph name="filter" />
+            {props.content.labels.failedOnly}
+          </LumenButton>
+        }
+      />
+      {props.content.labels.endpoint ? (
+        <LumenChoiceSelect
+          id="list-deliveries-endpoint"
+          label={props.content.labels.endpoint}
+          options={endpoints}
+          value={endpointId ?? null}
+          onValueChange={setEndpointId}
+        />
+      ) : null}
+      <div
+        className="lumen-list-deliveries"
+        data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
+      >
+        {visible.length ? (
+          visible.map((delivery) => {
+            const open = openId === delivery.id;
+            return (
+              <article key={delivery.id}>
+                <LumenButton
+                  variant="text"
+                  aria-expanded={open}
+                  aria-label={
+                    open
+                      ? props.content.labels.collapse(delivery.id)
+                      : props.content.labels.expand(delivery.id)
+                  }
+                  onClick={() => setOpenId(open ? undefined : delivery.id)}
+                >
+                  <Glyph name="chevron" />
+                  <code>{delivery.id}</code>
+                  <LumenStatus value={delivery.status} tone={delivery.tone} />
+                  <span>{delivery.endpoint}</span>
+                </LumenButton>
+                {open ? (
+                  <div className="lumen-list-detail lumen-list-delivery-detail">
+                    <pre>{delivery.payload}</pre>
+                    <LumenButton
+                      variant="outlined"
+                      onClick={() => report(props.onAction, 'replay', delivery.id)}
+                    >
+                      <Glyph name="replay" />
+                      {props.content.labels.replay}
+                    </LumenButton>
+                  </div>
+                ) : null}
+              </article>
+            );
+          })
+        ) : (
+          <Empty>{props.content.labels.empty}</Empty>
+        )}
+      </div>
+    </Root>
+  );
+}
+function Deliveries(
+  props: Omit<LumenListProps, 'content'> & { content: LumenListDeliveriesContent },
+) {
+  return props.content.endpoints ? (
+    <DeliveriesEnhanced {...props} />
+  ) : (
+    <DeliveriesLegacy {...props} />
+  );
+}
+
+function SuppliersEnhanced(
+  props: Omit<LumenListProps, 'content'> & { content: LumenListSuppliersContent },
+) {
+  const suppliers = uniqueLumenListItems(props.content.suppliers);
+  const categories = uniqueLumenListItems(props.content.categories ?? []);
+  const [query, setQuery] = React.useState('');
+  const [categoryId, setCategoryId] = React.useState(props.content.initialCategoryId);
+  const normalized = query.trim().toLocaleLowerCase();
+  const visible = suppliers.filter(
+    (supplier) =>
+      supplier.name.toLocaleLowerCase().includes(normalized) &&
+      (categoryId === props.content.allCategoryId || supplier.categoryId === categoryId),
+  );
+  return (
+    <Root {...props}>
+      <Header title={props.content.labels.title} detail={props.content.labels.detail} />
+      <div className="lumen-list-tools">
+        <label className="lumen-list-search">
+          <span className="lumen-list-visually-hidden">{props.content.labels.search}</span>
+          <Glyph name="search" />
+          <LumenInput
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={props.content.labels.searchPlaceholder}
+          />
+        </label>
+        <LumenChoiceSelect
+          id="list-suppliers-category"
+          label={props.content.labels.categoryFilter}
+          options={categories}
+          value={categoryId ?? null}
+          onValueChange={setCategoryId}
+        />
+      </div>
+      <div
+        className="lumen-list-directory"
+        role="table"
+        data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
+      >
+        <div role="row" className="lumen-list-directory-head">
+          <span role="columnheader">{props.content.labels.supplier}</span>
+          <span role="columnheader">{props.content.labels.category}</span>
+          <span role="columnheader">{props.content.labels.status}</span>
+        </div>
+        {visible.length ? (
+          visible.map((supplier) => (
+            <div role="row" key={supplier.id}>
+              <strong role="cell">{supplier.name}</strong>
+              <span role="cell">{supplier.category}</span>
+              <span role="cell">
+                <LumenStatus value={supplier.status} tone={supplier.tone} />
+              </span>
+            </div>
+          ))
+        ) : (
+          <Empty>{props.content.labels.empty}</Empty>
+        )}
+      </div>
+    </Root>
+  );
+}
+function Suppliers(
+  props: Omit<LumenListProps, 'content'> & { content: LumenListSuppliersContent },
+) {
+  return props.content.categories ? (
+    <SuppliersEnhanced {...props} />
+  ) : (
+    <SuppliersLegacy {...props} />
+  );
+}
+
+function ContactsEnhanced(
+  props: Omit<LumenListProps, 'content'> & { content: LumenListContactsContent },
+) {
+  const letters = uniqueLumenListItems(props.content.letters);
+  const relationships = uniqueLumenListItems(props.content.relationships ?? []);
+  const contacts = uniqueLumenListItems(props.content.contacts);
+  const [letterId, setLetterId] = React.useState(props.content.initialLetterId);
+  const [relationshipId, setRelationshipId] = React.useState(props.content.initialRelationshipId);
+  const letter = selectLumenListItem(letters, letterId);
+  const visible = contacts.filter(
+    (contact) =>
+      contact.letterId === letter?.id &&
+      (relationshipId === props.content.allRelationshipId ||
+        contact.relationshipId === relationshipId),
+  );
+  return (
+    <Root {...props}>
+      <Header
+        title={props.content.labels.title}
+        detail={props.content.labels.detail}
+        actions={
+          <LumenChoiceSelect
+            id="list-contacts-relationship"
+            label={props.content.labels.relationship}
+            options={relationships}
+            value={relationshipId ?? null}
+            onValueChange={setRelationshipId}
+          />
+        }
+      />
+      <div className="lumen-list-contacts">
+        <nav aria-label={props.content.labels.letters}>
+          {letters.map((item) => (
+            <LumenButton
+              key={item.id}
+              variant="text"
+              aria-current={letter?.id === item.id ? 'true' : undefined}
+              onClick={() => setLetterId(item.id)}
+            >
+              {item.label}
+            </LumenButton>
+          ))}
+        </nav>
+        <div data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}>
+          {visible.length ? (
+            visible.map((contact) => (
+              <article key={contact.id}>
+                <span className="lumen-list-avatar">{contact.avatar}</span>
+                <strong>{contact.name}</strong>
+                <small>{contact.meta}</small>
+              </article>
+            ))
+          ) : (
+            <Empty>{props.content.labels.empty}</Empty>
+          )}
+        </div>
+      </div>
+    </Root>
+  );
+}
+function Contacts(props: Omit<LumenListProps, 'content'> & { content: LumenListContactsContent }) {
+  return props.content.relationships ? (
+    <ContactsEnhanced {...props} />
+  ) : (
+    <ContactsLegacy {...props} />
+  );
+}
+
+function LeaderboardEnhanced(
+  props: Omit<LumenListProps, 'content'> & { content: LumenListLeaderboardContent },
+) {
+  const measures = uniqueLumenListItems(props.content.measures ?? []);
+  const periods = uniqueLumenListItems(props.content.periods ?? []);
+  const entries = uniqueLumenListItems(props.content.entries);
+  const [measureId, setMeasureId] = React.useState(props.content.initialMeasureId);
+  const [periodId, setPeriodId] = React.useState(props.content.initialPeriodId);
+  const measure = selectLumenListItem(measures, measureId);
+  return (
+    <Root {...props}>
+      <Header title={props.content.labels.title} detail={props.content.labels.detail} />
+      <LumenTabs
+        className="lumen-list-tabs"
+        label={props.content.labels.measures}
+        items={measures}
+        selectedId={measure?.id ?? null}
+        onChange={setMeasureId}
+      />
+      <div className="lumen-list-pills" role="group" aria-label={props.content.labels.periods}>
+        {periods.map((period) => (
+          <LumenButton
+            key={period.id}
+            size="s"
+            variant={periodId === period.id ? 'solid' : 'outlined'}
+            onClick={() => setPeriodId(period.id)}
+          >
+            {period.label}
+          </LumenButton>
+        ))}
+      </div>
+      <div
+        className="lumen-list-leaderboard"
+        data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
+      >
+        {entries.length ? (
+          entries.map((entry, index) => (
+            <article key={entry.id}>
+              <span>{index + 1}</span>
+              <strong>{entry.name}</strong>
+              <b>{entry.values[measure?.id ?? ''] ?? '—'}</b>
+              <small data-tone={entry.trendTone}>{entry.trend}</small>
+            </article>
+          ))
+        ) : (
+          <Empty>{props.content.labels.empty}</Empty>
+        )}
+      </div>
+    </Root>
+  );
+}
+function Leaderboard(
+  props: Omit<LumenListProps, 'content'> & { content: LumenListLeaderboardContent },
+) {
+  return props.content.measures ? (
+    <LeaderboardEnhanced {...props} />
+  ) : (
+    <LeaderboardLegacy {...props} />
+  );
+}

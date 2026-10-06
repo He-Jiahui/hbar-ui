@@ -1,22 +1,26 @@
 'use client';
 
 import * as React from 'react';
-import { LumenSelect, LumenTextarea } from './forms';
+import { LumenTextarea, LumenChoiceSelect, LumenSelect } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
-import type { LumenMonitoringReferenceContent } from './monitoring-reference-contracts';
+import { type LumenMonitoringReferenceContent } from './monitoring-reference-contracts';
 import LumenMonitoringReference from './monitoring-reference';
 import './monitoring.css';
+import { LumenChart, LumenList, type LumenChartPoint } from './ui-compositions';
+import { LumenProgress, LumenTabs } from './ui-controls';
 
 export interface LumenMonitoringListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
   readonly expectedMaximum: number;
 }
+
 export interface LumenMonitoringChoice {
   readonly id: string;
   readonly label: string;
   readonly disabled?: boolean | undefined;
 }
+
 export interface LumenMonitoringMetric {
   readonly id: string;
   readonly label: string;
@@ -24,16 +28,20 @@ export interface LumenMonitoringMetric {
   readonly detail?: string | undefined;
   readonly tone?: 'neutral' | 'success' | 'warning' | 'danger' | undefined;
 }
+
 export interface LumenMonitoringSeriesPoint {
   readonly id: string;
+  readonly label?: string | undefined;
   readonly value: number;
 }
+
 export interface LumenMonitoringEvent {
   readonly id: string;
   readonly title: string;
   readonly meta: string;
   readonly tone: 'neutral' | 'success' | 'warning' | 'danger';
 }
+
 export interface LumenMonitoringHealthContent {
   readonly labels: {
     readonly title: string;
@@ -48,6 +56,7 @@ export interface LumenMonitoringHealthContent {
   readonly incidents: readonly LumenMonitoringEvent[];
   readonly listStrategy: LumenMonitoringListStrategy;
 }
+
 export interface LumenMonitoringLiveContent {
   readonly labels: {
     readonly title: string;
@@ -62,25 +71,30 @@ export interface LumenMonitoringLiveContent {
   readonly series: readonly LumenMonitoringSeriesPoint[];
   readonly metrics: readonly LumenMonitoringMetric[];
 }
+
 export interface LumenMonitoringTimelineItem {
   readonly id: string;
   readonly time: string;
   readonly label: string;
 }
+
 export interface LumenMonitoringIncidentContent {
   readonly labels: {
     readonly title: string;
     readonly detail: string;
     readonly status: string;
+    readonly responders?: string | undefined;
     readonly updatePlaceholder: string;
     readonly emptyTimeline: string;
   };
   readonly statuses: readonly LumenMonitoringChoice[];
   readonly initialStatusId: string;
   readonly summary: { readonly title: string; readonly body: string };
+  readonly responders?: readonly string[] | undefined;
   readonly timeline: readonly LumenMonitoringTimelineItem[];
   readonly listStrategy: LumenMonitoringListStrategy;
 }
+
 export interface LumenMonitoringAlert {
   readonly id: string;
   readonly title: string;
@@ -88,6 +102,7 @@ export interface LumenMonitoringAlert {
   readonly stateId: string;
   readonly series: readonly LumenMonitoringSeriesPoint[];
 }
+
 export interface LumenMonitoringAlertsContent {
   readonly labels: {
     readonly title: string;
@@ -101,12 +116,15 @@ export interface LumenMonitoringAlertsContent {
   readonly alerts: readonly LumenMonitoringAlert[];
   readonly listStrategy: LumenMonitoringListStrategy;
 }
+
 export interface LumenMonitoringLogLine {
   readonly id: string;
+  readonly levelId?: string | undefined;
   readonly time: string;
   readonly message: string;
   readonly context: string;
 }
+
 export interface LumenMonitoringLogsContent {
   readonly labels: {
     readonly title: string;
@@ -116,6 +134,7 @@ export interface LumenMonitoringLogsContent {
     readonly follow: string;
     readonly log: string;
     readonly expand: (id: string) => string;
+    readonly collapse?: ((id: string) => string) | undefined;
     readonly empty: string;
   };
   readonly levels: readonly LumenMonitoringChoice[];
@@ -123,16 +142,19 @@ export interface LumenMonitoringLogsContent {
   readonly lines: readonly LumenMonitoringLogLine[];
   readonly listStrategy: LumenMonitoringListStrategy;
 }
+
 export interface LumenMonitoringServiceDay {
   readonly id: string;
   readonly label: string;
   readonly tone: 'success' | 'warning' | 'danger';
 }
+
 export interface LumenMonitoringService {
   readonly id: string;
   readonly name: string;
   readonly days: readonly LumenMonitoringServiceDay[];
 }
+
 export interface LumenMonitoringUptimeContent {
   readonly labels: {
     readonly title: string;
@@ -146,6 +168,7 @@ export interface LumenMonitoringUptimeContent {
   readonly services: readonly LumenMonitoringService[];
   readonly listStrategy: LumenMonitoringListStrategy;
 }
+
 export interface LumenMonitoringNode {
   readonly id: string;
   readonly name: string;
@@ -154,6 +177,7 @@ export interface LumenMonitoringNode {
   readonly status: string;
   readonly tone: 'neutral' | 'success' | 'warning' | 'danger';
 }
+
 export interface LumenMonitoringFleetContent {
   readonly labels: {
     readonly title: string;
@@ -171,11 +195,13 @@ export interface LumenMonitoringFleetContent {
   readonly nodes: readonly LumenMonitoringNode[];
   readonly listStrategy: LumenMonitoringListStrategy;
 }
+
 export interface LumenMonitoringEndpoint {
   readonly id: string;
   readonly path: string;
   readonly value: string;
 }
+
 export interface LumenMonitoringResponseContent {
   readonly labels: {
     readonly title: string;
@@ -191,6 +217,7 @@ export interface LumenMonitoringResponseContent {
   readonly series: readonly LumenMonitoringSeriesPoint[];
   readonly endpoints: readonly LumenMonitoringEndpoint[];
 }
+
 export interface LumenMonitoringRun {
   readonly id: string;
   readonly name: string;
@@ -200,6 +227,7 @@ export interface LumenMonitoringRun {
   readonly tone: 'neutral' | 'success' | 'warning' | 'danger';
   readonly progress?: number | undefined;
 }
+
 export interface LumenMonitoringQueueContent {
   readonly labels: {
     readonly title: string;
@@ -207,6 +235,8 @@ export interface LumenMonitoringQueueContent {
     readonly attention: string;
     readonly count: (count: number) => string;
     readonly progress: (run: string) => string;
+    readonly progressValue?: ((value: number) => string) | undefined;
+    readonly unavailableProgress?: string | undefined;
     readonly empty: string;
   };
   readonly states: readonly LumenMonitoringChoice[];
@@ -214,6 +244,7 @@ export interface LumenMonitoringQueueContent {
   readonly runs: readonly LumenMonitoringRun[];
   readonly listStrategy: LumenMonitoringListStrategy;
 }
+
 export interface LumenMonitoringObjective {
   readonly id: string;
   readonly title: string;
@@ -222,19 +253,23 @@ export interface LumenMonitoringObjective {
   readonly budgetLabel: string;
   readonly tone: 'success' | 'warning' | 'danger';
 }
+
 export interface LumenMonitoringSloContent {
   readonly labels: {
     readonly title: string;
     readonly detail: string;
     readonly windows: string;
+    readonly chart?: string | undefined;
     readonly progress: (objective: string) => string;
     readonly empty: string;
   };
   readonly windows: readonly LumenMonitoringChoice[];
   readonly initialWindowId: string;
+  readonly series?: readonly LumenMonitoringSeriesPoint[] | undefined;
   readonly objectives: readonly LumenMonitoringObjective[];
   readonly listStrategy: LumenMonitoringListStrategy;
 }
+
 export interface LumenMonitoringContent {
   readonly reference?: LumenMonitoringReferenceContent | undefined;
   readonly health?: LumenMonitoringHealthContent | undefined;
@@ -248,14 +283,17 @@ export interface LumenMonitoringContent {
   readonly queue?: LumenMonitoringQueueContent | undefined;
   readonly slo?: LumenMonitoringSloContent | undefined;
 }
+
 export interface LumenMonitoringProviderProps {
   readonly content: LumenMonitoringContent;
   readonly children: React.ReactNode;
 }
+
 export interface LumenMonitoringAction {
   readonly actionId: string;
   readonly value?: string | undefined;
 }
+
 export interface LumenMonitoringProps {
   readonly variant: number;
   readonly variantId: string;
@@ -267,14 +305,19 @@ export interface LumenMonitoringProps {
   readonly state?: string | undefined;
   readonly visualMode?: string | undefined;
 }
+
 export type LumenMonitoringVariantProps = Omit<LumenMonitoringProps, 'variant' | 'variantId'>;
+
 const Context = React.createContext<LumenMonitoringContent | undefined>(undefined);
+
 export function LumenMonitoringProvider({ content, children }: LumenMonitoringProviderProps) {
   return <Context.Provider value={content}>{children}</Context.Provider>;
 }
+
 export function useLumenMonitoringContent() {
   return React.useContext(Context);
 }
+
 export function uniqueLumenMonitoringItems<T extends { readonly id: string }>(
   items: readonly T[],
 ): readonly T[] {
@@ -287,14 +330,17 @@ export function uniqueLumenMonitoringItems<T extends { readonly id: string }>(
     return true;
   });
 }
+
 export function selectLumenMonitoringItem<T extends { readonly id: string }>(
   items: readonly T[],
   id: string | undefined,
 ): T | undefined {
   return items.find((item) => item.id === id) ?? items[0];
 }
+
 const report = (fn: LumenMonitoringProps['onAction'], actionId: string, value?: string) =>
   fn?.(value === undefined ? { actionId } : { actionId, value });
+
 function Glyph({
   name,
 }: {
@@ -317,6 +363,7 @@ function Glyph({
     </svg>
   );
 }
+
 function Root({
   variant,
   variantId,
@@ -353,6 +400,7 @@ function Root({
     </LumenSurface>
   );
 }
+
 function Header({
   title,
   detail,
@@ -376,6 +424,7 @@ function Header({
     </header>
   );
 }
+
 function Metrics({ metrics }: { metrics: readonly LumenMonitoringMetric[] }) {
   return (
     <dl className="lumen-monitoring-metrics">
@@ -389,6 +438,7 @@ function Metrics({ metrics }: { metrics: readonly LumenMonitoringMetric[] }) {
     </dl>
   );
 }
+
 function Bars({
   points,
   label,
@@ -398,17 +448,27 @@ function Bars({
   label: string;
   threshold?: number | undefined;
 }) {
+  const values = uniqueLumenMonitoringItems(points);
   return (
-    <div className="lumen-monitoring-bars" aria-label={label}>
-      {threshold !== undefined ? (
-        <span style={{ insetBlockEnd: `${Math.max(0, Math.min(100, threshold))}%` }} />
-      ) : null}
-      {uniqueLumenMonitoringItems(points).map((point) => (
+    <div
+      className="lumen-monitoring-bars"
+      aria-label={label}
+      data-threshold={threshold !== undefined}
+      style={
+        threshold === undefined
+          ? undefined
+          : ({
+              '--lumen-monitoring-threshold-position': `${100 - Math.max(0, Math.min(100, threshold))}%`,
+            } as React.CSSProperties)
+      }
+    >
+      {values.map((point) => (
         <i key={point.id} style={{ blockSize: `${Math.max(2, Math.min(100, point.value))}%` }} />
       ))}
     </div>
   );
 }
+
 function Health(
   props: Omit<LumenMonitoringProps, 'content'> & { content: LumenMonitoringHealthContent },
 ) {
@@ -426,7 +486,19 @@ function Health(
         }
       />
       <Metrics metrics={props.content.metrics} />
-      <Bars points={props.content.series} label={props.content.labels.chart} />
+      <LumenChart
+        kind="area"
+        label={props.content.labels.chart}
+        series={[
+          {
+            id: 'throughput',
+            label: props.content.labels.chart,
+            points: chartPoints(props.content.series),
+            tone: 'info',
+          },
+        ]}
+        empty={props.content.labels.empty}
+      />
       <div
         className="lumen-monitoring-events"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
@@ -451,6 +523,7 @@ function Health(
     </Root>
   );
 }
+
 function Live(
   props: Omit<LumenMonitoringProps, 'content'> & { content: LumenMonitoringLiveContent },
 ) {
@@ -500,6 +573,7 @@ function Live(
     </Root>
   );
 }
+
 function Incident(
   props: Omit<LumenMonitoringProps, 'content'> & { content: LumenMonitoringIncidentContent },
 ) {
@@ -564,6 +638,7 @@ function Incident(
     </Root>
   );
 }
+
 function Alerts(
   props: Omit<LumenMonitoringProps, 'content'> & { content: LumenMonitoringAlertsContent },
 ) {
@@ -575,23 +650,13 @@ function Alerts(
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
-      <div
+      <LumenTabs
         className="lumen-monitoring-tabs"
-        role="tablist"
-        aria-label={props.content.labels.states}
-      >
-        {states.map((item) => (
-          <LumenButton
-            key={item.id}
-            role="tab"
-            variant="text"
-            aria-selected={state?.id === item.id}
-            onClick={() => setStateId(item.id)}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+        label={props.content.labels.states}
+        items={states}
+        selectedId={state?.id ?? null}
+        onChange={setStateId}
+      />
       <div
         className="lumen-monitoring-alerts"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
@@ -621,6 +686,7 @@ function Alerts(
     </Root>
   );
 }
+
 function Logs(
   props: Omit<LumenMonitoringProps, 'content'> & { content: LumenMonitoringLogsContent },
 ) {
@@ -628,7 +694,9 @@ function Logs(
   const lines = uniqueLumenMonitoringItems(props.content.lines);
   const [levelId, setLevelId] = React.useState(props.content.initialLevelId);
   const [paused, setPaused] = React.useState(false);
+  const [expandedIds, setExpandedIds] = React.useState<ReadonlySet<string>>(() => new Set());
   const level = selectLumenMonitoringItem(levels, levelId);
+  const visible = level?.id === 'all' ? lines : lines.filter((line) => line.levelId === level?.id);
   return (
     <Root {...props}>
       <Header
@@ -665,20 +733,43 @@ function Logs(
         aria-label={props.content.labels.log}
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
       >
-        {lines.length ? (
-          lines.map((line) => (
-            <LumenButton
-              key={line.id}
-              variant="text"
-              aria-label={props.content.labels.expand(line.id)}
-              onClick={() => report(props.onAction, 'expand-log', line.id)}
-            >
-              <code>{line.time}</code>
-              <b>{level?.label}</b>
-              <span>{line.message}</span>
-              <Glyph name="chevron" />
-            </LumenButton>
-          ))
+        {visible.length ? (
+          visible.map((line) => {
+            const expanded = expandedIds.has(line.id);
+            return (
+              <article className="lumen-monitoring-log-entry" key={line.id}>
+                <LumenButton
+                  variant="text"
+                  aria-expanded={expanded}
+                  aria-label={
+                    expanded
+                      ? props.content.labels.collapse?.(line.id)
+                      : props.content.labels.expand?.(line.id)
+                  }
+                  onClick={() => {
+                    setExpandedIds((current) => {
+                      const next = new Set(current);
+                      if (next.has(line.id)) {
+                        next.delete(line.id);
+                      } else {
+                        next.add(line.id);
+                      }
+                      return next;
+                    });
+                    report(props.onAction, expanded ? 'collapse-log' : 'expand-log', line.id);
+                  }}
+                >
+                  <code>{line.time}</code>
+                  <b>{levels.find((item) => item.id === line.levelId)?.label ?? line.levelId}</b>
+                  <span>{line.message}</span>
+                  <Glyph name="chevron" />
+                </LumenButton>
+                {expanded ? (
+                  <code className="lumen-monitoring-log-context">{line.context}</code>
+                ) : null}
+              </article>
+            );
+          })
         ) : (
           <LumenText as="p" tone="muted">
             {props.content.labels.empty}
@@ -688,6 +779,7 @@ function Logs(
     </Root>
   );
 }
+
 function Uptime(
   props: Omit<LumenMonitoringProps, 'content'> & { content: LumenMonitoringUptimeContent },
 ) {
@@ -698,23 +790,13 @@ function Uptime(
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
-      <div
+      <LumenTabs
         className="lumen-monitoring-tabs"
-        role="tablist"
-        aria-label={props.content.labels.windows}
-      >
-        {windows.map((item) => (
-          <LumenButton
-            key={item.id}
-            role="tab"
-            variant="text"
-            aria-selected={window?.id === item.id}
-            onClick={() => setWindowId(item.id)}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+        label={props.content.labels.windows}
+        items={windows}
+        selectedId={window?.id ?? null}
+        onChange={setWindowId}
+      />
       <div
         className="lumen-monitoring-uptime"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
@@ -743,6 +825,7 @@ function Uptime(
     </Root>
   );
 }
+
 function Progress({
   value,
   label,
@@ -752,21 +835,16 @@ function Progress({
   label: string;
   tone?: string | undefined;
 }) {
-  const normalized = Math.max(0, Math.min(100, value));
   return (
-    <span
+    <LumenProgress
       className="lumen-monitoring-progress"
-      data-tone={tone}
-      role="progressbar"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={normalized}
-    >
-      <i style={{ inlineSize: `${normalized}%` }} />
-    </span>
+      label={label}
+      value={value}
+      tone={tone === 'success' || tone === 'warning' || tone === 'danger' ? tone : 'info'}
+    />
   );
 }
+
 function Fleet(
   props: Omit<LumenMonitoringProps, 'content'> & { content: LumenMonitoringFleetContent },
 ) {
@@ -781,20 +859,16 @@ function Fleet(
         title={props.content.labels.title}
         detail={props.content.labels.detail}
         actions={
-          <LumenSelect
-            aria-label={props.content.labels.regions}
-            value={region?.id ?? ''}
-            onChange={(event) => {
-              setRegionId(event.currentTarget.value);
-              report(props.onAction, 'region', event.currentTarget.value);
+          <LumenChoiceSelect
+            id="monitoring-fleet-region"
+            label={props.content.labels.regions}
+            options={regions}
+            value={region?.id ?? null}
+            onValueChange={(id) => {
+              setRegionId(id);
+              report(props.onAction, 'region', id);
             }}
-          >
-            {regions.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.label}
-              </option>
-            ))}
-          </LumenSelect>
+          />
         }
       />
       <div
@@ -829,6 +903,7 @@ function Fleet(
     </Root>
   );
 }
+
 function Response(
   props: Omit<LumenMonitoringProps, 'content'> & { content: LumenMonitoringResponseContent },
 ) {
@@ -836,6 +911,16 @@ function Response(
   const endpoints = uniqueLumenMonitoringItems(props.content.endpoints);
   const [sortId, setSortId] = React.useState(props.content.initialSortId);
   const sort = selectLumenMonitoringItem(sorts, sortId);
+  const orderedEndpoints = React.useMemo(() => {
+    const next = [...endpoints];
+    if (sortId === 'path') {
+      return next.sort((left, right) => left.path.localeCompare(right.path));
+    }
+    const direction = sortId === 'fastest' ? 1 : -1;
+    return next.sort(
+      (left, right) => (Number.parseFloat(left.value) - Number.parseFloat(right.value)) * direction,
+    );
+  }, [endpoints, sortId]);
   return (
     <Root {...props}>
       <Header
@@ -861,24 +946,37 @@ function Response(
         }
       />
       <Metrics metrics={props.content.metrics} />
-      <Bars points={props.content.series} label={props.content.labels.histogram} />
-      <div className="lumen-monitoring-endpoints" aria-label={props.content.labels.endpoints}>
-        {endpoints.length ? (
-          endpoints.map((item) => (
-            <React.Fragment key={item.id}>
-              <code>{item.path}</code>
-              <span>{item.value}</span>
-            </React.Fragment>
-          ))
-        ) : (
+      <LumenChart
+        kind="bar"
+        label={props.content.labels.histogram}
+        series={[
+          {
+            id: 'latency',
+            label: props.content.labels.histogram,
+            points: chartPoints(props.content.series),
+            tone: 'info',
+          },
+        ]}
+        empty={props.content.labels.empty}
+      />
+      <LumenList
+        className="lumen-monitoring-endpoints"
+        label={props.content.labels.endpoints}
+        items={orderedEndpoints.map((item) => ({
+          id: item.id,
+          primary: <code>{item.path}</code>,
+          trailing: <span>{item.value}</span>,
+        }))}
+        empty={
           <LumenText as="p" tone="muted">
             {props.content.labels.empty}
           </LumenText>
-        )}
-      </div>
+        }
+      />
     </Root>
   );
 }
+
 function Queue(
   props: Omit<LumenMonitoringProps, 'content'> & { content: LumenMonitoringQueueContent },
 ) {
@@ -953,6 +1051,7 @@ function Queue(
     </Root>
   );
 }
+
 function Slo(
   props: Omit<LumenMonitoringProps, 'content'> & { content: LumenMonitoringSloContent },
 ) {
@@ -980,6 +1079,21 @@ function Slo(
           </LumenButton>
         ))}
       </div>
+      {props.content.series && props.content.labels.chart ? (
+        <LumenChart
+          kind="area"
+          label={props.content.labels.chart}
+          series={[
+            {
+              id: 'budget',
+              label: props.content.labels.chart,
+              points: chartPoints(props.content.series),
+              tone: 'warning',
+            },
+          ]}
+          empty={props.content.labels.empty}
+        />
+      ) : null}
       <div
         className="lumen-monitoring-slo"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
@@ -991,7 +1105,7 @@ function Slo(
                 <Glyph name="shield" />
                 <strong>{objective.title}</strong>
                 <small>
-                  {window?.label} · {objective.target}
+                  <span>{window?.label}</span> · {objective.target}
                 </small>
               </div>
               <Progress
@@ -1011,9 +1125,11 @@ function Slo(
     </Root>
   );
 }
+
 function empty(props: LumenMonitoringProps) {
   return <Root {...props}>{null}</Root>;
 }
+
 export function LumenMonitoring(props: LumenMonitoringProps) {
   const inheritedContent = useLumenMonitoringContent();
   const content = props.content ?? inheritedContent;
@@ -1056,11 +1172,13 @@ export function LumenMonitoring(props: LumenMonitoringProps) {
   }
   return empty(props);
 }
+
 function variant(value: number, props: LumenMonitoringVariantProps) {
   return (
     <LumenMonitoring {...props} variant={value} variantId={`hbar-app-ui-monitoring-${value}`} />
   );
 }
+
 export const LumenMonitoring01 = (props: LumenMonitoringVariantProps) => variant(1, props),
   LumenMonitoring02 = (props: LumenMonitoringVariantProps) => variant(2, props),
   LumenMonitoring03 = (props: LumenMonitoringVariantProps) => variant(3, props),
@@ -1071,3 +1189,11 @@ export const LumenMonitoring01 = (props: LumenMonitoringVariantProps) => variant
   LumenMonitoring08 = (props: LumenMonitoringVariantProps) => variant(8, props),
   LumenMonitoring09 = (props: LumenMonitoringVariantProps) => variant(9, props),
   LumenMonitoring10 = (props: LumenMonitoringVariantProps) => variant(10, props);
+
+function chartPoints(points: readonly LumenMonitoringSeriesPoint[]): readonly LumenChartPoint[] {
+  return uniqueLumenMonitoringItems(points).map((point) => ({
+    id: point.id,
+    label: point.label,
+    value: point.value,
+  }));
+}

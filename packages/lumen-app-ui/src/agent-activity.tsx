@@ -4,7 +4,7 @@ import * as React from 'react';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './agent-activity.css';
-import type { LumenAgentActivityViewModel } from './agent-activity/view-model';
+import { type LumenAgentActivityViewModel } from './agent-activity/view-model';
 import './agent-activity/controlled-flow.css';
 
 export type LumenAgentActivityListStrategy =
@@ -111,6 +111,7 @@ export interface LumenAgentActivityHistoryContent {
     readonly started: string;
     readonly actions: string;
     readonly rerun: string;
+    readonly empty?: string | undefined;
   };
   readonly rows: readonly LumenAgentActivityHistoryRow[];
   readonly listStrategy: LumenAgentActivityListStrategy;
@@ -254,6 +255,7 @@ export type LumenAgentActivityVariantProps = Omit<LumenAgentActivityProps, 'vari
 const AgentActivityContentContext = React.createContext<LumenAgentActivityContent | undefined>(
   undefined,
 );
+
 const AgentActivityViewModelContext = React.createContext<LumenAgentActivityViewModel | undefined>(
   undefined,
 );
@@ -681,7 +683,12 @@ function HistoryActivity(
   const viewModel = React.useContext(AgentActivityViewModelContext);
   const onAction = viewModel?.onAction ?? props.onAction;
   const rows = React.useMemo(() => uniqueLumenAgentActivityItems(content.rows), [content.rows]);
-  const rerun = (id: string) => reportAction(onAction, 'rerun-history', id);
+  const [selectedId, setSelectedId] = React.useState<string | undefined>(rows[0]?.id);
+  const effectiveSelectedId = rows.some((row) => row.id === selectedId) ? selectedId : rows[0]?.id;
+  const rerun = (id: string) => {
+    setSelectedId(id);
+    reportAction(onAction, 'rerun-history', id);
+  };
 
   return (
     <ActivityFrame {...props} className="hbar-app-ui-agent-activity-history">
@@ -700,7 +707,13 @@ function HistoryActivity(
             {rows.map((row) => (
               <li key={row.id}>
                 <div className="hbar-app-ui-agent-activity-history-card-top">
-                  <span>{row.name}</span>
+                  <LumenButton
+                    variant="text"
+                    aria-current={row.id === effectiveSelectedId ? 'true' : undefined}
+                    onClick={() => setSelectedId(row.id)}
+                  >
+                    {row.name}
+                  </LumenButton>
                   <LumenIconButton
                     size="s"
                     label={`${content.labels.rerun} ${row.name}`}
@@ -749,8 +762,16 @@ function HistoryActivity(
             </thead>
             <tbody>
               {rows.map((row) => (
-                <tr key={row.id}>
-                  <td>{row.name}</td>
+                <tr key={row.id} aria-selected={row.id === effectiveSelectedId}>
+                  <td>
+                    <LumenButton
+                      variant="text"
+                      aria-current={row.id === effectiveSelectedId ? 'true' : undefined}
+                      onClick={() => setSelectedId(row.id)}
+                    >
+                      {row.name}
+                    </LumenButton>
+                  </td>
                   <td>
                     <ActivityStatus state={row.state} label={row.stateLabel} />
                   </td>
@@ -769,6 +790,11 @@ function HistoryActivity(
                   </td>
                 </tr>
               ))}
+              {rows.length === 0 ? (
+                <tr>
+                  <td colSpan={6}>{content.labels.empty}</td>
+                </tr>
+              ) : null}
             </tbody>
           </table>
         </ActivityPane>
@@ -891,6 +917,7 @@ function LogActivity(
             <LumenButton
               variant="text"
               aria-checked={filter.id === activeFilter?.id}
+              aria-label={filter.label}
               className={filter.id === activeFilter?.id ? 'is-selected' : ''}
               key={filter.id}
               onClick={() => {
@@ -956,7 +983,12 @@ function LogActivity(
             ref={paneRef}
             onScroll={onScroll}
           >
-            <ol className="lumen-agent-activity-log-list hbar-app-ui-agent-activity-log-list">
+            <ol
+              className="lumen-agent-activity-log-list hbar-app-ui-agent-activity-log-list"
+              role="log"
+              aria-label={content.labels.title}
+              aria-live="polite"
+            >
               {visibleEntries.map((entry) => (
                 <li className={`is-${entry.level}`} key={entry.id}>
                   <span className="hbar-app-ui-agent-activity-log-time">{entry.time}</span>
@@ -1265,9 +1297,15 @@ function createAgentActivityVariant(variant: number) {
 }
 
 export const LumenAgentActivity01 = createAgentActivityVariant(1);
+
 export const LumenAgentActivity02 = createAgentActivityVariant(2);
+
 export const LumenAgentActivity03 = createAgentActivityVariant(3);
+
 export const LumenAgentActivity04 = createAgentActivityVariant(4);
+
 export const LumenAgentActivity05 = createAgentActivityVariant(5);
+
 export const LumenAgentActivity06 = createAgentActivityVariant(6);
+
 export const LumenAgentActivity07 = createAgentActivityVariant(7);

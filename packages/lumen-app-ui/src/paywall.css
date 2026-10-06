@@ -45,8 +45,8 @@
 }
 
 .lumen-paywall-glyph {
-  inline-size: 1rem;
-  block-size: 1rem;
+  inline-size: var(--hbar-app-ui-icon-sm, 0.875rem);
+  block-size: var(--hbar-app-ui-icon-sm, 0.875rem);
   flex: 0 0 auto;
   fill: none;
   stroke: currentColor;
@@ -56,18 +56,18 @@
 }
 
 .lumen-paywall-glyph[data-tier='xs'] {
-  inline-size: 0.875rem;
-  block-size: 0.875rem;
+  inline-size: var(--hbar-app-ui-icon-xs, 0.75rem);
+  block-size: var(--hbar-app-ui-icon-xs, 0.75rem);
 }
 
 .lumen-paywall-glyph[data-tier='md'] {
-  inline-size: 1.5rem;
-  block-size: 1.5rem;
+  inline-size: var(--hbar-app-ui-icon-md, 1rem);
+  block-size: var(--hbar-app-ui-icon-md, 1rem);
 }
 
 .lumen-paywall-glyph[data-tier='lg'] {
-  inline-size: 2rem;
-  block-size: 2rem;
+  inline-size: var(--hbar-app-ui-icon-lg, 1.25rem);
+  block-size: var(--hbar-app-ui-icon-lg, 1.25rem);
 }
 
 .hbar-app-ui-paywall-icon {
@@ -440,6 +440,8 @@
 
 .hbar-app-ui-paywall-plans-surface {
   align-items: stretch;
+  justify-content: flex-start;
+  flex-direction: column;
 }
 
 .hbar-app-ui-paywall-plans-head,
@@ -478,10 +480,16 @@
 }
 
 .hbar-app-ui-paywall-plan-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  display: flex;
   gap: 0.75rem;
   margin-block-start: 1.5rem;
+  min-inline-size: 0;
+  flex-wrap: wrap;
+}
+
+.hbar-app-ui-paywall-plan-list > * {
+  flex: 1 1 min(100%, 15rem);
+  min-inline-size: min(100%, 15rem);
 }
 
 .hbar-app-ui-paywall-plan {
@@ -514,16 +522,6 @@
   min-inline-size: 0;
   flex-direction: column;
   gap: 0.25rem;
-}
-
-.hbar-app-ui-paywall-plan-badge {
-  display: inline-flex;
-  padding: 0.1875rem 0.5rem;
-  border-radius: 999rem;
-  background: color-mix(in srgb, var(--lumen-accent) 13%, transparent);
-  color: var(--lumen-accent);
-  font-size: 0.6875rem;
-  font-weight: 650;
 }
 
 .hbar-app-ui-paywall-plan-price {
@@ -606,33 +604,23 @@
 .hbar-app-ui-paywall-meter-track,
 .hbar-app-ui-paywall-read-progress {
   block-size: 0.25rem;
-  overflow: hidden;
-  border-radius: 999rem;
-  background: color-mix(in srgb, var(--lumen-muted) 18%, transparent);
-}
-
-.hbar-app-ui-paywall-meter-track > span,
-.hbar-app-ui-paywall-read-progress > span {
-  display: block;
-  block-size: 100%;
-  border-radius: inherit;
-  background: var(--lumen-accent);
 }
 
 .hbar-app-ui-paywall-limit-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.25rem 1rem;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
   padding: 1rem;
   border: 0.0625rem solid var(--lumen-edge);
   border-radius: var(--lumen-radius-control);
   background: color-mix(in srgb, var(--lumen-accent) 7%, transparent);
+  min-inline-size: 0;
 }
 
 .hbar-app-ui-paywall-limit-actions {
-  grid-column: 2;
-  grid-row: 1 / span 2;
+  inline-size: 100%;
+  justify-content: flex-end;
 }
 
 .hbar-app-ui-paywall-trial-card,
@@ -671,15 +659,25 @@
 }
 
 .hbar-app-ui-paywall-read-progress {
-  position: absolute;
-  inset: 0 0 auto;
+  order: -1;
+  inline-size: 100%;
   border-radius: var(--lumen-radius-surface) var(--lumen-radius-surface) 0 0;
 }
 
 .hbar-app-ui-paywall-reads-form {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
   gap: 0.625rem;
+  min-inline-size: 0;
+}
+
+.hbar-app-ui-paywall-reads-form > :nth-child(2n + 1) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+
+.hbar-app-ui-paywall-reads-form > :nth-child(2n + 2) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
 }
 
 .hbar-app-ui-paywall-reads-form > input {
@@ -781,13 +779,7 @@
     text-align: start;
   }
 
-  .hbar-app-ui-paywall-limit-card {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .hbar-app-ui-paywall-limit-actions {
-    grid-column: 1;
-    grid-row: auto;
     margin-block-start: 0.5rem;
   }
 }

@@ -1,22 +1,22 @@
 'use client';
 
 import * as React from 'react';
-import type {
-  LumenBillingStatementReferenceLayout,
-  LumenBillingStatementReferenceFlow,
-  LumenBillingPlansReferenceLayout,
-  LumenBillingPlansReferenceFlow,
-  LumenBillingInvoiceComposerReferenceLayout,
-  LumenBillingInvoiceComposerReferenceFlow,
-  LumenBillingRecoveryReferenceLayout,
-  LumenBillingRecoveryReferenceFlow,
-  LumenBillingChangePlanReferenceLayout,
-  LumenBillingChangePlanReferenceFlow,
-  LumenBillingPaymentMethodsReferenceLayout,
-  LumenBillingPaymentMethodsReferenceFlow,
-  LumenBillingUsageReferenceLayout,
-  LumenBillingUsageReferenceFlow,
-  LumenBillingInvoiceDetailReferenceLayout,
+import {
+  type LumenBillingStatementReferenceLayout,
+  type LumenBillingStatementReferenceFlow,
+  type LumenBillingPlansReferenceLayout,
+  type LumenBillingPlansReferenceFlow,
+  type LumenBillingInvoiceComposerReferenceLayout,
+  type LumenBillingInvoiceComposerReferenceFlow,
+  type LumenBillingRecoveryReferenceLayout,
+  type LumenBillingRecoveryReferenceFlow,
+  type LumenBillingChangePlanReferenceLayout,
+  type LumenBillingChangePlanReferenceFlow,
+  type LumenBillingPaymentMethodsReferenceLayout,
+  type LumenBillingPaymentMethodsReferenceFlow,
+  type LumenBillingUsageReferenceLayout,
+  type LumenBillingUsageReferenceFlow,
+  type LumenBillingInvoiceDetailReferenceLayout,
 } from './reference-content';
 
 /**

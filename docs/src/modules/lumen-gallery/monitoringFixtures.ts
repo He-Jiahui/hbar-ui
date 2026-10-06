@@ -1,0 +1,592 @@
+import type {
+  LumenMonitoringContent,
+  LumenMonitoringSeriesPoint,
+  LumenMonitoringServiceDay,
+} from '@lumen/app-ui';
+
+export type MonitoringFixtureLocale = 'zh' | 'en';
+
+function points(values: readonly number[]): readonly LumenMonitoringSeriesPoint[] {
+  return values.map((value, index) => ({
+    id: `point-${index + 1}`,
+    label: String(index + 1),
+    value,
+  }));
+}
+
+export function createMonitoringFixtures(locale: MonitoringFixtureLocale): LumenMonitoringContent {
+  const t = (zh: string, en: string) => (locale === 'zh' ? zh : en);
+  const contentGrown = { kind: 'content-grown', expectedMaximum: 24 } as const;
+  const paneScroll = { kind: 'pane-scroll', expectedMaximum: 96 } as const;
+  const days = (
+    values: readonly ('success' | 'warning' | 'danger')[],
+  ): readonly LumenMonitoringServiceDay[] =>
+    values.map((tone, index) => ({
+      id: `day-${index + 1}`,
+      label: t(`第 ${index + 1} 天`, `Day ${index + 1}`),
+      tone,
+    }));
+
+  return {
+    health: {
+      labels: {
+        title: t('平台健康概览', 'Platform health overview'),
+        detail: t(
+          '生产流量、可靠性与当前事件。',
+          'Production traffic, reliability, and current incidents.',
+        ),
+        refresh: t('刷新', 'Refresh'),
+        chart: t('每分钟请求吞吐量', 'Request throughput per minute'),
+        incidents: t('事件动态', 'Incident feed'),
+        empty: t('当前没有事件', 'No current incidents'),
+      },
+      metrics: [
+        {
+          id: 'availability',
+          label: t('可用性', 'Availability'),
+          value: '99.97%',
+          detail: '+0.02%',
+          tone: 'success',
+        },
+        {
+          id: 'requests',
+          label: t('请求量', 'Requests'),
+          value: '18.4M',
+          detail: '+9.2%',
+          tone: 'success',
+        },
+        { id: 'latency', label: 'p95', value: '142 ms', detail: '+18 ms', tone: 'warning' },
+        {
+          id: 'errors',
+          label: t('错误率', 'Error rate'),
+          value: '0.18%',
+          detail: '+0.05%',
+          tone: 'warning',
+        },
+      ],
+      series: points([32, 36, 44, 41, 52, 58, 61, 69, 64, 72, 78, 74]),
+      incidents: [
+        {
+          id: 'eu-lag',
+          title: t('欧洲事件管道延迟', 'EU event pipeline lag'),
+          meta: t('调查中 · 8 分钟', 'Investigating · 8 min'),
+          tone: 'warning',
+        },
+        {
+          id: 'payments',
+          title: t('付款回调已恢复', 'Payment callbacks recovered'),
+          meta: t('已解决 · 42 分钟', 'Resolved · 42 min'),
+          tone: 'success',
+        },
+        {
+          id: 'deploy',
+          title: t('边缘网关部署完成', 'Edge gateway deploy completed'),
+          meta: t('变更 · 1 小时', 'Change · 1 hour'),
+          tone: 'neutral',
+        },
+      ],
+      listStrategy: contentGrown,
+    },
+    live: {
+      labels: {
+        title: t('实时入口流量', 'Live ingress traffic'),
+        detail: t(
+          '最近 60 秒的滚动窗口与告警阈值。',
+          'Rolling 60-second window with an alert threshold.',
+        ),
+        pause: t('暂停流', 'Pause stream'),
+        resume: t('继续流', 'Resume stream'),
+        threshold: (value) => t(`阈值 ${value}%`, `Threshold ${value}%`),
+        chart: t('实时 CPU 使用率', 'Live CPU utilisation'),
+      },
+      thresholds: [70, 80, 90],
+      initialThreshold: 80,
+      series: points([38, 42, 51, 47, 58, 62, 68, 73, 66, 81, 74, 69, 76, 71]),
+      metrics: [
+        { id: 'current', label: t('当前', 'Current'), value: '71%' },
+        { id: 'peak', label: t('峰值', 'Peak'), value: '81%', tone: 'warning' },
+        { id: 'average', label: t('平均', 'Average'), value: '63%' },
+        { id: 'samples', label: t('样本', 'Samples'), value: '3,600' },
+      ],
+    },
+    incident: {
+      labels: {
+        title: t('INC-2481 · 欧洲事件延迟', 'INC-2481 · EU event lag'),
+        detail: t(
+          '客户事件在欧洲区域出现积压。',
+          'Customer events are backing up in the EU region.',
+        ),
+        status: t('事件状态', 'Incident status'),
+        responders: t('响应人员', 'Responders'),
+        updatePlaceholder: t(
+          '发布事件更新，按 Enter 发送',
+          'Post an incident update and press Enter',
+        ),
+        emptyTimeline: t('尚无响应记录', 'No response timeline yet'),
+      },
+      statuses: [
+        { id: 'investigating', label: t('调查中', 'Investigating') },
+        { id: 'identified', label: t('原因已确认', 'Identified') },
+        { id: 'monitoring', label: t('监控中', 'Monitoring') },
+        { id: 'resolved', label: t('已解决', 'Resolved') },
+      ],
+      initialStatusId: 'investigating',
+      summary: {
+        title: t('当前影响', 'Current impact'),
+        body: t(
+          '约 7.8% 的欧洲事件延迟 2–4 分钟；数据不会丢失。',
+          'About 7.8% of EU events are delayed by 2–4 minutes; no data is lost.',
+        ),
+      },
+      responders: ['Priya Nandakumar', 'Marcus Bell', 'Wei Chen'],
+      timeline: [
+        {
+          id: 'detected',
+          time: '18:42',
+          label: t('监控检测到消费延迟。', 'Monitoring detected consumer lag.'),
+        },
+        {
+          id: 'paged',
+          time: '18:45',
+          label: t('值班工程师已响应。', 'On-call engineer acknowledged the page.'),
+        },
+        {
+          id: 'scaled',
+          time: '18:51',
+          label: t('已扩容两个消费者分区。', 'Two consumer partitions were scaled up.'),
+        },
+        {
+          id: 'review',
+          time: '18:57',
+          label: t('正在验证积压下降速度。', 'Backlog drain rate is being verified.'),
+        },
+      ],
+      listStrategy: paneScroll,
+    },
+    alerts: {
+      labels: {
+        title: t('告警收件箱', 'Alert inbox'),
+        detail: t(
+          '按状态查看活动告警、运行手册与最近趋势。',
+          'Review active alerts, runbooks, and recent trends by state.',
+        ),
+        states: t('告警状态', 'Alert states'),
+        silence: t('静默', 'Silence'),
+        empty: t('此状态没有告警', 'No alerts in this state'),
+      },
+      states: [
+        { id: 'firing', label: t('触发中', 'Firing') },
+        { id: 'pending', label: t('待确认', 'Pending') },
+        { id: 'resolved', label: t('已解决', 'Resolved') },
+      ],
+      initialStateId: 'firing',
+      alerts: [
+        {
+          id: 'consumer-lag',
+          title: t('事件消费者延迟过高', 'Event consumer lag high'),
+          detail: t(
+            'eu-central-1 · 运行手册：扩容消费者',
+            'eu-central-1 · Runbook: scale consumers',
+          ),
+          stateId: 'firing',
+          series: points([18, 24, 29, 42, 58, 71, 84]),
+        },
+        {
+          id: 'checkout',
+          title: t('结账错误率升高', 'Checkout error rate elevated'),
+          detail: t('us-east-1 · 运行手册：支付降级', 'us-east-1 · Runbook: payment degradation'),
+          stateId: 'firing',
+          series: points([12, 16, 23, 38, 44, 49, 57]),
+        },
+        {
+          id: 'disk',
+          title: t('日志节点磁盘空间', 'Log node disk space'),
+          detail: t('ap-southeast-1 · 剩余 18%', 'ap-southeast-1 · 18% remaining'),
+          stateId: 'pending',
+          series: points([72, 69, 62, 55, 48, 39, 31]),
+        },
+        {
+          id: 'webhook',
+          title: t('Webhook 延迟已恢复', 'Webhook latency recovered'),
+          detail: t('全局 · 36 分钟前解决', 'Global · Resolved 36 min ago'),
+          stateId: 'resolved',
+          series: points([69, 61, 48, 36, 28, 22, 18]),
+        },
+      ],
+      listStrategy: paneScroll,
+    },
+    logs: {
+      labels: {
+        title: t('生产日志流', 'Production log tail'),
+        detail: t('跟随 gateway-api 的结构化日志。', 'Follow structured logs from gateway-api.'),
+        levels: t('日志级别', 'Log levels'),
+        pause: t('暂停', 'Pause'),
+        follow: t('继续跟随', 'Resume follow'),
+        log: t('实时日志', 'Live logs'),
+        expand: (id) => t(`展开日志 ${id}`, `Expand log ${id}`),
+        collapse: (id) => t(`收起日志 ${id}`, `Collapse log ${id}`),
+        empty: t('没有匹配的日志', 'No matching logs'),
+      },
+      levels: [
+        { id: 'all', label: t('全部', 'All') },
+        { id: 'error', label: 'Error' },
+        { id: 'warn', label: 'Warn' },
+        { id: 'info', label: 'Info' },
+      ],
+      initialLevelId: 'all',
+      lines: [
+        {
+          id: '01',
+          levelId: 'info',
+          time: '19:03:18.042',
+          message: 'request completed status=200 duration=84ms',
+          context: '{"route":"/v1/events","region":"us-west"}',
+        },
+        {
+          id: '02',
+          levelId: 'warn',
+          time: '19:03:18.118',
+          message: 'upstream retry attempt=2 backoff=120ms',
+          context: '{"service":"identity","trace":"7a91"}',
+        },
+        {
+          id: '03',
+          levelId: 'error',
+          time: '19:03:18.224',
+          message: 'consumer deadline exceeded after 3000ms',
+          context: '{"queue":"events-eu","partition":12}',
+        },
+        {
+          id: '04',
+          levelId: 'info',
+          time: '19:03:18.507',
+          message: 'health probe status=ready',
+          context: '{"pod":"gateway-7f8c","zone":"b"}',
+        },
+        {
+          id: '05',
+          levelId: 'warn',
+          time: '19:03:18.884',
+          message: 'connection pool above soft limit usage=82%',
+          context: '{"pool":"postgres-primary","open":164}',
+        },
+      ],
+      listStrategy: paneScroll,
+    },
+    uptime: {
+      labels: {
+        title: t('服务正常运行时间', 'Service uptime'),
+        detail: t(
+          '按服务查看最近窗口内的每日状态。',
+          'Daily service status across the selected window.',
+        ),
+        windows: t('时间窗口', 'Time window'),
+        day: (service, day) => t(`${service} · ${day}`, `${service} · ${day}`),
+        empty: t('没有服务状态', 'No service status'),
+      },
+      windows: [
+        { id: '30d', label: t('30 天', '30 days') },
+        { id: '60d', label: t('60 天', '60 days') },
+        { id: '90d', label: t('90 天', '90 days') },
+      ],
+      initialWindowId: '30d',
+      services: [
+        {
+          id: 'api',
+          name: t('公共 API', 'Public API'),
+          days: days([
+            'success',
+            'success',
+            'success',
+            'warning',
+            'success',
+            'success',
+            'success',
+            'success',
+            'success',
+            'success',
+          ]),
+        },
+        {
+          id: 'events',
+          name: t('事件管道', 'Event pipeline'),
+          days: days([
+            'success',
+            'success',
+            'danger',
+            'warning',
+            'success',
+            'success',
+            'success',
+            'warning',
+            'success',
+            'success',
+          ]),
+        },
+        {
+          id: 'auth',
+          name: t('身份服务', 'Identity service'),
+          days: days([
+            'success',
+            'success',
+            'success',
+            'success',
+            'success',
+            'success',
+            'success',
+            'success',
+            'success',
+            'success',
+          ]),
+        },
+        {
+          id: 'files',
+          name: t('文件存储', 'File storage'),
+          days: days([
+            'success',
+            'warning',
+            'success',
+            'success',
+            'success',
+            'success',
+            'success',
+            'success',
+            'success',
+            'success',
+          ]),
+        },
+      ],
+      listStrategy: contentGrown,
+    },
+    fleet: {
+      labels: {
+        title: t('计算节点队列', 'Compute fleet'),
+        detail: t(
+          '按区域检查节点利用率与调度状态。',
+          'Inspect node utilisation and scheduling state by region.',
+        ),
+        regions: t('区域筛选', 'Region filter'),
+        node: t('节点', 'Node'),
+        region: t('区域', 'Region'),
+        utilisation: t('利用率', 'Utilisation'),
+        status: t('状态', 'Status'),
+        progress: (node) => t(`${node} 利用率`, `${node} utilisation`),
+        empty: t('此区域没有节点', 'No nodes in this region'),
+      },
+      regions: [
+        { id: 'all', label: t('所有区域', 'All regions') },
+        { id: 'us-west', label: 'us-west' },
+        { id: 'eu-central', label: 'eu-central' },
+        { id: 'ap-southeast', label: 'ap-southeast' },
+      ],
+      initialRegionId: 'all',
+      nodes: [
+        {
+          id: 'west-01',
+          name: 'compute-west-01',
+          region: 'us-west',
+          utilisation: 68,
+          status: t('健康', 'Healthy'),
+          tone: 'success',
+        },
+        {
+          id: 'west-02',
+          name: 'compute-west-02',
+          region: 'us-west',
+          utilisation: 91,
+          status: t('高负载', 'High load'),
+          tone: 'warning',
+        },
+        {
+          id: 'eu-01',
+          name: 'compute-eu-01',
+          region: 'eu-central',
+          utilisation: 74,
+          status: t('健康', 'Healthy'),
+          tone: 'success',
+        },
+        {
+          id: 'eu-02',
+          name: 'compute-eu-02',
+          region: 'eu-central',
+          utilisation: 96,
+          status: t('排空中', 'Draining'),
+          tone: 'danger',
+        },
+        {
+          id: 'ap-01',
+          name: 'compute-ap-01',
+          region: 'ap-southeast',
+          utilisation: 43,
+          status: t('健康', 'Healthy'),
+          tone: 'success',
+        },
+      ],
+      listStrategy: paneScroll,
+    },
+    response: {
+      labels: {
+        title: t('响应时间', 'Response time'),
+        detail: t(
+          '最近 24 小时的延迟分布与最慢端点。',
+          'Latency distribution and slowest endpoints over the last 24 hours.',
+        ),
+        sort: (label) => t(`排序：${label}`, `Sort: ${label}`),
+        histogram: t('请求延迟直方图', 'Request latency histogram'),
+        endpoints: t('端点延迟', 'Endpoint latency'),
+        empty: t('没有端点数据', 'No endpoint data'),
+      },
+      sorts: [
+        { id: 'slowest', label: t('最慢优先', 'Slowest first') },
+        { id: 'fastest', label: t('最快优先', 'Fastest first') },
+        { id: 'path', label: t('端点名称', 'Endpoint path') },
+      ],
+      initialSortId: 'slowest',
+      metrics: [
+        { id: 'p50', label: 'p50', value: '84 ms' },
+        { id: 'p90', label: 'p90', value: '188 ms' },
+        { id: 'p95', label: 'p95', value: '264 ms', tone: 'warning' },
+        { id: 'p99', label: 'p99', value: '612 ms', tone: 'danger' },
+      ],
+      series: points([12, 26, 48, 78, 92, 68, 44, 27, 16, 9]),
+      endpoints: [
+        { id: 'export', path: '/v1/exports/:id', value: '812 ms' },
+        { id: 'search', path: '/v1/search', value: '548 ms' },
+        { id: 'events', path: '/v1/events/batch', value: '384 ms' },
+        { id: 'projects', path: '/v1/projects', value: '176 ms' },
+      ],
+    },
+    queue: {
+      labels: {
+        title: t('实时运行队列', 'Live run queue'),
+        detail: t(
+          '按状态跟踪部署、迁移和评估任务。',
+          'Track deployments, migrations, and evaluations by state.',
+        ),
+        attention: t('仅需关注', 'Needs attention'),
+        count: (count) => t(`${count} 个运行`, `${count} runs`),
+        progress: (run) => t(`${run} 进度`, `${run} progress`),
+        progressValue: (value) => `${value}%`,
+        unavailableProgress: '—',
+        empty: t('队列中没有运行', 'No runs in queue'),
+      },
+      states: [
+        { id: 'running', label: t('运行中', 'Running') },
+        { id: 'attention', label: t('需关注', 'Needs attention') },
+        { id: 'queued', label: t('排队中', 'Queued') },
+        { id: 'complete', label: t('已完成', 'Complete') },
+      ],
+      attentionStateId: 'attention',
+      runs: [
+        {
+          id: 'deploy',
+          name: t('边缘网关发布', 'Edge gateway deploy'),
+          detail: 'production · us-west',
+          stateId: 'running',
+          status: t('运行中', 'Running'),
+          tone: 'warning',
+          progress: 72,
+        },
+        {
+          id: 'index',
+          name: t('搜索索引重建', 'Search index rebuild'),
+          detail: 'production · eu-central',
+          stateId: 'running',
+          status: t('运行中', 'Running'),
+          tone: 'warning',
+          progress: 44,
+        },
+        {
+          id: 'migration',
+          name: t('会话迁移', 'Session migration'),
+          detail: t('预发布 · 等待审批', 'staging · Waiting for approval'),
+          stateId: 'attention',
+          status: t('受阻', 'Blocked'),
+          tone: 'danger',
+          progress: 61,
+        },
+        {
+          id: 'eval',
+          name: t('客服代理评估', 'Support agent evaluation'),
+          detail: t('预览 · 阈值未通过', 'preview · Threshold missed'),
+          stateId: 'attention',
+          status: t('失败', 'Failed'),
+          tone: 'danger',
+        },
+        {
+          id: 'archive',
+          name: t('审计归档', 'Audit archive'),
+          detail: 'production · ap-southeast',
+          stateId: 'queued',
+          status: t('排队中', 'Queued'),
+          tone: 'neutral',
+        },
+        {
+          id: 'backup',
+          name: t('配置备份', 'Configuration backup'),
+          detail: t('生产 · 8 分钟前', 'production · 8 min ago'),
+          stateId: 'complete',
+          status: t('已完成', 'Complete'),
+          tone: 'success',
+          progress: 100,
+        },
+      ],
+      listStrategy: paneScroll,
+    },
+    slo: {
+      labels: {
+        title: t('服务级别目标', 'Service level objectives'),
+        detail: t(
+          '跟踪错误预算消耗并在超出计划前采取行动。',
+          'Track error-budget burn and act before it exceeds plan.',
+        ),
+        windows: t('预算窗口', 'Budget window'),
+        chart: t('错误预算燃尽', 'Error budget burn-down'),
+        progress: (objective) => t(`${objective} 剩余预算`, `${objective} remaining budget`),
+        empty: t('没有服务级别目标', 'No service level objectives'),
+      },
+      windows: [
+        { id: '7d', label: t('7 天', '7 days') },
+        { id: '30d', label: t('30 天', '30 days') },
+        { id: '90d', label: t('90 天', '90 days') },
+      ],
+      initialWindowId: '30d',
+      series: points([100, 96, 91, 86, 78, 69, 61, 48, 36, 22]),
+      objectives: [
+        {
+          id: 'api',
+          title: t('公共 API 可用性', 'Public API availability'),
+          target: '99.95%',
+          budget: 64,
+          budgetLabel: t('剩余 64%', '64% remaining'),
+          tone: 'success',
+        },
+        {
+          id: 'events',
+          title: t('事件交付延迟', 'Event delivery latency'),
+          target: '99.9%',
+          budget: 28,
+          budgetLabel: t('剩余 28%', '28% remaining'),
+          tone: 'warning',
+        },
+        {
+          id: 'checkout',
+          title: t('结账成功率', 'Checkout success rate'),
+          target: '99.99%',
+          budget: 12,
+          budgetLabel: t('剩余 12%', '12% remaining'),
+          tone: 'danger',
+        },
+        {
+          id: 'auth',
+          title: t('身份验证延迟', 'Authentication latency'),
+          target: '99.9%',
+          budget: 73,
+          budgetLabel: t('剩余 73%', '73% remaining'),
+          tone: 'success',
+        },
+      ],
+      listStrategy: contentGrown,
+    },
+  };
+}

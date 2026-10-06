@@ -91,6 +91,43 @@ describe('Lumen workbench shell', () => {
     expect(onAction).toHaveBeenCalledWith('archive');
   });
 
+  it('uses the foundation menu for keyboard navigation, dismissal and duplicate actions', async () => {
+    const onAction = vi.fn();
+    const { user } = render(
+      <LumenProvider appearance={appearance} withCssBaseline={false}>
+        <LumenActionMenu
+          label="Workspace actions"
+          items={[
+            { id: 'rename', label: 'Rename workspace' },
+            { id: 'rename', label: 'Duplicate rename' },
+            { id: 'blocked', label: 'Unavailable', disabled: true },
+            { id: 'remove', label: 'Remove workspace', tone: 'danger' },
+          ]}
+          onAction={onAction}
+        />
+      </LumenProvider>,
+    );
+    const trigger = screen.getByRole('button', { name: 'Workspace actions' });
+    await user.click(trigger);
+    expect(trigger).to.have.attribute('aria-expanded', 'true');
+    const first = screen.getByRole('menuitem', { name: 'Rename workspace' });
+    const last = screen.getByRole('menuitem', { name: 'Remove workspace' });
+    expect(screen.getAllByRole('menuitem')).to.have.length(3);
+    expect(document.activeElement).to.equal(first);
+    await user.keyboard('{ArrowDown}');
+    expect(document.activeElement).to.equal(last);
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('menu')).to.equal(null);
+    expect(document.activeElement).to.equal(trigger);
+    await user.click(trigger);
+    await user.click(screen.getByRole('menuitem', { name: 'Remove workspace' }));
+    expect(onAction).toHaveBeenCalledExactlyOnceWith('remove');
+    expect(trigger).to.have.attribute('aria-expanded', 'false');
+    await user.click(trigger);
+    await user.click(document.body);
+    expect(screen.queryByRole('menu')).to.equal(null);
+  });
+
   it('keeps native titlebar behavior and labels in the host', async () => {
     const onMinimize = vi.fn();
     const onToggleMaximize = vi.fn();

@@ -1,6 +1,7 @@
-import { LumenInput, LumenSelect } from '../forms';
+'use client';
+import * as React from 'react';
+import { LumenChoiceSelect, LumenInput } from '../forms';
 import { ArrowRight, Check, X } from './glyphs';
-import { useMemo, useState, type ChangeEvent } from 'react';
 import type { LumenBillingCompositionProps } from './primitives';
 import type {
   LumenBillingFieldKind,
@@ -26,8 +27,8 @@ function InvoiceField({
 }) {
   const update = (next: string) => onChange(next);
   return (
-    <label className="hbar-app-ui-billing-field" htmlFor={`hbar-app-ui-billing-field-${field.id}`}>
-      <span>{field.label}</span>
+    <div className="hbar-app-ui-billing-field">
+      <label htmlFor={`hbar-app-ui-billing-field-${field.id}`}>{field.label}</label>
       <span className="hbar-app-ui-billing-field-control">
         {field.prefix && <span aria-hidden="true">{field.prefix}</span>}
         {renderControl(field, value, update)}
@@ -38,7 +39,7 @@ function InvoiceField({
         )}
       </span>
       {field.description && <small>{field.description}</small>}
-    </label>
+    </div>
   );
 }
 
@@ -52,19 +53,19 @@ function renderControl(
     name: field.id,
     value,
     placeholder: field.placeholder,
-    onChange: (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-      onChange(event.target.value),
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => onChange(event.target.value),
   };
   switch (field.kind as LumenBillingFieldKind) {
     case 'select':
       return (
-        <LumenSelect {...common}>
-          {(field.choices ?? []).map((choice) => (
-            <option key={choice.id} value={choice.id}>
-              {choice.label}
-            </option>
-          ))}
-        </LumenSelect>
+        <LumenChoiceSelect
+          id={common.id}
+          label={field.label}
+          placeholder={field.placeholder}
+          options={field.choices ?? []}
+          value={field.choices?.some((choice) => choice.id === value) ? value : null}
+          onValueChange={onChange}
+        />
       );
     case 'date':
     case 'text':
@@ -73,7 +74,7 @@ function renderControl(
   }
 }
 
-export function InvoiceComposerBilling({
+export default function InvoiceComposerBilling({
   spec,
   onAction,
   content,
@@ -85,16 +86,16 @@ export function InvoiceComposerBilling({
     0,
     steps.findIndex((step) => step.id === content.initialStepId),
   );
-  const [stepIndex, setStepIndex] = useState(initialStepIndex);
-  const [values, setValues] = useState<Record<string, string>>(() =>
+  const [stepIndex, setStepIndex] = React.useState(initialStepIndex);
+  const [values, setValues] = React.useState<Record<string, string>>(() =>
     Object.fromEntries(
       content.sections.flatMap((section) => section.fields.map((field) => [field.id, field.value])),
     ),
   );
-  const [saved, setSaved] = useState(false);
+  const [saved, setSaved] = React.useState(false);
   const activeStep = steps[stepIndex] ?? steps[0];
   const stepLabel = activeStep?.label ?? '';
-  const stepDetail = useMemo(
+  const stepDetail = React.useMemo(
     () => content.labels.stepDetail(stepIndex + 1, steps.length, stepLabel),
     [content.labels, stepIndex, stepLabel, steps.length],
   );
@@ -115,23 +116,25 @@ export function InvoiceComposerBilling({
     setStepIndex(bounded);
     setSaved(false);
     const nextStepId = steps[bounded]?.id;
-    if (nextStepId) onAction?.({ variantId: spec.id, actionId: 'step-change', value: nextStepId });
-    else onAction?.({ variantId: spec.id, actionId: 'step-change' });
+    if (nextStepId) {
+      onAction?.({ variantId: spec.id, actionId: 'step-change', value: nextStepId });
+    } else {
+      onAction?.({ variantId: spec.id, actionId: 'step-change' });
+    }
   };
 
   return (
-    <BillingFrame
-      spec={spec}
-      onAction={onAction}
-      className="hbar-app-ui-billing-invoice-composer-surface"
-    >
+    <BillingFrame spec={spec} className="hbar-app-ui-billing-invoice-composer-surface">
       <main className="hbar-app-ui-billing-centered-page">
         <form
           className="hbar-app-ui-billing-form-shell"
           onSubmit={(event) => {
             event.preventDefault();
-            if (stepIndex >= steps.length - 1) saveDraft();
-            else moveStep(stepIndex + 1);
+            if (stepIndex >= steps.length - 1) {
+              saveDraft();
+            } else {
+              moveStep(stepIndex + 1);
+            }
           }}
         >
           <header className="hbar-app-ui-billing-form-head">

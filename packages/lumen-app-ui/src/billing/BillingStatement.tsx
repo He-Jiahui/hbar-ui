@@ -1,6 +1,7 @@
+'use client';
+import * as React from 'react';
 import { LumenInput } from '../forms';
 import { ArrowUpRight, Download, MoreHorizontal, Search } from './glyphs';
-import { useMemo, useState } from 'react';
 import type { LumenBillingCompositionProps } from './primitives';
 import type { LumenBillingStatementContent } from './content';
 import {
@@ -12,22 +13,26 @@ import {
   BillingEmptyState,
 } from './primitives';
 
-export function BillingStatement({
+export default function BillingStatement({
   spec,
   onAction,
   content,
 }: LumenBillingCompositionProps & {
   readonly content: LumenBillingStatementContent;
 }) {
-  const [query, setQuery] = useState('');
-  const invoices = useMemo(() => {
+  const [query, setQuery] = React.useState('');
+  const invoices = React.useMemo(() => {
     const normalized = query.trim().toLowerCase();
     const unique = new Map<string, LumenBillingStatementContent['invoices'][number]>();
     for (const invoice of content.invoices) {
-      if (!unique.has(invoice.id)) unique.set(invoice.id, invoice);
+      if (!unique.has(invoice.id)) {
+        unique.set(invoice.id, invoice);
+      }
     }
     const values = [...unique.values()];
-    if (!normalized) return values;
+    if (!normalized) {
+      return values;
+    }
     return values.filter((invoice) =>
       [
         invoice.customer,
@@ -44,7 +49,7 @@ export function BillingStatement({
   }, [content.invoices, query]);
 
   return (
-    <BillingFrame spec={spec} onAction={onAction} className="hbar-app-ui-billing-statement-surface">
+    <BillingFrame spec={spec} className="hbar-app-ui-billing-statement-surface">
       <main className="hbar-app-ui-billing-page">
         <header className="hbar-app-ui-billing-topbar">
           <div>

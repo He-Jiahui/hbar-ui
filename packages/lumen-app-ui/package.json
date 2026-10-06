@@ -20,6 +20,8 @@
     "./range": "./src/range.tsx",
     "./toggle-button": "./src/toggle-button.tsx",
     "./catalog": "./src/catalog.ts",
+    "./designs": "./src/designs/index.ts",
+    "./ui": "./src/ui/index.ts",
     "./variants": "./src/variants/index.ts",
     "./styles.css": "./src/styles.css",
     "./app-shell": "./src/app-shell-workflows.tsx",
@@ -83,6 +85,10 @@
       "./catalog": {
         "types": "./dist/types/catalog.d.ts",
         "import": "./dist/catalog.js"
+      },
+      "./ui": {
+        "types": "./dist/types/ui/index.d.ts",
+        "import": "./dist/ui.mjs"
       },
       "./variants": {
         "types": "./dist/types/variants/index.d.ts",
@@ -200,6 +206,7 @@
     }
   },
   "scripts": {
+    "validate-boundaries": "node scripts/validate-lumen-boundaries.mjs",
     "typescript": "tsc -p tsconfig.json",
     "build": "pnpm typescript && vite build && tsc -p tsconfig.build.json"
   },

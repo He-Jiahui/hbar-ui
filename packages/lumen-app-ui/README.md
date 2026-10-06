@@ -27,12 +27,57 @@ icon classes keep their existing `--hbar-app-ui-icon-*` names, but Lumen owns
 their defaults; hosts do not need hbar's stylesheet. Root font scaling and
 scoped host overrides continue to apply to these semantic tiers.
 
+Application UI code should import its visible controls and shared compositions
+from `@lumen/app-ui/ui`. That public entry contains the Lumen action, form,
+selection, overlay, navigation, data-display, chart, calendar, code, and diff
+components. Material UI and native control details remain inside this boundary;
+feature families compose Lumen components and semantic content containers.
+
 Application roots should use `LumenProvider` with a host-owned
 `LumenAppearance`. The provider projects the resolved mode, control size, text
 size, corner size, square or rounded shape, glow intensity, and motion setting
 without persisting any preference itself. It installs the MUI theme and an
 optional transparent `CssBaseline`, leaving the window or browser host in
 control of the actual app background.
+
+The project skill at `.agents/skills/lumen-design-language/SKILL.md` describes
+the Lumen language: a sharp light strip on dark canvas and a solid ink strip on
+white canvas. Basic surfaces are transparent and rely on the host background;
+solid color is used for text, strip cores and emphasis. The established
+`LumenSurface` default remains translucent `glass`; `frost` is an explicit option.
+The existing default button, field, list, badge, and surface skins are preserved.
+Both themes diffuse around the strip: white light on black, black ink on white.
+Setting glow to zero or disabling motion preserves the strip and keyboard focus.
+
+Black and white are defaults, not fixed palettes. Set `appearance.colors` to
+override `foreground` (text, strip and diffusion), `background` (host canvas),
+and `contrast` (text on solid emphasis). `muted`, `subtle`, `info`, `success`,
+`warning`, and `danger` are optional overrides. Use concrete hex/rgb/hsl colors.
+The provider shares resolved colors with its CSS properties and MUI theme;
+`applyLumenAppearance` projects them to a portal host too. A surface stays
+transparent; the host paints `background: var(--lumen-canvas)` when needed.
+Custom palettes need their own contrast checks.
+
+The interactive foundation gallery at `/experiments/lumen-app-ui/foundations/`
+covers actions, controlled comboboxes, fields, lists, chips, badges, and tabs in
+Chinese and English. `LumenChip` separates optional selection and removal into
+independent actions. `LumenBadge` accepts host-formatted values, an optional dot
+variant, and adjacent anchor content. `LumenList` trailing content is inside
+the row button: use noninteractive metadata, not nested actions. Combobox arrows move the active suggestion without
+committing; Enter selects, Escape closes, and disabled options are skipped.
+The host supplies filtered/paged options (a page of up to 100 is recommended)
+and can expose `onLoadMore`; the popup owns its bounded scroll region.
+
+State transitions retain their light-strip nodes and interpolate length,
+opacity and diffusion. Running pulses live on a separate layer so stopping
+does not cut off the halo. Progress values and slider updates animate between
+their existing endpoints. Motion-off and reduced-motion preferences disable
+these transitions. This is a base-control motion audit, not a claim that every
+App UI overlay or collection lifecycle has been animation-tested.
+
+This is a Lumen API mapped to MUI concepts, not a promise of MUI prop parity.
+The foundation changes do not constitute a fresh accessibility audit of all
+300 App UI compositions or of every component in the upstream MUI catalog.
 
 The hbar source used for the later component-family migration was frozen from
 the current worktree at commit `3e2e13219e4654b4f0b5781a7780b66fbd270145`.
@@ -54,6 +99,20 @@ foreground text stays sharp. Unsupported browsers render frosted glass.
 current `min`/`max` range. Sliders keep their filled track and circular thumb;
 switches keep their full rounded track and moving circular thumb. Light follows
 the original MUI shape and strengthens on hover, selection and keyboard focus.
+
+The explicit stylesheet also scopes Lumen scrollbars to Lumen hosts: Chromium
+and WebKit render a bordered dark track and a narrow white lamp thumb while
+hiding native arrow buttons. Firefox keeps the dark track and white thumb
+through its standard scrollbar properties.
+
+The current MUI audit covers every primitive used by the package and design
+previews: `Button`/`ButtonBase` have no ripple or elevation and receive local
+line feedback; `TextField`, `OutlinedInput`, `InputBase`, and native selects
+use transparent outlines inside a `LumenField`; `Menu` and `MenuItem` use a
+frosted monochrome surface with line feedback; `Slider` uses progress-sensitive
+track and handle glow; and `Switch` uses the flat track with hollow/solid
+Lumen circles. The browser audit is kept in the docs e2e suite so a new MUI
+primitive cannot silently fall back to its default surface.
 
 Use `LumenButton` and `LumenIconButton` for application actions. Buttons expose
 the MUI `contained`, `outlined`, and `text` variants (`solid` remains a contained
@@ -299,7 +358,31 @@ the inbox falls back to the first available thread if its selected ID becomes
 stale. Hosts own pagination or virtualization if a source grows beyond a
 workbench pane's practical capacity.
 
+`HbarAppUiPromptInput01` through `HbarAppUiPromptInput07` cover the seven
+prompt-composer structures in the source: commands and attachments, model and
+tool selection, suggestions and history, template variables, file upload
+progress, scoped mentions, and mode switching. Each receives host-owned copy,
+content, controlled state, and ID-bearing actions. The package contains no
+sample prompt text, upload timer, or simulated run; those live in the gallery.
+Suggestions and recent prompts grow with content, while the recent region
+scrolls within a bounded pane. Duplicate option IDs retain their first item.
+
 The opt-in `@lumen/app-ui/catalog` export records all 300 source IDs and their
-presentation profiles. `LUMEN_MIGRATED_VARIANT_IDS` lists only validated ports;
-the other source entries are inventory, not components or placeholder exports.
-Two of the 38 families, totaling 11 variants, are migrated so far.
+presentation profiles. `LUMEN_MIGRATED_VARIANT_IDS` and
+`LUMEN_VARIANT_REGISTRY` contain the complete set of 38 families and 300
+interactive Lumen variants; every entry resolves to a concrete component and
+has a stable preview URL. There is no generic fallback or pending source-only
+entry in the registry.
+
+The docs-only directory at `/experiments/lumen-app-ui/catalog/` makes all 38
+families and 300 source IDs searchable and embeds the corresponding interactive
+Lumen variant. The catalog is an inspection surface for the same components
+exported by `@lumen/app-ui/variants`, not a second legacy skin.
+
+`@lumen/app-ui/designs` remains as a backwards-compatible export for the older
+composable design-direction API. It is implemented entirely with the shared
+Lumen primitives and is not used as a fallback for catalog variants;
+`LUMEN_DESIGN_COVERAGE_CATEGORIES` is intentionally empty because every source
+family now has one-to-one variants. New Application UI code should import from
+`@lumen/app-ui/ui` and compose the concrete variant components from
+`@lumen/app-ui/variants`.

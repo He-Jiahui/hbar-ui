@@ -1,9 +1,14 @@
 import { alpha, createTheme, enhanceHighContrast } from '@mui/material/styles';
-import { DEFAULT_LUMEN_APPEARANCE, type LumenAppearance, type LumenMode } from './appearance';
+import {
+  DEFAULT_LUMEN_APPEARANCE,
+  resolveLumenColors,
+  type LumenAppearance,
+  type LumenMode,
+} from './appearance';
 
 export interface LumenThemeOptions extends Pick<
   LumenAppearance,
-  'controlSize' | 'textSize' | 'cornerSize' | 'shape'
+  'controlSize' | 'textSize' | 'cornerSize' | 'shape' | 'colors'
 > {}
 
 export default function createLumenTheme(
@@ -14,8 +19,11 @@ export default function createLumenTheme(
   const textSize = options.textSize ?? DEFAULT_LUMEN_APPEARANCE.textSize;
   const cornerSize = options.cornerSize ?? DEFAULT_LUMEN_APPEARANCE.cornerSize;
   const shape = options.shape ?? DEFAULT_LUMEN_APPEARANCE.shape;
-  const ink = mode === 'dark' ? '#eeeeee' : '#171717';
-  const contrast = mode === 'dark' ? '#090909' : '#f5f5f5';
+  const colors = resolveLumenColors(mode, options.colors);
+  const ink = colors.foreground;
+  const contrast = colors.contrast;
+  const customized =
+    options.colors?.foreground !== undefined || options.colors?.background !== undefined;
   const fieldLight = {
     transition: 'var(--lumen-state-transition)',
     '&:hover': { '--lumen-effect-level': 'var(--lumen-glow-hover)' },
@@ -49,15 +57,20 @@ export default function createLumenTheme(
       mode,
       primary: { main: ink, contrastText: contrast },
       secondary: { main: mode === 'dark' ? '#cccccc' : '#333333', contrastText: contrast },
-      success: { main: mode === 'dark' ? '#77deb0' : '#1a7c56', contrastText: contrast },
-      warning: { main: mode === 'dark' ? '#efd17a' : '#996500', contrastText: contrast },
-      error: { main: mode === 'dark' ? '#ff969b' : '#b73548', contrastText: contrast },
-      info: { main: mode === 'dark' ? '#81b5ff' : '#285bc3', contrastText: contrast },
+      success: { main: colors.success, contrastText: contrast },
+      warning: { main: colors.warning, contrastText: contrast },
+      error: { main: colors.danger, contrastText: contrast },
+      info: { main: colors.info, contrastText: contrast },
       background: {
-        default: mode === 'dark' ? '#090909' : '#f5f5f5',
-        paper: mode === 'dark' ? '#181818' : '#fafafa',
+        default: colors.background,
+        paper: customized ? colors.background : mode === 'dark' ? '#181818' : '#fafafa',
       },
-      text: { primary: ink, secondary: mode === 'dark' ? '#aaaaaa' : '#626262' },
+      text: {
+        primary: ink,
+        secondary:
+          options.colors?.muted ??
+          (customized ? alpha(ink, 0.72) : mode === 'dark' ? '#aaaaaa' : '#626262'),
+      },
     },
     typography: {
       fontFamily: '"Segoe UI", "Microsoft YaHei", sans-serif',
@@ -210,7 +223,6 @@ export default function createLumenTheme(
         },
       },
       MuiSwitch: {
-        defaultProps: { size: 'small' },
         styleOverrides: {
           switchBase: {
             '--lumen-effect-color': 'currentColor',

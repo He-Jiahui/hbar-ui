@@ -1,8 +1,11 @@
 import { LumenButton } from '../primitives';
 import { Download, Filter, MoreHorizontal, SlidersHorizontal } from './glyphs';
 import { useState } from 'react';
-import type { LumenNavbarFilterContent } from './content';
-import { selectLumenNavbarItem, uniqueLumenNavbarItems } from './content';
+import {
+  type LumenNavbarFilterContent,
+  selectLumenNavbarItem,
+  uniqueLumenNavbarItems,
+} from './content';
 import {
   NavbarButton,
   NavbarFrame,
@@ -104,3 +107,4 @@ export function FilterNavbar({
     </NavbarFrame>
   );
 }
+('use client');

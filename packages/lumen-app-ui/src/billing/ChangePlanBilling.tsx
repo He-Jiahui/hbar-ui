@@ -1,6 +1,8 @@
+'use client';
+import * as React from 'react';
 import { LumenInput } from '../forms';
+import { LumenBadge } from '../ui-controls';
 import { ArrowRight } from './glyphs';
-import { useMemo, useState } from 'react';
 import type { LumenBillingCompositionProps } from './primitives';
 import type { LumenBillingChangePlanContent } from './content';
 import { selectLumenBillingItem } from './content';
@@ -12,24 +14,26 @@ import {
   BillingWorkflowSteps,
 } from './primitives';
 
-export function ChangePlanBilling({
+export default function ChangePlanBilling({
   spec,
   onAction,
   content,
 }: LumenBillingCompositionProps & {
   readonly content: LumenBillingChangePlanContent;
 }) {
-  const choices = useMemo(() => {
+  const choices = React.useMemo(() => {
     const seen = new Set<string>();
     return content.choices.filter((choice) => {
-      if (seen.has(choice.id)) return false;
+      if (seen.has(choice.id)) {
+        return false;
+      }
       seen.add(choice.id);
       return true;
     });
   }, [content.choices]);
   const initialChoice = selectLumenBillingItem(choices, content.initialChoiceId);
-  const [choiceId, setChoiceId] = useState(initialChoice?.id ?? '');
-  const [stepId, setStepId] = useState(content.steps[0]?.id ?? '');
+  const [choiceId, setChoiceId] = React.useState(initialChoice?.id ?? '');
+  const [stepId, setStepId] = React.useState(content.steps[0]?.id ?? '');
   const selectedChoice = choices.find((choice) => choice.id === choiceId) ?? choices[0];
 
   const choose = (nextId: string) => {
@@ -41,18 +45,19 @@ export function ChangePlanBilling({
     const currentIndex = content.steps.findIndex((step) => step.id === stepId);
     const next =
       content.steps[Math.min(Math.max(currentIndex, 0) + 1, Math.max(content.steps.length - 1, 0))];
-    if (next) setStepId(next.id);
+    if (next) {
+      setStepId(next.id);
+    }
     const selectedId = selectedChoice?.id;
-    if (selectedId) onAction?.({ variantId: spec.id, actionId: 'continue', value: selectedId });
-    else onAction?.({ variantId: spec.id, actionId: 'continue' });
+    if (selectedId) {
+      onAction?.({ variantId: spec.id, actionId: 'continue', value: selectedId });
+    } else {
+      onAction?.({ variantId: spec.id, actionId: 'continue' });
+    }
   };
 
   return (
-    <BillingFrame
-      spec={spec}
-      onAction={onAction}
-      className="hbar-app-ui-billing-change-plan-surface"
-    >
+    <BillingFrame spec={spec} className="hbar-app-ui-billing-change-plan-surface">
       <main className="hbar-app-ui-billing-centered-page">
         <div className="hbar-app-ui-billing-change-shell">
           <header className="hbar-app-ui-billing-change-head">
@@ -100,7 +105,7 @@ export function ChangePlanBilling({
                   <h2>{content.summary.title}</h2>
                   <p>{content.summary.description}</p>
                 </div>
-                <span className="hbar-app-ui-billing-badge">{content.summary.actionBadge}</span>
+                <LumenBadge value={content.summary.actionBadge} />
               </header>
               <section className="hbar-app-ui-billing-due-card">
                 <span>{content.summary.dueLabel}</span>

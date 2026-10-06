@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import type { LumenSize } from './appearance';
+import { type LumenSize } from './appearance';
 import {
   LumenButton,
   LumenIconButton,
@@ -9,13 +9,19 @@ import {
   LumenStatus,
   LumenText,
 } from './primitives';
-import { LUMEN_TOOL_SEPARATOR_WIDTH_REM, resolveLumenToolPaneLayout } from './tool-pane-layout';
-import type { LumenToolLayout, LumenToolPresentation } from './tool-pane-layout';
-import { LumenToolPaneResizer } from './tool-pane-resize';
-import type { LumenToolResize } from './tool-pane-resize';
+import {
+  LUMEN_TOOL_SEPARATOR_WIDTH_REM,
+  resolveLumenToolPaneLayout,
+  type LumenToolLayout,
+  type LumenToolPresentation,
+} from './tool-pane-layout';
+import { LumenToolPaneResizer, type LumenToolResize } from './tool-pane-resize';
 import { useToolPaneGeometry } from './use-tool-pane-geometry';
-import { resolveLumenSidebarLayout } from './sidebar-layout';
-import type { LumenSidebarLayout, LumenSidebarResize } from './sidebar-layout';
+import {
+  resolveLumenSidebarLayout,
+  type LumenSidebarLayout,
+  type LumenSidebarResize,
+} from './sidebar-layout';
 import './workbench.css';
 import { LumenFloatingSurface, useFloatingTrigger } from './floating-surface';
 
@@ -173,8 +179,8 @@ export function LumenAppShell({
             <div className="lumen-app-sidebar-drawer-panel hbar-app-ui-app-sidebar-drawer-panel">
               {sidebar}
             </div>
-            <button
-              type="button"
+            <LumenButton
+              variant="text"
               className="lumen-app-sidebar-backdrop hbar-app-ui-app-sidebar-backdrop"
               aria-label={closeSidebarLabel}
               onClick={onCloseSidebar}
@@ -472,7 +478,18 @@ export function LumenActionMenu<ActionId extends string = string>({
     onOpen: () => setOpen(true),
     onClose: () => setOpen(false),
   });
-  const availableItems = React.useMemo(() => items.filter((item) => !item.disabled), [items]);
+  const uniqueItems = React.useMemo(() => {
+    const seen = new Set<ActionId>();
+    return items.filter((item) => {
+      if (!item.id.trim() || seen.has(item.id)) return false;
+      seen.add(item.id);
+      return true;
+    });
+  }, [items]);
+  const availableItems = React.useMemo(
+    () => uniqueItems.filter((item) => !item.disabled),
+    [uniqueItems],
+  );
   const setItemRef = React.useCallback((itemId: ActionId, element: HTMLButtonElement | null) => {
     if (element) itemRefs.current.set(itemId, element);
     else itemRefs.current.delete(itemId);
@@ -535,7 +552,7 @@ export function LumenActionMenu<ActionId extends string = string>({
         role="menu"
         aria-label={label}
       >
-        {items.map((item) => (
+        {uniqueItems.map((item) => (
           <LumenButton
             key={item.id}
             ref={(element) => {

@@ -1,9 +1,8 @@
 import { LumenToggleControl } from '../forms';
 import { Bolt, Database, Layers3, Pencil, Plus, Shield, Sparkles, Users } from './glyphs';
 import { useMemo, useState } from 'react';
-import type { LumenBillingCompositionProps } from './primitives';
-import type { LumenBillingPlanFeature, LumenBillingPlansContent } from './content';
 import {
+  type LumenBillingCompositionProps,
   BillingButton,
   BillingEmptyState,
   BillingFrame,
@@ -11,6 +10,7 @@ import {
   BillingIconButton,
   BillingStatus,
 } from './primitives';
+import { type LumenBillingPlanFeature, type LumenBillingPlansContent } from './content';
 
 function PlanFeatureIcon({ feature }: { readonly feature: LumenBillingPlanFeature }) {
   switch (feature.icon) {
@@ -213,3 +213,4 @@ export function PlansBilling({
     </BillingFrame>
   );
 }
+('use client');

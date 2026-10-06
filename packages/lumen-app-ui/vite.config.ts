@@ -40,9 +40,12 @@ export default defineConfig({
         'workspace-components': resolve(import.meta.dirname, 'src/workspace-components.tsx'),
         workbench: resolve(import.meta.dirname, 'src/workbench.tsx'),
         catalog: resolve(import.meta.dirname, 'src/catalog.ts'),
+        ui: resolve(import.meta.dirname, 'src/ui/index.ts'),
         variants: resolve(import.meta.dirname, 'src/variants/index.ts'),
+        styles: resolve(import.meta.dirname, 'src/build-styles.ts'),
       },
       formats: ['es'],
+      cssFileName: 'app-ui',
     },
     rollupOptions: {
       external: [/^@mui\//, /^react($|\/)/, /^react-dom($|\/)/],

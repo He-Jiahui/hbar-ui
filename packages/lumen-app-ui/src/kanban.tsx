@@ -22,11 +22,13 @@ export interface LumenKanbanListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
   readonly expectedMaximum: number;
 }
+
 export interface LumenKanbanChoice {
   readonly id: string;
   readonly label: string;
   readonly detail?: string | undefined;
 }
+
 export interface LumenKanbanCard extends LumenKanbanChoice {
   readonly tag: string;
   readonly assignee: string;
@@ -35,21 +37,32 @@ export interface LumenKanbanCard extends LumenKanbanChoice {
   readonly points?: number | undefined;
   readonly blocked?: boolean | undefined;
   readonly groupValues?: Readonly<Record<string, string>> | undefined;
-  readonly actions?: readonly { readonly id: string; readonly label: string; readonly runId?: string | undefined; readonly disabled?: boolean }[] | undefined;
+  readonly actions?:
+    | readonly {
+        readonly id: string;
+        readonly label: string;
+        readonly runId?: string | undefined;
+        readonly disabled?: boolean;
+      }[]
+    | undefined;
 }
+
 export interface LumenKanbanColumn extends LumenKanbanChoice {
   readonly cardIds: readonly string[];
   readonly limit?: number | undefined;
   readonly points?: number | undefined;
   readonly progress?: number | undefined;
 }
+
 export interface LumenKanbanLane extends LumenKanbanChoice {
   readonly columns: readonly LumenKanbanColumn[];
 }
+
 export interface LumenKanbanMetric extends LumenKanbanChoice {
   readonly value: string;
   readonly tone?: 'neutral' | 'success' | 'warning' | 'danger' | undefined;
 }
+
 export interface LumenKanbanReferenceCard {
   readonly id: string;
   readonly label: string;
@@ -60,18 +73,21 @@ export interface LumenKanbanReferenceCard {
   readonly comments?: number | undefined;
   readonly files?: number | undefined;
 }
+
 export interface LumenKanbanSwimlaneCard {
   readonly id: string;
   readonly label: string;
   readonly points: number;
   readonly stageId: string;
 }
+
 export interface LumenKanbanReferenceLane {
   readonly id: string;
   readonly label: string;
   readonly avatar: string;
   readonly cards: readonly LumenKanbanSwimlaneCard[];
 }
+
 export interface LumenKanbanRegroupCard {
   readonly id: string;
   readonly label: string;
@@ -81,10 +97,12 @@ export interface LumenKanbanRegroupCard {
   readonly priorityId: string;
   readonly priorityTone: 'strong' | 'medium' | 'soft';
 }
+
 export interface LumenKanbanRegroupColumn extends LumenKanbanChoice {
   readonly avatar?: string | undefined;
   readonly tone?: 'strong' | 'medium' | 'soft' | undefined;
 }
+
 export interface LumenKanbanDetailActivity {
   readonly id: string;
   readonly avatar: string;
@@ -92,6 +110,7 @@ export interface LumenKanbanDetailActivity {
   readonly time: string;
   readonly text: string;
 }
+
 export interface LumenKanbanDetailCard {
   readonly id: string;
   readonly label: string;
@@ -108,6 +127,7 @@ export interface LumenKanbanDetailCard {
   /** Captured comment count when activity rows are not part of the card payload. */
   readonly activityCount?: number | undefined;
 }
+
 export interface LumenKanbanSprintCard {
   readonly id: string;
   readonly label: string;
@@ -116,9 +136,11 @@ export interface LumenKanbanSprintCard {
   readonly blocked: boolean;
   readonly stageId: string;
 }
+
 export interface LumenKanbanSprintStage extends LumenKanbanChoice {
   readonly capacity?: number | undefined;
 }
+
 export interface LumenKanbanCompactCard {
   readonly id: string;
   readonly label: string;
@@ -128,6 +150,7 @@ export interface LumenKanbanCompactCard {
   readonly total: number;
   readonly columnId: string;
 }
+
 export interface LumenKanbanContent {
   readonly labels: {
     readonly boardTitle: string;
@@ -340,14 +363,17 @@ export interface LumenKanbanContent {
       }
     | undefined;
 }
+
 export interface LumenKanbanProviderProps {
   readonly content: LumenKanbanContent;
   readonly children: React.ReactNode;
 }
+
 export interface LumenKanbanAction {
   readonly actionId: string;
   readonly value?: string | undefined;
 }
+
 export interface LumenKanbanProps {
   readonly variant: number;
   readonly variantId: string;
@@ -361,14 +387,19 @@ export interface LumenKanbanProps {
   /** Disable board mutations while retaining the reference layout and selection actions. */
   readonly readOnly?: boolean | undefined;
 }
+
 export type LumenKanbanVariantProps = Omit<LumenKanbanProps, 'variant' | 'variantId'>;
+
 const Context = React.createContext<LumenKanbanContent | undefined>(undefined);
+
 export function LumenKanbanProvider({ content, children }: LumenKanbanProviderProps) {
   return <Context.Provider value={content}>{children}</Context.Provider>;
 }
+
 export function useLumenKanbanContent() {
   return React.useContext(Context);
 }
+
 export function uniqueLumenKanbanItems<T extends { readonly id: string }>(items: readonly T[]) {
   const seen = new Set<string>();
   return items.filter((item) => {
@@ -379,14 +410,17 @@ export function uniqueLumenKanbanItems<T extends { readonly id: string }>(items:
     return true;
   });
 }
+
 export function selectLumenKanbanItem<T extends { readonly id: string }>(
   items: readonly T[],
   id: string | undefined,
 ) {
   return items.find((item) => item.id === id) ?? items[0];
 }
+
 const report = (fn: LumenKanbanProps['onAction'], actionId: string, value?: string) =>
   fn?.(value === undefined ? { actionId } : { actionId, value });
+
 function Glyph({
   name,
 }: {
@@ -407,6 +441,7 @@ function Glyph({
     </svg>
   );
 }
+
 function Root({
   variant,
   variantId,
@@ -443,6 +478,7 @@ function Root({
     </LumenSurface>
   );
 }
+
 function Header({
   title,
   detail,
@@ -466,6 +502,7 @@ function Header({
     </header>
   );
 }
+
 function Empty({ children }: { children: string }) {
   return (
     <LumenText as="p" className="lumen-kanban-empty" tone="muted">
@@ -473,6 +510,7 @@ function Empty({ children }: { children: string }) {
     </LumenText>
   );
 }
+
 function Card({
   card,
   onOpen,
@@ -533,7 +571,12 @@ function Card({
       {card.actions?.length ? (
         <footer>
           {card.actions.map((action) => (
-            <LumenButton key={action.id} variant="outlined" disabled={action.disabled} onClick={() => report(onAction, action.id, action.runId ?? card.id)}>
+            <LumenButton
+              key={action.id}
+              variant="outlined"
+              disabled={action.disabled}
+              onClick={() => report(onAction, action.id, action.runId ?? card.id)}
+            >
               {action.label}
             </LumenButton>
           ))}
@@ -542,6 +585,7 @@ function Card({
     </article>
   );
 }
+
 function Board(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
   if (props.content.referenceBoard) {
     return (
@@ -555,6 +599,7 @@ function Board(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanban
   }
   return <LegacyBoard {...props} />;
 }
+
 function LegacyBoard(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
   const sourceCards = uniqueLumenKanbanItems(props.content.cards);
   const sourceColumns = uniqueLumenKanbanItems(props.content.columns);
@@ -571,8 +616,11 @@ function LegacyBoard(props: Omit<LumenKanbanProps, 'content'> & { content: Lumen
       ) as Record<string, readonly string[]>,
     [sourceCards, sourceColumns],
   );
-  const [localColumnCards, setLocalColumnCards] = React.useState<Record<string, readonly string[]>>(hostColumnCards);
-  const hostProjectionKey = sourceColumns.map((column) => `${column.id}:${column.cardIds.join(',')}`).join('|');
+  const [localColumnCards, setLocalColumnCards] =
+    React.useState<Record<string, readonly string[]>>(hostColumnCards);
+  const hostProjectionKey = sourceColumns
+    .map((column) => `${column.id}:${column.cardIds.join(',')}`)
+    .join('|');
   const [lastHostProjectionKey, setLastHostProjectionKey] = React.useState(hostProjectionKey);
   React.useEffect(() => {
     if (lastHostProjectionKey !== hostProjectionKey) {
@@ -657,6 +705,7 @@ function LegacyBoard(props: Omit<LumenKanbanProps, 'content'> & { content: Lumen
     </Root>
   );
 }
+
 function Swimlanes(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
   if (props.content.referenceSwimlanes) {
     return (
@@ -672,6 +721,7 @@ function Swimlanes(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKa
   }
   return <LegacySwimlanes {...props} />;
 }
+
 function LegacySwimlanes(
   props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent },
 ) {
@@ -739,6 +789,7 @@ function LegacySwimlanes(
     </Root>
   );
 }
+
 function Regroup(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
   if (props.content.referenceRegroup) {
     return (
@@ -754,6 +805,7 @@ function Regroup(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanb
   }
   return <LegacyRegroup {...props} />;
 }
+
 function LegacyRegroup(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
   const groups = uniqueLumenKanbanItems(props.content.groups);
   const cards = uniqueLumenKanbanItems(props.content.cards);
@@ -814,6 +866,7 @@ function LegacyRegroup(props: Omit<LumenKanbanProps, 'content'> & { content: Lum
     </Root>
   );
 }
+
 function Detail(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
   if (props.content.referenceDetail) {
     return (
@@ -829,6 +882,7 @@ function Detail(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanba
   }
   return <LegacyDetail {...props} />;
 }
+
 function LegacyDetail(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
   const cards = uniqueLumenKanbanItems(props.content.cards);
   const assignees = uniqueLumenKanbanItems(props.content.assignees);
@@ -907,6 +961,7 @@ function LegacyDetail(props: Omit<LumenKanbanProps, 'content'> & { content: Lume
     </Root>
   );
 }
+
 function Sprint(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
   if (props.content.referenceSprint) {
     return (
@@ -922,6 +977,7 @@ function Sprint(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanba
   }
   return <LegacySprint {...props} />;
 }
+
 function LegacySprint(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
   const cards = uniqueLumenKanbanItems(props.content.cards);
   const columns = uniqueLumenKanbanItems(props.content.columns).slice(0, 3);
@@ -988,6 +1044,7 @@ function LegacySprint(props: Omit<LumenKanbanProps, 'content'> & { content: Lume
     </Root>
   );
 }
+
 function Compact(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
   if (props.content.referenceCompact) {
     return (
@@ -1003,6 +1060,7 @@ function Compact(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanb
   }
   return <LegacyCompact {...props} />;
 }
+
 function LegacyCompact(props: Omit<LumenKanbanProps, 'content'> & { content: LumenKanbanContent }) {
   const columns = uniqueLumenKanbanItems(props.content.compactColumns);
   const cards = uniqueLumenKanbanItems(props.content.cards);
@@ -1056,9 +1114,11 @@ function LegacyCompact(props: Omit<LumenKanbanProps, 'content'> & { content: Lum
     </Root>
   );
 }
+
 function empty(props: LumenKanbanProps) {
   return <Root {...props}>{null}</Root>;
 }
+
 export function LumenKanban(props: LumenKanbanProps) {
   const providerContent = useLumenKanbanContent();
   const content = props.content ?? providerContent;
@@ -1085,9 +1145,11 @@ export function LumenKanban(props: LumenKanbanProps) {
   }
   return empty(props);
 }
+
 function variant(value: number, props: LumenKanbanVariantProps) {
   return <LumenKanban {...props} variant={value} variantId={`hbar-app-ui-kanban-${value}`} />;
 }
+
 export const LumenKanban01 = (props: LumenKanbanVariantProps) => variant(1, props),
   LumenKanban02 = (props: LumenKanbanVariantProps) => variant(2, props),
   LumenKanban03 = (props: LumenKanbanVariantProps) => variant(3, props),

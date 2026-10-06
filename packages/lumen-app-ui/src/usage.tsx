@@ -15,6 +15,7 @@ import { UsageRequestTable, type LumenUsageRequestTableContent } from './usage-r
 import { UsageCompactWidget, type LumenUsageCompactWidgetContent } from './usage-compact-widget';
 import './usage.css';
 import './usage-practical-flow.css';
+import { LumenProgress } from './ui-controls';
 
 export interface LumenUsageMetric {
   readonly id?: string | undefined;
@@ -91,7 +92,7 @@ export interface LumenUsageModelSpendContent extends LumenUsageHeading, LumenUsa
     readonly spend: string;
     readonly change: string;
   };
-  readonly sort?: LumenUsageAction | undefined;
+  readonly sort?: LumenUsageAction | LumenUsageChoice | undefined;
 }
 
 export interface LumenUsageRateLimitsContent extends LumenUsageHeading {
@@ -104,6 +105,7 @@ export interface LumenUsageRateLimitsContent extends LumenUsageHeading {
 
 export interface LumenUsageSeatRow {
   readonly id: string;
+  readonly filterId?: string | undefined;
   readonly initials: string;
   readonly name: string;
   readonly detail: string;
@@ -118,7 +120,7 @@ export interface LumenUsageSeatContent extends LumenUsageHeading, LumenUsageColl
   readonly query: string;
   readonly searchLabel: string;
   readonly onQueryChange: (value: string) => void;
-  readonly filter?: LumenUsageAction | undefined;
+  readonly filter?: LumenUsageAction | LumenUsageChoice | undefined;
   readonly rows: readonly LumenUsageSeatRow[];
 }
 
@@ -167,6 +169,7 @@ export interface LumenUsageOverageContent extends LumenUsageHeading {
 
 export interface LumenUsageRequest {
   readonly id: string;
+  readonly filterId?: string | undefined;
   readonly tokens: string;
   readonly latency: string;
   readonly cost: string;
@@ -178,7 +181,7 @@ export interface LumenUsageRequestLogContent extends LumenUsageHeading, LumenUsa
   /** Detailed responsive request log; omission retains the legacy disclosure API. */
   readonly table?: LumenUsageRequestTableContent | undefined;
   readonly rows: readonly LumenUsageRequest[];
-  readonly filter?: LumenUsageAction | undefined;
+  readonly filter?: LumenUsageAction | LumenUsageChoice | undefined;
 }
 
 export interface LumenUsageCompactContent extends LumenUsageHeading {
@@ -279,19 +282,19 @@ function UsageProgress({
   readonly label?: string | undefined;
   readonly tone?: LumenUsageMeter['tone'] | undefined;
 }) {
-  const bounded = Math.max(0, Math.min(100, Number.isFinite(value) ? value : 0));
+  const tones = {
+    accent: 'info',
+    positive: 'success',
+    warning: 'warning',
+    danger: 'danger',
+  } as const;
   return (
-    <div
+    <LumenProgress
       className="lumen-usage-progress hbar-app-ui-progress"
-      data-tone={tone}
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={bounded}
-      role="progressbar"
-    >
-      <span style={{ inlineSize: `${bounded}%` }} />
-    </div>
+      label={label ?? ''}
+      value={value}
+      tone={tone ? tones[tone] : 'info'}
+    />
   );
 }
 
@@ -328,9 +331,10 @@ function UsageActionButton({
   action,
   children,
 }: {
-  readonly action: LumenUsageAction;
+  readonly action: LumenUsageAction | LumenUsageChoice;
   readonly children?: React.ReactNode;
 }) {
+  if ('options' in action) return <UsageChoiceControl choice={action} />;
   return (
     <LumenButton variant="outlined" disabled={action.disabled} onClick={action.onInvoke}>
       {children}
@@ -750,7 +754,13 @@ export function LumenUsageCompact(content: LumenUsageCompactContent) {
         <LumenText as="small" tone="muted">
           {content.detail}
         </LumenText>
-        {content.progress !== undefined ? <UsageProgress value={content.progress} label={content.progressLabel} tone={content.tone} /> : null}
+        {content.progress !== undefined ? (
+          <UsageProgress
+            value={content.progress}
+            label={content.progressLabel}
+            tone={content.tone}
+          />
+        ) : null}
         <div className="lumen-usage-secondary-metrics hbar-app-ui-secondary-meters">
           {uniqueLumenUsageItems(content.metrics).map((metric) => (
             <span key={metric.id}>
@@ -922,10 +932,17 @@ function createUsageVariant(variant: number) {
 }
 
 export const LumenUsage01 = createUsageVariant(1);
+
 export const LumenUsage02 = createUsageVariant(2);
+
 export const LumenUsage03 = createUsageVariant(3);
+
 export const LumenUsage04 = createUsageVariant(4);
+
 export const LumenUsage05 = createUsageVariant(5);
+
 export const LumenUsage06 = createUsageVariant(6);
+
 export const LumenUsage07 = createUsageVariant(7);
+
 export const LumenUsage08 = createUsageVariant(8);

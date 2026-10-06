@@ -1,19 +1,19 @@
 'use client';
 
 import * as React from 'react';
-import type {
-  LumenIntegrationMarketplaceReferenceLayout,
-  LumenIntegrationMarketplaceReferenceFlow,
-  LumenIntegrationConnectionReferenceLayout,
-  LumenIntegrationConnectionReferenceFlow,
-  LumenIntegrationApiKeysReferenceLayout,
-  LumenIntegrationApiKeysReferenceFlow,
-  LumenIntegrationWebhookReferenceLayout,
-  LumenIntegrationWebhookReferenceFlow,
-  LumenIntegrationConsentReferenceLayout,
-  LumenIntegrationConsentReferenceFlow,
-  LumenIntegrationSyncReferenceLayout,
-  LumenIntegrationSyncReferenceFlow,
+import {
+  type LumenIntegrationMarketplaceReferenceLayout,
+  type LumenIntegrationMarketplaceReferenceFlow,
+  type LumenIntegrationConnectionReferenceLayout,
+  type LumenIntegrationConnectionReferenceFlow,
+  type LumenIntegrationApiKeysReferenceLayout,
+  type LumenIntegrationApiKeysReferenceFlow,
+  type LumenIntegrationWebhookReferenceLayout,
+  type LumenIntegrationWebhookReferenceFlow,
+  type LumenIntegrationConsentReferenceLayout,
+  type LumenIntegrationConsentReferenceFlow,
+  type LumenIntegrationSyncReferenceLayout,
+  type LumenIntegrationSyncReferenceFlow,
 } from './reference-content';
 
 /**
@@ -144,6 +144,7 @@ export interface LumenIntegrationEndpoint {
   readonly address: string;
   readonly detail: string;
   readonly enabled: boolean;
+  readonly topics?: readonly string[] | undefined;
 }
 
 export interface LumenIntegrationDelivery {

@@ -1,8 +1,11 @@
 import * as React from 'react';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import { ThemeProvider } from '@mui/material/styles';
-import { createLumenTheme, LumenIndicator } from '@lumen/app-ui';
+import {
+  DEFAULT_LUMEN_APPEARANCE,
+  LumenButton,
+  LumenLink,
+  LumenNavigationButton,
+  LumenProvider,
+} from '@lumen/app-ui/ui';
 import {
   HbarAppUiEmptyState01,
   HbarAppUiEmptyState02,
@@ -10,17 +13,25 @@ import {
   HbarAppUiEmptyState04,
   HbarAppUiEmptyState05,
 } from '@lumen/app-ui/variants';
+import { getLumenVariant } from '@lumen/app-ui/catalog';
 import getEmptyStateFixtures, { type GalleryLocale } from './emptyStateFixtures';
 import ScenarioPreview, { type ScenarioKind } from './ScenarioPreview';
 import FeedbackGallery from './FeedbackGallery';
+import PromptInputGallery from './PromptInputGallery';
+import FileManagerGallery from './FileManagerGallery';
 import getFeedbackFixtures from './feedbackFixtures';
+import getPromptInputFixtures from './promptInputFixtures';
+import getFileManagerFixtures from './fileManagerFixtures';
 import { getScenarioFixtures } from './scenarioFixtures';
 import styles from './gallery.module.css';
+import VariantPreviewHost from './VariantPreviewHost';
 
 export default function EmptyStateGallery() {
+  const [embedded, setEmbedded] = React.useState(false);
   const [mode, setMode] = React.useState<'dark' | 'light'>('dark');
   const [locale, setLocale] = React.useState<GalleryLocale>('zh');
   const [variant, setVariant] = React.useState(1);
+  const [requestedId, setRequestedId] = React.useState<string | null>(null);
   const [query, setQuery] = React.useState('october');
   const [filters, setFilters] = React.useState([
     { id: 'blocked', label: 'Status: blocked' },
@@ -40,10 +51,29 @@ export default function EmptyStateGallery() {
     },
     [],
   );
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setEmbedded(params.get('embed') === '1');
+    const requestedMode = params.get('mode');
+    const requestedLocale = params.get('locale');
+    setRequestedId(params.get('id'));
+    if (requestedMode === 'dark' || requestedMode === 'light') {
+      setMode(requestedMode);
+    }
+    if (requestedLocale === 'zh' || requestedLocale === 'en') {
+      setLocale(requestedLocale);
+    }
+    const requested = Number(params.get('variant'));
+    if (Number.isInteger(requested) && requested >= 1 && requested <= 26) {
+      setVariant(requested);
+    }
+  }, []);
   const copy = getEmptyStateFixtures(locale);
   const scenarios = getScenarioFixtures(locale);
   const feedback = getFeedbackFixtures(locale);
-  const theme = React.useMemo(() => createLumenTheme(mode), [mode]);
+  const promptInput = getPromptInputFixtures(locale);
+  const fileManager = getFileManagerFixtures(locale);
+  const appearance = React.useMemo(() => ({ ...DEFAULT_LUMEN_APPEARANCE, mode }), [mode]);
   React.useEffect(() => {
     selectedButton.current?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   }, [locale, variant]);
@@ -118,87 +148,152 @@ export default function EmptyStateGallery() {
       <ScenarioPreview key={kind} kind={kind} copy={scenarios.copy} files={scenarios.files} />
     )),
   ];
+  let activeGallery: React.ReactNode = sample[variant - 1];
+  if (variant > 22) {
+    activeGallery = <FileManagerGallery variant={variant - 22} locale={locale} />;
+  } else if (variant > 15) {
+    activeGallery = <PromptInputGallery variant={variant - 15} locale={locale} />;
+  } else if (variant > 9) {
+    activeGallery = <FeedbackGallery variant={variant - 9} locale={locale} />;
+  }
+  const stableEntry = requestedId ? getLumenVariant(requestedId) : undefined;
+  if (stableEntry) {
+    const stablePreview = (
+      <VariantPreviewHost
+        entry={stableEntry}
+        locale={locale}
+        unavailableLabel={copy.previewUnavailable}
+      />
+    );
+    return (
+      <LumenProvider appearance={appearance}>
+        <main className={styles.stablePreview} data-lumen-mode={mode} data-embedded={embedded}>
+          <header className={styles.stablePreviewHeader}>
+            <div>
+              <small>{copy.preview}</small>
+              <h1>{stableEntry.id}</h1>
+            </div>
+            <nav className={styles.stablePreviewActions} aria-label={copy.previewNavigation}>
+              <LumenLink className={styles.toolbarLink} href="/experiments/lumen-app-ui/">
+                {copy.previewBack}
+              </LumenLink>
+              <LumenLink className={styles.toolbarLink} href="/experiments/lumen-app-ui/catalog/">
+                {copy.catalog}
+              </LumenLink>
+            </nav>
+          </header>
+          <div className={styles.stablePreviewStage}>{stablePreview}</div>
+        </main>
+      </LumenProvider>
+    );
+  }
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <main className={styles.gallery} data-lumen-mode={mode}>
+    <LumenProvider appearance={appearance}>
+      <main className={styles.gallery} data-lumen-mode={mode} data-embedded={embedded}>
         <header className={styles.toolbar}>
           <h1>{copy.brand}</h1>
           <div className={styles.toolbarActions}>
-            <Button onClick={() => setLocale((current) => (current === 'zh' ? 'en' : 'zh'))}>
+            <LumenButton
+              variant="text"
+              onClick={() => setLocale((current) => (current === 'zh' ? 'en' : 'zh'))}
+            >
               {copy.switchLocale}
-            </Button>
-            <Button onClick={() => setMode((current) => (current === 'dark' ? 'light' : 'dark'))}>
+            </LumenButton>
+            <LumenButton
+              variant="text"
+              onClick={() => setMode((current) => (current === 'dark' ? 'light' : 'dark'))}
+            >
               {copy.switchTheme}
-            </Button>
-            <Button onClick={() => setVariant(6)}>{copy.sceneShortcut}</Button>
+            </LumenButton>
+            <LumenButton variant="text" onClick={() => setVariant(6)}>
+              {copy.sceneShortcut}
+            </LumenButton>
+            <LumenLink className={styles.toolbarLink} href="/experiments/lumen-app-ui/catalog/">
+              {copy.catalog}
+            </LumenLink>
           </div>
         </header>
         <div className={styles.layout}>
           <nav className={styles.navigation} aria-label={copy.navigation}>
             <h2 className={styles.navigationHeading}>{copy.migratedGroup}</h2>
             {copy.variants.map((name, index) => (
-              <Button
+              <LumenNavigationButton
                 key={name}
                 ref={variant === index + 1 ? selectedButton : undefined}
-                aria-current={variant === index + 1 ? 'page' : undefined}
+                selected={variant === index + 1}
+                indicatorEdge="right"
                 onClick={() => setVariant(index + 1)}
               >
                 <span className={styles.navigationLabel}>
-                  {String(index + 1).padStart(2, '0')} · {name}
+                  {copy.navigationItem(index + 1, name)}
                 </span>
-                <LumenIndicator edge="right" state={variant === index + 1 ? 'selected' : 'idle'} />
-                <LumenIndicator edge="bottom" state={variant === index + 1 ? 'selected' : 'idle'} />
-              </Button>
+              </LumenNavigationButton>
             ))}
             <h2 className={styles.navigationHeading}>{scenarios.copy.group}</h2>
             {scenarios.copy.names.map((name, index) => (
-              <Button
+              <LumenNavigationButton
                 key={scenarioKinds[index]}
                 ref={variant === index + 6 ? selectedButton : undefined}
-                aria-current={variant === index + 6 ? 'page' : undefined}
+                selected={variant === index + 6}
+                indicatorEdge="right"
                 onClick={() => setVariant(index + 6)}
               >
                 <span className={styles.navigationLabel}>
-                  {String(index + 6).padStart(2, '0')} · {name}
+                  {copy.navigationItem(index + 6, name)}
                 </span>
-                <LumenIndicator edge="right" state={variant === index + 6 ? 'selected' : 'idle'} />
-                <LumenIndicator edge="bottom" state={variant === index + 6 ? 'selected' : 'idle'} />
-              </Button>
+              </LumenNavigationButton>
             ))}
             <h2 className={styles.navigationHeading}>{feedback.group}</h2>
             {feedback.names.map((name, index) => (
-              <Button
+              <LumenNavigationButton
                 key={index}
                 ref={variant === index + 10 ? selectedButton : undefined}
-                aria-current={variant === index + 10 ? 'page' : undefined}
+                selected={variant === index + 10}
+                indicatorEdge="right"
                 onClick={() => setVariant(index + 10)}
               >
                 <span className={styles.navigationLabel}>
-                  {String(index + 10).padStart(2, '0')} · {name}
+                  {copy.navigationItem(index + 10, name)}
                 </span>
-                <LumenIndicator edge="right" state={variant === index + 10 ? 'selected' : 'idle'} />
-                <LumenIndicator
-                  edge="bottom"
-                  state={variant === index + 10 ? 'selected' : 'idle'}
-                />
-              </Button>
+              </LumenNavigationButton>
+            ))}
+            <h2 className={styles.navigationHeading}>{promptInput.group}</h2>
+            {promptInput.names.map((name, index) => (
+              <LumenNavigationButton
+                key={name}
+                ref={variant === index + 16 ? selectedButton : undefined}
+                selected={variant === index + 16}
+                indicatorEdge="right"
+                onClick={() => setVariant(index + 16)}
+              >
+                <span className={styles.navigationLabel}>
+                  {copy.navigationItem(index + 16, name)}
+                </span>
+              </LumenNavigationButton>
+            ))}
+            <h2 className={styles.navigationHeading}>{fileManager.group}</h2>
+            {fileManager.names.map((name, index) => (
+              <LumenNavigationButton
+                key={name}
+                ref={variant === index + 23 ? selectedButton : undefined}
+                selected={variant === index + 23}
+                indicatorEdge="right"
+                onClick={() => setVariant(index + 23)}
+              >
+                <span className={styles.navigationLabel}>
+                  {copy.navigationItem(index + 23, name)}
+                </span>
+              </LumenNavigationButton>
             ))}
           </nav>
           <div className={styles.stage}>
-            {variant > 9 ? (
-              <FeedbackGallery variant={variant - 9} locale={locale} />
-            ) : (
-              sample[variant - 1]
-            )}
+            {activeGallery}
             {variant <= 5 && (
-              <p role="status">
-                {copy.event}: {event ?? copy.none}
-              </p>
+              <p role="status">{copy.eventStatus(copy.event, event ?? copy.none)}</p>
             )}
           </div>
         </div>
       </main>
-    </ThemeProvider>
+    </LumenProvider>
   );
 }

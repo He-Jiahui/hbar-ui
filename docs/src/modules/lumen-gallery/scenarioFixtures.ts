@@ -46,6 +46,7 @@ export interface ScenarioCopy {
     motion: string;
     sample: string;
     description: string;
+    percentage: (value: number) => string;
   };
 }
 
@@ -123,6 +124,7 @@ const zh: ScenarioCopy = {
     motion: '允许呼吸动画',
     sample: '执行中的灯条',
     description: '仅运行状态呼吸；边缘折射背景，前景文字保持清晰。',
+    percentage: (value) => `${value}%`,
   },
 };
 
@@ -174,6 +176,7 @@ const en: ScenarioCopy = {
     sample: 'Running strip behind glass',
     description:
       'Only running states breathe; the edge refracts the background while text stays sharp.',
+    percentage: (value) => `${value}%`,
   },
 };
 

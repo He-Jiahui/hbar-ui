@@ -3,10 +3,8 @@
 import * as React from 'react';
 import { LumenCheckBoxControl, LumenInput } from '../forms';
 import { LumenButton } from '../primitives';
-import type { LumenAuthCompositionProps } from './primitives';
-import type { LumenAuthSignInContent } from './content';
-import { uniqueLumenAuthItems } from './content';
 import {
+  type LumenAuthCompositionProps,
   AuthBrand,
   AuthButton,
   AuthCard,
@@ -16,6 +14,7 @@ import {
   AuthPasswordButton,
   AuthProviderButtons,
 } from './primitives';
+import { type LumenAuthSignInContent, uniqueLumenAuthItems } from './content';
 
 export function SignInAuthentication({
   spec,
@@ -56,7 +55,10 @@ export function SignInAuthentication({
     request.current = controller;
     setPhase('pending');
     try {
-      const result = await content.onSignIn({ email: email.trim(), password, remember }, controller.signal);
+      const result = await content.onSignIn(
+        { email: email.trim(), password, remember },
+        controller.signal,
+      );
       if (controller.signal.aborted) {
         return;
       }
@@ -83,7 +85,13 @@ export function SignInAuthentication({
             <h1>{content.labels.title}</h1>
             <p>{content.labels.description}</p>
           </header>
-          <form className="hbar-app-ui-auth-sign-in-form" noValidate onSubmit={(event) => { void submit(event); }}>
+          <form
+            className="hbar-app-ui-auth-sign-in-form"
+            noValidate
+            onSubmit={(event) => {
+              void submit(event);
+            }}
+          >
             <div className="hbar-app-ui-auth-field">
               <label htmlFor={emailId}>{content.labels.emailLabel}</label>
               <LumenInput
@@ -95,9 +103,17 @@ export function SignInAuthentication({
                 value={email}
                 aria-invalid={emailError || undefined}
                 aria-describedby={emailError ? emailErrorId : undefined}
-                onChange={(event) => { setEmail(event.currentTarget.value); setEmailError(false); setPhase('idle'); }}
+                onChange={(event) => {
+                  setEmail(event.currentTarget.value);
+                  setEmailError(false);
+                  setPhase('idle');
+                }}
               />
-              {emailError ? <small id={emailErrorId} role="alert">{content.labels.invalidEmail}</small> : null}
+              {emailError ? (
+                <small id={emailErrorId} role="alert">
+                  {content.labels.invalidEmail}
+                </small>
+              ) : null}
             </div>
             <div className="hbar-app-ui-auth-field">
               <div className="hbar-app-ui-auth-help-row">
@@ -126,7 +142,11 @@ export function SignInAuthentication({
                   value={password}
                   aria-invalid={passwordError || undefined}
                   aria-describedby={passwordError ? passwordErrorId : undefined}
-                  onChange={(event) => { setPassword(event.currentTarget.value); setPasswordError(false); setPhase('idle'); }}
+                  onChange={(event) => {
+                    setPassword(event.currentTarget.value);
+                    setPasswordError(false);
+                    setPhase('idle');
+                  }}
                 />
                 <AuthPasswordButton
                   plain
@@ -136,7 +156,11 @@ export function SignInAuthentication({
                   onToggle={() => setVisible((current) => !current)}
                 />
               </div>
-              {passwordError ? <small id={passwordErrorId} role="alert">{content.labels.invalidPassword}</small> : null}
+              {passwordError ? (
+                <small id={passwordErrorId} role="alert">
+                  {content.labels.invalidPassword}
+                </small>
+              ) : null}
             </div>
             <label className="hbar-app-ui-auth-check">
               <LumenCheckBoxControl
@@ -152,12 +176,26 @@ export function SignInAuthentication({
               disabled={!content.onSignIn || phase === 'pending' || phase === 'confirmed'}
               data-hbar-app-ui-action="sign-in"
             >
-              {phase === 'pending' ? <span className="hbar-app-ui-auth-sign-in-spinner" aria-hidden="true" /> : null}
+              {phase === 'pending' ? (
+                <span className="hbar-app-ui-auth-sign-in-spinner" aria-hidden="true" />
+              ) : null}
               {phase === 'pending' ? content.labels.signingIn : content.labels.signIn}
             </AuthButton>
-            {!content.onSignIn ? <p role="status" className="hbar-app-ui-auth-sign-in-status">{content.labels.signInUnavailable}</p> : null}
-            {phase === 'failed' ? <p role="alert" className="hbar-app-ui-auth-sign-in-status">{content.labels.signInFailed}</p> : null}
-            {phase === 'confirmed' ? <p role="status" className="hbar-app-ui-auth-sign-in-status">{content.labels.signedIn}</p> : null}
+            {!content.onSignIn ? (
+              <p role="status" className="hbar-app-ui-auth-sign-in-status">
+                {content.labels.signInUnavailable}
+              </p>
+            ) : null}
+            {phase === 'failed' ? (
+              <p role="alert" className="hbar-app-ui-auth-sign-in-status">
+                {content.labels.signInFailed}
+              </p>
+            ) : null}
+            {phase === 'confirmed' ? (
+              <p role="status" className="hbar-app-ui-auth-sign-in-status">
+                {content.labels.signedIn}
+              </p>
+            ) : null}
           </form>
           {uniqueLumenAuthItems(content.providers).length > 0 ? (
             <React.Fragment>

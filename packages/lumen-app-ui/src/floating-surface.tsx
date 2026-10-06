@@ -78,7 +78,10 @@ function surfaceIsInPath(surface: RegisteredSurface, path: readonly EventTarget[
   return false;
 }
 
-function shouldProtectFromPointer(surface: RegisteredSurface, path: readonly EventTarget[]): boolean {
+function shouldProtectFromPointer(
+  surface: RegisteredSurface,
+  path: readonly EventTarget[],
+): boolean {
   if (surfaceIsInPath(surface, path)) return true;
   // The anchor is intentionally outside an anchored surface.  Clicking it is
   // an outside click and must close the surface, even when its owner is also
@@ -94,7 +97,11 @@ function focusableElements(surface: HTMLElement): HTMLElement[] {
   ].filter((element) => {
     if (element.matches('[inert], :disabled')) return false;
     const style = getComputedStyle(element);
-    return style.visibility !== 'hidden' && style.display !== 'none' && element.getClientRects().length > 0;
+    return (
+      style.visibility !== 'hidden' &&
+      style.display !== 'none' &&
+      element.getClientRects().length > 0
+    );
   });
 }
 
@@ -104,7 +111,8 @@ function activeLeaf(): RegisteredSurface | undefined {
 }
 
 function handlePointerDown(event: PointerEvent): void {
-  const path = typeof event.composedPath === 'function' ? event.composedPath() : [event.target as EventTarget];
+  const path =
+    typeof event.composedPath === 'function' ? event.composedPath() : [event.target as EventTarget];
   const values = [...registrations.values()].sort((left, right) => right.order - left.order);
   for (const surface of values) {
     if (shouldProtectFromPointer(surface, path)) continue;
@@ -202,7 +210,9 @@ export function registerFloatingSurface(registration: FloatingSurfaceRegistratio
   for (const existing of [...registrations.values()]) {
     if (existing.id === registered.id) continue;
     const existingElement = elementFor(existing);
-    const anchorOwnedByExisting = Boolean(existingElement && anchor && existingElement.contains(anchor));
+    const anchorOwnedByExisting = Boolean(
+      existingElement && anchor && existingElement.contains(anchor),
+    );
     // A portal child can lose React context when a host composes it through a
     // slot.  Anchor containment is an equally strong ownership signal and
     // prevents a nested combobox from claiming (and closing) its dialog.
@@ -249,8 +259,7 @@ interface FloatingTriggerHandlers {
  */
 export function useFloatingTrigger(
   ...[propsOrOpen, legacySetOpen]:
-    | [props: FloatingTriggerProps]
-    | [open: boolean, setOpen: (value: boolean) => void]
+    [props: FloatingTriggerProps] | [open: boolean, setOpen: (value: boolean) => void]
 ): FloatingTriggerHandlers {
   const objectProps = typeof propsOrOpen === 'boolean' ? undefined : propsOrOpen;
   const open = objectProps?.open ?? propsOrOpen;
@@ -280,21 +289,24 @@ export function useFloatingTrigger(
     },
     [onClose, open],
   );
-  const handleClick = React.useCallback((event: React.MouseEvent<HTMLElement>) => {
-    const closedByCoordinator =
-      pointerClosedEvents.has(event.nativeEvent) || pointerClosedAnchors.has(event.currentTarget);
-    if (closedByCoordinator) {
-      pointerClosedAnchors.delete(event.currentTarget);
-      suppressClick.current = false;
-      return;
-    }
-    if (suppressClick.current) {
-      suppressClick.current = false;
-      return;
-    }
-    if (open) onClose();
-    else onOpen();
-  }, [onClose, onOpen, open]);
+  const handleClick = React.useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      const closedByCoordinator =
+        pointerClosedEvents.has(event.nativeEvent) || pointerClosedAnchors.has(event.currentTarget);
+      if (closedByCoordinator) {
+        pointerClosedAnchors.delete(event.currentTarget);
+        suppressClick.current = false;
+        return;
+      }
+      if (suppressClick.current) {
+        suppressClick.current = false;
+        return;
+      }
+      if (open) onClose();
+      else onOpen();
+    },
+    [onClose, onOpen, open],
+  );
   return { onPointerDown: handlePointerDown, onClick: handleClick };
 }
 
@@ -352,9 +364,7 @@ export type ModalFloatingSurfaceProps = FloatingSurfaceBaseProps & {
 };
 
 export type FloatingSurfaceProps =
-  | AnchoredFloatingSurfaceProps
-  | PointFloatingSurfaceProps
-  | ModalFloatingSurfaceProps;
+  AnchoredFloatingSurfaceProps | PointFloatingSurfaceProps | ModalFloatingSurfaceProps;
 
 const VIEWPORT_GAP = 8;
 const SurfaceContext = React.createContext<string | null>(null);
@@ -372,12 +382,16 @@ function viewportRem(): number {
 function isTouchSheetViewport(): boolean {
   return (
     typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
     window.matchMedia('(max-width: 40rem) and (pointer: coarse)').matches
   );
 }
 
 function openPopover(element: HTMLElement): boolean {
-  if (typeof element.showPopover !== 'function') return false;
+  if (typeof element.showPopover !== 'function') {
+    element.removeAttribute('popover');
+    return false;
+  }
   try {
     if (!element.matches(':popover-open')) element.showPopover();
     return true;
@@ -430,11 +444,9 @@ export function LumenFloatingSurface(props: FloatingSurfaceProps) {
   const mode = suppliedMode ?? 'anchored';
   const anchorRef = mode === 'anchored' ? suppliedAnchorRef : undefined;
   const anchorPoint = mode === 'point' ? suppliedAnchorPoint : undefined;
-  const placement = mode === 'modal' ? undefined : suppliedPlacement ?? 'below';
+  const placement = mode === 'modal' ? undefined : (suppliedPlacement ?? 'below');
   const anchorMatchWidth =
-    mode === 'anchored'
-      ? (suppliedAnchorMatchWidth ?? suppliedMatchAnchorWidth ?? false)
-      : false;
+    mode === 'anchored' ? (suppliedAnchorMatchWidth ?? suppliedMatchAnchorWidth ?? false) : false;
   const contextParentId = React.useContext(SurfaceContext);
   const id = React.useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const surfaceId = `lumen-floating-${id}`;
@@ -447,14 +459,16 @@ export function LumenFloatingSurface(props: FloatingSurfaceProps) {
   const [topLayer, setTopLayer] = React.useState(false);
   const [mobileSheet, setMobileSheet] = React.useState(false);
   closeRef.current = onClose;
-  const resolvedParentId = parentId ?? (nested === false ? undefined : contextParentId ?? undefined);
+  const resolvedParentId =
+    parentId ?? (nested === false ? undefined : (contextParentId ?? undefined));
   const materialKind =
-    typeof material === 'string' ? material : material.kind ?? material.mode ?? 'frost';
+    typeof material === 'string' ? material : (material.kind ?? material.mode ?? 'frost');
   const materialBlur =
     typeof material === 'object'
       ? typeof material.blur === 'number'
         ? `${material.blur}px`
-        : material.blur ?? (typeof material.blurAmount === 'number' ? `${material.blurAmount}px` : '1.2rem')
+        : (material.blur ??
+          (typeof material.blurAmount === 'number' ? `${material.blurAmount}px` : '1.2rem'))
       : '1.2rem';
 
   const position = React.useCallback(() => {
@@ -498,7 +512,9 @@ export function LumenFloatingSurface(props: FloatingSurfaceProps) {
     const availableAbove = Math.max(0, bounds.top - gap);
     const placeAbove =
       placement === 'above' ||
-      (placement === 'below' && layerBounds.height > availableBelow && availableAbove > availableBelow);
+      (placement === 'below' &&
+        layerBounds.height > availableBelow &&
+        availableAbove > availableBelow);
     const availableHeight = horizontal
       ? Math.max(0, viewportHeight - gap * 2)
       : Math.max(0, placeAbove ? availableAbove : availableBelow);
@@ -533,7 +549,7 @@ export function LumenFloatingSurface(props: FloatingSurfaceProps) {
     const surface = surfaceRef.current ?? layerRef.current;
     if (!surface) return;
     const sheet = mode === 'anchored' && isTouchSheetViewport();
-    const target = sheet ? surface : initialFocusRef?.current ?? initialFocus?.current ?? surface;
+    const target = sheet ? surface : (initialFocusRef?.current ?? initialFocus?.current ?? surface);
     target.focus({ preventScroll: true });
   }, [focusBehavior, initialFocus, initialFocusRef, mode, open, positioned]);
 
@@ -543,7 +559,8 @@ export function LumenFloatingSurface(props: FloatingSurfaceProps) {
     const surface = surfaceRef.current ?? layerRef.current;
     if (!layer || !surface) return undefined;
     const anchorElement = anchorRef?.current;
-    previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    previousFocusRef.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
     focusPendingRef.current = focusBehavior === 'surface';
     setPositioned(false);
     const promoted = openPopover(layer);
@@ -558,7 +575,8 @@ export function LumenFloatingSurface(props: FloatingSurfaceProps) {
     } else {
       position();
       const frame = requestAnimationFrame(position);
-      const resizeObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(position) : undefined;
+      const resizeObserver =
+        typeof ResizeObserver === 'function' ? new ResizeObserver(position) : undefined;
       resizeObserver?.observe(surface);
       if (anchorElement) resizeObserver?.observe(anchorElement);
       window.addEventListener('resize', position);
@@ -611,7 +629,10 @@ export function LumenFloatingSurface(props: FloatingSurfaceProps) {
       if (restoreFocus) {
         const active = document.activeElement;
         const restore = previousFocusRef.current;
-        if (restore?.isConnected && (active === document.body || active === surface || surface.contains(active))) {
+        if (
+          restore?.isConnected &&
+          (active === document.body || active === surface || surface.contains(active))
+        ) {
           restore.focus({ preventScroll: true });
         }
       }

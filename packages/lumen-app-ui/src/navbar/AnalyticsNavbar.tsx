@@ -1,7 +1,10 @@
 import { ChevronDown, CircleHelp, MessageSquare, Search, Settings } from './glyphs';
 import { useState } from 'react';
-import type { LumenNavbarAnalyticsContent } from './content';
-import { selectLumenNavbarItem, uniqueLumenNavbarItems } from './content';
+import {
+  type LumenNavbarAnalyticsContent,
+  selectLumenNavbarItem,
+  uniqueLumenNavbarItems,
+} from './content';
 import {
   NavbarButton,
   NavbarFrame,
@@ -157,3 +160,4 @@ export function AnalyticsNavbar({
     </NavbarFrame>
   );
 }
+('use client');

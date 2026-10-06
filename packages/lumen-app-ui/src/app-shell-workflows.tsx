@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { LumenInput, LumenSelect, LumenTextarea } from './forms';
+import { LumenInput, LumenTextarea, LumenChoiceSelect } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { LumenAppShell, type LumenAppShellProps } from './workbench';
@@ -16,31 +16,37 @@ import { AppShellScope, type LumenAppShellScopeContent } from './app-shell-scope
 import { AppShellAdaptive, type LumenAppShellAdaptiveContent } from './app-shell-adaptive';
 import { AppShellChat, type LumenAppShellChatContent } from './app-shell-chat';
 import './app-shell-practical-flow.css';
+import { LumenTabs } from './ui-controls';
 
 export interface LumenAppShellListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
   readonly expectedMaximum: number;
 }
+
 export interface LumenAppShellChoice {
   readonly id: string;
   readonly label: string;
   readonly detail?: string | undefined;
   readonly badge?: string | undefined;
 }
+
 export interface LumenAppShellMetric extends LumenAppShellChoice {
   readonly value: string;
   readonly tone?: 'neutral' | 'success' | 'warning' | 'danger' | undefined;
 }
+
 export interface LumenAppShellRecord extends LumenAppShellChoice {
   readonly status?: string | undefined;
   readonly tone?: 'neutral' | 'success' | 'warning' | 'danger' | undefined;
 }
+
 export interface LumenAppShellScope {
   readonly id: string;
   readonly label: string;
   readonly options: readonly LumenAppShellChoice[];
   readonly initialOptionId: string;
 }
+
 export interface LumenAppShellContent {
   /** Optional owned preview feedback; production data and pane sizing remain unchanged. */
   readonly presentation?:
@@ -104,14 +110,17 @@ export interface LumenAppShellContent {
   readonly messages: readonly LumenAppShellChoice[];
   readonly listStrategy: LumenAppShellListStrategy;
 }
+
 export interface LumenAppShellWorkflowsProviderProps {
   readonly content: LumenAppShellContent;
   readonly children: React.ReactNode;
 }
+
 export interface LumenAppShellWorkflowAction {
   readonly actionId: string;
   readonly value?: string | undefined;
 }
+
 export interface LumenAppShellWorkflowsProps {
   readonly variant: number;
   readonly variantId: string;
@@ -147,6 +156,7 @@ export interface LumenAppShellWorkflowsProps {
   readonly overlay?: LumenAppShellProps['overlay'];
   readonly children?: LumenAppShellProps['children'];
 }
+
 export interface LumenAppShellWorkflowSlots {
   readonly desktopLayout?: React.ReactNode;
   readonly navigation?: React.ReactNode;
@@ -155,21 +165,25 @@ export interface LumenAppShellWorkflowSlots {
   readonly composer?: React.ReactNode;
   readonly context?: React.ReactNode;
 }
+
 export type LumenAppShellWorkflowVariantProps = Omit<
   LumenAppShellWorkflowsProps,
   'variant' | 'variantId'
 >;
 
 const Context = React.createContext<LumenAppShellContent | undefined>(undefined);
+
 export function LumenAppShellWorkflowsProvider({
   content,
   children,
 }: LumenAppShellWorkflowsProviderProps) {
   return <Context.Provider value={content}>{children}</Context.Provider>;
 }
+
 export function useLumenAppShellWorkflowsContent() {
   return React.useContext(Context);
 }
+
 export function uniqueLumenAppShellItems<T extends { readonly id: string }>(items: readonly T[]) {
   const seen = new Set<string>();
   return items.filter((item) => {
@@ -180,6 +194,7 @@ export function uniqueLumenAppShellItems<T extends { readonly id: string }>(item
     return true;
   });
 }
+
 export function selectLumenAppShellItem<T extends { readonly id: string }>(
   items: readonly T[],
   id: string | undefined,
@@ -188,6 +203,7 @@ export function selectLumenAppShellItem<T extends { readonly id: string }>(
     items.find((item) => item.id.trim() && item.id === id) ?? items.find((item) => item.id.trim())
   );
 }
+
 const report = (fn: LumenAppShellWorkflowsProps['onAction'], actionId: string, value?: string) =>
   fn?.(value === undefined ? { actionId } : { actionId, value });
 
@@ -206,6 +222,7 @@ function Glyph({ name }: { name: 'menu' | 'search' | 'area' | 'file' | 'send' | 
     </svg>
   );
 }
+
 function Root({
   variant,
   variantId,
@@ -242,6 +259,7 @@ function Root({
     </LumenSurface>
   );
 }
+
 function Header({ content, title }: { content: LumenAppShellContent; title?: string | undefined }) {
   return (
     <header className="lumen-app-shell-header">
@@ -257,6 +275,7 @@ function Header({ content, title }: { content: LumenAppShellContent; title?: str
     </header>
   );
 }
+
 function Empty({ children }: { children: string }) {
   return (
     <LumenText as="p" className="lumen-app-shell-empty" tone="muted">
@@ -264,6 +283,7 @@ function Empty({ children }: { children: string }) {
     </LumenText>
   );
 }
+
 function Navigation({
   content,
   selectedId,
@@ -297,6 +317,7 @@ function Navigation({
     </nav>
   );
 }
+
 function RecordList({
   content,
   selectedId,
@@ -331,6 +352,7 @@ function RecordList({
     <Empty>{content.labels.emptyRecords}</Empty>
   );
 }
+
 function Sidebar(
   props: Omit<LumenAppShellWorkflowsProps, 'content'> & { content: LumenAppShellContent },
 ) {
@@ -393,6 +415,7 @@ function Sidebar(
     </Root>
   );
 }
+
 function Rails(
   props: Omit<LumenAppShellWorkflowsProps, 'content'> & { content: LumenAppShellContent },
 ) {
@@ -435,6 +458,7 @@ function Rails(
     </Root>
   );
 }
+
 function Workbench(
   props: Omit<LumenAppShellWorkflowsProps, 'content'> & { content: LumenAppShellContent },
 ) {
@@ -459,20 +483,16 @@ function Workbench(
               <Glyph name="menu" />
             </LumenIconButton>
             <strong>{props.content.labels.brand}</strong>
-            <LumenSelect
-              aria-label={props.content.labels.title}
-              value={workspace?.id ?? ''}
-              onChange={(event) => {
-                setWorkspaceId(event.target.value);
-                report(props.onAction, 'workspace', event.target.value);
+            <LumenChoiceSelect
+              id={`${props.variantId}-workspace`}
+              label={props.content.labels.title}
+              options={workspaces}
+              value={workspace?.id ?? null}
+              onValueChange={(id) => {
+                setWorkspaceId(id);
+                report(props.onAction, 'workspace', id);
               }}
-            >
-              {workspaces.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.label}
-                </option>
-              ))}
-            </LumenSelect>
+            />
             <LumenButton variant="outlined" onClick={() => report(props.onAction, 'search')}>
               <Glyph name="search" />
               {props.content.labels.search}
@@ -500,6 +520,7 @@ function Workbench(
     </Root>
   );
 }
+
 function Contextual(
   props: Omit<LumenAppShellWorkflowsProps, 'content'> & { content: LumenAppShellContent },
 ) {
@@ -548,6 +569,7 @@ function Contextual(
     </Root>
   );
 }
+
 function Triage(
   props: Omit<LumenAppShellWorkflowsProps, 'content'> & { content: LumenAppShellContent },
 ) {
@@ -612,6 +634,7 @@ function Triage(
     </Root>
   );
 }
+
 function Document(
   props: Omit<LumenAppShellWorkflowsProps, 'content'> & { content: LumenAppShellContent },
 ) {
@@ -669,6 +692,7 @@ function Document(
     </Root>
   );
 }
+
 function Scoped(
   props: Omit<LumenAppShellWorkflowsProps, 'content'> & { content: LumenAppShellContent },
 ) {
@@ -693,22 +717,19 @@ function Scoped(
           {scopes.map((scope) => {
             const options = uniqueLumenAppShellItems(scope.options);
             return (
-              <label key={scope.id}>
+              <div className="lumen-app-shell-scope-field" key={scope.id}>
                 <span>{scope.label}</span>
-                <LumenSelect
-                  value={selectLumenAppShellItem(options, values[scope.id])?.id ?? ''}
-                  onChange={(event) => {
-                    setValues((current) => ({ ...current, [scope.id]: event.target.value }));
-                    report(props.onAction, 'scope', `${scope.id}:${event.target.value}`);
+                <LumenChoiceSelect
+                  id={`${props.variantId}-scope-${scope.id}`}
+                  label={scope.label}
+                  options={options}
+                  value={selectLumenAppShellItem(options, values[scope.id])?.id ?? null}
+                  onValueChange={(id) => {
+                    setValues((current) => ({ ...current, [scope.id]: id }));
+                    report(props.onAction, 'scope', `${scope.id}:${id}`);
                   }}
-                >
-                  {options.map((option) => (
-                    <option key={option.id} value={option.id}>
-                      {option.label}
-                    </option>
-                  ))}
-                </LumenSelect>
-              </label>
+                />
+              </div>
             );
           })}
         </div>
@@ -721,6 +742,7 @@ function Scoped(
     </Root>
   );
 }
+
 function Adaptive(
   props: Omit<LumenAppShellWorkflowsProps, 'content'> & { content: LumenAppShellContent },
 ) {
@@ -730,26 +752,16 @@ function Adaptive(
   return (
     <Root {...props}>
       <Header content={props.content} />
-      <div
+      <LumenTabs
         className="lumen-app-shell-view-tabs"
-        role="tablist"
-        aria-label={props.content.labels.frameSize}
-      >
-        {views.map((item) => (
-          <LumenButton
-            key={item.id}
-            variant="text"
-            role="tab"
-            aria-selected={item.id === view?.id}
-            onClick={() => {
-              setViewId(item.id);
-              report(props.onAction, 'view', item.id);
-            }}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+        label={props.content.labels.frameSize}
+        items={views}
+        selectedId={view?.id ?? null}
+        onChange={(id) => {
+          setViewId(id);
+          report(props.onAction, 'view', id);
+        }}
+      />
       <div className="lumen-app-shell-adaptive hbar-app-ui-adaptive-frame" data-view={view?.id}>
         <Navigation
           content={props.content}
@@ -767,6 +779,7 @@ function Adaptive(
     </Root>
   );
 }
+
 function Chat(
   props: Omit<LumenAppShellWorkflowsProps, 'content'> & { content: LumenAppShellContent },
 ) {
@@ -803,20 +816,16 @@ function Chat(
             content={props.content}
             title={selectLumenAppShellItem(threads, threadId)?.label}
           />
-          <LumenSelect
-            aria-label={props.content.labels.model}
-            value={selectLumenAppShellItem(models, modelId)?.id ?? ''}
-            onChange={(event) => {
-              setModelId(event.target.value);
-              report(props.onAction, 'model', event.target.value);
+          <LumenChoiceSelect
+            id={`${props.variantId}-model`}
+            label={props.content.labels.model}
+            options={models}
+            value={selectLumenAppShellItem(models, modelId)?.id ?? null}
+            onValueChange={(id) => {
+              setModelId(id);
+              report(props.onAction, 'model', id);
             }}
-          >
-            {models.map((model) => (
-              <option key={model.id} value={model.id}>
-                {model.label}
-              </option>
-            ))}
-          </LumenSelect>
+          />
           <div
             className="lumen-app-shell-messages"
             data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
@@ -862,35 +871,70 @@ function Chat(
     </Root>
   );
 }
+
 function empty(props: LumenAppShellWorkflowsProps) {
   return <Root {...props}>{null}</Root>;
 }
+
 export function LumenAppShellWorkflows(props: LumenAppShellWorkflowsProps) {
   const providerContent = useLumenAppShellWorkflowsContent();
-  if (props.variant === 9 && props.slots?.desktopLayout) return (
-    <Root {...props} className={['lumen-shell-chat-stage', 'lumen-shell-chat-runtime-stage', props.className].filter(Boolean).join(' ')}>
-      <div className="lumen-app-shell lumen-desktop-shell" data-lumen-shell="app" data-hbar-app-ui-shell="app" data-sidebar-open={props.sidebarOpen} data-tool-presentation={props.tool ? 'split' : 'none'}>
-        {props.titlebar}
-        {props.header || props.slots.header ? (
-          <header className="lumen-desktop-shell-header">{props.header ?? props.slots.header}</header>
-        ) : null}
-        {props.slots.desktopLayout}
-        {props.overlay}
-      </div>
-    </Root>
-  );
+  if (props.variant === 9 && props.slots?.desktopLayout)
+    return (
+      <Root
+        {...props}
+        className={['lumen-shell-chat-stage', 'lumen-shell-chat-runtime-stage', props.className]
+          .filter(Boolean)
+          .join(' ')}
+      >
+        <div
+          className="lumen-app-shell lumen-desktop-shell"
+          data-lumen-shell="app"
+          data-hbar-app-ui-shell="app"
+          data-sidebar-open={props.sidebarOpen}
+          data-tool-presentation={props.tool ? 'split' : 'none'}
+        >
+          {props.titlebar}
+          {props.header || props.slots.header ? (
+            <header className="lumen-desktop-shell-header">
+              {props.header ?? props.slots.header}
+            </header>
+          ) : null}
+          {props.slots.desktopLayout}
+          {props.overlay}
+        </div>
+      </Root>
+    );
   const content = props.content ?? providerContent;
   if (!content) {
     if (props.variant === 4 && props.slots?.context) {
       return (
-        <Root {...props} className={['lumen-shell-editorial-stage', 'lumen-shell-context-runtime-stage', props.className].filter(Boolean).join(' ')}>
-          <aside className="lumen-app-shell-context-surface" aria-label={props.toolLabel ?? 'Context'}>{props.slots.context}</aside>
+        <Root
+          {...props}
+          className={[
+            'lumen-shell-editorial-stage',
+            'lumen-shell-context-runtime-stage',
+            props.className,
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        >
+          <aside
+            className="lumen-app-shell-context-surface"
+            aria-label={props.toolLabel ?? 'Context'}
+          >
+            {props.slots.context}
+          </aside>
         </Root>
       );
     }
     if (props.variant === 9 && (props.sidebar !== undefined || props.children !== undefined)) {
       return (
-        <Root {...props} className={['lumen-shell-chat-stage', 'lumen-shell-chat-runtime-stage', props.className].filter(Boolean).join(' ')}>
+        <Root
+          {...props}
+          className={['lumen-shell-chat-stage', 'lumen-shell-chat-runtime-stage', props.className]
+            .filter(Boolean)
+            .join(' ')}
+        >
           <LumenAppShell
             label={props.label ?? 'main'}
             titlebar={props.titlebar}
@@ -934,6 +978,7 @@ export function LumenAppShellWorkflows(props: LumenAppShellWorkflowsProps) {
     view
   );
 }
+
 function AppShellWorkflowView(
   props: LumenAppShellWorkflowsProps & { readonly content: LumenAppShellContent },
 ) {
@@ -979,8 +1024,20 @@ function AppShellWorkflowView(
   if (props.variant === 4) {
     if (props.slots?.context)
       return (
-        <Root {...props} className={['lumen-shell-editorial-stage', 'lumen-shell-context-runtime-stage', props.className].filter(Boolean).join(' ')}>
-          <aside className="lumen-app-shell-context-surface" aria-label={props.toolLabel ?? 'Context'}>
+        <Root
+          {...props}
+          className={[
+            'lumen-shell-editorial-stage',
+            'lumen-shell-context-runtime-stage',
+            props.className,
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        >
+          <aside
+            className="lumen-app-shell-context-surface"
+            aria-label={props.toolLabel ?? 'Context'}
+          >
             {props.slots.context}
           </aside>
         </Root>
@@ -1047,7 +1104,12 @@ function AppShellWorkflowView(
   if (props.variant === 9) {
     if (props.slots)
       return (
-        <Root {...props} className={['lumen-shell-chat-stage', 'lumen-shell-chat-runtime-stage', props.className].filter(Boolean).join(' ')}>
+        <Root
+          {...props}
+          className={['lumen-shell-chat-stage', 'lumen-shell-chat-runtime-stage', props.className]
+            .filter(Boolean)
+            .join(' ')}
+        >
           <LumenAppShell
             label={props.label ?? content.labels.title}
             titlebar={props.titlebar}
@@ -1085,7 +1147,7 @@ function AppShellWorkflowView(
           {...props}
           className={['lumen-shell-chat-stage', props.className].filter(Boolean).join(' ')}
         >
-        <AppShellChat content={content.chat} />
+          <AppShellChat content={content.chat} />
         </Root>
       );
     // Runtime callers may supply the live pane contract without preview content.
@@ -1122,6 +1184,7 @@ function AppShellWorkflowView(
   }
   return empty(props);
 }
+
 function variant(value: number, props: LumenAppShellWorkflowVariantProps) {
   return (
     <LumenAppShellWorkflows
@@ -1131,6 +1194,7 @@ function variant(value: number, props: LumenAppShellWorkflowVariantProps) {
     />
   );
 }
+
 export const LumenAppShell01 = (props: LumenAppShellWorkflowVariantProps) => variant(1, props),
   LumenAppShell02 = (props: LumenAppShellWorkflowVariantProps) => variant(2, props),
   LumenAppShell03 = (props: LumenAppShellWorkflowVariantProps) => variant(3, props),

@@ -76,14 +76,21 @@
   overscroll-behavior: contain;
 }
 .lumen-comments-message {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
-  grid-template-columns: auto minmax(0, 1fr);
   gap: 0.75rem;
   padding: 1rem;
   border: 0.0625rem solid var(--lumen-edge);
   border-radius: var(--lumen-radius-surface);
   background: var(--lumen-glass);
+}
+.lumen-comments-message > :nth-child(2n + 1) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+.lumen-comments-message > :nth-child(2n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
 }
 .lumen-comments-message > div:not(.lumen-comments-replies) {
   display: flex;
@@ -103,7 +110,6 @@
 }
 .lumen-comments-replies {
   display: flex;
-  grid-column: 2;
   min-inline-size: 0;
   flex-direction: column;
   gap: 0.5rem;
@@ -125,11 +131,23 @@
 .lumen-comments-annotation,
 .lumen-comments-review,
 .lumen-comments-canvas {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
   min-block-size: 0;
-  grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.42fr);
   gap: 1rem;
+  flex-wrap: wrap;
+}
+.lumen-comments-annotation,
+.lumen-comments-review,
+.lumen-comments-canvas > :nth-child(2n + 1) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+.lumen-comments-annotation,
+.lumen-comments-review,
+.lumen-comments-canvas > :nth-child(2n + 2) {
+  flex: 0.42 1 16rem;
+  min-inline-size: 16rem;
 }
 .lumen-comments-annotation > article,
 .lumen-comments-review > pre,
@@ -203,15 +221,30 @@
   justify-content: space-between;
 }
 .lumen-comments-inbox article {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
   gap: 0.75rem;
   align-items: center;
   padding: 0.875rem 1rem;
   border: 0.0625rem solid var(--lumen-edge);
   border-radius: var(--lumen-radius-control);
   background: var(--lumen-glass);
+}
+.lumen-comments-inbox article > :nth-child(4n + 1) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+.lumen-comments-inbox article > :nth-child(4n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+.lumen-comments-inbox article > :nth-child(4n + 3) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+.lumen-comments-inbox article > :nth-child(4n + 4) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
 }
 .lumen-comments-inbox article > div {
   display: flex;
@@ -234,8 +267,7 @@
   );
 }
 .lumen-comments-canvas > main > button {
-  position: absolute;
-  translate: -50% -50%;
+  flex: 0 0 auto;
 }
 .lumen-comments-canvas > aside > article {
   display: flex;
@@ -248,12 +280,21 @@
   .lumen-comments-annotation,
   .lumen-comments-review,
   .lumen-comments-canvas {
-    grid-template-columns: minmax(0, 1fr);
+    min-block-size: 18rem;
   }
   .lumen-comments-inbox article {
-    grid-template-columns: auto minmax(0, 1fr);
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .lumen-comments-inbox article > :nth-child(2n + 1) {
+    flex: 0 0 auto;
+    min-inline-size: 0;
+  }
+  .lumen-comments-inbox article > :nth-child(2n + 2) {
+    flex: 1 1 0;
+    min-inline-size: 0;
   }
   .lumen-comments-inbox article > :nth-last-child(-n + 2) {
-    grid-column: 2;
+    margin-inline-start: auto;
   }
 }

@@ -1,0 +1,314 @@
+.catalog {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  gap: 1.25rem;
+  padding: 2rem;
+  color: var(--lumen-ink);
+  background: var(--lumen-contrast);
+  color-scheme: dark;
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  background-image: linear-gradient(
+    115deg,
+    transparent 18%,
+    rgb(255 255 255 / 9%) 20%,
+    transparent 23%
+  );
+}
+
+.catalog[data-lumen-mode='light'] {
+  color-scheme: light;
+  background-color: #f5f5f5;
+  background-image: linear-gradient(115deg, transparent 18%, rgb(0 0 0 / 8%) 20%, transparent 23%);
+}
+
+.header,
+.actions,
+.layout,
+.panelHeader,
+.profile > div {
+  display: flex;
+  gap: 1rem;
+}
+
+.header,
+.panelHeader,
+.profile > div {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header {
+  flex-wrap: wrap;
+}
+
+.header h1,
+.header p,
+.panel h2,
+.panel h3,
+.panel p {
+  margin: 0;
+}
+
+.header h1 {
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+.header p,
+.note,
+.panel small,
+.profile dt {
+  color: var(--lumen-muted);
+  font-size: 0.75rem;
+}
+
+.actions {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.catalog button,
+.catalog a {
+  color: var(--lumen-ink);
+  text-transform: none;
+}
+
+.search {
+  max-width: 36rem;
+}
+
+.backLink,
+.openLink {
+  min-block-size: var(--lumen-control-size);
+  display: inline-flex;
+  align-items: center;
+  padding-inline: var(--lumen-control-padding-inline);
+  border: 0.0625rem solid var(--lumen-edge);
+  border-radius: var(--lumen-radius-control);
+  text-decoration: none;
+}
+
+.backLink:hover,
+.openLink:hover {
+  background: color-mix(in srgb, var(--lumen-ink) 10%, transparent);
+}
+
+.note {
+  margin: 0;
+}
+
+.layout {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  align-items: flex-start;
+}
+
+.categories,
+.variants {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 13rem;
+  min-width: 0;
+  max-block-size: min(78dvh, 55rem);
+  overflow: auto;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  /* Reserve space for the navigation lamp mounted beyond each button's end edge. */
+  padding-inline-end: 0.75rem;
+}
+
+.variants {
+  flex-basis: 18rem;
+}
+
+.categories h2,
+.variants h2 {
+  margin: 0 0 0.5rem;
+  color: var(--lumen-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.categories button,
+.variants button {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  min-width: 0;
+  gap: 0.5rem;
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+
+.categories button > span:first-child,
+.variants button > span:first-child {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.categories small,
+.variants small {
+  color: var(--lumen-muted);
+  font-size: 0.625rem;
+}
+
+.detail {
+  flex: 1;
+  min-width: 0;
+}
+
+.surface {
+  width: 100%;
+  min-width: 0;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.panel h2 {
+  font-size: 1.125rem;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.panel h3 {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.panel p,
+.panel code,
+.profile dd {
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+}
+
+.panel code {
+  font-size: 0.75rem;
+  color: var(--lumen-muted);
+}
+
+.profile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin: 0;
+}
+
+.profile > div {
+  border-top: 0.0625rem solid var(--lumen-line);
+  padding: 0.625rem 0;
+}
+
+.profile dd {
+  margin: 0;
+  text-align: end;
+}
+
+.panel > a {
+  align-self: flex-start;
+}
+
+.previewSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  min-width: 0;
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 0.0625rem solid var(--lumen-line);
+}
+
+.previewHeading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.previewHeading h3,
+.previewHeading small,
+.previewPending p {
+  margin: 0;
+}
+
+.previewHeading small {
+  color: var(--lumen-muted);
+  font-size: 0.75rem;
+}
+
+.previewFrame {
+  display: block;
+  width: 100%;
+  height: min(38rem, 68dvh);
+  min-height: 24rem;
+  border: 0.0625rem solid var(--lumen-line);
+  border-radius: 0.375rem;
+  background: var(--lumen-reading);
+}
+
+.previewPending {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 8rem;
+  padding: 1rem;
+  background: var(--lumen-reading);
+  border-radius: 0.375rem;
+  color: var(--lumen-muted);
+}
+
+.previewPending > [data-edge='bottom'] {
+  align-self: stretch;
+  margin-block-start: auto;
+}
+
+@media (max-width: 80rem) {
+  .layout {
+    flex-wrap: wrap;
+  }
+  .categories,
+  .variants {
+    flex: 1 1 14rem;
+    max-block-size: 20rem;
+  }
+  .detail {
+    flex-basis: 100%;
+  }
+}
+
+@media (max-width: 48rem) {
+  .catalog {
+    padding: 1rem;
+  }
+  .categories,
+  .variants {
+    flex-basis: 100%;
+    max-block-size: 12rem;
+  }
+  .panel {
+    padding: 1rem;
+  }
+
+  .previewHeading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .previewFrame {
+    height: 32rem;
+    min-height: 20rem;
+  }
+}

@@ -155,27 +155,23 @@
 .hbar-app-ui-editor-markdown-preview > div {
   line-height: 1.7;
 }
-.hbar-app-ui-editor-code-tabs > div:first-child {
+.hbar-app-ui-editor-code-file-list {
   display: flex;
   min-inline-size: 0;
   flex: 1 1 auto;
+  flex-wrap: nowrap;
   overflow-x: auto;
 }
-.hbar-app-ui-editor-code-file {
-  display: flex;
-  align-items: center;
+.hbar-app-ui-editor-code-file-list .lumen-tab-with-action {
   border-inline-end: 0.0625rem solid var(--lumen-edge);
 }
-.hbar-app-ui-editor-code-file > button:first-child {
+.hbar-app-ui-editor-code-file-list .lumen-tab-with-action > button:first-child {
   min-inline-size: 0;
 }
-.hbar-app-ui-editor-code-file > button:first-child > span {
+.hbar-app-ui-editor-code-file-list .lumen-tab-with-action > button:first-child > span:first-child {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.hbar-app-ui-editor-code-file [aria-selected='true'] {
-  background: var(--lumen-frost);
 }
 .hbar-app-ui-editor-code-main {
   display: flex;
@@ -185,6 +181,18 @@
   flex: 1 1 auto;
   overflow: auto;
   background: color-mix(in srgb, var(--lumen-reading) 94%, #000);
+}
+.hbar-app-ui-editor-code-main > :nth-child(3n + 1) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+.hbar-app-ui-editor-code-main > :nth-child(3n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+.hbar-app-ui-editor-code-main > :nth-child(3n + 3) {
+  flex: 0 0 4rem;
+  min-inline-size: 0;
 }
 .hbar-app-ui-editor-code-gutter {
   display: flex;
@@ -343,9 +351,6 @@
   inline-size: 100%;
   justify-content: flex-start;
 }
-.hbar-app-ui-editor-reader-outline nav > [aria-current] {
-  background: var(--lumen-frost);
-}
 .hbar-app-ui-editor-reader-main {
   display: flex;
   min-inline-size: 0;
@@ -401,7 +406,26 @@
     box-shadow: 0 0.5rem 1rem color-mix(in srgb, #000 25%, transparent);
   }
   .hbar-app-ui-editor-reader {
-    position: relative;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .hbar-app-ui-editor-reader-outline,
+  .hbar-app-ui-editor-reader-main,
+  .hbar-app-ui-editor-reader-content {
+    inline-size: 100%;
+    min-inline-size: 0;
+    min-block-size: auto;
+    flex: 0 0 auto;
+  }
+  .hbar-app-ui-editor-reader-outline {
+    border-inline-end: 0;
+    border-block-end: 0.0625rem solid var(--lumen-edge);
+  }
+  .hbar-app-ui-editor-reader-outline nav {
+    max-block-size: min(14rem, 35vh);
+  }
+  .hbar-app-ui-editor-reader-content {
+    overflow: visible;
   }
   .hbar-app-ui-editor-toolbar-surface {
     flex-wrap: wrap;

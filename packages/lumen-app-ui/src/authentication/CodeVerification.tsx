@@ -1,8 +1,8 @@
+'use client';
+import * as React from 'react';
 import { LumenInput } from '../forms';
 import { LumenButton } from '../primitives';
-import { useRef, type ReactNode } from 'react';
 import { ShieldCheck } from './glyphs';
-import './code-verification.css';
 
 export interface LumenCodeVerificationProps {
   readonly labels: {
@@ -22,15 +22,15 @@ export interface LumenCodeVerificationProps {
   readonly error: string | undefined;
   readonly onCodeChange: (code: string) => void;
   readonly onSubmit: () => void;
-  readonly children?: ReactNode;
-  readonly context?: ReactNode;
-  readonly secondaryActions?: ReactNode;
-  readonly footer?: ReactNode;
+  readonly children?: React.ReactNode;
+  readonly context?: React.ReactNode;
+  readonly secondaryActions?: React.ReactNode;
+  readonly footer?: React.ReactNode;
 }
 
 /** Verification state and optional recovery/resend actions belong to the host. */
 export function LumenCodeVerification(content: LumenCodeVerificationProps) {
-  const fields = useRef<(HTMLInputElement | null)[]>([]);
+  const fields = React.useRef<(HTMLInputElement | null)[]>([]);
   const length =
     Number.isSafeInteger(content.codeLength) && content.codeLength > 0 ? content.codeLength : 0;
   const update = (index: number, text: string) => {
@@ -38,7 +38,9 @@ export function LumenCodeVerification(content: LumenCodeVerificationProps) {
     const next = content.value.padEnd(length, ' ').split('');
     next.splice(index, Math.max(1, digits.length), ...(digits || ' ').split(''));
     content.onCodeChange(next.join('').trimEnd());
-    if (digits) fields.current[Math.min(index + digits.length, length - 1)]?.focus();
+    if (digits) {
+      fields.current[Math.min(index + digits.length, length - 1)]?.focus();
+    }
   };
   return (
     <div className="hbar-app-ui-code-verification hbar-app-ui-auth-centered">
@@ -48,7 +50,9 @@ export function LumenCodeVerification(content: LumenCodeVerificationProps) {
         aria-busy={content.busy}
         onSubmit={(event) => {
           event.preventDefault();
-          if (content.canSubmit && !content.busy) content.onSubmit();
+          if (content.canSubmit && !content.busy) {
+            content.onSubmit();
+          }
         }}
       >
         <span className="hbar-app-ui-auth-icon hbar-app-ui-icon-lg" aria-hidden="true">
@@ -88,8 +92,9 @@ export function LumenCodeVerification(content: LumenCodeVerificationProps) {
                 }}
                 onChange={(event) => update(index, event.currentTarget.value)}
                 onKeyDown={(event) => {
-                  if (event.key === 'Backspace' && !content.value[index]?.trim() && index > 0)
+                  if (event.key === 'Backspace' && !content.value[index]?.trim() && index > 0) {
                     fields.current[index - 1]?.focus();
+                  }
                 }}
               />
             ))}

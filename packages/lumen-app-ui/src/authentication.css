@@ -332,6 +332,12 @@
   accent-color: var(--hbar-app-ui-auth-text);
 }
 
+.hbar-app-ui-auth-check > span {
+  min-inline-size: 0;
+  flex: 1 1 auto;
+  line-height: 1.5;
+}
+
 .hbar-app-ui-auth-footer-links {
   display: flex;
   flex-wrap: wrap;
@@ -439,6 +445,12 @@
   font-size: 0.8125rem;
   text-decoration: underline;
   text-underline-offset: 0.125rem;
+}
+
+.hbar-app-ui-auth-inline-link {
+  min-block-size: 0;
+  padding: 0.125rem 0.25rem;
+  vertical-align: baseline;
 }
 
 .hbar-app-ui-auth-split,
@@ -673,35 +685,6 @@
 
 .hbar-app-ui-auth-code-boxes > span {
   color: var(--hbar-app-ui-auth-subtle);
-}
-
-.hbar-app-ui-auth-status {
-  display: inline-flex;
-  min-inline-size: 0;
-  align-items: center;
-  gap: 0.375rem;
-  color: var(--hbar-app-ui-auth-muted);
-  font-size: 0.75rem;
-}
-
-.hbar-app-ui-auth-status i {
-  inline-size: 0.375rem;
-  block-size: 0.375rem;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: currentColor;
-}
-
-.hbar-app-ui-auth-status-positive {
-  color: #9ed9b4;
-}
-
-.hbar-app-ui-auth-status-warning {
-  color: #f0b936;
-}
-
-.hbar-app-ui-auth-status-danger {
-  color: var(--hbar-app-ui-auth-danger);
 }
 
 .hbar-app-ui-auth-meta-rows {

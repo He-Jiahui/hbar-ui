@@ -67,13 +67,15 @@
   justify-content: center;
 }
 .lumen-app-sidebar-avatar {
-  display: grid;
+  display: flex;
   inline-size: 1.75rem;
   block-size: 1.75rem;
-  place-items: center;
+  align-items: center;
+  justify-content: center;
   border-radius: 999rem;
   background: color-mix(in srgb, var(--lumen-accent) 14%, transparent);
   color: var(--lumen-accent);
+  min-inline-size: 0;
 }
 .lumen-app-sidebar-primary footer button {
   inline-size: 100%;
@@ -90,26 +92,34 @@
 }
 .lumen-app-sidebar-mobile-trigger {
   display: none;
-  position: absolute;
-  z-index: 4;
-  inset-block-start: 0.75rem;
-  inset-inline-start: 0.75rem;
+  align-self: flex-start;
+  margin: 0.75rem;
 }
-.lumen-app-sidebar-scrim,
-.lumen-app-sidebar-drawer-scrim {
+.lumen-app-sidebar-stage .lumen-app-sidebar-scrim.hbar-app-ui-dialog-backdrop,
+.lumen-app-sidebar-drawer-demo .lumen-app-sidebar-drawer-scrim.hbar-app-ui-dialog-backdrop {
   position: absolute;
   z-index: 1;
   inset: 0;
   inline-size: 100%;
   block-size: 100%;
+  min-block-size: 0;
+  padding: 0;
   border-radius: 0;
+  border: 0;
   background: color-mix(in srgb, #000 35%, transparent);
 }
 .lumen-app-sidebar-rail-demo {
-  display: grid;
+  display: flex;
   inline-size: min(28rem, 100%);
-  grid-template-columns: 3.75rem minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr) auto;
+  min-inline-size: 0;
+}
+.lumen-app-sidebar-rail-demo > :nth-child(2n + 1) {
+  flex: 0 0 3.75rem;
+  min-inline-size: 0;
+}
+.lumen-app-sidebar-rail-demo > :nth-child(2n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
 }
 .lumen-app-sidebar-rail-demo > nav {
   display: flex;
@@ -130,7 +140,7 @@
   justify-content: flex-start;
 }
 .lumen-app-sidebar-rail-demo > p {
-  grid-column: 1 / -1;
+  flex-basis: 100%;
   padding: 0.75rem;
   border-block-start: 0.0625rem solid var(--lumen-edge);
 }
@@ -162,10 +172,18 @@
   justify-content: space-between;
 }
 .lumen-app-sidebar-dual {
-  display: grid;
+  display: flex;
   inline-size: min(28rem, 100%);
   min-block-size: 0;
-  grid-template-columns: 3.75rem minmax(0, 1fr);
+  min-inline-size: 0;
+}
+.lumen-app-sidebar-dual > :nth-child(2n + 1) {
+  flex: 0 0 3.75rem;
+  min-inline-size: 0;
+}
+.lumen-app-sidebar-dual > :nth-child(2n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
 }
 .lumen-app-sidebar-dual > nav {
   display: flex;
@@ -220,31 +238,27 @@
   padding: 0.75rem;
   border-block-end: 0.0625rem solid var(--lumen-edge);
 }
-.lumen-app-sidebar-drawer-demo > aside {
-  position: absolute;
-  z-index: 2;
-  inset-block: 0;
-  inset-inline-start: 0;
+.lumen-app-sidebar-demo-drawer .lumen-drawer-body > nav {
   display: flex;
-  inline-size: min(20rem, 85%);
   flex-direction: column;
   gap: 0.25rem;
-  padding: 1rem;
-  background: var(--lumen-reading);
-  box-shadow: 1rem 0 2rem color-mix(in srgb, #000 18%, transparent);
 }
-.lumen-app-sidebar-drawer-demo > aside > button {
+.lumen-app-sidebar-demo-drawer .lumen-drawer-body > nav > button {
   justify-content: flex-start;
 }
-.lumen-app-sidebar-drawer-demo > aside > button[aria-current='page'] {
-  color: var(--lumen-accent);
-  background: color-mix(in srgb, var(--lumen-accent) 10%, transparent);
-}
 .lumen-app-sidebar-full {
-  display: grid;
+  display: flex;
   min-block-size: 0;
   flex: 1 1 auto;
-  grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr);
+  min-inline-size: 0;
+}
+.lumen-app-sidebar-full > :nth-child(2n + 1) {
+  flex: 0 1 18rem;
+  min-inline-size: 12rem;
+}
+.lumen-app-sidebar-full > :nth-child(2n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
 }
 .lumen-app-sidebar-full > aside {
   display: flex;
@@ -301,7 +315,7 @@
   .lumen-app-sidebar-mobile-trigger {
     display: inline-flex;
   }
-  .lumen-app-sidebar-primary {
+  .lumen-app-sidebar-primary.hbar-app-ui-app-sidebar-drawer {
     position: absolute;
     z-index: 2;
     inset-block: 0;
@@ -313,7 +327,7 @@
     display: block;
   }
   .lumen-app-sidebar-full {
-    grid-template-columns: 1fr;
+    min-inline-size: 0;
   }
   .lumen-app-sidebar-full > aside {
     max-block-size: 14rem;

@@ -2,10 +2,8 @@ import { LumenToggleControl } from '../forms';
 import { LumenButton } from '../primitives';
 import { ChevronDown, Plus, RotateCcw, Webhook } from './glyphs';
 import { useMemo, useState } from 'react';
-import type { LumenIntegrationsCompositionProps } from './primitives';
-import type { LumenIntegrationWebhookContent } from './content';
-import { selectLumenIntegrationItem, uniqueLumenIntegrationItems } from './content';
 import {
+  type LumenIntegrationsCompositionProps,
   IntegrationButton,
   IntegrationEmpty,
   IntegrationFrame,
@@ -13,6 +11,11 @@ import {
   IntegrationIconButton,
   IntegrationStatus,
 } from './primitives';
+import {
+  type LumenIntegrationWebhookContent,
+  selectLumenIntegrationItem,
+  uniqueLumenIntegrationItems,
+} from './content';
 
 export function WebhooksIntegration({
   spec,
@@ -120,7 +123,7 @@ export function WebhooksIntegration({
                 <div className="hbar-app-ui-integration-webhook-title">
                   <h1>{endpoint.address}</h1>
                   <div className="hbar-app-ui-integration-topic-list">
-                    {content.topics.map((topic) => (
+                    {(endpoint.topics ?? content.topics).map((topic) => (
                       <span key={topic}>{topic}</span>
                     ))}
                   </div>
@@ -214,3 +217,4 @@ export function WebhooksIntegration({
     </IntegrationFrame>
   );
 }
+('use client');

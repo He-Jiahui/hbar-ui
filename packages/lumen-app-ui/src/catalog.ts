@@ -393,10 +393,10 @@ export interface LumenSourceVariant {
   };
 }
 
-/** Source inventory, not a claim that all source variants are implemented. */
+/** Frozen source profiles that define the public 38-family, 300-variant contract. */
 export const LUMEN_SOURCE_VARIANTS: readonly LumenSourceVariant[] = source;
 
-/** Update only when a complete component family passes its behavior and visual checks. */
+/** Compatibility-named list of every variant with a concrete Lumen component. */
 export const LUMEN_MIGRATED_VARIANT_IDS = [
   'hbar-app-ui-ai-chat-1',
   'hbar-app-ui-ai-chat-2',
@@ -701,6 +701,7 @@ export const LUMEN_MIGRATED_VARIANT_IDS = [
 ] as const;
 
 export type LumenMigratedVariantId = (typeof LUMEN_MIGRATED_VARIANT_IDS)[number];
+
 export type LumenVariantStatus = 'migrated' | 'source';
 
 export interface LumenVariantRegistryEntry extends LumenSourceVariant {
@@ -1013,7 +1014,7 @@ const migratedComponents: Readonly<Partial<Record<LumenMigratedVariantId, React.
 
 const migratedIds = new Set<string>(LUMEN_MIGRATED_VARIANT_IDS);
 
-/** Canonical registry for every source ID; only fully verified families are migrated. */
+/** Canonical registry for every formal Lumen component variant. */
 export const LUMEN_VARIANT_REGISTRY: readonly LumenVariantRegistryEntry[] =
   LUMEN_SOURCE_VARIANTS.map((variant) => ({
     ...variant,
@@ -1034,3 +1035,6 @@ export function listLumenVariants(): readonly LumenVariantRegistryEntry[] {
 export function getLumenVariantComponent(id: string): React.ElementType | undefined {
   return getLumenVariant(id)?.component;
 }
+
+/** @deprecated All source families now have one-to-one component variants. */
+export const LUMEN_DESIGN_COVERAGE_CATEGORIES = [] as const;

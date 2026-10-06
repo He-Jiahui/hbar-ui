@@ -1,5 +1,6 @@
+'use client';
+import * as React from 'react';
 import { CreditCard, Landmark, MoreHorizontal, Plus, ShieldCheck } from './glyphs';
-import { useMemo, useState } from 'react';
 import type { LumenBillingCompositionProps } from './primitives';
 import type { LumenBillingPaymentMethod, LumenBillingPaymentMethodsContent } from './content';
 import {
@@ -16,31 +17,35 @@ function PaymentMethodIcon({ method }: { readonly method: LumenBillingPaymentMet
   return method.kind === 'bank' ? <Landmark /> : <CreditCard />;
 }
 
-export function PaymentMethodsBilling({
+export default function PaymentMethodsBilling({
   spec,
   onAction,
   content,
 }: LumenBillingCompositionProps & {
   readonly content: LumenBillingPaymentMethodsContent;
 }) {
-  const methods = useMemo(() => {
+  const methods = React.useMemo(() => {
     const seen = new Set<string>();
     return content.methods.filter((method) => {
-      if (seen.has(method.id)) return false;
+      if (seen.has(method.id)) {
+        return false;
+      }
       seen.add(method.id);
       return true;
     });
   }, [content.methods]);
-  const contacts = useMemo(() => {
+  const contacts = React.useMemo(() => {
     const seen = new Set<string>();
     return content.contacts.filter((contact) => {
-      if (seen.has(contact.id)) return false;
+      if (seen.has(contact.id)) {
+        return false;
+      }
       seen.add(contact.id);
       return true;
     });
   }, [content.contacts]);
   const initialPrimary = methods.find((method) => method.primary)?.id ?? methods[0]?.id ?? '';
-  const [primaryId, setPrimaryId] = useState(initialPrimary);
+  const [primaryId, setPrimaryId] = React.useState(initialPrimary);
 
   const makePrimary = (method: LumenBillingPaymentMethod) => {
     setPrimaryId(method.id);
@@ -48,11 +53,7 @@ export function PaymentMethodsBilling({
   };
 
   return (
-    <BillingFrame
-      spec={spec}
-      onAction={onAction}
-      className="hbar-app-ui-billing-payment-methods-surface"
-    >
+    <BillingFrame spec={spec} className="hbar-app-ui-billing-payment-methods-surface">
       <main className="hbar-app-ui-billing-payment-page">
         <header className="hbar-app-ui-billing-topbar">
           <div>

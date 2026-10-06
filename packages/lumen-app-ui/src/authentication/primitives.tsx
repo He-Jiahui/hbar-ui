@@ -2,7 +2,7 @@ import { Apple } from 'lucide-react';
 import * as React from 'react';
 import { LumenInput } from '../forms';
 import LumenSurface from '../LumenSurface';
-import { LumenButton } from '../primitives';
+import { LumenButton, LumenStatus } from '../primitives';
 import {
   ArrowLeft,
   ArrowRight,
@@ -175,7 +175,11 @@ export function AuthBrand({
       role={plain ? undefined : 'img'}
     >
       <span aria-hidden={plain ? undefined : true}>{label.slice(0, 1)}</span>
-      {plain ? <span className="hbar-app-ui-auth-brand-label">{label}</span> : <strong>{label}</strong>}
+      {plain ? (
+        <span className="hbar-app-ui-auth-brand-label">{label}</span>
+      ) : (
+        <strong>{label}</strong>
+      )}
     </div>
   );
 }
@@ -203,7 +207,10 @@ export function AuthFooterLinks({
 }) {
   const Container = navigation ? 'nav' : 'div';
   return (
-    <Container className="hbar-app-ui-auth-footer-links" aria-label={navigation ? links.join(', ') : undefined}>
+    <Container
+      className="hbar-app-ui-auth-footer-links"
+      aria-label={navigation ? links.join(', ') : undefined}
+    >
       {links.map((link) => (
         <LumenButton
           type="button"
@@ -270,7 +277,12 @@ export function AuthPasswordButton({
   readonly plain?: boolean | undefined;
 }) {
   return (
-    <AuthIconButton type="button" label={visible ? hideLabel : showLabel} indicator={plain ? 'none' : 'lamp'} onClick={onToggle}>
+    <AuthIconButton
+      type="button"
+      label={visible ? hideLabel : showLabel}
+      indicator={plain ? 'none' : 'lamp'}
+      onClick={onToggle}
+    >
       {visible ? (
         <AuthIcon>
           <EyeOff />
@@ -293,7 +305,14 @@ export function AuthProviderIcon({
     case 'google':
       return (
         <AuthIcon>
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+          <svg
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            aria-hidden="true"
+          >
             <path d="M13.5 4.2A6 6 0 1 0 14 8H8m6 0v4" />
           </svg>
         </AuthIcon>
@@ -307,7 +326,15 @@ export function AuthProviderIcon({
     case 'github':
       return (
         <AuthIcon>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.7"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
             <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3.1-.4 6.4-1.6 6.4-7A5.4 5.4 0 0 0 20 4.8 5.1 5.1 0 0 0 19.9 1S18.7.7 16 2.5a13.4 13.4 0 0 0-7 0C6.3.7 5.1 1 5.1 1A5.1 5.1 0 0 0 5 4.8a5.4 5.4 0 0 0-1.5 3.8c0 5.4 3.3 6.6 6.4 7a3.4 3.4 0 0 0-.9 2.6V22" />
           </svg>
         </AuthIcon>
@@ -359,7 +386,12 @@ export function AuthProviderButtons({
       data-hbar-app-ui-list-strategy={listStrategy?.kind}
     >
       {uniqueProviders.map((provider) => (
-        <AuthButton key={provider.id} type="button" indicator={indicator} onClick={() => onSelect(provider)}>
+        <AuthButton
+          key={provider.id}
+          type="button"
+          indicator={indicator}
+          onClick={() => onSelect(provider)}
+        >
           <AuthProviderIcon kind={provider.icon} />
           {provider.label}
         </AuthButton>
@@ -391,12 +423,13 @@ export function AuthStatus({
   readonly label: string;
   readonly tone?: 'neutral' | 'positive' | 'warning' | 'danger' | undefined;
 }) {
-  return (
-    <span className={`hbar-app-ui-auth-status hbar-app-ui-auth-status-${tone}`}>
-      <i aria-hidden="true" />
-      {label}
-    </span>
-  );
+  const tones = {
+    neutral: 'neutral',
+    positive: 'success',
+    warning: 'warning',
+    danger: 'danger',
+  } as const;
+  return <LumenStatus className="hbar-app-ui-auth-status" value={label} tone={tones[tone]} />;
 }
 
 export function AuthMetaRows({
@@ -474,8 +507,6 @@ export function AuthLeadingIcon({
           <Laptop />
         </AuthIcon>
       );
-    default:
-      return null;
   }
 }
 

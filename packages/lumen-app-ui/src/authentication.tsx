@@ -19,8 +19,8 @@ import {
   selectLumenAuthItem,
   uniqueLumenAuthItems,
   useLumenAuthenticationContent,
+  type LumenAuthContent,
 } from './authentication/content';
-import type { LumenAuthContent } from './authentication/content';
 import { AuthFrame, type LumenAuthCompositionProps } from './authentication/primitives';
 import './authentication.css';
 import './authentication-sign-in-reference.css';
@@ -209,42 +209,55 @@ function variant(value: number, props: LumenAuthenticationVariantProps) {
 export function LumenAuthentication01(props: LumenAuthenticationVariantProps) {
   return variant(1, props);
 }
+
 export function LumenAuthentication02(props: LumenAuthenticationVariantProps) {
   return variant(2, props);
 }
+
 export function LumenAuthentication03(props: LumenAuthenticationVariantProps) {
   return variant(3, props);
 }
+
 export function LumenAuthentication04(props: LumenAuthenticationVariantProps) {
   return variant(4, props);
 }
+
 export function LumenAuthentication05(props: LumenAuthenticationVariantProps) {
   return variant(5, props);
 }
+
 export function LumenAuthentication06(props: LumenAuthenticationVariantProps) {
   return variant(6, props);
 }
+
 export function LumenAuthentication07(props: LumenAuthenticationVariantProps) {
   return variant(7, props);
 }
+
 export function LumenAuthentication08(props: LumenAuthenticationVariantProps) {
   return variant(8, props);
 }
+
 export function LumenAuthentication09(props: LumenAuthenticationVariantProps) {
   return variant(9, props);
 }
+
 export function LumenAuthentication10(props: LumenAuthenticationVariantProps) {
   return variant(10, props);
 }
+
 export function LumenAuthentication11(props: LumenAuthenticationVariantProps) {
   return variant(11, props);
 }
+
 export function LumenAuthentication12(props: LumenAuthenticationVariantProps) {
   return variant(12, props);
 }
+
 export function LumenAuthentication13(props: LumenAuthenticationVariantProps) {
   return variant(13, props);
 }
+
 export function LumenAuthentication14(props: LumenAuthenticationVariantProps) {
   return variant(14, props);
 }

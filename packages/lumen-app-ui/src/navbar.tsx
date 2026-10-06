@@ -1,26 +1,25 @@
 'use client';
 
 import * as React from 'react';
-
 import { ActivityNavbar } from './navbar/ActivityNavbar';
 import { AnalyticsNavbar } from './navbar/AnalyticsNavbar';
 import { ArticleNavbar } from './navbar/ArticleNavbar';
 import { CommerceNavbar } from './navbar/CommerceNavbar';
 import { DeploymentNavbar } from './navbar/DeploymentNavbar';
 import { DocsNavbar } from './navbar/DocsNavbar';
-import { DocumentNavbar } from './navbar/DocumentNavbar';
+import DocumentNavbar from './navbar/DocumentNavbar';
 import { FilterNavbar } from './navbar/FilterNavbar';
 import { LandingNavbar } from './navbar/LandingNavbar';
 import { PortfolioNavbar } from './navbar/PortfolioNavbar';
 import { ProjectBoardNavbar } from './navbar/ProjectBoardNavbar';
-import { TaskListNavbar } from './navbar/TaskListNavbar';
+import TaskListNavbar from './navbar/TaskListNavbar';
 import {
   LumenNavbarProvider,
   selectLumenNavbarItem,
   uniqueLumenNavbarItems,
   useLumenNavbarContent,
+  type LumenNavbarContent,
 } from './navbar/content';
-import type { LumenNavbarContent } from './navbar/content';
 import { NavbarFrame, type LumenNavbarCompositionProps } from './navbar/primitives';
 import './navbar.css';
 
@@ -28,6 +27,7 @@ export interface LumenNavbarAction {
   readonly actionId: string;
   readonly value?: string | undefined;
 }
+
 export interface LumenNavbarProps {
   readonly variant: number;
   readonly variantId: string;
@@ -40,12 +40,15 @@ export interface LumenNavbarProps {
   readonly visualMode?: string | undefined;
   readonly slots?: LumenNavbarWorkflowSlots | undefined;
 }
+
 export interface LumenNavbarWorkflowSlots {
   readonly content?: React.ReactNode;
   readonly leading?: React.ReactNode;
   readonly trailing?: React.ReactNode;
 }
+
 export type LumenNavbarVariantProps = Omit<LumenNavbarProps, 'variant' | 'variantId'>;
+
 export {
   LumenNavbarProvider,
   selectLumenNavbarItem,
@@ -68,6 +71,7 @@ function composition(props: LumenNavbarProps): LumenNavbarCompositionProps {
       : undefined,
   };
 }
+
 function empty(props: LumenNavbarProps) {
   return (
     <NavbarFrame {...composition(props)} className="hbar-app-ui-navbar-empty">
@@ -75,6 +79,7 @@ function empty(props: LumenNavbarProps) {
     </NavbarFrame>
   );
 }
+
 export function LumenNavbar(props: LumenNavbarProps) {
   const inheritedContent = useLumenNavbarContent();
   const content = props.content ?? inheritedContent;
@@ -104,6 +109,7 @@ export function LumenNavbar(props: LumenNavbarProps) {
     result
   );
 }
+
 function renderNavbarContent(props: LumenNavbarProps, c: LumenNavbarContent | undefined) {
   const p = composition(props);
   if (props.variant === 1)
@@ -143,9 +149,11 @@ function renderNavbarContent(props: LumenNavbarProps, c: LumenNavbarContent | un
     return c?.article ? <ArticleNavbar {...p} content={c.article} /> : empty(props);
   return empty(props);
 }
+
 const variant = (n: number, p: LumenNavbarVariantProps) => (
   <LumenNavbar {...p} variant={n} variantId={`hbar-app-ui-navbar-${n}`} />
 );
+
 export const LumenNavbar01 = (p: LumenNavbarVariantProps) => variant(1, p),
   LumenNavbar02 = (p: LumenNavbarVariantProps) => variant(2, p),
   LumenNavbar03 = (p: LumenNavbarVariantProps) => variant(3, p),

@@ -1,13 +1,13 @@
 'use client';
 
-import { BillingStatement } from './billing/BillingStatement';
-import { ChangePlanBilling } from './billing/ChangePlanBilling';
-import { InvoiceComposerBilling } from './billing/InvoiceComposerBilling';
-import { InvoiceDetailBilling } from './billing/InvoiceDetailBilling';
-import { PaymentMethodsBilling } from './billing/PaymentMethodsBilling';
+import BillingStatement from './billing/BillingStatement';
+import ChangePlanBilling from './billing/ChangePlanBilling';
+import InvoiceComposerBilling from './billing/InvoiceComposerBilling';
+import InvoiceDetailBilling from './billing/InvoiceDetailBilling';
+import PaymentMethodsBilling from './billing/PaymentMethodsBilling';
 import { PlansBilling } from './billing/PlansBilling';
-import { RecoveryBilling } from './billing/RecoveryBilling';
-import { UsageOveragesBilling } from './billing/UsageOveragesBilling';
+import RecoveryBilling from './billing/RecoveryBilling';
+import UsageOveragesBilling from './billing/UsageOveragesBilling';
 import { ReferenceBillingStatement } from './billing/ReferenceBillingStatement';
 import { ReferenceBillingPlans } from './billing/ReferenceBillingPlans';
 import {
@@ -23,8 +23,8 @@ import {
   selectLumenBillingItem,
   uniqueLumenBillingItems,
   useLumenBillingContent,
+  type LumenBillingContent,
 } from './billing/content';
-import type { LumenBillingContent } from './billing/content';
 import { BillingFrame, type LumenBillingCompositionProps } from './billing/primitives';
 import './billing.css';
 
@@ -220,24 +220,31 @@ function variant(value: number, props: LumenBillingVariantProps) {
 export function LumenBilling01(props: LumenBillingVariantProps) {
   return variant(1, props);
 }
+
 export function LumenBilling02(props: LumenBillingVariantProps) {
   return variant(2, props);
 }
+
 export function LumenBilling03(props: LumenBillingVariantProps) {
   return variant(3, props);
 }
+
 export function LumenBilling04(props: LumenBillingVariantProps) {
   return variant(4, props);
 }
+
 export function LumenBilling05(props: LumenBillingVariantProps) {
   return variant(5, props);
 }
+
 export function LumenBilling06(props: LumenBillingVariantProps) {
   return variant(6, props);
 }
+
 export function LumenBilling07(props: LumenBillingVariantProps) {
   return variant(7, props);
 }
+
 export function LumenBilling08(props: LumenBillingVariantProps) {
   return variant(8, props);
 }

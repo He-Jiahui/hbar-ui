@@ -54,7 +54,12 @@ export interface LumenAuthSignInContent {
   readonly initialEmail: string;
   readonly initialRemember: boolean;
   /** The host owns credential transport and confirms any successful sign-in. */
-  readonly onSignIn?: ((credentials: Readonly<{ email: string; password: string; remember: boolean }>, signal: AbortSignal) => Promise<'confirmed' | 'unchanged'>) | undefined;
+  readonly onSignIn?:
+    | ((
+        credentials: Readonly<{ email: string; password: string; remember: boolean }>,
+        signal: AbortSignal,
+      ) => Promise<'confirmed' | 'unchanged'>)
+    | undefined;
 }
 
 export interface LumenAuthProviderFirstContent {
@@ -308,33 +313,35 @@ export interface LumenAuthCodeContent {
   readonly onRecovery: (() => void) | undefined;
   readonly onBack: (() => void) | undefined;
   /** Optional richer host-owned flow; absence keeps the existing controlled code-entry contract. */
-  readonly referenceFlow?: {
-    readonly labels: {
-      readonly recoveryTitle: string;
-      readonly recoveryDescription: string;
-      readonly recoveryLabel: string;
-      readonly recoveryPlaceholder: string;
-      readonly recoveryHelper: string;
-      readonly useTextedCode: string;
-      readonly checkingCode: string;
-      readonly verifying: string;
-      readonly verifiedTitle: string;
-      readonly verifiedDescription: string;
-      readonly methodLabel: string;
-      readonly trustedUntilLabel: string;
-      readonly continueLabel: string;
-      readonly verifyAnother: string;
-      readonly resendReady: string;
-      readonly digitSeparator: string;
-    };
-    readonly phase: 'text' | 'recovery' | 'verified';
-    readonly recoveryCode: string;
-    readonly canVerifyRecovery: boolean;
-    readonly success: { readonly method: string; readonly trustedUntil: string };
-    readonly onRecoveryCodeChange: (value: string) => void;
-    readonly onModeChange: (mode: 'text' | 'recovery') => void;
-    readonly onContinue: () => void;
-  } | undefined;
+  readonly referenceFlow?:
+    | {
+        readonly labels: {
+          readonly recoveryTitle: string;
+          readonly recoveryDescription: string;
+          readonly recoveryLabel: string;
+          readonly recoveryPlaceholder: string;
+          readonly recoveryHelper: string;
+          readonly useTextedCode: string;
+          readonly checkingCode: string;
+          readonly verifying: string;
+          readonly verifiedTitle: string;
+          readonly verifiedDescription: string;
+          readonly methodLabel: string;
+          readonly trustedUntilLabel: string;
+          readonly continueLabel: string;
+          readonly verifyAnother: string;
+          readonly resendReady: string;
+          readonly digitSeparator: string;
+        };
+        readonly phase: 'text' | 'recovery' | 'verified';
+        readonly recoveryCode: string;
+        readonly canVerifyRecovery: boolean;
+        readonly success: { readonly method: string; readonly trustedUntil: string };
+        readonly onRecoveryCodeChange: (value: string) => void;
+        readonly onModeChange: (mode: 'text' | 'recovery') => void;
+        readonly onContinue: () => void;
+      }
+    | undefined;
 }
 
 export interface LumenAuthSignUpContent {
@@ -363,24 +370,26 @@ export interface LumenAuthSignUpContent {
   readonly initialName: string;
   readonly initialEmail: string;
   /** The host owns draft, password feedback and disclosure in the reference form. */
-  readonly referenceFlow?: {
-    readonly labels: {
-      readonly strength: readonly [string, string, string, string];
-      readonly agreementEnd: string;
-    };
-    readonly name: string;
-    readonly email: string;
-    readonly password: string;
-    readonly visible: boolean;
-    readonly agreed: boolean;
-    readonly requirementsMet: readonly boolean[];
-    readonly canSubmit: boolean;
-    readonly onNameChange: (value: string) => void;
-    readonly onEmailChange: (value: string) => void;
-    readonly onPasswordChange: (value: string) => void;
-    readonly onVisibleChange: (value: boolean) => void;
-    readonly onAgreedChange: (value: boolean) => void;
-  } | undefined;
+  readonly referenceFlow?:
+    | {
+        readonly labels: {
+          readonly strength: readonly [string, string, string, string];
+          readonly agreementEnd: string;
+        };
+        readonly name: string;
+        readonly email: string;
+        readonly password: string;
+        readonly visible: boolean;
+        readonly agreed: boolean;
+        readonly requirementsMet: readonly boolean[];
+        readonly canSubmit: boolean;
+        readonly onNameChange: (value: string) => void;
+        readonly onEmailChange: (value: string) => void;
+        readonly onPasswordChange: (value: string) => void;
+        readonly onVisibleChange: (value: boolean) => void;
+        readonly onAgreedChange: (value: boolean) => void;
+      }
+    | undefined;
 }
 
 export interface LumenAuthEnterpriseContent {
@@ -410,27 +419,29 @@ export interface LumenAuthEnterpriseContent {
     readonly sessionLength: string;
   };
   readonly email: string;
-  readonly referenceFlow?: {
-    readonly labels: {
-      readonly redirecting: string;
-      readonly continueUnmatched: string;
-      readonly unmatchedHint: (domain: string) => string;
-      readonly emptyHint: string;
-      readonly noMatch: string;
-      readonly lookupTitle: string;
-      readonly lookupDescription: string;
-    };
-    readonly alternateOrganizations: readonly {
-      readonly organization: LumenAuthEnterpriseContent['organization'];
-      readonly providerHint: string;
-      readonly securityChecks: readonly string[];
-      readonly lockedOut: string;
-    }[];
-    readonly email: string;
-    readonly busy: boolean;
-    readonly onEmailChange: (value: string) => void;
-    readonly onContinue: () => void;
-  } | undefined;
+  readonly referenceFlow?:
+    | {
+        readonly labels: {
+          readonly redirecting: string;
+          readonly continueUnmatched: string;
+          readonly unmatchedHint: (domain: string) => string;
+          readonly emptyHint: string;
+          readonly noMatch: string;
+          readonly lookupTitle: string;
+          readonly lookupDescription: string;
+        };
+        readonly alternateOrganizations: readonly {
+          readonly organization: LumenAuthEnterpriseContent['organization'];
+          readonly providerHint: string;
+          readonly securityChecks: readonly string[];
+          readonly lockedOut: string;
+        }[];
+        readonly email: string;
+        readonly busy: boolean;
+        readonly onEmailChange: (value: string) => void;
+        readonly onContinue: () => void;
+      }
+    | undefined;
 }
 
 export interface LumenAuthPasskey {
@@ -455,18 +466,20 @@ export interface LumenAuthPasskeyContent {
   readonly passkeys: readonly LumenAuthPasskey[];
   readonly initialPasskeyId: string;
   readonly listStrategy: LumenAuthListStrategy;
-  readonly referenceFlow?: {
-    readonly labels: {
-      readonly confirmOn: (name: string) => string;
-      readonly waiting: string;
-      readonly cancel: string;
-    };
-    readonly selectedId: string;
-    readonly phase: 'choose' | 'request';
-    readonly onSelect: (id: string) => void;
-    readonly onContinue: (id: string) => void;
-    readonly onCancel: () => void;
-  } | undefined;
+  readonly referenceFlow?:
+    | {
+        readonly labels: {
+          readonly confirmOn: (name: string) => string;
+          readonly waiting: string;
+          readonly cancel: string;
+        };
+        readonly selectedId: string;
+        readonly phase: 'choose' | 'request';
+        readonly onSelect: (id: string) => void;
+        readonly onContinue: (id: string) => void;
+        readonly onCancel: () => void;
+      }
+    | undefined;
 }
 
 export interface LumenAuthAccount {
@@ -476,11 +489,13 @@ export interface LumenAuthAccount {
   readonly email: string;
   readonly status: string;
   readonly statusTone: 'neutral' | 'warning';
-  readonly continuation?: {
-    readonly label: string;
-    readonly hint: string;
-    readonly kind: 'resume' | 'reauth';
-  } | undefined;
+  readonly continuation?:
+    | {
+        readonly label: string;
+        readonly hint: string;
+        readonly kind: 'resume' | 'reauth';
+      }
+    | undefined;
 }
 
 export interface LumenAuthAccountContent {
@@ -500,10 +515,12 @@ export interface LumenAuthAccountContent {
   readonly workspaceName: string;
   readonly initialAccountId: string;
   readonly listStrategy: LumenAuthListStrategy;
-  readonly referenceFlow?: {
-    readonly selectedId: string;
-    readonly onSelect: (id: string) => void;
-  } | undefined;
+  readonly referenceFlow?:
+    | {
+        readonly selectedId: string;
+        readonly onSelect: (id: string) => void;
+      }
+    | undefined;
 }
 
 export interface LumenAuthWorkspace {
@@ -533,17 +550,19 @@ export interface LumenAuthWorkspaceContent {
   readonly workspaces: readonly LumenAuthWorkspace[];
   readonly initialWorkspaceId: string;
   readonly listStrategy: LumenAuthListStrategy;
-  readonly referenceFlow?: {
-    readonly selectedId: string;
-    readonly query: string;
-    readonly labels: {
-      readonly acceptAndOpen: (name: string) => string;
-      readonly emptyForQuery: (query: string) => string;
-      readonly emptyHint: string;
-    };
-    readonly onSelect: (id: string) => void;
-    readonly onQueryChange: (query: string) => void;
-  } | undefined;
+  readonly referenceFlow?:
+    | {
+        readonly selectedId: string;
+        readonly query: string;
+        readonly labels: {
+          readonly acceptAndOpen: (name: string) => string;
+          readonly emptyForQuery: (query: string) => string;
+          readonly emptyHint: string;
+        };
+        readonly onSelect: (id: string) => void;
+        readonly onQueryChange: (query: string) => void;
+      }
+    | undefined;
 }
 
 export interface LumenAuthProject {
@@ -592,28 +611,30 @@ export interface LumenAuthInvitationContent {
   readonly memberCount: string;
   readonly projects: readonly LumenAuthProject[];
   readonly listStrategy: LumenAuthListStrategy;
-  readonly referenceFlow?: {
-    readonly labels: {
-      readonly invitationAfterName: (role: string) => string;
-      readonly descriptionBeforeEmail: string;
-      readonly descriptionAfterEmail: (expiry: string) => string;
-      readonly declinePrompt: string;
-      readonly declineAction: string;
-      readonly successTitle: string;
-      readonly successDescription: (workspace: string) => string;
-      readonly openWorkspace: (workspace: string) => string;
-      readonly review: string;
-    };
-    readonly phase: 'form' | 'success';
-    readonly fullName: string;
-    readonly password: string;
-    readonly passwordVisible: boolean;
-    readonly onFullNameChange: (name: string) => void;
-    readonly onPasswordChange: (password: string) => void;
-    readonly onTogglePassword: () => void;
-    readonly onSubmit: () => void;
-    readonly onReview: () => void;
-  } | undefined;
+  readonly referenceFlow?:
+    | {
+        readonly labels: {
+          readonly invitationAfterName: (role: string) => string;
+          readonly descriptionBeforeEmail: string;
+          readonly descriptionAfterEmail: (expiry: string) => string;
+          readonly declinePrompt: string;
+          readonly declineAction: string;
+          readonly successTitle: string;
+          readonly successDescription: (workspace: string) => string;
+          readonly openWorkspace: (workspace: string) => string;
+          readonly review: string;
+        };
+        readonly phase: 'form' | 'success';
+        readonly fullName: string;
+        readonly password: string;
+        readonly passwordVisible: boolean;
+        readonly onFullNameChange: (name: string) => void;
+        readonly onPasswordChange: (password: string) => void;
+        readonly onTogglePassword: () => void;
+        readonly onSubmit: () => void;
+        readonly onReview: () => void;
+      }
+    | undefined;
 }
 
 export interface LumenAuthDevice {
@@ -647,32 +668,34 @@ export interface LumenAuthPasswordResetContent {
   readonly devices: readonly LumenAuthDevice[];
   readonly initialPassword: string;
   readonly listStrategy: LumenAuthListStrategy;
-  readonly referenceFlow?: {
-    readonly labels: {
-      readonly descriptionBeforeEmail: string;
-      readonly descriptionAfterEmail: string;
-      readonly strength: readonly [string, string, string, string];
-      readonly mismatchHelper: string;
-      readonly stays: string;
-      readonly successTitle: string;
-      readonly successWithSignOut: (count: number, workspace: string) => string;
-      readonly successWithoutSignOut: (workspace: string) => string;
-      readonly continueWith: (workspace: string) => string;
-      readonly setDifferent: string;
-    };
-    readonly workspaceName: string;
-    readonly password: string;
-    readonly confirmation: string;
-    readonly passwordVisible: boolean;
-    readonly signOutOther: boolean;
-    readonly phase: 'form' | 'success';
-    readonly onPasswordChange: (value: string) => void;
-    readonly onConfirmationChange: (value: string) => void;
-    readonly onTogglePassword: () => void;
-    readonly onSignOutOtherChange: (value: boolean) => void;
-    readonly onSubmit: () => void;
-    readonly onSetDifferent: () => void;
-  } | undefined;
+  readonly referenceFlow?:
+    | {
+        readonly labels: {
+          readonly descriptionBeforeEmail: string;
+          readonly descriptionAfterEmail: string;
+          readonly strength: readonly [string, string, string, string];
+          readonly mismatchHelper: string;
+          readonly stays: string;
+          readonly successTitle: string;
+          readonly successWithSignOut: (count: number, workspace: string) => string;
+          readonly successWithoutSignOut: (workspace: string) => string;
+          readonly continueWith: (workspace: string) => string;
+          readonly setDifferent: string;
+        };
+        readonly workspaceName: string;
+        readonly password: string;
+        readonly confirmation: string;
+        readonly passwordVisible: boolean;
+        readonly signOutOther: boolean;
+        readonly phase: 'form' | 'success';
+        readonly onPasswordChange: (value: string) => void;
+        readonly onConfirmationChange: (value: string) => void;
+        readonly onTogglePassword: () => void;
+        readonly onSignOutOtherChange: (value: boolean) => void;
+        readonly onSubmit: () => void;
+        readonly onSetDifferent: () => void;
+      }
+    | undefined;
 }
 
 export interface LumenAuthRecentSignIn {
@@ -707,24 +730,26 @@ export interface LumenAuthApprovalContent {
   };
   readonly recent: readonly LumenAuthRecentSignIn[];
   readonly listStrategy: LumenAuthListStrategy;
-  readonly referenceFlow?: {
-    readonly phase: 'pending' | 'approved' | 'blocked';
-    readonly labels: {
-      readonly descriptionBeforeEmail: string;
-      readonly descriptionAfterEmail: string;
-      readonly approvedTitle: string;
-      readonly approvedDescription: string;
-      readonly blockedTitle: string;
-      readonly blockedDescription: string;
-      readonly blockedSteps: readonly [string, string];
-      readonly changePassword: string;
-      readonly backToRequest: string;
-    };
-    readonly onApprove: () => void;
-    readonly onDeny: () => void;
-    readonly onBack: () => void;
-    readonly onChangePassword: () => void;
-  } | undefined;
+  readonly referenceFlow?:
+    | {
+        readonly phase: 'pending' | 'approved' | 'blocked';
+        readonly labels: {
+          readonly descriptionBeforeEmail: string;
+          readonly descriptionAfterEmail: string;
+          readonly approvedTitle: string;
+          readonly approvedDescription: string;
+          readonly blockedTitle: string;
+          readonly blockedDescription: string;
+          readonly blockedSteps: readonly [string, string];
+          readonly changePassword: string;
+          readonly backToRequest: string;
+        };
+        readonly onApprove: () => void;
+        readonly onDeny: () => void;
+        readonly onBack: () => void;
+        readonly onChangePassword: () => void;
+      }
+    | undefined;
 }
 
 export interface LumenAuthContent {

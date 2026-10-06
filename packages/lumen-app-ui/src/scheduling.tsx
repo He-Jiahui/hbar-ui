@@ -4,9 +4,9 @@ import * as React from 'react';
 import {
   LumenFormField,
   LumenInput,
-  LumenSelect,
   LumenTextarea,
   LumenToggleControl,
+  LumenChoiceSelect,
 } from './forms';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
@@ -40,6 +40,8 @@ import {
   type LumenSchedulingBookingReferenceContent,
 } from './scheduling-booking-reference';
 import { selectLumenSchedulingItem, uniqueLumenSchedulingItems } from './scheduling-model';
+import { LumenMonthGrid } from './ui-compositions';
+import { LumenTabs } from './ui-controls';
 
 export { selectLumenSchedulingItem, uniqueLumenSchedulingItems } from './scheduling-model';
 
@@ -176,6 +178,7 @@ export interface LumenSchedulingAvailabilityContent {
     readonly enableDay: (day: string) => string;
     readonly start: (day: string) => string;
     readonly end: (day: string) => string;
+    readonly separator?: string | undefined;
     readonly addInterval: (day: string) => string;
     readonly save: string;
     readonly empty: string;
@@ -484,25 +487,25 @@ function TimeRange(
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
       <div className="lumen-scheduling-time-range">
         <LumenFormField controlId={`${props.variantId}-start`} label={props.content.labels.start}>
-          <LumenSelect value={start} onChange={(event) => setStart(event.currentTarget.value)}>
-            {starts.map((option) => (
-              <option key={option.id} value={option.id} disabled={option.disabled}>
-                {option.label}
-              </option>
-            ))}
-          </LumenSelect>
+          <LumenChoiceSelect
+            id={`${props.variantId}-start`}
+            label={props.content.labels.start}
+            options={starts}
+            value={start}
+            onValueChange={setStart}
+          />
         </LumenFormField>
         <LumenText as="span" tone="muted">
           {props.content.labels.separator}
         </LumenText>
         <LumenFormField controlId={`${props.variantId}-end`} label={props.content.labels.end}>
-          <LumenSelect value={end} onChange={(event) => setEnd(event.currentTarget.value)}>
-            {ends.map((option) => (
-              <option key={option.id} value={option.id} disabled={option.disabled}>
-                {option.label}
-              </option>
-            ))}
-          </LumenSelect>
+          <LumenChoiceSelect
+            id={`${props.variantId}-end`}
+            label={props.content.labels.end}
+            options={ends}
+            value={end}
+            onValueChange={setEnd}
+          />
         </LumenFormField>
       </div>
       <div
@@ -710,20 +713,12 @@ function Deadline(
           <LumenText as="strong" variant="label">
             {props.content.monthLabel}
           </LumenText>
-          <div>
-            {days.map((day) => (
-              <LumenButton
-                key={day.id}
-                variant={selectedDay?.id === day.id ? 'solid' : 'text'}
-                aria-pressed={selectedDay?.id === day.id}
-                aria-label={day.dateLabel}
-                disabled={day.disabled}
-                onClick={() => setDayId(day.id)}
-              >
-                {day.label}
-              </LumenButton>
-            ))}
-          </div>
+          <LumenMonthGrid
+            label={props.content.labels.calendar}
+            days={days}
+            selectedId={selectedDay?.id ?? null}
+            onSelect={setDayId}
+          />
         </div>
         <div
           className="lumen-scheduling-slots"
@@ -783,12 +778,13 @@ function Availability(
                   className="lumen-scheduling-switch"
                   aria-label={props.content.labels.enableDay(day.label)}
                   checked={active}
-                  onChange={(event) =>
+                  onChange={(event) => {
+                    const checked = event.currentTarget.checked;
                     setEnabled((current) => ({
                       ...current,
-                      [day.id]: event.currentTarget.checked,
-                    }))
-                  }
+                      [day.id]: checked,
+                    }));
+                  }}
                 />
                 <LumenText as="strong" variant="label">
                   {day.label}
@@ -862,24 +858,13 @@ function Timeline(
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
-      <div
+      <LumenTabs
         className="lumen-scheduling-tabs"
-        role="tablist"
-        aria-label={props.content.labels.viewGroup}
-      >
-        {views.map((view) => (
-          <LumenButton
-            key={view.id}
-            role="tab"
-            variant="text"
-            aria-selected={selectedView?.id === view.id}
-            disabled={view.disabled}
-            onClick={() => setViewId(view.id)}
-          >
-            {view.label}
-          </LumenButton>
-        ))}
-      </div>
+        label={props.content.labels.viewGroup}
+        items={views}
+        selectedId={selectedView?.id ?? null}
+        onChange={setViewId}
+      />
       <div
         className="lumen-scheduling-timeline"
         aria-label={props.content.labels.timeline}
@@ -908,7 +893,7 @@ function Timeline(
                       variant="outlined"
                       tone={event.tone}
                       style={{
-                        insetBlockStart: `${Math.max(0, Math.min(100, event.topPercent))}%`,
+                        marginBlockStart: `${Math.max(0, Math.min(100, event.topPercent)) / 8}rem`,
                         blockSize: `${Math.max(8, Math.min(100, event.heightPercent))}%`,
                       }}
                       onClick={() => report(props.onAction, 'open-event', event.id)}
@@ -1188,9 +1173,15 @@ function variant(value: number, props: LumenSchedulingVariantProps) {
 }
 
 export const LumenScheduling01 = (props: LumenSchedulingVariantProps) => variant(1, props);
+
 export const LumenScheduling02 = (props: LumenSchedulingVariantProps) => variant(2, props);
+
 export const LumenScheduling03 = (props: LumenSchedulingVariantProps) => variant(3, props);
+
 export const LumenScheduling04 = (props: LumenSchedulingVariantProps) => variant(4, props);
+
 export const LumenScheduling05 = (props: LumenSchedulingVariantProps) => variant(5, props);
+
 export const LumenScheduling06 = (props: LumenSchedulingVariantProps) => variant(6, props);
+
 export const LumenScheduling07 = (props: LumenSchedulingVariantProps) => variant(7, props);

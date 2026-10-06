@@ -1,6 +1,6 @@
 import { ChevronRight, CirclePlus, Folder, MoreHorizontal, Search, Star } from './glyphs';
 import { useState } from 'react';
-import type { LumenNavbarProjectBoardContent } from './content';
+import { type LumenNavbarProjectBoardContent } from './content';
 import {
   NavbarButton,
   NavbarFrame,
@@ -137,3 +137,4 @@ export function ProjectBoardNavbar({
     </NavbarFrame>
   );
 }
+('use client');

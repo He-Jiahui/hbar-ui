@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { LumenActionMenu, LumenIcon, type LumenIconProps } from './workbench';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
-import './workspace-components.css';
 
 export interface LumenPageHeaderProps {
   title: string;
@@ -272,9 +271,9 @@ export function LumenBarSeries({
           blockSize: `${Math.max(0, Math.min(1, Number.isFinite(point.value) ? point.value / scale : 0)) * 100}%`,
         };
         return onSelect ? (
-          <button
+          <LumenButton
             key={point.id}
-            type="button"
+            variant="text"
             title={point.label}
             aria-label={selectLabel?.(point) ?? point.label}
             aria-pressed={selectedId === point.id}

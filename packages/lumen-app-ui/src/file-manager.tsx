@@ -7,7 +7,8 @@ import { LumenButton, LumenIconButton, LumenStatus } from './primitives';
 import './file-manager.css';
 import './file-manager-reference.css';
 import LumenFileManagerReference from './file-manager-reference';
-import type { LumenFileManagerReferenceContent } from './file-manager-reference-contracts';
+import { type LumenFileManagerReferenceContent } from './file-manager-reference-contracts';
+import { LumenProgress } from './ui-controls';
 
 export type LumenFileManagerListStrategy =
   | { readonly kind: 'content-grown'; readonly expectedMaximum: number }
@@ -393,18 +394,13 @@ function FileManagerRoot({
 }
 
 function Meter({ value, label }: { readonly value: number; readonly label: string }) {
-  const progress = Math.max(0, Math.min(100, Number.isFinite(value) ? value : 0));
   return (
-    <div
+    <LumenProgress
       className="hbar-app-ui-file-manager-meter"
-      role="progressbar"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={progress}
-    >
-      <span style={{ inlineSize: `${progress}%` }} />
-    </div>
+      label={label}
+      value={value}
+      tone="info"
+    />
   );
 }
 
@@ -667,6 +663,7 @@ function DriveExplorer(
 }
 
 type AssetFilter = 'all' | 'images' | 'video' | 'documents';
+
 function matchesFilter(kind: LumenFileKind, filter: AssetFilter) {
   if (filter === 'all') {
     return true;
@@ -963,6 +960,7 @@ function labelForState(
       return labels.queued;
   }
 }
+
 function toneForUploadState(state: LumenFileManagerUploadState) {
   if (state === 'failed') {
     return 'danger' as const;
@@ -1187,15 +1185,19 @@ function fileManagerVariant(variant: number, props: LumenFileManagerVariantProps
     />
   );
 }
+
 export function LumenFileManager01(props: LumenFileManagerVariantProps) {
   return fileManagerVariant(1, props);
 }
+
 export function LumenFileManager02(props: LumenFileManagerVariantProps) {
   return fileManagerVariant(2, props);
 }
+
 export function LumenFileManager03(props: LumenFileManagerVariantProps) {
   return fileManagerVariant(3, props);
 }
+
 export function LumenFileManager04(props: LumenFileManagerVariantProps) {
   return fileManagerVariant(4, props);
 }

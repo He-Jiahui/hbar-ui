@@ -7,7 +7,7 @@ import { LumenButton } from './primitives';
 import type { LumenUsageChoice, LumenUsageSeatContent, LumenUsageSeatRow } from './usage';
 import './usage-member-list.css';
 
-export interface LumenUsageMemberRow extends LumenUsageSeatRow {
+export interface LumenUsageMemberRow extends Omit<LumenUsageSeatRow, 'filterId'> {
   readonly capacity: string;
   readonly nearCapacity: boolean;
 }

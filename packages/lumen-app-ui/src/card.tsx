@@ -6,7 +6,8 @@ import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './card.css';
 import LumenCardReference from './card-reference';
-import type { LumenCardReferenceContent } from './card-reference-contracts';
+import { type LumenCardReferenceContent } from './card-reference-contracts';
+import { LumenBadge, LumenChip, LumenTabs } from './ui-controls';
 
 export interface LumenCardListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -559,7 +560,9 @@ function Agenda(props: Omit<LumenCardProps, 'content'> & { content: LumenCardAge
             {visible.map((attendee) => (
               <Avatar key={attendee.id} initials={attendee.initials} />
             ))}
-            {overflow ? <span>{props.content.labels.overflowAttendees(overflow)}</span> : null}
+            {overflow ? (
+              <LumenBadge value={props.content.labels.overflowAttendees(overflow)} />
+            ) : null}
           </div>
         </div>
         <LumenButton
@@ -585,20 +588,13 @@ function Plans(props: Omit<LumenCardProps, 'content'> & { content: LumenCardPlan
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
-      <div className="lumen-card-tabs" role="tablist" aria-label={props.content.labels.periods}>
-        {periods.map((item) => (
-          <LumenButton
-            key={item.id}
-            role="tab"
-            variant="text"
-            aria-selected={period?.id === item.id}
-            disabled={item.disabled}
-            onClick={() => setPeriodId(item.id)}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+      <LumenTabs
+        className="lumen-card-tabs"
+        label={props.content.labels.periods}
+        items={periods}
+        selectedId={period?.id ?? null}
+        onChange={setPeriodId}
+      />
       <div
         className="lumen-card-plan-grid"
         data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}
@@ -652,22 +648,16 @@ function AccountMetrics(
         title={props.content.labels.title}
         detail={range?.label ?? props.content.labels.empty}
       />
-      <div className="lumen-card-tabs" role="tablist" aria-label={props.content.labels.ranges}>
-        {ranges.map((item) => (
-          <LumenButton
-            key={item.id}
-            role="tab"
-            variant="text"
-            aria-selected={range?.id === item.id}
-            onClick={() => {
-              setRangeId(item.id);
-              report(props.onAction, 'range', item.id);
-            }}
-          >
-            {item.label}
-          </LumenButton>
-        ))}
-      </div>
+      <LumenTabs
+        className="lumen-card-tabs"
+        label={props.content.labels.ranges}
+        items={ranges}
+        selectedId={range?.id ?? null}
+        onChange={(id) => {
+          setRangeId(id);
+          report(props.onAction, 'range', id);
+        }}
+      />
       <div data-hbar-app-ui-list-strategy={props.content.listStrategy.kind}>
         {props.content.metrics.length ? (
           <Metrics metrics={props.content.metrics} />
@@ -788,7 +778,7 @@ function Profile(props: Omit<LumenCardProps, 'content'> & { content: LumenCardPr
         </LumenText>
         <div className="lumen-card-tags" aria-label={props.content.labels.tags}>
           {tags.map((tag) => (
-            <span key={tag.id}>{tag.label}</span>
+            <LumenChip key={tag.id} label={tag.label} />
           ))}
         </div>
         <Metrics metrics={props.content.metrics} />
@@ -943,6 +933,7 @@ export function LumenCard(props: LumenCardProps) {
     result
   );
 }
+
 function renderCard(props: LumenCardProps, content: LumenCardContent | undefined) {
   if (props.variant === 1) {
     return content?.member ? <Member {...props} content={content.member} /> : empty(props);
@@ -997,13 +988,23 @@ function variant(value: number, props: LumenCardVariantProps) {
 }
 
 export const LumenCard01 = (props: LumenCardVariantProps) => variant(1, props);
+
 export const LumenCard02 = (props: LumenCardVariantProps) => variant(2, props);
+
 export const LumenCard03 = (props: LumenCardVariantProps) => variant(3, props);
+
 export const LumenCard04 = (props: LumenCardVariantProps) => variant(4, props);
+
 export const LumenCard05 = (props: LumenCardVariantProps) => variant(5, props);
+
 export const LumenCard06 = (props: LumenCardVariantProps) => variant(6, props);
+
 export const LumenCard07 = (props: LumenCardVariantProps) => variant(7, props);
+
 export const LumenCard08 = (props: LumenCardVariantProps) => variant(8, props);
+
 export const LumenCard09 = (props: LumenCardVariantProps) => variant(9, props);
+
 export const LumenCard10 = (props: LumenCardVariantProps) => variant(10, props);
+
 export const LumenCard11 = (props: LumenCardVariantProps) => variant(11, props);

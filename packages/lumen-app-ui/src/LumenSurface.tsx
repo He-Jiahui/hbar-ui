@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import createLensMap from './lensMap';
-import type { LumenShape } from './appearance';
-import type { LumenState, LumenTone } from './LumenIndicator';
+import { type LumenShape } from './appearance';
+import { type LumenState, type LumenTone } from './LumenIndicator';
 import styles from './materials.module.css';
 
 export type LumenSurfaceElement = 'article' | 'aside' | 'div' | 'form' | 'main' | 'nav' | 'section';
@@ -13,6 +13,7 @@ interface LumenSurfaceOwnProps {
   boundary?: 'none' | 'horizontal' | 'vertical' | undefined;
   contentClassName?: string | undefined;
   material?: 'glass' | 'frost' | 'solid' | undefined;
+  elevation?: 'base' | 'overlay' | undefined;
   glassStrength?: number | undefined;
   interactive?: boolean | undefined;
   shape?: LumenShape | undefined;
@@ -30,6 +31,7 @@ export default function LumenSurface<Element extends LumenSurfaceElement = 'div'
   boundary = 'none',
   contentClassName,
   material = 'glass',
+  elevation = 'base',
   glassStrength = 65,
   interactive = false,
   shape = 'rounded',
@@ -101,6 +103,7 @@ export default function LumenSurface<Element extends LumenSurfaceElement = 'div'
       data-lumen-tone={state === 'failed' ? 'danger' : tone}
       data-boundary={boundary}
       data-material={material}
+      data-elevation={elevation}
       data-interactive={interactive}
       data-shape={shape}
       data-lens={material === 'solid' ? 'none' : hasLens ? 'refractive' : 'frost'}

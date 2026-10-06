@@ -8,14 +8,14 @@
 }
 
 .lumen-ai-chat-stage {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
   min-block-size: 0;
   flex: 1 1 auto;
-  grid-template-rows: auto minmax(0, 1fr) auto;
   overflow: hidden;
   background: transparent;
   color: var(--lumen-ink);
+  flex-direction: column;
 }
 .lumen-ai-chat-stage *,
 .lumen-ai-chat-stage *::before,
@@ -47,11 +47,25 @@
 .lumen-ai-chat-header > div:first-child {
   display: flex;
   min-inline-size: 0;
+  flex: 1 1 20rem;
   flex-direction: column;
   gap: 0.25rem;
+  overflow-wrap: anywhere;
 }
-.lumen-ai-chat-header > :not(div:first-child) {
-  flex: 0 0 auto;
+
+.lumen-ai-chat-header-actions {
+  display: flex;
+  min-inline-size: 0;
+  flex: 0 1 auto;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.lumen-ai-chat-header-actions .lumen-control {
+  inline-size: auto;
+  max-inline-size: min(16rem, 100%);
 }
 .lumen-ai-chat-transcript {
   min-inline-size: 0;
@@ -60,29 +74,39 @@
   padding: 1rem;
 }
 .lumen-ai-chat-bubble {
-  display: grid;
+  display: flex;
   inline-size: min(44rem, 92%);
-  grid-template-columns: auto minmax(0, 1fr);
   gap: 0.75rem;
   margin-block-end: 0.75rem;
   padding: 0.9rem;
   border: 0.0625rem solid var(--lumen-edge);
   border-radius: var(--lumen-radius-panel);
   background: var(--lumen-glass);
+  min-inline-size: 0;
+}
+.lumen-ai-chat-bubble > :nth-child(2n + 1) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+.lumen-ai-chat-bubble > :nth-child(2n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
 }
 .lumen-ai-chat-bubble[data-own='true'] {
   margin-inline-start: auto;
   background: color-mix(in srgb, var(--lumen-accent) 8%, var(--lumen-glass));
 }
 .lumen-ai-chat-bubble > span {
-  display: grid;
+  display: flex;
   inline-size: 2rem;
   block-size: 2rem;
-  place-items: center;
+  align-items: center;
+  justify-content: center;
   border-radius: 999rem;
   background: color-mix(in srgb, var(--lumen-accent) 14%, transparent);
   color: var(--lumen-accent);
   font-weight: 700;
+  min-inline-size: 0;
 }
 .lumen-ai-chat-bubble > div {
   display: flex;
@@ -91,12 +115,20 @@
   gap: 0.25rem;
 }
 .lumen-ai-chat-composer {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
   align-items: end;
   gap: 0.5rem;
   padding: 1rem;
   border-block-start: 0.0625rem solid var(--lumen-edge);
+  min-inline-size: 0;
+}
+.lumen-ai-chat-composer > :nth-child(2n + 1) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+.lumen-ai-chat-composer > :nth-child(2n + 2) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
 }
 .lumen-ai-chat-composer textarea {
   min-block-size: 4rem;
@@ -106,20 +138,29 @@
   display: flex;
   gap: 0.25rem;
 }
-.lumen-ai-chat-tabs > button[aria-selected='true'] {
-  color: var(--lumen-accent);
-  box-shadow: inset 0 -0.125rem var(--lumen-accent);
-}
 .lumen-ai-chat-artifact {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
   min-block-size: 0;
-  grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.8fr);
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+}
+.lumen-ai-chat-artifact > :nth-child(2n + 1) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+.lumen-ai-chat-artifact > :nth-child(2n + 2) {
+  flex: 0.8 1 18rem;
+  min-inline-size: 18rem;
 }
 .lumen-ai-chat-artifact > div {
-  display: grid;
+  display: flex;
   min-block-size: 0;
-  grid-template-rows: minmax(0, 1fr) auto;
+  min-inline-size: 0;
+  flex-direction: column;
+}
+.lumen-ai-chat-artifact > div > .lumen-ai-chat-transcript {
+  flex: 1 1 auto;
 }
 .lumen-ai-chat-artifact > aside {
   min-inline-size: 0;
@@ -151,14 +192,16 @@
   padding: 0.75rem;
 }
 .lumen-ai-chat-embedded {
-  display: grid;
+  display: flex;
   min-block-size: 0;
-  place-items: center;
+  align-items: center;
+  justify-content: center;
   align-content: center;
   gap: 1rem;
   overflow: auto;
   padding: 2rem;
   text-align: center;
+  min-inline-size: 0;
 }
 .lumen-ai-chat-embedded > svg {
   inline-size: 2.5rem;
@@ -171,7 +214,7 @@
   justify-content: center;
   gap: 0.5rem;
 }
-.lumen-ai-chat-settings {
+.lumen-ai-chat-settings.hbar-app-ui-dialog-menu {
   position: absolute;
   z-index: 2;
   inset-block-start: 4.5rem;
@@ -192,7 +235,6 @@
 }
 .hbar-app-ui-ai-chat-variant-4 {
   position: relative;
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
 }
 .lumen-ai-chat-context-meter {
   padding: 0.75rem 1rem;
@@ -204,26 +246,14 @@
   gap: 1rem;
   margin-block-end: 0.4rem;
 }
-.lumen-ai-chat-context-meter [role='progressbar'] {
+.lumen-ai-chat-context-meter .lumen-progress {
   block-size: 0.4rem;
-  overflow: hidden;
-  border-radius: 999rem;
-  background: var(--lumen-edge);
-}
-.lumen-ai-chat-context-meter [role='progressbar'] > i {
-  display: block;
-  block-size: 100%;
-  background: var(--lumen-accent);
-}
-.hbar-app-ui-ai-chat-variant-5 {
-  grid-template-rows: auto minmax(0, 1fr) auto auto;
 }
 .lumen-ai-chat-approval-surface {
   margin: 0 1rem 1rem;
 }
 .lumen-ai-chat-approval {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
   gap: 1rem;
   padding: 1rem;
@@ -241,9 +271,17 @@
   color: var(--lumen-muted);
 }
 .lumen-ai-chat-agents {
-  display: grid;
+  display: flex;
   min-block-size: 0;
-  grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr);
+  min-inline-size: 0;
+}
+.lumen-ai-chat-agents > :nth-child(2n + 1) {
+  flex: 0 1 18rem;
+  min-inline-size: 12rem;
+}
+.lumen-ai-chat-agents > :nth-child(2n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
 }
 .lumen-ai-chat-agents > aside {
   display: flex;
@@ -258,12 +296,14 @@
   justify-content: flex-start;
 }
 .lumen-ai-chat-agents > aside > button > span:first-child {
-  display: grid;
+  display: flex;
   inline-size: 1.5rem;
   block-size: 1.5rem;
-  place-items: center;
+  align-items: center;
+  justify-content: center;
   border-radius: 999rem;
   background: var(--lumen-edge);
+  min-inline-size: 0;
 }
 .lumen-ai-chat-agents > aside > button > span:last-child {
   margin-inline-start: auto;
@@ -273,10 +313,10 @@
   background: color-mix(in srgb, var(--lumen-accent) 9%, transparent);
 }
 .lumen-ai-chat-agents > main {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
   min-block-size: 0;
-  grid-template-rows: minmax(0, 1fr) auto auto;
+  flex-direction: column;
 }
 .lumen-ai-chat-activity {
   display: flex;
@@ -291,9 +331,6 @@
   color: var(--lumen-muted);
   font-size: 0.75rem;
 }
-.hbar-app-ui-ai-chat-variant-7 {
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
-}
 .lumen-ai-chat-sources {
   display: flex;
   flex-wrap: wrap;
@@ -304,9 +341,6 @@
 }
 .lumen-ai-chat-sources > button small {
   color: var(--lumen-muted);
-}
-.hbar-app-ui-ai-chat-variant-8 {
-  grid-template-rows: auto minmax(8rem, 1fr) auto auto auto;
 }
 .lumen-ai-chat-waveform {
   display: flex;
@@ -336,13 +370,18 @@
   gap: 0.5rem;
   padding: 0.75rem;
 }
-.hbar-app-ui-ai-chat-variant-9 {
-  grid-template-rows: auto minmax(0, 1fr) auto;
-}
 .lumen-ai-chat-providers {
-  display: grid;
+  display: flex;
   min-block-size: 0;
-  grid-template-columns: minmax(14rem, 22rem) minmax(0, 1fr);
+  min-inline-size: 0;
+}
+.lumen-ai-chat-providers > :nth-child(2n + 1) {
+  flex: 0 1 22rem;
+  min-inline-size: 14rem;
+}
+.lumen-ai-chat-providers > :nth-child(2n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
 }
 .lumen-ai-chat-providers > aside {
   display: flex;
@@ -410,10 +449,25 @@
   .lumen-ai-chat-header {
     flex-wrap: wrap;
   }
+  .lumen-ai-chat-header-actions {
+    flex: 1 1 100%;
+    justify-content: flex-start;
+  }
   .lumen-ai-chat-artifact,
   .lumen-ai-chat-agents,
   .lumen-ai-chat-providers {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+  .lumen-ai-chat-artifact {
+    overflow-y: auto;
+  }
+  .lumen-ai-chat-artifact > div:first-child,
+  .lumen-ai-chat-artifact > aside:last-child,
+  .lumen-ai-chat-artifact > div > .lumen-ai-chat-transcript {
+    flex: 0 0 auto;
+  }
+  .lumen-ai-chat-artifact > div > .lumen-ai-chat-transcript {
+    overflow: visible;
   }
   .lumen-ai-chat-artifact > aside,
   .lumen-ai-chat-agents > aside,
@@ -424,6 +478,6 @@
     border-block: 0.0625rem solid var(--lumen-edge);
   }
   .lumen-ai-chat-approval {
-    grid-template-columns: 1fr;
+    flex-wrap: wrap;
   }
 }

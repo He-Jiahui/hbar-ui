@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { LumenFormField, LumenInput, LumenSelect, LumenTextarea } from './forms';
+import { LumenFormField, LumenInput, LumenTextarea, LumenChoiceSelect } from './forms';
 import LumenDivider from './LumenDivider';
 import LumenSurface from './LumenSurface';
 import { LumenButton, LumenStatus, LumenText } from './primitives';
@@ -11,8 +11,9 @@ import {
   type LumenPromptLabels,
 } from './session-components';
 import './prompt-input.css';
-import type { LumenPromptReferenceViewModel } from './prompt-input/reference-content';
+import { type LumenPromptReferenceViewModel } from './prompt-input/reference-content';
 import { ReferencePromptInput } from './prompt-input/ReferencePromptInput';
+import { LumenChip } from './ui-controls';
 
 export interface LumenPromptInputListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
@@ -100,6 +101,7 @@ export interface LumenPromptInputUploadContent {
     readonly uploaded: string;
     readonly uploading: string;
     readonly progress: (name: string) => string;
+    readonly progressValue?: ((value: number) => string) | undefined;
     readonly placeholder: string;
     readonly empty: string;
   };
@@ -378,19 +380,16 @@ function Tools(
       />
       <div className="lumen-prompt-input-tools-bar">
         <LumenFormField controlId={`${props.variantId}-model`} label={props.content.labels.model}>
-          <LumenSelect
+          <LumenChoiceSelect
+            id={`${props.variantId}-model`}
+            label={props.content.labels.model}
             value={modelId}
-            onChange={(event) => {
-              setModelId(event.currentTarget.value);
-              report(props.onAction, 'model', event.currentTarget.value);
+            options={models}
+            onValueChange={(id) => {
+              setModelId(id);
+              report(props.onAction, 'model', id);
             }}
-          >
-            {models.map((model) => (
-              <option key={model.id} value={model.id} disabled={model.disabled}>
-                {model.label}
-              </option>
-            ))}
-          </LumenSelect>
+          />
         </LumenFormField>
         <LumenStatus
           value={props.content.labels.tokenUsage(
@@ -695,19 +694,16 @@ function Scope(
           {props.content.labels.mention}
         </LumenButton>
         <LumenFormField controlId={`${props.variantId}-scope`} label={props.content.labels.scope}>
-          <LumenSelect
+          <LumenChoiceSelect
+            id={`${props.variantId}-scope`}
+            label={props.content.labels.scope}
             value={scopeId}
-            onChange={(event) => {
-              setScopeId(event.currentTarget.value);
-              report(props.onAction, 'scope', event.currentTarget.value);
+            options={scopes}
+            onValueChange={(id) => {
+              setScopeId(id);
+              report(props.onAction, 'scope', id);
             }}
-          >
-            {scopes.map((scope) => (
-              <option key={scope.id} value={scope.id} disabled={scope.disabled}>
-                {scope.label}
-              </option>
-            ))}
-          </LumenSelect>
+          />
         </LumenFormField>
       </div>
       {open ? (
@@ -750,10 +746,7 @@ function Scope(
       ) : null}
       <div className="lumen-prompt-input-sources">
         {selectedSources.map((source) => (
-          <span key={source.id}>
-            <Glyph name="file" />
-            {source.label}
-          </span>
+          <LumenChip key={source.id} label={source.label} startAdornment={<Glyph name="file" />} />
         ))}
         {selectedSources.length ? (
           <LumenButton
@@ -906,9 +899,15 @@ function variant(value: number, props: LumenPromptInputVariantProps) {
 }
 
 export const LumenPromptInput01 = (props: LumenPromptInputVariantProps) => variant(1, props);
+
 export const LumenPromptInput02 = (props: LumenPromptInputVariantProps) => variant(2, props);
+
 export const LumenPromptInput03 = (props: LumenPromptInputVariantProps) => variant(3, props);
+
 export const LumenPromptInput04 = (props: LumenPromptInputVariantProps) => variant(4, props);
+
 export const LumenPromptInput05 = (props: LumenPromptInputVariantProps) => variant(5, props);
+
 export const LumenPromptInput06 = (props: LumenPromptInputVariantProps) => variant(6, props);
+
 export const LumenPromptInput07 = (props: LumenPromptInputVariantProps) => variant(7, props);

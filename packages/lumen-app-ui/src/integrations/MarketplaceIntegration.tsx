@@ -1,6 +1,7 @@
+'use client';
+import * as React from 'react';
 import { LumenInput } from '../forms';
 import { Check, Plus, Search } from './glyphs';
-import { useMemo, useState } from 'react';
 import type { LumenIntegrationsCompositionProps } from './primitives';
 import type { LumenIntegrationMarketplaceContent } from './content';
 import { selectLumenIntegrationItem, uniqueLumenIntegrationItems } from './content';
@@ -11,24 +12,24 @@ import {
   IntegrationIcon,
 } from './primitives';
 
-export function MarketplaceIntegration({
+export default function MarketplaceIntegration({
   spec,
   onAction,
   content,
 }: LumenIntegrationsCompositionProps & {
   readonly content: LumenIntegrationMarketplaceContent;
 }) {
-  const categories = useMemo(
+  const categories = React.useMemo(
     () => uniqueLumenIntegrationItems(content.categories),
     [content.categories],
   );
   const initialCategory = selectLumenIntegrationItem(categories, content.initialCategoryId);
-  const [categoryId, setCategoryId] = useState(initialCategory?.id ?? '');
-  const [query, setQuery] = useState('');
-  const [connectedIds, setConnectedIds] = useState<ReadonlySet<string>>(
+  const [categoryId, setCategoryId] = React.useState(initialCategory?.id ?? '');
+  const [query, setQuery] = React.useState('');
+  const [connectedIds, setConnectedIds] = React.useState<ReadonlySet<string>>(
     () => new Set(content.items.filter((item) => item.connected).map((item) => item.id)),
   );
-  const filteredItems = useMemo(() => {
+  const filteredItems = React.useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase();
     return uniqueLumenIntegrationItems(content.items).filter((item) => {
       const categoryMatches =
@@ -46,26 +47,25 @@ export function MarketplaceIntegration({
   const toggleConnection = (itemId: string) => {
     setConnectedIds((current) => {
       const next = new Set(current);
-      if (next.has(itemId)) next.delete(itemId);
-      else next.add(itemId);
+      if (next.has(itemId)) {
+        next.delete(itemId);
+      } else {
+        next.add(itemId);
+      }
       return next;
     });
     onAction?.({ variantId: spec.id, actionId: 'toggle-connection', value: itemId });
   };
 
   return (
-    <IntegrationFrame
-      spec={spec}
-      onAction={onAction}
-      className="hbar-app-ui-integration-marketplace-surface"
-    >
+    <IntegrationFrame spec={spec} className="hbar-app-ui-integration-marketplace-surface">
       <main className="hbar-app-ui-integration-page">
         <header className="hbar-app-ui-integration-topbar">
           <div>
             <h1>{content.labels.pageTitle}</h1>
             <p>{content.labels.pageDescription}</p>
           </div>
-          <label className="hbar-app-ui-integration-search">
+          <div className="hbar-app-ui-integration-search">
             <IntegrationIcon tier="sm">
               <Search />
             </IntegrationIcon>
@@ -76,7 +76,7 @@ export function MarketplaceIntegration({
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
-          </label>
+          </div>
         </header>
         <div
           className="hbar-app-ui-integration-market-tabs"

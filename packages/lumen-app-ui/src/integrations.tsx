@@ -1,12 +1,11 @@
 'use client';
 
 import type React from 'react';
-
-import { ApiKeysIntegration } from './integrations/ApiKeysIntegration';
+import ApiKeysIntegration from './integrations/ApiKeysIntegration';
 import { ConnectionIntegration } from './integrations/ConnectionIntegration';
-import { ConsentIntegration } from './integrations/ConsentIntegration';
-import { MarketplaceIntegration } from './integrations/MarketplaceIntegration';
-import { SyncIntegration } from './integrations/SyncIntegration';
+import ConsentIntegration from './integrations/ConsentIntegration';
+import MarketplaceIntegration from './integrations/MarketplaceIntegration';
+import SyncIntegration from './integrations/SyncIntegration';
 import { WebhooksIntegration } from './integrations/WebhooksIntegration';
 import { ReferenceMarketplaceIntegration } from './integrations/ReferenceMarketplaceIntegration';
 import { ReferenceConnectionIntegration } from './integrations/ReferenceConnectionIntegration';
@@ -19,8 +18,8 @@ import {
   selectLumenIntegrationItem,
   uniqueLumenIntegrationItems,
   useLumenIntegrationContent,
+  type LumenIntegrationContent,
 } from './integrations/content';
-import type { LumenIntegrationContent } from './integrations/content';
 import {
   IntegrationFrame,
   type LumenIntegrationsCompositionProps,
@@ -199,18 +198,23 @@ function variant(value: number, props: LumenIntegrationsVariantProps) {
 export function LumenIntegrations01(props: LumenIntegrationsVariantProps) {
   return variant(1, props);
 }
+
 export function LumenIntegrations02(props: LumenIntegrationsVariantProps) {
   return variant(2, props);
 }
+
 export function LumenIntegrations03(props: LumenIntegrationsVariantProps) {
   return variant(3, props);
 }
+
 export function LumenIntegrations04(props: LumenIntegrationsVariantProps) {
   return variant(4, props);
 }
+
 export function LumenIntegrations05(props: LumenIntegrationsVariantProps) {
   return variant(5, props);
 }
+
 export function LumenIntegrations06(props: LumenIntegrationsVariantProps) {
   return variant(6, props);
 }

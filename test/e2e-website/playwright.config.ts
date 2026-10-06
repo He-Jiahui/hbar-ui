@@ -9,6 +9,9 @@ const config: PlaywrightTestConfig<TestFixture> = {
   },
   use: {
     baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || 'https://mui.com',
+    launchOptions: process.env.PLAYWRIGHT_CHROME_EXECUTABLE
+      ? { executablePath: process.env.PLAYWRIGHT_CHROME_EXECUTABLE }
+      : undefined,
   },
 };
 

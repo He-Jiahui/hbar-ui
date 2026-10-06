@@ -1,6 +1,7 @@
+'use client';
+import * as React from 'react';
 import { LumenButton } from '../primitives';
 import { ChevronDown, Download, ListFilter, RotateCcw, TriangleAlert } from './glyphs';
-import { useMemo, useState } from 'react';
 import type { LumenBillingCompositionProps } from './primitives';
 import type { LumenBillingRecoveryContent, LumenBillingSubscription } from './content';
 import {
@@ -12,17 +13,19 @@ import {
   BillingStatus,
 } from './primitives';
 
-export function RecoveryBilling({
+export default function RecoveryBilling({
   spec,
   onAction,
   content,
 }: LumenBillingCompositionProps & {
   readonly content: LumenBillingRecoveryContent;
 }) {
-  const subscriptions = useMemo(() => {
+  const subscriptions = React.useMemo(() => {
     const seen = new Set<string>();
     return content.subscriptions.filter((subscription) => {
-      if (seen.has(subscription.id)) return false;
+      if (seen.has(subscription.id)) {
+        return false;
+      }
       seen.add(subscription.id);
       return true;
     });
@@ -32,7 +35,7 @@ export function RecoveryBilling({
   )
     ? content.initialExpandedId
     : undefined;
-  const [expandedId, setExpandedId] = useState<string | undefined>(initialExpanded);
+  const [expandedId, setExpandedId] = React.useState<string | undefined>(initialExpanded);
 
   const toggleSubscription = (subscription: LumenBillingSubscription) => {
     const next = expandedId === subscription.id ? undefined : subscription.id;
@@ -41,7 +44,7 @@ export function RecoveryBilling({
   };
 
   return (
-    <BillingFrame spec={spec} onAction={onAction} className="hbar-app-ui-billing-recovery-surface">
+    <BillingFrame spec={spec} className="hbar-app-ui-billing-recovery-surface">
       <main className="hbar-app-ui-billing-page">
         <header className="hbar-app-ui-billing-topbar">
           <div>

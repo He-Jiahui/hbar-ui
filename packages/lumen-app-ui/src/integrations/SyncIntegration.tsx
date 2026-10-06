@@ -1,5 +1,6 @@
+'use client';
+import * as React from 'react';
 import { AlertTriangle, Pause, Play, RefreshCw } from './glyphs';
-import { useMemo, useState } from 'react';
 import type { LumenIntegrationsCompositionProps } from './primitives';
 import type { LumenIntegrationSyncContent, LumenIntegrationSyncSource } from './content';
 import { uniqueLumenIntegrationItems } from './content';
@@ -23,15 +24,18 @@ function statusForSource(
     : { label: source.status, tone: source.statusTone };
 }
 
-export function SyncIntegration({
+export default function SyncIntegration({
   spec,
   onAction,
   content,
 }: LumenIntegrationsCompositionProps & {
   readonly content: LumenIntegrationSyncContent;
 }) {
-  const sources = useMemo(() => uniqueLumenIntegrationItems(content.sources), [content.sources]);
-  const [pausedIds, setPausedIds] = useState<ReadonlySet<string>>(() => new Set());
+  const sources = React.useMemo(
+    () => uniqueLumenIntegrationItems(content.sources),
+    [content.sources],
+  );
+  const [pausedIds, setPausedIds] = React.useState<ReadonlySet<string>>(() => new Set());
   const failures = sources.filter(
     (source) => source.statusTone === 'danger' && !pausedIds.has(source.id),
   );
@@ -40,8 +44,11 @@ export function SyncIntegration({
     const paused = pausedIds.has(source.id);
     setPausedIds((current) => {
       const next = new Set(current);
-      if (next.has(source.id)) next.delete(source.id);
-      else next.add(source.id);
+      if (next.has(source.id)) {
+        next.delete(source.id);
+      } else {
+        next.add(source.id);
+      }
       return next;
     });
     onAction?.({
@@ -52,11 +59,7 @@ export function SyncIntegration({
   };
 
   return (
-    <IntegrationFrame
-      spec={spec}
-      onAction={onAction}
-      className="hbar-app-ui-integration-sync-surface"
-    >
+    <IntegrationFrame spec={spec} className="hbar-app-ui-integration-sync-surface">
       <main className="hbar-app-ui-integration-sync-page">
         <header className="hbar-app-ui-integration-topbar">
           <div>

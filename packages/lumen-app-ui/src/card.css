@@ -242,6 +242,12 @@ footer.lumen-card-reference-footer > button {
   min-inline-size: 0;
   flex-wrap: wrap;
   gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.lumen-card-metrics > * {
+  flex: 1 1 7rem;
+  min-inline-size: 7rem;
 }
 
 .lumen-card-metrics > div {
@@ -474,6 +480,21 @@ footer.lumen-card-reference-footer > button {
   gap: 0.25rem;
 }
 
+.lumen-card-agenda > :nth-child(3n + 1) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+
+.lumen-card-agenda > :nth-child(3n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+
+.lumen-card-agenda > :nth-child(3n + 3) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+
 .lumen-card-agenda > time {
   display: flex;
   inline-size: 4rem;
@@ -539,16 +560,10 @@ footer.lumen-card-reference-footer > button {
   gap: 0.25rem;
 }
 
-.lumen-card-avatar-stack > span:last-child:not(.lumen-card-avatar) {
-  display: inline-flex;
+.lumen-card-avatar-stack > .lumen-badge {
+  flex: 0 0 auto;
   min-block-size: 2rem;
-  align-items: center;
-  padding-inline: 0.625rem;
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: 999rem;
-  background: var(--lumen-glass);
-  color: var(--lumen-muted);
-  font-size: 0.75rem;
+  white-space: nowrap;
 }
 
 .lumen-card-tabs {
@@ -741,6 +756,21 @@ footer.lumen-card-reference-footer > button {
   border-block-start: 0.0625rem solid var(--lumen-edge);
 }
 
+.lumen-card-changelog > footer > :nth-child(3n + 1) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+
+.lumen-card-changelog > footer > :nth-child(3n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+
+.lumen-card-changelog > footer > :nth-child(3n + 3) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+
 .lumen-card-changelog > footer > span:nth-child(2) {
   display: flex;
   min-inline-size: 0;
@@ -833,6 +863,16 @@ footer.lumen-card-reference-footer > button {
   background: var(--lumen-glass);
 }
 
+.lumen-card-file-preview > :nth-child(2n + 1) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+
+.lumen-card-file-preview > :nth-child(2n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+
 .lumen-card-file-preview > div {
   display: flex;
   min-inline-size: 0;
@@ -852,13 +892,8 @@ footer.lumen-card-reference-footer > button {
   gap: 0.5rem;
 }
 
-.lumen-card-tags > span {
-  padding: 0.25rem 0.5rem;
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: 999rem;
-  background: var(--lumen-glass);
+.lumen-card-tags .lumen-chip {
   color: var(--lumen-muted);
-  font-size: 0.75rem;
 }
 
 .lumen-card-profile-body {

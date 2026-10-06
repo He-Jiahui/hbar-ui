@@ -1,8 +1,14 @@
 import * as React from 'react';
-import Button from '@mui/material/Button';
-import InputBase from '@mui/material/InputBase';
-import Switch from '@mui/material/Switch';
-import { LumenField, LumenIndicator, LumenSlider, LumenSurface } from '@lumen/app-ui';
+import {
+  LumenButton,
+  LumenField,
+  LumenIndicator,
+  LumenNavigationButton,
+  LumenSlider,
+  LumenSurface,
+  LumenSwitch,
+  LumenTextarea,
+} from '@lumen/app-ui/ui';
 import type { ScenarioCopy, ScenarioFile } from './scenarioFixtures';
 import styles from './scenario.module.css';
 
@@ -84,9 +90,8 @@ function Conversation({ copy }: { copy: ScenarioCopy }) {
       </div>
       <div className={styles.composer}>
         <LumenField className={styles.composerField} boundary="vertical">
-          <InputBase
-            multiline
-            maxRows={5}
+          <LumenTextarea
+            rows={2}
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             aria-label={copy.conversation.noteLabel}
@@ -99,14 +104,14 @@ function Conversation({ copy }: { copy: ScenarioCopy }) {
             }}
           />
         </LumenField>
-        <Button onClick={addNote} disabled={!draft.trim()}>
+        <LumenButton onClick={addNote} disabled={!draft.trim()}>
           {copy.conversation.addNote}
           <LumenIndicator
             edge="bottom"
             length="action"
             state={draft.trim() ? 'idle' : 'disabled'}
           />
-        </Button>
+        </LumenButton>
       </div>
     </Frame>
   );
@@ -171,14 +176,14 @@ function Activity({ copy }: { copy: ScenarioCopy }) {
         <span role="status" aria-live="polite">
           {copy.activity.status[status]}
         </span>
-        <Button onClick={status === 'running' ? () => setStatus('cancelled') : start}>
+        <LumenButton onClick={status === 'running' ? () => setStatus('cancelled') : start}>
           {action}
           <LumenIndicator
             edge="bottom"
             state={status === 'running' ? 'running' : 'idle'}
             tone="info"
           />
-        </Button>
+        </LumenButton>
       </div>
     </Frame>
   );
@@ -192,14 +197,14 @@ function Files({ copy, files }: { copy: ScenarioCopy; files: readonly ScenarioFi
       <div className={styles.fileLayout}>
         <nav className={styles.fileList} aria-label={copy.files.list}>
           {files.map((file) => (
-            <Button
+            <LumenNavigationButton
               key={file.id}
-              aria-current={selected?.id === file.id ? 'page' : undefined}
+              selected={selected?.id === file.id}
+              indicatorEdge="right"
               onClick={() => setActiveId(file.id)}
             >
               <span>{file.name}</span>
-              <LumenIndicator edge="right" state={selected?.id === file.id ? 'selected' : 'idle'} />
-            </Button>
+            </LumenNavigationButton>
           ))}
         </nav>
         <section className={styles.filePreview} aria-label={copy.files.preview}>
@@ -234,25 +239,23 @@ function Appearance({ copy }: { copy: ScenarioCopy }) {
         <label className={styles.control}>
           <span>
             {copy.appearance.glow}
-            <output>{glow}%</output>
+            <output>{copy.appearance.percentage(glow)}</output>
           </span>
           <LumenSlider value={glow} onChange={setGlow} aria-label={copy.appearance.glow} />
         </label>
         <label className={styles.control}>
           <span>
             {copy.appearance.glass}
-            <output>{glass}%</output>
+            <output>{copy.appearance.percentage(glass)}</output>
           </span>
           <LumenSlider value={glass} onChange={setGlass} aria-label={copy.appearance.glass} />
         </label>
-        <label className={styles.switch}>
-          <span>{copy.appearance.motion}</span>
-          <Switch
-            checked={motion}
-            onChange={(event) => setMotion(event.target.checked)}
-            slotProps={{ input: { 'aria-label': copy.appearance.motion } }}
-          />
-        </label>
+        <LumenSwitch
+          className={styles.switch}
+          label={copy.appearance.motion}
+          checked={motion}
+          onChange={(event) => setMotion(event.target.checked)}
+        />
         <div className={styles.materialSample}>
           <LumenIndicator edge="left" state="running" tone="info" />
           <div>

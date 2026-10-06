@@ -6,21 +6,27 @@ import LumenSurface from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import './dashboard.css';
 import LumenDashboardReference from './dashboard-reference';
-import type { LumenDashboardReferenceContent } from './dashboard-reference-contracts';
+import { type LumenDashboardReferenceContent } from './dashboard-reference-contracts';
+import { LumenChart, type LumenChartPoint } from './ui-compositions';
+import { LumenProgress, LumenTabs } from './ui-controls';
 
 export interface LumenDashboardListStrategy {
   readonly kind: 'content-grown' | 'pane-scroll';
   readonly expectedMaximum: number;
 }
+
 export interface LumenDashboardChoice {
   readonly id: string;
   readonly label: string;
   readonly disabled?: boolean | undefined;
 }
+
 export interface LumenDashboardPoint {
   readonly id: string;
+  readonly label?: string | undefined;
   readonly value: number;
 }
+
 export interface LumenDashboardMetric {
   readonly id: string;
   readonly label: string;
@@ -30,6 +36,7 @@ export interface LumenDashboardMetric {
   readonly tone?: 'neutral' | 'success' | 'warning' | 'danger' | undefined;
   readonly series?: readonly LumenDashboardPoint[] | undefined;
 }
+
 export interface LumenDashboardOverviewContent {
   readonly labels: {
     readonly title: string;
@@ -41,12 +48,14 @@ export interface LumenDashboardOverviewContent {
   readonly metrics: readonly LumenDashboardMetric[];
   readonly listStrategy: LumenDashboardListStrategy;
 }
+
 export interface LumenDashboardBreakdown {
   readonly id: string;
   readonly source: string;
   readonly value: string;
   readonly share: string;
 }
+
 export interface LumenDashboardThroughputContent {
   readonly labels: {
     readonly title: string;
@@ -65,12 +74,14 @@ export interface LumenDashboardThroughputContent {
   readonly breakdown: readonly LumenDashboardBreakdown[];
   readonly listStrategy: LumenDashboardListStrategy;
 }
+
 export interface LumenDashboardWidget {
   readonly id: string;
   readonly label: string;
   readonly value: string;
   readonly wide?: boolean | undefined;
 }
+
 export interface LumenDashboardWidgetsContent {
   readonly labels: {
     readonly title: string;
@@ -84,6 +95,7 @@ export interface LumenDashboardWidgetsContent {
   readonly widgets: readonly LumenDashboardWidget[];
   readonly listStrategy: LumenDashboardListStrategy;
 }
+
 export interface LumenDashboardService {
   readonly id: string;
   readonly name: string;
@@ -91,12 +103,14 @@ export interface LumenDashboardService {
   readonly tone: 'neutral' | 'success' | 'warning' | 'danger';
   readonly detail: string;
 }
+
 export interface LumenDashboardActivity {
   readonly id: string;
   readonly title: string;
   readonly meta: string;
   readonly tone: 'neutral' | 'success' | 'warning' | 'danger';
 }
+
 export interface LumenDashboardOperationsContent {
   readonly labels: {
     readonly title: string;
@@ -110,6 +124,7 @@ export interface LumenDashboardOperationsContent {
   readonly incidents: readonly LumenDashboardActivity[];
   readonly listStrategy: LumenDashboardListStrategy;
 }
+
 export interface LumenDashboardQuota {
   readonly id: string;
   readonly label: string;
@@ -117,6 +132,7 @@ export interface LumenDashboardQuota {
   readonly valueLabel: string;
   readonly detail: string;
 }
+
 export interface LumenDashboardUsageContent {
   readonly labels: {
     readonly title: string;
@@ -131,6 +147,7 @@ export interface LumenDashboardUsageContent {
   readonly series: readonly LumenDashboardPoint[];
   readonly listStrategy: LumenDashboardListStrategy;
 }
+
 export interface LumenDashboardComparisonContent {
   readonly labels: {
     readonly title: string;
@@ -144,6 +161,7 @@ export interface LumenDashboardComparisonContent {
   readonly metricsByMode: Readonly<Record<string, readonly LumenDashboardMetric[]>>;
   readonly seriesByMode: Readonly<Record<string, readonly LumenDashboardPoint[]>>;
 }
+
 export interface LumenDashboardProjectContent {
   readonly labels: {
     readonly title: string;
@@ -156,28 +174,33 @@ export interface LumenDashboardProjectContent {
   };
   readonly metrics: readonly LumenDashboardMetric[];
 }
+
 export interface LumenDashboardModule {
   readonly id: string;
   readonly name: string;
   readonly progress: number;
   readonly detail: string;
 }
+
 export interface LumenDashboardDeliveryContent {
   readonly labels: {
     readonly title: string;
     readonly detail: string;
     readonly sort: string;
     readonly progress: (name: string) => string;
+    readonly percent?: ((value: number) => string) | undefined;
     readonly empty: string;
   };
   readonly modules: readonly LumenDashboardModule[];
   readonly listStrategy: LumenDashboardListStrategy;
 }
+
 export interface LumenDashboardWorklogPerson {
   readonly id: string;
   readonly name: string;
   readonly hours: readonly number[];
 }
+
 export interface LumenDashboardWorklogContent {
   readonly labels: {
     readonly title: string;
@@ -186,15 +209,18 @@ export interface LumenDashboardWorklogContent {
     readonly next: string;
     readonly person: string;
     readonly hours: (person: string, day: string, hours: number) => string;
+    readonly hoursValue?: ((hours: number) => string) | undefined;
     readonly empty: string;
   };
   readonly days: readonly LumenDashboardChoice[];
   readonly people: readonly LumenDashboardWorklogPerson[];
   readonly listStrategy: LumenDashboardListStrategy;
 }
+
 export interface LumenDashboardMeasure extends LumenDashboardChoice {
   readonly series: readonly LumenDashboardPoint[];
 }
+
 export interface LumenDashboardExplorerContent {
   readonly labels: {
     readonly title: string;
@@ -206,6 +232,7 @@ export interface LumenDashboardExplorerContent {
   readonly measures: readonly LumenDashboardMeasure[];
   readonly initialMeasureId: string;
 }
+
 export interface LumenDashboardTeam {
   readonly id: string;
   readonly name: string;
@@ -213,6 +240,7 @@ export interface LumenDashboardTeam {
   readonly detail: string;
   readonly tone?: 'neutral' | 'success' | 'warning' | 'danger' | undefined;
 }
+
 export interface LumenDashboardCoverageContent {
   readonly labels: {
     readonly title: string;
@@ -227,6 +255,7 @@ export interface LumenDashboardCoverageContent {
   readonly series: readonly LumenDashboardPoint[];
   readonly listStrategy: LumenDashboardListStrategy;
 }
+
 export interface LumenDashboardPayoutContent {
   readonly labels: {
     readonly title: string;
@@ -234,13 +263,17 @@ export interface LumenDashboardPayoutContent {
     readonly sweep: string;
     readonly chartTitle: string;
     readonly chart: string;
+    readonly paid?: string | undefined;
+    readonly pending?: string | undefined;
     readonly lanes: string;
     readonly empty: string;
   };
   readonly metrics: readonly LumenDashboardMetric[];
   readonly series: readonly LumenDashboardPoint[];
+  readonly comparisonSeries?: readonly LumenDashboardPoint[] | undefined;
   readonly lanes: readonly LumenDashboardChoice[];
 }
+
 export interface LumenDashboardObjective {
   readonly id: string;
   readonly title: string;
@@ -249,23 +282,33 @@ export interface LumenDashboardObjective {
   readonly progressLabel: string;
   readonly tone?: 'neutral' | 'success' | 'warning' | 'danger' | undefined;
 }
+
 export interface LumenDashboardScorecardContent {
   readonly labels: {
     readonly title: string;
     readonly detail: string;
     readonly quarter: string;
+    readonly chartTitle?: string | undefined;
+    readonly chart?: string | undefined;
+    readonly actual?: string | undefined;
+    readonly plan?: string | undefined;
+    readonly percent?: ((value: number) => string) | undefined;
     readonly empty: string;
   };
   readonly quarters: readonly LumenDashboardChoice[];
   readonly initialQuarterId: string;
   readonly objectives: readonly LumenDashboardObjective[];
+  readonly actualSeries?: readonly LumenDashboardPoint[] | undefined;
+  readonly planSeries?: readonly LumenDashboardPoint[] | undefined;
   readonly listStrategy: LumenDashboardListStrategy;
 }
+
 export interface LumenDashboardServiceDetail extends LumenDashboardService {
   readonly metrics: readonly LumenDashboardMetric[];
   readonly activityTitle: string;
   readonly activity: string;
 }
+
 export interface LumenDashboardServiceDetailContent {
   readonly labels: {
     readonly title: string;
@@ -277,6 +320,7 @@ export interface LumenDashboardServiceDetailContent {
   readonly services: readonly LumenDashboardServiceDetail[];
   readonly listStrategy: LumenDashboardListStrategy;
 }
+
 export interface LumenDashboardContent {
   readonly reference?: LumenDashboardReferenceContent | undefined;
   readonly presentation?:
@@ -296,14 +340,17 @@ export interface LumenDashboardContent {
   readonly scorecard?: LumenDashboardScorecardContent | undefined;
   readonly serviceDetail?: LumenDashboardServiceDetailContent | undefined;
 }
+
 export interface LumenDashboardProviderProps {
   readonly content: LumenDashboardContent;
   readonly children: React.ReactNode;
 }
+
 export interface LumenDashboardAction {
   readonly actionId: string;
   readonly value?: string | undefined;
 }
+
 export interface LumenDashboardProps {
   readonly variant: number;
   readonly variantId: string;
@@ -315,15 +362,19 @@ export interface LumenDashboardProps {
   readonly state?: string | undefined;
   readonly visualMode?: string | undefined;
 }
+
 export type LumenDashboardVariantProps = Omit<LumenDashboardProps, 'variant' | 'variantId'>;
 
 const Context = React.createContext<LumenDashboardContent | undefined>(undefined);
+
 export function LumenDashboardProvider({ content, children }: LumenDashboardProviderProps) {
   return <Context.Provider value={content}>{children}</Context.Provider>;
 }
+
 export function useLumenDashboardContent() {
   return React.useContext(Context);
 }
+
 export function uniqueLumenDashboardItems<T extends { readonly id: string }>(
   items: readonly T[],
 ): readonly T[] {
@@ -336,12 +387,14 @@ export function uniqueLumenDashboardItems<T extends { readonly id: string }>(
     return true;
   });
 }
+
 export function selectLumenDashboardItem<T extends { readonly id: string }>(
   items: readonly T[],
   id: string | undefined,
 ): T | undefined {
   return items.find((item) => item.id === id) ?? items[0];
 }
+
 const report = (fn: LumenDashboardProps['onAction'], actionId: string, value?: string) =>
   fn?.(value === undefined ? { actionId } : { actionId, value });
 
@@ -365,6 +418,7 @@ function Glyph({
     </svg>
   );
 }
+
 function Root({
   variant,
   variantId,
@@ -401,6 +455,7 @@ function Root({
     </LumenSurface>
   );
 }
+
 function Header({
   title,
   detail,
@@ -424,6 +479,7 @@ function Header({
     </header>
   );
 }
+
 function Empty({ children }: { readonly children: string }) {
   return (
     <LumenText as="p" className="lumen-dashboard-empty" tone="muted">
@@ -431,6 +487,7 @@ function Empty({ children }: { readonly children: string }) {
     </LumenText>
   );
 }
+
 function Bars({
   points,
   label,
@@ -458,6 +515,7 @@ function Bars({
     </div>
   );
 }
+
 function Progress({
   value,
   label,
@@ -467,21 +525,16 @@ function Progress({
   readonly label: string;
   readonly tone?: string | undefined;
 }) {
-  const bounded = Math.max(0, Math.min(100, value));
   return (
-    <span
+    <LumenProgress
       className="lumen-dashboard-progress"
-      data-tone={tone}
-      role="progressbar"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={bounded}
-    >
-      <i style={{ inlineSize: `${bounded}%` }} />
-    </span>
+      label={label}
+      value={value}
+      tone={tone === 'warning' || tone === 'success' ? tone : 'info'}
+    />
   );
 }
+
 function Metrics({
   metrics,
   empty,
@@ -513,6 +566,7 @@ function Metrics({
     </div>
   );
 }
+
 function Tabs({
   choices,
   selectedId,
@@ -525,20 +579,13 @@ function Tabs({
   readonly onChange: (id: string) => void;
 }) {
   return (
-    <div className="lumen-dashboard-tabs" role="tablist" aria-label={label}>
-      {choices.map((item) => (
-        <LumenButton
-          key={item.id}
-          role="tab"
-          variant="text"
-          disabled={item.disabled}
-          aria-selected={selectedId === item.id}
-          onClick={() => onChange(item.id)}
-        >
-          {item.label}
-        </LumenButton>
-      ))}
-    </div>
+    <LumenTabs
+      className="lumen-dashboard-tabs"
+      label={label}
+      items={choices}
+      selectedId={selectedId ?? null}
+      onChange={onChange}
+    />
   );
 }
 
@@ -571,6 +618,7 @@ function Overview(
     </Root>
   );
 }
+
 function Throughput(
   props: Omit<LumenDashboardProps, 'content'> & { content: LumenDashboardThroughputContent },
 ) {
@@ -619,6 +667,7 @@ function Throughput(
     </Root>
   );
 }
+
 function Widgets(
   props: Omit<LumenDashboardProps, 'content'> & { content: LumenDashboardWidgetsContent },
 ) {
@@ -678,6 +727,7 @@ function Widgets(
     </Root>
   );
 }
+
 function Operations(
   props: Omit<LumenDashboardProps, 'content'> & { content: LumenDashboardOperationsContent },
 ) {
@@ -731,6 +781,7 @@ function Operations(
     </Root>
   );
 }
+
 function Usage(
   props: Omit<LumenDashboardProps, 'content'> & { content: LumenDashboardUsageContent },
 ) {
@@ -774,6 +825,7 @@ function Usage(
     </Root>
   );
 }
+
 function Comparison(
   props: Omit<LumenDashboardProps, 'content'> & { content: LumenDashboardComparisonContent },
 ) {
@@ -781,7 +833,6 @@ function Comparison(
   const [modeId, setModeId] = React.useState(props.content.initialModeId);
   const mode = selectLumenDashboardItem(modes, modeId);
   const metrics = props.content.metricsByMode[mode?.id ?? ''] ?? [];
-  const points = props.content.seriesByMode[mode?.id ?? ''] ?? [];
   return (
     <Root {...props}>
       <Header title={props.content.labels.title} detail={props.content.labels.detail} />
@@ -795,10 +846,38 @@ function Comparison(
         }}
       />
       <Metrics metrics={metrics} empty={props.content.labels.empty} />
-      <Bars points={points} label={props.content.labels.chart(mode?.label ?? '')} horizontal />
+      <figure className="lumen-dashboard-comparison-figure">
+        <figcaption>{props.content.labels.chart(mode?.label ?? '')}</figcaption>
+        <div className="lumen-dashboard-comparison-layers">
+          {modes.map((choice) => (
+            <div
+              key={choice.id}
+              className="lumen-dashboard-comparison-layer"
+              data-active={choice.id === mode?.id}
+              aria-hidden={choice.id !== mode?.id}
+            >
+              <LumenChart
+                className="lumen-dashboard-comparison-chart"
+                kind="area"
+                label={props.content.labels.chart(choice.label)}
+                series={[
+                  {
+                    id: choice.id,
+                    label: choice.label,
+                    points: chartPoints(props.content.seriesByMode[choice.id] ?? []),
+                    tone: 'neutral',
+                  },
+                ]}
+                empty={props.content.labels.empty}
+              />
+            </div>
+          ))}
+        </div>
+      </figure>
     </Root>
   );
 }
+
 function Project(
   props: Omit<LumenDashboardProps, 'content'> & { content: LumenDashboardProjectContent },
 ) {
@@ -836,6 +915,7 @@ function Project(
     </Root>
   );
 }
+
 function Delivery(
   props: Omit<LumenDashboardProps, 'content'> & { content: LumenDashboardDeliveryContent },
 ) {
@@ -898,6 +978,7 @@ function Delivery(
     </Root>
   );
 }
+
 function Worklog(
   props: Omit<LumenDashboardProps, 'content'> & { content: LumenDashboardWorklogContent },
 ) {
@@ -963,6 +1044,7 @@ function Worklog(
     </Root>
   );
 }
+
 function Explorer(
   props: Omit<LumenDashboardProps, 'content'> & { content: LumenDashboardExplorerContent },
 ) {
@@ -992,6 +1074,7 @@ function Explorer(
     </Root>
   );
 }
+
 function Coverage(
   props: Omit<LumenDashboardProps, 'content'> & { content: LumenDashboardCoverageContent },
 ) {
@@ -1034,6 +1117,7 @@ function Coverage(
     </Root>
   );
 }
+
 function Payouts(
   props: Omit<LumenDashboardProps, 'content'> & { content: LumenDashboardPayoutContent },
 ) {
@@ -1062,6 +1146,7 @@ function Payouts(
     </Root>
   );
 }
+
 function Scorecard(
   props: Omit<LumenDashboardProps, 'content'> & { content: LumenDashboardScorecardContent },
 ) {
@@ -1120,6 +1205,7 @@ function Scorecard(
     </Root>
   );
 }
+
 function ServiceDetail(
   props: Omit<LumenDashboardProps, 'content'> & { content: LumenDashboardServiceDetailContent },
 ) {
@@ -1170,9 +1256,11 @@ function ServiceDetail(
     </Root>
   );
 }
+
 function empty(props: LumenDashboardProps) {
   return <Root {...props}>{null}</Root>;
 }
+
 export function LumenDashboard(props: LumenDashboardProps) {
   const inheritedContent = useLumenDashboardContent();
   const content = props.content ?? inheritedContent;
@@ -1258,9 +1346,11 @@ export function LumenDashboard(props: LumenDashboardProps) {
   }
   return empty(props);
 }
+
 function variant(value: number, props: LumenDashboardVariantProps) {
   return <LumenDashboard {...props} variant={value} variantId={`hbar-app-ui-dashboard-${value}`} />;
 }
+
 export const LumenDashboard01 = (props: LumenDashboardVariantProps) => variant(1, props),
   LumenDashboard02 = (props: LumenDashboardVariantProps) => variant(2, props),
   LumenDashboard03 = (props: LumenDashboardVariantProps) => variant(3, props),
@@ -1275,3 +1365,11 @@ export const LumenDashboard01 = (props: LumenDashboardVariantProps) => variant(1
   LumenDashboard12 = (props: LumenDashboardVariantProps) => variant(12, props),
   LumenDashboard13 = (props: LumenDashboardVariantProps) => variant(13, props),
   LumenDashboard14 = (props: LumenDashboardVariantProps) => variant(14, props);
+
+function chartPoints(points: readonly LumenDashboardPoint[]): readonly LumenChartPoint[] {
+  return uniqueLumenDashboardItems(points).map((point) => ({
+    id: point.id,
+    label: point.label,
+    value: point.value,
+  }));
+}

@@ -1,4 +1,4 @@
-import { createContext, type ReactNode, useContext } from 'react';
+import * as React from 'react';
 
 /**
  * Navbar collections are deliberately small, UI-owned lists.  The contract
@@ -142,7 +142,19 @@ export interface LumenNavbarTaskListContent {
     readonly sortedBy: string;
     readonly metadataSeparator: string;
     readonly breadcrumbLabel: (items: readonly string[]) => string;
+    readonly inviteTitle?: string | undefined;
+    readonly emptyMenu?: string | undefined;
   };
+  readonly members?:
+    | readonly {
+        readonly id: string;
+        readonly name: string;
+        readonly detail: string;
+      }[]
+    | undefined;
+  readonly filterOptions?: readonly { readonly id: string; readonly label: string }[] | undefined;
+  readonly sortOptions?: readonly { readonly id: string; readonly label: string }[] | undefined;
+  readonly moreActions?: readonly { readonly id: string; readonly label: string }[] | undefined;
   readonly rows: readonly LumenNavbarTaskRow[];
   readonly listStrategy: LumenNavbarListStrategy;
 }
@@ -165,7 +177,29 @@ export interface LumenNavbarDeploymentContent {
   readonly actions: LumenNavbarActionLabelSet & {
     readonly upgrade: string;
     readonly breadcrumbSeparator: string;
+    readonly projectSearch?: string | undefined;
+    readonly projectEmpty?: string | undefined;
+    readonly selectorOpen?: string | undefined;
+    readonly selectorLoading?: string | undefined;
   };
+  readonly initialWorkspaceId?: string | undefined;
+  readonly initialProjectId?: string | undefined;
+  readonly initialEnvironmentId?: string | undefined;
+  readonly workspaceOptions?: readonly {
+    readonly id: string;
+    readonly label: string;
+    readonly detail?: string | undefined;
+  }[];
+  readonly projectOptions?: readonly {
+    readonly id: string;
+    readonly label: string;
+    readonly detail?: string | undefined;
+  }[];
+  readonly environmentOptions?: readonly {
+    readonly id: string;
+    readonly label: string;
+    readonly detail?: string | undefined;
+  }[];
   readonly deploymentLabel: string;
   readonly deploymentSummary: string;
   readonly stats: readonly LumenNavbarDeploymentStat[];
@@ -182,12 +216,30 @@ export interface LumenNavbarLandingContent {
     readonly signIn: string;
     readonly primaryAction: string;
     readonly menu: string;
-    readonly eyebrow?: string;
+    readonly menuTitle?: string | undefined;
+    readonly closeMenu?: string | undefined;
+    readonly footerAction?: string | undefined;
+    readonly eyebrow?: string | undefined;
   };
+  readonly menuPanels?:
+    | readonly {
+        readonly id: string;
+        readonly trigger: string;
+        readonly groups: readonly {
+          readonly id: string;
+          readonly title: string;
+          readonly links: readonly {
+            readonly id: string;
+            readonly label: string;
+            readonly detail: string;
+          }[];
+        }[];
+      }[]
+    | undefined;
   readonly title: string;
   readonly description: string;
-  readonly stats?: readonly LumenNavbarDeploymentStat[];
-  readonly statsStrategy?: LumenNavbarListStrategy;
+  readonly stats?: readonly LumenNavbarDeploymentStat[] | undefined;
+  readonly statsStrategy?: LumenNavbarListStrategy | undefined;
   readonly placeholderCount: number;
 }
 
@@ -220,6 +272,10 @@ export interface LumenNavbarActivityContent {
     readonly today: string;
     readonly shortcut: string;
     readonly accountInitial: string;
+    readonly notificationsTitle?: string | undefined;
+    readonly accountMenu?: string | undefined;
+    readonly signOut?: string | undefined;
+    readonly emptyMenu?: string | undefined;
   };
   readonly items: readonly LumenNavbarActivityItem[];
   readonly listStrategy: LumenNavbarListStrategy;
@@ -304,6 +360,8 @@ export interface LumenNavbarProduct {
 }
 
 export interface LumenNavbarCommerceContent {
+  /** Compatibility count for hosts that own the cart outside this surface. */
+  readonly cartCount?: string | number | undefined;
   readonly navigation?: LumenNavbarNavigation | undefined;
   readonly dropdowns?: readonly (LumenNavbarPopup & { readonly id: string })[] | undefined;
   readonly announcement: string;
@@ -315,8 +373,36 @@ export interface LumenNavbarCommerceContent {
     readonly account: string;
     readonly wishlist: string;
     readonly cart: string;
+    readonly megaMenu?: string | undefined;
+    readonly searchTitle?: string | undefined;
+    readonly searchPlaceholder?: string | undefined;
+    readonly noSearchResults?: string | undefined;
+    readonly wishlistTitle?: string | undefined;
+    readonly wishlistEmpty?: string | undefined;
+    readonly cartTitle?: string | undefined;
+    readonly emptyCart?: string | undefined;
+    readonly subtotal?: string | undefined;
+    readonly checkout?: string | undefined;
+    readonly closeMenu?: string | undefined;
+    readonly mobileMenuTitle?: string | undefined;
+    readonly decreaseQuantity?: ((name: string) => string) | undefined;
+    readonly increaseQuantity?: ((name: string) => string) | undefined;
+    readonly itemCount?: ((count: number) => string) | undefined;
   };
-  readonly cartCount: number;
+  readonly megaPanels?:
+    | readonly {
+        readonly id: string;
+        readonly trigger: string;
+        readonly groups: readonly {
+          readonly id: string;
+          readonly title: string;
+          readonly items: readonly { readonly id: string; readonly label: string }[];
+        }[];
+      }[]
+    | undefined;
+  readonly wishlistIds?: readonly string[] | undefined;
+  readonly cartItems?: readonly LumenNavbarCommerceCartItem[] | undefined;
+  readonly formatPrice?: ((amount: number) => string) | undefined;
   readonly products: readonly LumenNavbarProduct[];
   readonly productStrategy: LumenNavbarListStrategy;
 }
@@ -336,7 +422,25 @@ export interface LumenNavbarDocsContent {
     readonly latest: string;
     readonly documentMeta: (brand: string, version: string, latest: string) => string;
     readonly nextMarker: string;
+    readonly versionMenu?: string | undefined;
+    readonly searchTitle?: string | undefined;
+    readonly closeSearch?: string | undefined;
+    readonly searchPlaceholder?: string | undefined;
+    readonly searchEmpty?: string | undefined;
+    readonly mobileNavigation?: string | undefined;
+    readonly closeNavigation?: string | undefined;
+    readonly lightTheme?: string | undefined;
+    readonly darkTheme?: string | undefined;
+    readonly emptyMenu?: string | undefined;
   };
+  readonly versions?: readonly { readonly id: string; readonly label: string }[] | undefined;
+  readonly searchItems?:
+    | readonly {
+        readonly id: string;
+        readonly label: string;
+        readonly detail: string;
+      }[]
+    | undefined;
   readonly sidebar: readonly { readonly group: string; readonly items: readonly string[] }[];
   readonly sidebarStrategy: LumenNavbarListStrategy;
   readonly title: string;
@@ -353,8 +457,25 @@ export interface LumenNavbarDocumentContent {
     readonly share: string;
     readonly actions: string;
     readonly saved: string;
+    readonly unsaved?: string;
+    readonly titleInput?: string;
+    readonly shareTitle?: string;
+    readonly shareDescription?: string;
+    readonly shareLink?: string;
+    readonly copy?: string;
+    readonly copied?: string;
+    readonly historyTitle?: string;
+    readonly actionsMenu?: string;
+    readonly emptyMenu?: string;
   };
   readonly avatars: readonly string[];
+  readonly shareUrl?: string;
+  readonly history?: readonly {
+    readonly id: string;
+    readonly label: string;
+    readonly detail: string;
+  }[];
+  readonly actions?: readonly { readonly id: string; readonly label: string }[];
   readonly description: string;
   readonly outline: readonly { readonly id: string; readonly label: string }[];
   readonly outlineStrategy: LumenNavbarListStrategy;
@@ -365,7 +486,13 @@ export interface LumenNavbarPortfolioContent {
   readonly brand: string;
   readonly leftNav: readonly string[];
   readonly rightNav: readonly string[];
-  readonly labels: { readonly menu: string; readonly eyebrow: string };
+  readonly labels: {
+    readonly menu: string;
+    readonly closeMenu?: string | undefined;
+    readonly overlayTitle?: string | undefined;
+    readonly overlayDescription?: string | undefined;
+    readonly eyebrow: string;
+  };
   readonly title: string;
   readonly projects: readonly {
     readonly id: string;
@@ -389,6 +516,7 @@ export interface LumenNavbarArticleContent {
   readonly labels: {
     readonly back: string;
     readonly contents: string;
+    readonly closeContents?: string | undefined;
     readonly bookmark: string;
     readonly copyLink: string;
     readonly share: string;
@@ -431,15 +559,21 @@ export interface LumenNavbarContent {
 
 export interface LumenNavbarProviderProps {
   readonly content: LumenNavbarContent;
-  readonly children: ReactNode;
+  readonly children: React.ReactNode;
 }
 
-const navbarContentContext = createContext<LumenNavbarContent | undefined>(undefined);
+const navbarContentContext = React.createContext<LumenNavbarContent | undefined>(undefined);
 
 export function LumenNavbarProvider({ content, children }: LumenNavbarProviderProps) {
   return <navbarContentContext.Provider value={content}>{children}</navbarContentContext.Provider>;
 }
 
 export function useLumenNavbarContent(): LumenNavbarContent | undefined {
-  return useContext(navbarContentContext);
+  return React.useContext(navbarContentContext);
+}
+('use client');
+
+export interface LumenNavbarCommerceCartItem extends LumenNavbarProduct {
+  readonly unitPrice: number;
+  readonly initialQuantity: number;
 }

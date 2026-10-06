@@ -1,14 +1,18 @@
-import { LumenButton, LumenIconButton } from '../primitives';
+import { LumenButton, LumenIconButton, type LumenButtonProps } from '../primitives';
 import LumenSurface from '../LumenSurface';
-import type { ButtonHTMLAttributes, ComponentType, ReactNode, SVGProps } from 'react';
+import * as React from 'react';
+import { type ReactNode } from 'react';
 
 export type NavbarIconTier = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-export type NavbarIcon = ComponentType<SVGProps<SVGSVGElement>>;
+
+export type NavbarIcon = React.ComponentType<React.SVGProps<SVGSVGElement>>;
+
 export interface LumenNavbarInternalEvent {
   readonly variantId: string;
   readonly actionId: string;
   readonly value?: string | undefined;
 }
+
 export interface LumenNavbarCompositionProps {
   readonly spec: {
     readonly id: string;
@@ -45,7 +49,7 @@ export function NavbarFrame({
   children,
 }: NavbarSurfaceProps & {
   readonly className: string;
-  readonly children: ReactNode;
+  readonly children: React.ReactNode;
 }) {
   const contentClassName = [
     'lumen-navbar',
@@ -82,7 +86,7 @@ export function NavbarButton({
   type = 'button',
   className,
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & {
+}: LumenButtonProps & {
   readonly children: ReactNode;
 }) {
   return (
@@ -101,7 +105,7 @@ export function NavbarGlyph({
   tier = 'md',
 }: {
   readonly icon: NavbarIcon;
-  readonly tier?: NavbarIconTier;
+  readonly tier?: NavbarIconTier | undefined;
 }) {
   return (
     <span className={`hbar-app-ui-navbar-icon hbar-app-ui-icon-${tier}`} aria-hidden="true">
@@ -118,11 +122,11 @@ export function NavbarIconOnly({
   type = 'button',
   className,
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & {
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
   readonly icon: NavbarIcon;
   readonly label: string;
-  readonly tier?: NavbarIconTier;
-  readonly children?: ReactNode;
+  readonly tier?: NavbarIconTier | undefined;
+  readonly children?: React.ReactNode;
 }) {
   return (
     <LumenIconButton

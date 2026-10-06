@@ -75,25 +75,8 @@
   gap: 0.5rem;
 }
 
-.hbar-app-ui-agent-plan-progress > div,
-.hbar-app-ui-agent-plan-duration-bar {
-  position: relative;
-  overflow: hidden;
-  border-radius: 999rem;
-  background: var(--lumen-edge);
-}
-
-.hbar-app-ui-agent-plan-progress > div {
+.hbar-app-ui-agent-plan-progress > .lumen-progress {
   inline-size: 5rem;
-  block-size: 0.25rem;
-}
-
-.hbar-app-ui-agent-plan-progress > div > span,
-.hbar-app-ui-agent-plan-duration-bar > span {
-  display: block;
-  block-size: 100%;
-  border-radius: inherit;
-  background: var(--lumen-ink);
 }
 
 .lumen-agent-plan-glyph {
@@ -108,14 +91,16 @@
 }
 
 .hbar-app-ui-agent-plan-number {
-  display: inline-grid;
+  display: inline-flex;
   inline-size: 1.75rem;
   block-size: 1.75rem;
   flex: 0 0 1.75rem;
-  place-items: center;
+  align-items: center;
+  justify-content: center;
   border: 0.0625rem solid var(--lumen-edge);
   border-radius: var(--lumen-radius-control);
   background: var(--lumen-glass);
+  min-inline-size: 0;
 }
 
 .hbar-app-ui-agent-plan-status {
@@ -176,10 +161,16 @@
 }
 
 .hbar-app-ui-agent-plan-checklist-pane li > button,
-.hbar-app-ui-agent-plan-tree-group {
+.hbar-app-ui-agent-plan-tree-pane .hbar-app-ui-agent-plan-tree-group {
   inline-size: 100%;
   justify-content: flex-start;
   text-align: start;
+}
+
+.hbar-app-ui-agent-plan-tree-pane .hbar-app-ui-agent-plan-tree-group {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-block: 0.625rem;
 }
 
 .hbar-app-ui-agent-plan-checklist-pane li.is-active > button {
@@ -238,18 +229,31 @@
 }
 
 .hbar-app-ui-agent-plan-tree-toggle {
-  display: inline-grid;
+  display: inline-flex;
   inline-size: 1.75rem;
   block-size: 1.75rem;
   flex: 0 0 1.75rem;
-  place-items: center;
+  align-items: center;
+  justify-content: center;
   border: 0.0625rem solid var(--lumen-edge);
   border-radius: var(--lumen-radius-control);
   background: var(--lumen-glass);
+  min-inline-size: 0;
 }
 
 .hbar-app-ui-agent-plan-tree-group-progress {
   flex: 0 0 auto;
+  margin-inline-start: auto;
+  text-align: end;
+}
+
+.hbar-app-ui-agent-plan-tree-group-title {
+  flex: 1 1 10rem;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: start;
 }
 
 .hbar-app-ui-agent-plan-tree-children {
@@ -260,13 +264,35 @@
   display: flex;
   min-inline-size: 0;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.375rem;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  padding: 0.625rem;
   border-radius: var(--lumen-radius-control);
+}
+
+.hbar-app-ui-agent-plan-tree-children .hbar-app-ui-agent-plan-step-title {
+  flex: 1 1 14rem;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: start;
+}
+
+.hbar-app-ui-agent-plan-tree-children .hbar-app-ui-agent-plan-status {
+  margin-inline-start: auto;
 }
 
 .hbar-app-ui-agent-plan-tree-children > li:hover {
   background: var(--lumen-frost);
+}
+
+.hbar-app-ui-agent-plan-dependency {
+  min-inline-size: 0;
+  flex: 0 1 auto;
+  color: var(--lumen-info);
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .hbar-app-ui-agent-plan-editable-content,
@@ -291,11 +317,16 @@
 }
 
 .hbar-app-ui-agent-plan-metrics {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
-  grid-template-columns: repeat(auto-fit, minmax(min(9rem, 100%), 1fr));
   gap: 0.25rem;
   padding: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.hbar-app-ui-agent-plan-metrics > * {
+  flex: 1 1 min(9rem, 100%);
+  min-inline-size: min(9rem, 100%);
 }
 
 .hbar-app-ui-agent-plan-metrics > div {
@@ -319,12 +350,11 @@
 }
 
 .hbar-app-ui-agent-plan-table-card caption {
-  position: absolute;
-  inline-size: 1px;
-  block-size: 1px;
+  inline-size: 0.0625rem;
+  block-size: 0.0625rem;
   padding: 0;
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
   white-space: nowrap;
 }
 
@@ -359,10 +389,15 @@
 }
 
 .hbar-app-ui-agent-plan-board-columns {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
-  grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
   gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.hbar-app-ui-agent-plan-board-columns > * {
+  flex: 1 1 min(15rem, 100%);
+  min-inline-size: min(15rem, 100%);
 }
 
 .hbar-app-ui-agent-plan-board-column {
@@ -449,13 +484,8 @@
   gap: 0.375rem;
 }
 
-.hbar-app-ui-agent-plan-chip-list li {
-  padding: 0.25rem 0.5rem;
-  border: 0.0625rem solid var(--lumen-edge);
-  border-radius: 999rem;
-  background: var(--lumen-reading);
+.hbar-app-ui-agent-plan-chip-list .lumen-chip {
   color: var(--lumen-muted);
-  font-size: 0.75rem;
 }
 
 .hbar-app-ui-agent-plan-breakdown-list {
@@ -466,13 +496,32 @@
 }
 
 .hbar-app-ui-agent-plan-breakdown-list li {
-  display: grid;
+  display: flex;
   min-inline-size: 0;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 0.5rem;
   padding: 0.375rem;
   color: var(--lumen-muted);
+}
+
+.hbar-app-ui-agent-plan-breakdown-list li > :nth-child(4n + 1) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+
+.hbar-app-ui-agent-plan-breakdown-list li > :nth-child(4n + 2) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+
+.hbar-app-ui-agent-plan-breakdown-list li > :nth-child(4n + 3) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
+}
+
+.hbar-app-ui-agent-plan-breakdown-list li > :nth-child(4n + 4) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
 }
 
 .hbar-app-ui-agent-plan-breakdown-list li > span:nth-child(2) {
@@ -521,10 +570,26 @@
   }
 
   .hbar-app-ui-agent-plan-breakdown-list li {
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    flex-wrap: wrap;
+  }
+
+  .hbar-app-ui-agent-plan-breakdown-list li > :nth-child(4n + 1) {
+    flex: 0 0 auto;
+    min-inline-size: 0;
+  }
+
+  .hbar-app-ui-agent-plan-breakdown-list li > :nth-child(4n + 2) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  .hbar-app-ui-agent-plan-breakdown-list li > :nth-child(4n + 3),
+  .hbar-app-ui-agent-plan-breakdown-list li > :nth-child(4n + 4) {
+    flex: 0 0 auto;
+    min-inline-size: 0;
   }
 
   .hbar-app-ui-agent-plan-breakdown-list li > span:last-child {
-    grid-column: 2 / -1;
+    margin-inline-start: 2.25rem;
   }
 }

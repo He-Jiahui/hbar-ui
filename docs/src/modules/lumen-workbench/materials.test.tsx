@@ -67,7 +67,12 @@ describe('Lumen materials', () => {
 
   it('composes a semantic surface with a dedicated flow-layout content class', () => {
     const { container } = render(
-      <LumenSurface as="section" className="approval-surface" contentClassName="approval-flow">
+      <LumenSurface
+        as="section"
+        elevation="overlay"
+        className="approval-surface"
+        contentClassName="approval-flow"
+      >
         <h2>审批请求</h2>
       </LumenSurface>,
     );
@@ -76,6 +81,8 @@ describe('Lumen materials', () => {
     expect(surface).not.to.equal(null);
     expect(surface?.tagName).to.equal('SECTION');
     expect(surface).to.have.class('approval-surface');
+    expect(surface).to.have.attribute('data-elevation', 'overlay');
+    expect(surface).not.to.have.attribute('elevation');
     expect(container.querySelector('.approval-flow')).to.contain(
       screen.getByRole('heading', { name: '审批请求' }),
     );

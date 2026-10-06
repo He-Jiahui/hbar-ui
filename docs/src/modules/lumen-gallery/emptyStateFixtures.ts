@@ -7,9 +7,31 @@ const zh = {
   navigation: '组件与场景',
   migratedGroup: '已迁移组件',
   sceneShortcut: '探索更多场景',
+  catalog: '浏览全部 300 项',
+  preview: '稳定组件预览',
+  previewNavigation: '预览导航',
+  previewBack: '返回组合导航',
+  previewUnavailable: '无法加载此组件预览',
+  navigationItem: (position: number, name: string) =>
+    `${String(position).padStart(2, '0')} · ${name}`,
   event: '最近动作',
+  eventStatus: (label: string, value: string) => `${label}: ${value}`,
   none: '等待操作',
   variants: ['初次使用', '无搜索结果', '处理完毕', '加载失败', '空文件夹'],
+  previewContent: {
+    query: 'october',
+    filters: [
+      { id: 'blocked', label: '状态：已阻塞' },
+      { id: 'owner', label: '负责人：我' },
+    ],
+    suggestions: [
+      { id: 'workspace', label: '工作区', query: 'workspace' },
+      { id: 'review', label: '评审', query: 'review' },
+    ],
+    requestId: 'req_91a2',
+    traceId: 'trace_7f12',
+    lastAttempt: '10:24:18',
+  },
   first: {
     heading: '欢迎来到工作区',
     detail: '选择一个开始方式',
@@ -63,9 +85,31 @@ const en: typeof zh = {
   navigation: 'Components and scenes',
   migratedGroup: 'Migrated components',
   sceneShortcut: 'Explore more scenes',
+  catalog: 'Browse all 300 entries',
+  preview: 'Stable component preview',
+  previewNavigation: 'Preview navigation',
+  previewBack: 'Back to composition navigation',
+  previewUnavailable: 'This component preview could not be loaded',
+  navigationItem: (position: number, name: string) =>
+    `${String(position).padStart(2, '0')} · ${name}`,
   event: 'Last action',
+  eventStatus: (label: string, value: string) => `${label}: ${value}`,
   none: 'Waiting for interaction',
   variants: ['First run', 'No results', 'Caught up', 'Load failure', 'Empty folder'],
+  previewContent: {
+    query: 'october',
+    filters: [
+      { id: 'blocked', label: 'Status: blocked' },
+      { id: 'owner', label: 'Owner: me' },
+    ],
+    suggestions: [
+      { id: 'workspace', label: 'Workspace', query: 'workspace' },
+      { id: 'review', label: 'Review', query: 'review' },
+    ],
+    requestId: 'req_91a2',
+    traceId: 'trace_7f12',
+    lastAttempt: '10:24:18',
+  },
   first: {
     heading: 'Welcome to your workspace',
     detail: 'Choose a starting path',

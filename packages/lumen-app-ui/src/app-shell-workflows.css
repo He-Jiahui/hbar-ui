@@ -95,8 +95,12 @@
   min-block-size: 0;
   flex: 1 1 auto;
 }
-.lumen-app-shell-sidebar-layout > aside { flex: 0 1 17rem; }
-.lumen-app-shell-sidebar-layout > main { flex: 1 1 0; }
+.lumen-app-shell-sidebar-layout > aside {
+  flex: 0 1 17rem;
+}
+.lumen-app-shell-sidebar-layout > main {
+  flex: 1 1 0;
+}
 .lumen-app-shell-sidebar-layout > aside,
 .lumen-app-shell-three-pane > aside,
 .lumen-app-shell-context-columns > aside,
@@ -150,6 +154,12 @@
   flex-wrap: wrap;
   gap: 0.75rem;
   padding: 0 1rem 1rem;
+  min-inline-size: 0;
+  flex-wrap: wrap;
+}
+.lumen-app-shell-metrics > * {
+  flex: 1 1 8rem;
+  min-inline-size: 8rem;
 }
 .lumen-app-shell-metrics article {
   flex: 1 1 8rem;
@@ -176,6 +186,15 @@
   border-block-end: 0.0625rem solid var(--lumen-edge);
   border-radius: 0;
   text-align: start;
+  min-inline-size: 0;
+}
+.lumen-app-shell-records > button > :nth-child(2n + 1) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+.lumen-app-shell-records > button > :nth-child(2n + 2) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
 }
 .lumen-app-shell-records > button > span {
   display: flex;
@@ -196,9 +215,15 @@
   min-block-size: 0;
   flex: 1 1 auto;
 }
-.lumen-app-shell-three-pane > nav { flex: 0 0 3.75rem; }
-.lumen-app-shell-three-pane > aside { flex: 0 1 15rem; }
-.lumen-app-shell-three-pane > main { flex: 1 1 0; }
+.lumen-app-shell-three-pane > nav {
+  flex: 0 0 3.75rem;
+}
+.lumen-app-shell-three-pane > aside {
+  flex: 0 1 15rem;
+}
+.lumen-app-shell-three-pane > main {
+  flex: 1 1 0;
+}
 .lumen-app-shell-three-pane > aside {
   display: flex;
   flex-direction: column;
@@ -233,9 +258,15 @@
   min-block-size: 0;
   flex: 1 1 auto;
 }
-.lumen-app-shell-context-columns > nav { flex: 0 1 15rem; }
-.lumen-app-shell-context-columns > aside { flex: 0 1 18rem; }
-.lumen-app-shell-context-columns > main { flex: 1 1 0; }
+.lumen-app-shell-context-columns > nav {
+  flex: 0 1 15rem;
+}
+.lumen-app-shell-context-columns > aside {
+  flex: 0 1 18rem;
+}
+.lumen-app-shell-context-columns > main {
+  flex: 1 1 0;
+}
 .lumen-app-shell-context-columns > main {
   min-inline-size: 0;
   overflow: auto;
@@ -262,9 +293,15 @@
   min-block-size: 0;
   flex: 1 1 auto;
 }
-.lumen-app-shell-triage > nav { flex: 0 0 3.75rem; }
-.lumen-app-shell-triage > aside { flex: 0 1 22rem; }
-.lumen-app-shell-triage > main { flex: 1 1 0; }
+.lumen-app-shell-triage > nav {
+  flex: 0 0 3.75rem;
+}
+.lumen-app-shell-triage > aside {
+  flex: 0 1 22rem;
+}
+.lumen-app-shell-triage > main {
+  flex: 1 1 0;
+}
 .lumen-app-shell-triage > main {
   min-inline-size: 0;
   overflow: auto;
@@ -286,8 +323,12 @@
   min-block-size: 0;
   flex: 1 1 auto;
 }
-.lumen-app-shell-document > aside { flex: 0 1 18rem; }
-.lumen-app-shell-document > main { flex: 1 1 0; }
+.lumen-app-shell-document > aside {
+  flex: 0 1 18rem;
+}
+.lumen-app-shell-document > main {
+  flex: 1 1 0;
+}
 .lumen-app-shell-document > aside {
   display: flex;
   flex-direction: column;
@@ -331,8 +372,12 @@
   flex-wrap: wrap;
   gap: 0.75rem;
   margin-block-end: 1rem;
+  min-inline-size: 0;
+  flex-wrap: wrap;
 }
-.lumen-app-shell-scope-pickers > * { flex: 1 1 10rem; }
+.lumen-app-shell-scope-pickers > * {
+  flex: 1 1 10rem;
+}
 .lumen-app-shell-scope-pickers label {
   display: flex;
   min-inline-size: 0;
@@ -340,22 +385,19 @@
   gap: 0.4rem;
 }
 .lumen-app-shell-view-tabs {
-  display: flex;
-  gap: 0.25rem;
   padding: 0.5rem 1rem;
-  border-block-end: 0.0625rem solid var(--lumen-edge);
-}
-.lumen-app-shell-view-tabs > button[aria-selected='true'] {
-  color: var(--lumen-accent);
-  box-shadow: inset 0 -0.125rem var(--lumen-accent);
 }
 .lumen-app-shell-adaptive {
   display: flex;
   min-block-size: 0;
   flex: 1 1 auto;
 }
-.lumen-app-shell-adaptive > nav { flex: 0 1 18rem; }
-.lumen-app-shell-adaptive > main { flex: 1 1 0; }
+.lumen-app-shell-adaptive > nav {
+  flex: 0 1 18rem;
+}
+.lumen-app-shell-adaptive > main {
+  flex: 1 1 0;
+}
 .lumen-app-shell-adaptive > main {
   min-inline-size: 0;
   overflow: auto;
@@ -379,8 +421,12 @@
   min-block-size: 0;
   flex: 1 1 auto;
 }
-.lumen-app-shell-chat > aside { flex: 0 1 20rem; }
-.lumen-app-shell-chat > main { flex: 1 1 0; }
+.lumen-app-shell-chat > aside {
+  flex: 0 1 20rem;
+}
+.lumen-app-shell-chat > main {
+  flex: 1 1 0;
+}
 .lumen-app-shell-chat > aside {
   display: flex;
   flex-direction: column;
@@ -396,6 +442,7 @@
   min-block-size: 0;
   flex-direction: column;
   overflow: hidden;
+  flex-direction: column;
 }
 .lumen-app-shell-chat > main > select {
   justify-self: end;
@@ -419,6 +466,15 @@
   gap: 0.5rem;
   padding: 1rem;
   border-block-start: 0.0625rem solid var(--lumen-edge);
+  min-inline-size: 0;
+}
+.lumen-app-shell-composer > :nth-child(2n + 1) {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+.lumen-app-shell-composer > :nth-child(2n + 2) {
+  flex: 0 0 auto;
+  min-inline-size: 0;
 }
 .lumen-app-shell-composer textarea {
   min-block-size: 4rem;

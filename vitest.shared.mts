@@ -3,6 +3,7 @@ import { configDefaults, defineProject } from 'vitest/config';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'node:module';
 import react from '@vitejs/plugin-react';
 import { Plugin, transformWithEsbuild } from 'vite';
 import { playwright } from '@vitest/browser-playwright';
@@ -46,6 +47,10 @@ function getVitestEnvironment(fileName: string): 'browser' | 'node' {
 const MONOREPO_ROOT = path.resolve(import.meta.dirname, '.');
 
 export const alias = {
+  'lucide-react': path.join(
+    path.dirname(createRequire(import.meta.url).resolve('lucide-react/package.json')),
+    'dist/esm/lucide-react.mjs',
+  ),
   '@mui/internal-api-docs-builder': path.resolve(
     MONOREPO_ROOT,
     './packages-internal/api-docs-builder/src',
@@ -110,7 +115,7 @@ export default async function create(
       ],
       server: {
         deps: {
-          inline: ['@mui/internal-test-utils'],
+          inline: ['@mui/internal-test-utils', /react-virtual/, /lucide-react/],
         },
       },
       environment: jsdom ? 'jsdom' : 'node',
@@ -123,6 +128,9 @@ export default async function create(
         enabled: testEnv === 'browser',
         provider: playwright({
           launchOptions: {
+            ...(process.env.LUMEN_CHROMIUM_EXECUTABLE
+              ? { executablePath: process.env.LUMEN_CHROMIUM_EXECUTABLE }
+              : {}),
             ignoreDefaultArgs: [...(enableScrollbars ? ['--hide-scrollbars'] : [])],
           },
         }),
