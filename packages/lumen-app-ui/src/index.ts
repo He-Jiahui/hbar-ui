@@ -2398,3 +2398,5 @@ export type {
   LumenShape,
   LumenSize,
 } from './appearance';
+export { LumenTree, LumenTreeItem } from './tree';
+export type { LumenTreeProps, LumenTreeItemProps } from './tree';
