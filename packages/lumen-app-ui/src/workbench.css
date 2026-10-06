@@ -45,10 +45,9 @@
 .lumen-window-title {
   min-inline-size: 0;
   flex: 1 1 auto;
-  overflow: hidden;
+  overflow-x: auto;
   padding-inline: 0.75rem;
   text-align: center;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -135,7 +134,8 @@
   min-block-size: 0;
   flex: 0 0 0;
   overflow: hidden;
-  transition: flex-basis var(--lumen-motion-sidebar-duration, 280ms) var(--lumen-motion-sidebar-easing, cubic-bezier(0.22, 1, 0.36, 1));
+  transition: flex-basis var(--lumen-motion-sidebar-duration, 280ms)
+    var(--lumen-motion-sidebar-easing, cubic-bezier(0.22, 1, 0.36, 1));
   will-change: flex-basis;
 }
 
@@ -306,6 +306,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  overflow-x: auto;
 }
 
 .lumen-app-brand-row,
@@ -321,8 +322,7 @@
 .lumen-app-brand {
   display: block;
   min-inline-size: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-x: auto;
   white-space: nowrap;
 }
 
@@ -331,12 +331,10 @@
 }
 
 .lumen-app-sidebar-title h2 {
-  min-inline-size: 0;
+  flex: 0 0 auto;
   margin: 0;
-  overflow: hidden;
   font-size: 0.75rem;
   letter-spacing: 0.04em;
-  text-overflow: ellipsis;
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -364,15 +362,13 @@
 
 .lumen-sidebar-action {
   inline-size: 100%;
+  min-inline-size: max-content;
   justify-content: flex-start;
   text-align: start;
 }
 
 .lumen-sidebar-action > [data-variant='body']:first-of-type {
-  min-inline-size: 0;
-  flex: 1 1 auto;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex: 0 0 auto;
   white-space: nowrap;
 }
 

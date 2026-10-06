@@ -221,10 +221,11 @@
 .lumen-attachment-strip {
   flex-wrap: wrap;
   gap: 0.25rem;
+  overflow-x: auto;
 }
 
 .lumen-attachment-chip {
-  max-inline-size: 16rem;
+  flex: 0 0 auto;
   gap: 0.25rem;
   padding-inline-start: 0.5rem;
   border: 0.0625rem solid var(--lumen-edge);
@@ -238,9 +239,7 @@
 }
 
 .lumen-attachment-chip > span {
-  min-inline-size: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex: 0 0 auto;
   white-space: nowrap;
 }
 

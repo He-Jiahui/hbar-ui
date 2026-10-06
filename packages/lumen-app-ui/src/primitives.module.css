@@ -24,7 +24,10 @@
 }
 
 .button {
+  flex-shrink: 0;
+  padding-block: 0.375em;
   padding-inline: var(--lumen-control-padding-inline, 0.75rem);
+  white-space: nowrap;
 }
 
 .iconButton {
@@ -212,11 +215,13 @@
 .status {
   --lumen-status-color: var(--lumen-muted);
   display: inline-flex;
+  flex: 0 0 auto;
   min-inline-size: 0;
   align-items: center;
   gap: 0.5em;
   color: var(--lumen-status-color);
   font-size: 0.8125em;
+  white-space: nowrap;
 }
 
 .status i {

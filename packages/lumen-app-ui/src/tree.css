@@ -8,7 +8,7 @@
 }
 .lumen-tree-row {
   display: flex;
-  min-inline-size: 0;
+  min-inline-size: max-content;
   min-block-size: var(--lumen-control-size, 2.25rem);
   align-items: center;
   justify-content: flex-start;

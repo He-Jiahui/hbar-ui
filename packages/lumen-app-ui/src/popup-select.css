@@ -2,6 +2,7 @@
   display: flex;
   min-inline-size: 0;
   flex-direction: column;
+  overflow-x: auto;
 }
 
 .lumen-popup-select > .lumen-outlined-field {
@@ -10,7 +11,7 @@
 
 .lumen-popup-select-trigger {
   display: flex;
-  min-inline-size: 0;
+  min-inline-size: max-content;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
@@ -47,9 +48,7 @@
 }
 
 .lumen-popup-select-label {
-  flex: 1 1 auto;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex: 0 0 auto;
   white-space: nowrap;
 }
 
