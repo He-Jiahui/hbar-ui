@@ -119,17 +119,11 @@ function handlePointerDown(event: PointerEvent): void {
   }
 }
 
-function handleKeyDown(event: KeyboardEvent): void {
+function handleTabKeyDown(event: KeyboardEvent): void {
   const surface = activeLeaf();
   if (!surface) return;
   const element = elementFor(surface);
   if (!element) return;
-  if (event.key === 'Escape') {
-    event.preventDefault();
-    event.stopPropagation();
-    surface.close();
-    return;
-  }
   if (event.key !== 'Tab' || !surface.trapFocus) return;
   if (document.activeElement !== element && !element.contains(document.activeElement)) return;
   const controls = focusableElements(element);
@@ -149,17 +143,28 @@ function handleKeyDown(event: KeyboardEvent): void {
   }
 }
 
+function handleEscapeKeyDown(event: KeyboardEvent): void {
+  if (event.key !== 'Escape' || event.defaultPrevented) return;
+  const surface = activeLeaf();
+  if (!surface) return;
+  event.preventDefault();
+  event.stopPropagation();
+  surface.close();
+}
+
 function installListeners(): void {
   if (listenersInstalled || typeof document === 'undefined') return;
   document.addEventListener('pointerdown', handlePointerDown, true);
-  document.addEventListener('keydown', handleKeyDown, true);
+  document.addEventListener('keydown', handleTabKeyDown, true);
+  document.addEventListener('keydown', handleEscapeKeyDown);
   listenersInstalled = true;
 }
 
 function removeListenersIfIdle(): void {
   if (!listenersInstalled || registrations.size > 0 || typeof document === 'undefined') return;
   document.removeEventListener('pointerdown', handlePointerDown, true);
-  document.removeEventListener('keydown', handleKeyDown, true);
+  document.removeEventListener('keydown', handleTabKeyDown, true);
+  document.removeEventListener('keydown', handleEscapeKeyDown);
   listenersInstalled = false;
 }
 
@@ -315,6 +320,8 @@ interface FloatingSurfaceBaseProps extends SurfaceAttributes {
   readonly nested?: boolean | undefined;
   readonly restoreFocus?: boolean | undefined;
   readonly trapFocus?: boolean | undefined;
+  /** Keep the portal and children mounted while closed without registering a surface. */
+  readonly keepMounted?: boolean | undefined;
 }
 
 export type AnchoredFloatingSurfaceProps = FloatingSurfaceBaseProps & {
@@ -411,6 +418,7 @@ export function LumenFloatingSurface(props: FloatingSurfaceProps) {
     nested,
     restoreFocus = true,
     trapFocus,
+    keepMounted = false,
     mode: suppliedMode,
     anchorRef: suppliedAnchorRef,
     anchorPoint: suppliedAnchorPoint,
@@ -622,7 +630,8 @@ export function LumenFloatingSurface(props: FloatingSurfaceProps) {
     trapFocus,
   ]);
 
-  if (!open) return null;
+  if (!open && !keepMounted) return null;
+  const mountedHidden = !open;
 
   const sharedSurfaceProps = {
     ...attributes,
@@ -632,6 +641,9 @@ export function LumenFloatingSurface(props: FloatingSurfaceProps) {
     },
     className: ['lumen-floating-surface', className].filter(Boolean).join(' '),
     tabIndex: attributes.tabIndex ?? -1,
+    hidden: mountedHidden || attributes.hidden,
+    inert: mountedHidden || attributes.inert,
+    'aria-hidden': mountedHidden ? true : attributes['aria-hidden'],
     role: attributes.role ?? (mode === 'modal' ? 'dialog' : undefined),
     'aria-label': label ?? attributes['aria-label'],
     'aria-modal': mode === 'modal' || mobileSheet ? true : attributes['aria-modal'],
@@ -640,6 +652,7 @@ export function LumenFloatingSurface(props: FloatingSurfaceProps) {
     'data-lumen-floating-parent': resolvedParentId,
     'data-lumen-floating-mode': mode,
     'data-lumen-floating-material': materialKind,
+    'data-lumen-floating-open': open ? 'true' : 'false',
     'data-focus-behavior': focusBehavior,
     'data-mobile-sheet': mobileSheet ? 'true' : undefined,
     'data-positioned': positioned ? 'true' : 'false',
@@ -668,6 +681,9 @@ export function LumenFloatingSurface(props: FloatingSurfaceProps) {
         className={['lumen-floating-modal-root', backdropClassName].filter(Boolean).join(' ')}
         data-lumen-floating-root="true"
         data-lumen-floating-id={surfaceId}
+        hidden={mountedHidden || undefined}
+        inert={mountedHidden || undefined}
+        aria-hidden={mountedHidden || undefined}
       >
         <div className="lumen-floating-modal-backdrop" data-lumen-floating-backdrop="true" />
         <div {...sharedSurfaceProps}>{children}</div>

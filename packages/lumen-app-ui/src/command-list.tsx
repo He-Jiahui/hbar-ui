@@ -132,6 +132,10 @@ export function LumenCommandQuery({
           if (shortcut) {
             event.preventDefault();
             onExecute(shortcut.id);
+          } else if (event.key === 'Escape' && query) {
+            event.preventDefault();
+            event.stopPropagation();
+            onQueryChange('');
           } else if (event.key === 'Backspace' && !query && onBack) {
             event.preventDefault();
             onBack();

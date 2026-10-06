@@ -50,6 +50,11 @@
   visibility: hidden;
 }
 
+.lumen-floating-surface[hidden],
+.lumen-floating-modal-root[hidden] {
+  display: none !important;
+}
+
 .lumen-floating-surface:popover-open,
 .lumen-floating-modal-root:popover-open {
   position: fixed;
