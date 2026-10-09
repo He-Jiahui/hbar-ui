@@ -17,6 +17,11 @@
   color: var(--lumen-ink);
 }
 
+.hbar-app-ui-settings-form-slot-surface > main {
+  min-inline-size: 0;
+  padding: 0.75rem;
+}
+
 .lumen-settings-form *,
 .lumen-settings-form *::before,
 .lumen-settings-form *::after,
