@@ -71,6 +71,27 @@ describe('LumenPromptComposer running actions', () => {
     expect(screen.getByRole('button', { name: labels.send })).not.to.equal(null);
   });
 
+  it('keeps a host background action next to Send outside the scrolling control rail', async () => {
+    const onBackgroundStop = vi.fn();
+    const { user } = render(
+      <LumenPromptComposer
+        {...defaults}
+        canStop={false}
+        backgroundAction={
+          <button type="button" onClick={onBackgroundStop}>
+            {labels.stop}
+          </button>
+        }
+      />,
+    );
+    const stop = screen.getByRole('button', { name: labels.stop });
+    const send = screen.getByRole('button', { name: labels.send });
+    expect(stop.closest('.lumen-composer-control-rail')).to.equal(null);
+    expect(stop.parentElement).to.equal(send.parentElement);
+    await user.click(stop);
+    expect(onBackgroundStop).toHaveBeenCalledTimes(1);
+  });
+
   it('shows only Stop for an empty running draft and Enter never cancels or submits it', async () => {
     const onSubmit = vi.fn();
     const onStop = vi.fn();

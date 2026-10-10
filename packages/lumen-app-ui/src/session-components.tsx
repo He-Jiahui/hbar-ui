@@ -457,7 +457,7 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
       <div className="lumen-composer-toolbar">
         <div
           className="lumen-composer-control-rail"
-          role="group"
+          role="region"
           aria-label={props.labels.input}
           tabIndex={0}
         >
@@ -481,7 +481,6 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
           </div>
           <div className="lumen-composer-trailing-controls">
             {props.modelPicker}
-            {props.backgroundAction}
             {runningActions?.submit === 'queue' ? (
               <LumenButton
                 type="submit"
@@ -498,6 +497,7 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
           </div>
         </div>
         <div className="lumen-composer-primary-actions">
+          {props.backgroundAction}
           {props.canStop ? (
             <LumenIconButton
               label={props.labels.stop}
