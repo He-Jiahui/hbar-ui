@@ -166,6 +166,8 @@ export function LumenRadioGroup({
 
 export interface LumenTabItem {
   id: string;
+  /** Host-scoped identity when several tab sets share an item ID. */
+  tabId?: string | undefined;
   label: string;
   badge?: string | number | undefined;
   disabled?: boolean | undefined;
@@ -208,7 +210,7 @@ export function LumenTabs({
         const tab = (
           <LumenButton
             key={item.id}
-            id={`${item.id}-tab`}
+            id={item.tabId ?? `${item.id}-tab`}
             role="tab"
             variant="text"
             disabled={item.disabled}

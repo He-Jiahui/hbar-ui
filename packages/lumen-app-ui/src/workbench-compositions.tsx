@@ -10,6 +10,7 @@ import { LumenIcon } from './workbench';
 import './workbench-compositions.css';
 
 export interface LumenRecordRowProps {
+  readonly as?: 'div' | 'span' | undefined;
   readonly title: React.ReactNode;
   readonly description?: React.ReactNode;
   readonly leading?: React.ReactNode;
@@ -21,6 +22,7 @@ export interface LumenRecordRowProps {
 
 /** Content grows naturally; the host owns collection pagination and row identity. */
 export function LumenRecordRow({
+  as: Root = 'div',
   title,
   description,
   leading,
@@ -29,13 +31,14 @@ export function LumenRecordRow({
   className,
   density = 'compact',
 }: LumenRecordRowProps) {
+  const Group = Root;
   return (
-    <div
+    <Root
       className={['lumen-record-row', className].filter(Boolean).join(' ')}
       data-density={density}
     >
-      {leading ? <div className="lumen-record-leading">{leading}</div> : null}
-      <div className="lumen-record-content">
+      {leading ? <Group className="lumen-record-leading">{leading}</Group> : null}
+      <Group className="lumen-record-content">
         <LumenContentText context="record.title">{title}</LumenContentText>
         {description ? (
           <LumenContentText context="record.description" tone="muted">
@@ -43,9 +46,9 @@ export function LumenRecordRow({
           </LumenContentText>
         ) : null}
         {children}
-      </div>
-      {trailing ? <div className="lumen-record-trailing">{trailing}</div> : null}
-    </div>
+      </Group>
+      {trailing ? <Group className="lumen-record-trailing">{trailing}</Group> : null}
+    </Root>
   );
 }
 
