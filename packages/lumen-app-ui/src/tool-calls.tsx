@@ -316,6 +316,7 @@ function ToolCallsRoot({
   state,
   visualMode,
   className,
+  controlled,
   children,
 }: Omit<LumenToolCallsProps, 'content' | 'onAction'> & { readonly children: React.ReactNode }) {
   const viewModel = React.useContext(ToolCallsViewModelContext);
@@ -335,7 +336,8 @@ function ToolCallsRoot({
   return (
     <LumenSurface
       as="section"
-      boundary="horizontal"
+      surfaceRole={controlled ? 'reading' : undefined}
+      boundary={controlled ? 'none' : 'horizontal'}
       className={`lumen-tool-calls-root-surface${viewModel ? ' lumen-tool-calls-controlled-root' : ''}`}
       contentClassName={contentClassName}
       data-lumen-component="tool-calls"
