@@ -384,6 +384,8 @@ interface FloatingSurfaceBaseProps extends SurfaceAttributes {
   readonly trapFocus?: boolean | undefined;
   /** Keep the portal and children mounted while closed without registering a surface. */
   readonly keepMounted?: boolean | undefined;
+  /** Access the stable content node for editor selection and existing renderer integration. */
+  readonly contentRef?: React.RefObject<HTMLDivElement | null> | undefined;
 }
 
 export type AnchoredFloatingSurfaceProps = FloatingSurfaceBaseProps & {
@@ -489,6 +491,7 @@ export function LumenFloatingSurface(props: FloatingSurfaceProps) {
     restoreFocus = true,
     trapFocus,
     keepMounted = false,
+    contentRef,
     docked = false,
     dockRef,
     mode: suppliedMode,
@@ -786,6 +789,9 @@ export function LumenFloatingSurface(props: FloatingSurfaceProps) {
     ...attributes,
     ref: (node: HTMLDivElement | null) => {
       surfaceRef.current = node;
+      if (contentRef) {
+        contentRef.current = node;
+      }
       if (mode !== 'modal') {
         layerRef.current = node;
       }

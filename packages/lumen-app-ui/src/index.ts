@@ -6,7 +6,13 @@ export { default as LumenSurface } from './LumenSurface';
 
 export type { LumenSurfaceProps, LumenSurfaceRole } from './LumenSurface';
 
-export { LumenRecordRow, LumenMetricRow, LumenAdaptiveToolbar, LumenReadingMarker } from './workbench-compositions';
+export {
+  LumenRecordRow,
+  LumenMetricRow,
+  LumenAdaptiveToolbar,
+  LumenReadingMarker,
+  focusLumenControl,
+} from './workbench-compositions';
 export type {
   LumenRecordRowProps,
   LumenMetricRowProps,

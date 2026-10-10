@@ -125,6 +125,23 @@ interface ToolbarDocks {
   control: HTMLDivElement | null;
 }
 
+const toolbarFocusOwners = new WeakMap<HTMLElement, (element: HTMLElement) => void>();
+
+/** Return focus to a complete control, revealing its toolbar overflow when necessary. */
+export function focusLumenControl(element: HTMLElement | null): void {
+  if (!element) {
+    return;
+  }
+  for (let ancestor: HTMLElement | null = element; ancestor; ancestor = ancestor.parentElement) {
+    const owner = toolbarFocusOwners.get(ancestor);
+    if (owner) {
+      owner(element);
+      return;
+    }
+  }
+  element.focus({ preventScroll: true });
+}
+
 /** A stable portal keeps component drafts alive when their visual location changes. */
 function ToolbarControl({
   item,
@@ -132,16 +149,29 @@ function ToolbarControl({
   bank,
   inline,
   open,
+  requestFocus,
+  focusDestination,
 }: {
   item: LumenToolbarItem;
   docks: ToolbarDocks;
   bank: React.RefObject<HTMLDivElement | null>;
   inline: boolean;
   open: boolean;
+  requestFocus: (element: HTMLElement) => void;
+  focusDestination: React.RefObject<HTMLElement | null>;
 }) {
   const [host] = React.useState(() =>
     typeof document === 'undefined' ? null : document.createElement('div'),
   );
+  React.useLayoutEffect(() => {
+    if (!host) {
+      return undefined;
+    }
+    toolbarFocusOwners.set(host, requestFocus);
+    return () => {
+      toolbarFocusOwners.delete(host);
+    };
+  }, [host, requestFocus]);
   React.useLayoutEffect(() => {
     if (!host) {
       return undefined;
@@ -158,9 +188,20 @@ function ToolbarControl({
     if (!host) {
       return;
     }
+    if (!inline && !open && focusDestination.current && host.contains(focusDestination.current)) {
+      requestFocus(focusDestination.current);
+    }
     const target = inline ? docks.inline.current : docks.overflow.current;
-    (target ?? bank.current)?.appendChild(host);
-  }, [bank, docks, host, inline, open]);
+    const parent = target ?? bank.current;
+    if (!parent || host.parentElement === parent) {
+      return;
+    }
+    if (host.isConnected && parent.isConnected && typeof parent.moveBefore === 'function') {
+      parent.moveBefore(host, null);
+    } else {
+      parent.appendChild(host);
+    }
+  }, [bank, docks, host, inline, open, focusDestination, requestFocus]);
   return host ? ReactDOM.createPortal(item.content, host) : null;
 }
 
@@ -180,6 +221,20 @@ function MeasuredToolbar({
   const more = React.useRef<HTMLButtonElement>(null);
   const end = React.useRef<HTMLDivElement>(null);
   const bank = React.useRef<HTMLDivElement>(null);
+  const focusDestination = React.useRef<HTMLElement | null>(null);
+  React.useEffect(() => {
+    const forgetFocus = (event: Event) => {
+      if (focusDestination.current && event.target !== focusDestination.current) {
+        focusDestination.current = null;
+      }
+    };
+    document.addEventListener('focusin', forgetFocus);
+    document.addEventListener('pointerdown', forgetFocus, true);
+    return () => {
+      document.removeEventListener('focusin', forgetFocus);
+      document.removeEventListener('pointerdown', forgetFocus, true);
+    };
+  }, []);
   const docks = React.useRef(new Map<string, ToolbarDocks>());
   for (const item of unique) {
     if (!docks.current.has(item.id)) {
@@ -194,21 +249,25 @@ function MeasuredToolbar({
   const [visible, setVisible] = React.useState<readonly string[]>(() =>
     items.map((item) => item.id),
   );
-  const [open, setOpen] = React.useState(false);
-  const lastReveal = React.useRef(0);
+  const [visibility, setVisibility] = React.useState({ open: false, revision: 0 });
+  const open = visibility.open;
+  const setOpen = React.useCallback((value: boolean) => {
+    if (!value) {
+      focusDestination.current = null;
+    }
+    setVisibility((previous) => ({ ...previous, open: value }));
+  }, []);
   const isInline = (item: LumenToolbarItem) =>
     visible.includes(item.id) || widths.current.get(item.id)?.label !== item.label;
-  React.useLayoutEffect(() => {
-    if (revealRequest && revealRequest.revision !== lastReveal.current) {
-      lastReveal.current = revealRequest.revision;
-      if (
-        unique.some((item) => item.id === revealRequest.id) &&
-        !visible.includes(revealRequest.id)
-      ) {
-        setOpen(true);
-      }
-    }
-  }, [revealRequest, unique, visible]);
+  if (revealRequest && revealRequest.revision !== visibility.revision) {
+    setVisibility({
+      revision: revealRequest.revision,
+      open:
+        visibility.open ||
+        (unique.some((item) => item.id === revealRequest.id) &&
+          !visible.includes(revealRequest.id)),
+    });
+  }
   React.useLayoutEffect(() => {
     const element = root.current;
     if (!element) {
@@ -276,12 +335,13 @@ function MeasuredToolbar({
       role="group"
       aria-label={label}
     >
-      {unique.filter(isInline).map((item) => (
+      {unique.map((item) => (
         <div
           key={item.id}
           data-toolbar-item={item.id}
           ref={docks.current.get(item.id)?.inline}
           className="lumen-toolbar-item"
+          hidden={!isInline(item)}
         >
           {typeof document === 'undefined' ? item.content : null}
         </div>
@@ -297,27 +357,27 @@ function MeasuredToolbar({
         </div>
       ) : null}
       <div ref={bank} hidden />
-      {overflow.length ? (
-        <LumenFloatingSurface
-          open={open}
-          keepMounted
-          mode="anchored"
-          anchorRef={more}
-          onClose={() => setOpen(false)}
-          role="dialog"
-          aria-label={moreLabel}
-          className="lumen-toolbar-overflow"
-        >
-          {overflow.map((item) => (
-            <div
-              key={item.id}
-              ref={docks.current.get(item.id)?.overflow}
-              className="lumen-toolbar-overflow-item"
-              data-toolbar-overflow={item.id}
-            ></div>
-          ))}
-        </LumenFloatingSurface>
-      ) : null}
+      <LumenFloatingSurface
+        open={open && overflow.length > 0}
+        keepMounted
+        mode="anchored"
+        anchorRef={more}
+        initialFocusRef={focusDestination}
+        onClose={() => setOpen(false)}
+        role="dialog"
+        aria-label={moreLabel}
+        className="lumen-toolbar-overflow"
+      >
+        {unique.map((item) => (
+          <div
+            key={item.id}
+            ref={docks.current.get(item.id)?.overflow}
+            className="lumen-toolbar-overflow-item"
+            data-toolbar-overflow={item.id}
+            hidden={isInline(item)}
+          ></div>
+        ))}
+      </LumenFloatingSurface>
       {unique.map((item) => (
         <ToolbarControl
           key={item.id}
@@ -326,6 +386,15 @@ function MeasuredToolbar({
           bank={bank}
           inline={isInline(item)}
           open={open}
+          requestFocus={(element) => {
+            focusDestination.current = element;
+            if (isInline(item)) {
+              element.focus({ preventScroll: true });
+            } else {
+              setOpen(true);
+            }
+          }}
+          focusDestination={focusDestination}
         />
       ))}
     </div>

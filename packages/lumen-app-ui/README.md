@@ -391,3 +391,11 @@ Lumen primitives and is not used as a fallback for catalog variants;
 family now has one-to-one variants. New Application UI code should import from
 `@lumen/app-ui/ui` and compose the concrete variant components from
 `@lumen/app-ui/variants`.
+
+Workbench controls can use `LumenAdaptiveToolbar` to retain complete labels,
+mounted component state and native interaction state between inline and overflow
+locations. Call `focusLumenControl(element)` when returning focus after an action;
+the toolbar reveals its overflow surface when the control no longer fits inline.
+`LumenFloatingSurface.contentRef` provides its stable content node for existing
+editor and renderer integrations. Model and effort menus should use the shared
+floating surface so moving their trigger does not dismiss an open menu.

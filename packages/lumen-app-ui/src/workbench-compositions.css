@@ -71,6 +71,9 @@
   min-inline-size: 0;
   overflow-x: auto;
 }
+.lumen-toolbar-overflow-item[hidden] {
+  display: none;
+}
 .lumen-toolbar-control {
   display: flex;
   flex: 0 0 auto;

@@ -4,7 +4,13 @@ export { default as LumenSurface } from '../LumenSurface';
 export type { LumenSurfaceProps, LumenSurfaceRole } from '../LumenSurface';
 export { LumenContentText, LUMEN_TEXT_CONTEXTS } from '../content-text';
 export type { LumenContentTextProps, LumenTextContext } from '../content-text';
-export { LumenRecordRow, LumenMetricRow, LumenAdaptiveToolbar, LumenReadingMarker } from '../workbench-compositions';
+export {
+  LumenRecordRow,
+  LumenMetricRow,
+  LumenAdaptiveToolbar,
+  LumenReadingMarker,
+  focusLumenControl,
+} from '../workbench-compositions';
 export type {
   LumenRecordRowProps,
   LumenMetricRowProps,
