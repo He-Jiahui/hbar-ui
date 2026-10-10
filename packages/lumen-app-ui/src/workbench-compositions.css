@@ -36,12 +36,17 @@
 .lumen-metric-row > * {
   margin: 0;
 }
-.lumen-adaptive-toolbar {
+.lumen-adaptive-action-toolbar {
   display: flex;
   min-inline-size: 0;
   max-inline-size: 100%;
   align-items: center;
   gap: 4px;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+}
+.lumen-adaptive-action-toolbar > [hidden] {
+  display: none;
 }
 .lumen-toolbar-item {
   display: flex;
@@ -65,4 +70,9 @@
   display: flex;
   min-inline-size: 0;
   overflow-x: auto;
+}
+.lumen-toolbar-control {
+  display: flex;
+  flex: 0 0 auto;
+  inline-size: max-content;
 }

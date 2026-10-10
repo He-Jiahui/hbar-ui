@@ -208,6 +208,7 @@ function Root({
   state,
   visualMode,
   className,
+  controlled,
   children,
 }: Omit<LumenAiChatProps, 'content' | 'onAction'> & { children: React.ReactNode }) {
   const contentClassName = [
@@ -224,7 +225,8 @@ function Root({
   return (
     <LumenSurface
       as="section"
-      boundary="horizontal"
+      boundary={controlled ? 'none' : 'horizontal'}
+      surfaceRole={controlled ? 'reading' : undefined}
       className="lumen-ai-chat-surface"
       contentClassName={contentClassName}
       data-lumen-component="ai-chat"

@@ -24,7 +24,7 @@
   flex: 1 1 auto;
   overflow: hidden;
   color: var(--lumen-ink);
-  background: var(--lumen-frost);
+  background: var(--lumen-canvas);
 }
 
 .lumen-conversation > header {
@@ -279,6 +279,22 @@
   /* Flex keeps the controls in one row. Text wrapping belongs to each control,
      so nested reading popovers must not inherit a single-line text policy. */
   white-space: normal;
+}
+
+.lumen-prompt-composer {
+  container: lumen-composer / inline-size;
+}
+.lumen-prompt-composer .lumen-composer-primary-action {
+  inline-size: var(--lumen-control-size);
+  block-size: var(--lumen-control-size);
+  flex: 0 0 auto;
+  border-radius: 50%;
+  padding: 0;
+}
+@container lumen-composer (width <= 40rem) {
+  .lumen-composer-primary-action {
+    --lumen-control-size: 2.75rem;
+  }
 }
 
 .lumen-composer-trailing-controls {

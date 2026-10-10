@@ -1,6 +1,10 @@
 .lumen-ai-chat-stage.lumen-ai-chat-controlled-stage {
   display: flex;
   flex-direction: column;
+  padding: 0;
+  gap: 0;
+  border-radius: 0;
+  background: var(--lumen-canvas);
 }
 
 .lumen-ai-chat-controlled-header,

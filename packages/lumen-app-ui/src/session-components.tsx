@@ -1,6 +1,8 @@
 'use client';
 
 import * as React from 'react';
+import { ArrowUp, Square } from 'lucide-react';
+import { LumenIcon } from './workbench';
 import { LumenChip } from './ui-controls';
 import {
   useConversationViewport,
@@ -15,6 +17,7 @@ import LumenSurface from './LumenSurface';
 import { type LumenSurfaceProps } from './LumenSurface';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 import { LumenCompactMetrics } from './workspace-components';
+import { LumenAdaptiveToolbar, type LumenToolbarItem } from './workbench-compositions';
 import './session-components.css';
 
 export type {
@@ -338,6 +341,14 @@ export interface LumenPromptComposerProps {
     | undefined;
   controls?: React.ReactNode;
   modelPicker?: React.ReactNode;
+  /** Complete host-owned controls; lower priorities move into the shared More surface. */
+  toolbar?:
+    | {
+        readonly moreLabel: string;
+        readonly items: readonly LumenToolbarItem[];
+        readonly revealRequest?: { readonly id: string; readonly revision: number } | undefined;
+      }
+    | undefined;
   /** Host-owned action rendered with the primary running actions (for example background agent stop). */
   backgroundAction?: React.ReactNode;
   onChange: (value: string) => void;
@@ -380,6 +391,7 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
   return (
     <LumenSurface
       as="form"
+      surfaceRole="raised"
       boundary={props.boundary ?? 'horizontal'}
       className="lumen-prompt-composer-surface"
       contentClassName={['lumen-prompt-composer', props.className].filter(Boolean).join(' ')}
@@ -454,75 +466,162 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
           {props.error}
         </LumenText>
       ) : null}
-      <div className="lumen-composer-toolbar">
-        <div
-          className="lumen-composer-control-rail"
-          role="group"
-          aria-label={props.labels.input}
-          tabIndex={0}
-        >
-          <div className="lumen-composer-leading-controls">
-            {props.onAddAttachments ? (
-              <LumenFilePicker
-                label={props.labels.addAttachment}
-                disabled={!props.canAddAttachments}
-                multiple
-                onFiles={props.onAddAttachments}
-              >
-                <SessionGlyph name="add" />
-              </LumenFilePicker>
-            ) : null}
-            {props.controls}
-            {props.uploading ? (
-              <span className="lumen-uploading" role="status" aria-label={props.labels.uploading}>
-                <SessionGlyph name="loading" />
-              </span>
-            ) : null}
+      {props.toolbar ? (
+        <LumenAdaptiveToolbar
+          label={props.labels.input}
+          moreLabel={props.toolbar.moreLabel}
+          revealRequest={props.toolbar.revealRequest}
+          className="lumen-composer-toolbar"
+          items={[
+            ...(props.onAddAttachments
+              ? [
+                  {
+                    id: 'attachment',
+                    label: props.labels.addAttachment,
+                    priority: 200,
+                    content: (
+                      <LumenFilePicker
+                        label={props.labels.addAttachment}
+                        disabled={!props.canAddAttachments}
+                        multiple
+                        onFiles={props.onAddAttachments}
+                      >
+                        <SessionGlyph name="add" />
+                      </LumenFilePicker>
+                    ),
+                  },
+                ]
+              : []),
+            ...props.toolbar.items,
+          ]}
+          trailing={
+            <>
+              {props.backgroundAction}
+              {props.uploading ? (
+                <span className="lumen-uploading" role="status" aria-label={props.labels.uploading}>
+                  <SessionGlyph name="loading" />
+                </span>
+              ) : null}
+              {runningActions?.submit === 'queue' ? (
+                <LumenButton
+                  type="submit"
+                  className="lumen-composer-queue-action"
+                  title={runningActions.queueTitle}
+                  tone="primary"
+                  variant="text"
+                  loading={props.submitting}
+                  disabled={blocked}
+                >
+                  {runningActions.queueLabel}
+                </LumenButton>
+              ) : null}
+              {props.canStop ? (
+                <LumenIconButton
+                  label={props.labels.stop}
+                  indicator="none"
+                  className="lumen-composer-primary-action"
+                  variant="contained"
+                  tone={runningActions ? 'danger' : undefined}
+                  disabled={props.stopping || Boolean(runningActions && props.disabled)}
+                  onClick={props.onStop}
+                >
+                  <LumenIcon icon={Square} tier="sm" />
+                </LumenIconButton>
+              ) : null}
+              {!runningActions ? (
+                <LumenIconButton
+                  type="submit"
+                  indicator="none"
+                  className="lumen-composer-primary-action"
+                  label={props.labels.send}
+                  title={props.labels.submitTitle}
+                  tone="primary"
+                  variant="contained"
+                  loading={props.submitting}
+                  disabled={blocked}
+                >
+                  <LumenIcon icon={ArrowUp} tier="sm" />
+                </LumenIconButton>
+              ) : null}
+            </>
+          }
+        />
+      ) : (
+        <div className="lumen-composer-toolbar">
+          <div
+            className="lumen-composer-control-rail"
+            role="group"
+            aria-label={props.labels.input}
+            tabIndex={0}
+          >
+            <div className="lumen-composer-leading-controls">
+              {props.onAddAttachments ? (
+                <LumenFilePicker
+                  label={props.labels.addAttachment}
+                  disabled={!props.canAddAttachments}
+                  multiple
+                  onFiles={props.onAddAttachments}
+                >
+                  <SessionGlyph name="add" />
+                </LumenFilePicker>
+              ) : null}
+              {props.controls}
+              {props.uploading ? (
+                <span className="lumen-uploading" role="status" aria-label={props.labels.uploading}>
+                  <SessionGlyph name="loading" />
+                </span>
+              ) : null}
+            </div>
+            <div className="lumen-composer-trailing-controls">
+              {props.modelPicker}
+              {props.backgroundAction}
+              {runningActions?.submit === 'queue' ? (
+                <LumenButton
+                  type="submit"
+                  className="lumen-composer-queue-action"
+                  title={runningActions.queueTitle}
+                  tone="primary"
+                  variant="text"
+                  loading={props.submitting}
+                  disabled={blocked}
+                >
+                  {runningActions.queueLabel}
+                </LumenButton>
+              ) : null}
+            </div>
           </div>
-          <div className="lumen-composer-trailing-controls">
-            {props.modelPicker}
-            {props.backgroundAction}
-            {runningActions?.submit === 'queue' ? (
-              <LumenButton
+          <div className="lumen-composer-primary-actions">
+            {props.canStop ? (
+              <LumenIconButton
+                label={props.labels.stop}
+                indicator="none"
+                className="lumen-composer-primary-action"
+                variant="contained"
+                tone={runningActions ? 'danger' : undefined}
+                disabled={props.stopping || Boolean(runningActions && props.disabled)}
+                onClick={props.onStop}
+              >
+                <LumenIcon icon={Square} tier="sm" />
+              </LumenIconButton>
+            ) : null}
+            {!runningActions ? (
+              <LumenIconButton
                 type="submit"
-                className="lumen-composer-queue-action"
-                title={runningActions.queueTitle}
+                indicator="none"
+                className="lumen-composer-primary-action"
+                label={props.labels.send}
+                title={props.labels.submitTitle}
                 tone="primary"
-                variant="text"
+                variant="contained"
                 loading={props.submitting}
                 disabled={blocked}
               >
-                {runningActions.queueLabel}
-              </LumenButton>
+                <LumenIcon icon={ArrowUp} tier="sm" />
+              </LumenIconButton>
             ) : null}
           </div>
         </div>
-        <div className="lumen-composer-primary-actions">
-          {props.canStop ? (
-            <LumenIconButton
-              label={props.labels.stop}
-              tone={runningActions ? 'danger' : undefined}
-              disabled={props.stopping || Boolean(runningActions && props.disabled)}
-              onClick={props.onStop}
-            >
-              <SessionGlyph name="stop" />
-            </LumenIconButton>
-          ) : null}
-          {!runningActions ? (
-            <LumenIconButton
-              type="submit"
-              label={props.labels.send}
-              title={props.labels.submitTitle}
-              tone="primary"
-              variant="contained"
-              loading={props.submitting}
-              disabled={blocked}
-            >
-              <SessionGlyph name="send" />
-            </LumenIconButton>
-          ) : null}
-        </div>
-      </div>
+      )}
     </LumenSurface>
   );
 }
