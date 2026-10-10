@@ -92,11 +92,11 @@
   --lumen-contrast: #f5f5f5;
   --lumen-info: #285bc3;
   --lumen-accent: var(--lumen-info);
-  --lumen-success: #1a7c56;
+  --lumen-success: #16724e;
   --lumen-warning: #996500;
   --lumen-danger: #b73548;
-  --lumen-muted: #666;
-  --lumen-subtle: #737373;
+  --lumen-muted: #5e5e5e;
+  --lumen-subtle: #666;
   --lumen-line: rgb(0 0 0 / 10%);
   --lumen-edge: rgb(0 0 0 / 14%);
   --lumen-glass: rgb(255 255 255 / 35%);

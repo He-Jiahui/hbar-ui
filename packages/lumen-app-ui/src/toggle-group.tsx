@@ -3,6 +3,7 @@
 import * as React from 'react';
 import type { LumenSize } from './appearance';
 import type { LumenControlOption } from './forms';
+import { LumenContentText } from './content-text';
 import './toggle-group.css';
 
 export type { LumenControlOption } from './forms';
@@ -20,11 +21,10 @@ export type LumenToggleOption = LumenControlOption &
     | 'aria-roledescription'
   >;
 
-interface LumenToggleGroupBaseProps
-  extends Omit<
-    React.HTMLAttributes<HTMLDivElement>,
-    'children' | 'id' | 'role' | 'className' | 'onChange' | 'data-value'
-  > {
+interface LumenToggleGroupBaseProps extends Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  'children' | 'id' | 'role' | 'className' | 'onChange' | 'data-value'
+> {
   /** Stable DOM id. A generated id is used when omitted. */
   id?: string | undefined;
   /** Optional accessible name. `aria-label`/`aria-labelledby` take precedence. */
@@ -49,34 +49,36 @@ export interface LumenToggleGroupSingleProps extends LumenToggleGroupBaseProps {
   type: 'single';
   value: string | null;
   onValueChange: (value: string) => void;
-  values?: never;
-  onValuesChange?: never;
+  values?: never | undefined;
+  onValuesChange?: never | undefined;
 }
 
 export interface LumenToggleGroupMultipleProps extends LumenToggleGroupBaseProps {
   type: 'multiple';
   values: readonly string[];
   onValuesChange: (values: string[]) => void;
-  value?: never;
-  onValueChange?: never;
+  value?: never | undefined;
+  onValueChange?: never | undefined;
 }
 
-export type LumenToggleGroupProps =
-  | LumenToggleGroupSingleProps
-  | LumenToggleGroupMultipleProps;
+export type LumenToggleGroupProps = LumenToggleGroupSingleProps | LumenToggleGroupMultipleProps;
 
 type OptionButton = HTMLButtonElement;
 
 function uniqueOptions(options: readonly LumenToggleOption[]): readonly LumenToggleOption[] {
   const seen = new Set<string>();
   return options.filter((option) => {
-    if (seen.has(option.id)) return false;
+    if (seen.has(option.id)) {
+      return false;
+    }
     seen.add(option.id);
     return true;
   });
 }
 
-function optionAria(option: LumenToggleOption): Pick<
+function optionAria(
+  option: LumenToggleOption,
+): Pick<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
   | 'aria-describedby'
   | 'aria-details'
@@ -143,38 +145,45 @@ export const LumenToggleGroup = React.forwardRef<HTMLDivElement, LumenToggleGrou
     const selectedSet = React.useMemo(() => new Set(selectedValues), [selectedValues]);
     const availableIds = React.useMemo(
       () =>
-        disabled
-          ? []
-          : options.filter((option) => !option.disabled).map((option) => option.id),
+        disabled ? [] : options.filter((option) => !option.disabled).map((option) => option.id),
       [disabled, options],
     );
     const selectedIsStale = isSingle
       ? selectedValue !== null && !options.some((option) => option.id === selectedValue)
       : selectedValues.some((value) => !options.some((option) => option.id === value));
     const invalid = isAriaInvalid(rootProps['aria-invalid']) || selectedIsStale;
-    const resolvedSize = size ?? (typeof compatibilitySize === 'string' ? compatibilitySize : undefined);
+    const resolvedSize =
+      size ?? (typeof compatibilitySize === 'string' ? compatibilitySize : undefined);
     const hasSelectedOption = isSingle
       ? selectedValue !== null && options.some((option) => option.id === selectedValue)
       : selectedValues.some((selected) => options.some((option) => option.id === selected));
     const fallbackActiveId =
       isSingle && selectedValue !== null && availableIds.includes(selectedValue)
         ? selectedValue
-        : availableIds[0] ?? null;
+        : (availableIds[0] ?? null);
     const tabStopId =
       activeId !== null && availableIds.includes(activeId) ? activeId : fallbackActiveId;
 
     React.useEffect(() => {
-      if (!isSingle) return;
+      if (!isSingle) {
+        return;
+      }
       setActiveId((current) => {
-        if (selectedValue !== null && availableIds.includes(selectedValue)) return selectedValue;
-        if (current !== null && availableIds.includes(current)) return current;
+        if (selectedValue !== null && availableIds.includes(selectedValue)) {
+          return selectedValue;
+        }
+        if (current !== null && availableIds.includes(current)) {
+          return current;
+        }
         return availableIds[0] ?? null;
       });
     }, [availableIds, isSingle, selectedValue]);
 
     React.useEffect(() => {
       const input = buttonRefs.current.get(tabStopId ?? '');
-      if (!input) return;
+      if (!input) {
+        return;
+      }
       // Keep the map free from detached options after a host list mutation.
       for (const [optionId, button] of buttonRefs.current) {
         if (!button.isConnected || !options.some((option) => option.id === optionId)) {
@@ -185,31 +194,39 @@ export const LumenToggleGroup = React.forwardRef<HTMLDivElement, LumenToggleGrou
 
     React.useEffect(() => {
       const input = document.getElementById(validationId);
-      if (!(input instanceof HTMLInputElement) || !onReset) return undefined;
+      if (!(input instanceof HTMLInputElement) || !onReset) {
+        return undefined;
+      }
       const formElement = form ? document.getElementById(form) : input.form;
-      if (!(formElement instanceof HTMLFormElement)) return undefined;
+      if (!(formElement instanceof HTMLFormElement)) {
+        return undefined;
+      }
       const reset = () => onReset();
       formElement.addEventListener('reset', reset);
       return () => formElement.removeEventListener('reset', reset);
     }, [form, onReset, validationId]);
 
-    const setButtonRef = React.useCallback(
-      (optionId: string, button: OptionButton | null) => {
-        if (button) buttonRefs.current.set(optionId, button);
-        else buttonRefs.current.delete(optionId);
-      },
-      [],
-    );
+    const setButtonRef = React.useCallback((optionId: string, button: OptionButton | null) => {
+      if (button) {
+        buttonRefs.current.set(optionId, button);
+      } else {
+        buttonRefs.current.delete(optionId);
+      }
+    }, []);
 
     const focusOption = React.useCallback((optionId: string | null) => {
-      if (optionId === null) return;
+      if (optionId === null) {
+        return;
+      }
       setActiveId(optionId);
       buttonRefs.current.get(optionId)?.focus();
     }, []);
 
     const activateSingle = React.useCallback(
       (option: LumenToggleOption) => {
-        if (disabled || option.disabled || type !== 'single' || !onValueChange) return;
+        if (disabled || option.disabled || type !== 'single' || !onValueChange) {
+          return;
+        }
         onValueChange(option.id);
       },
       [disabled, onValueChange, type],
@@ -217,7 +234,9 @@ export const LumenToggleGroup = React.forwardRef<HTMLDivElement, LumenToggleGrou
 
     const toggleMultiple = React.useCallback(
       (option: LumenToggleOption) => {
-        if (disabled || option.disabled || type !== 'multiple' || !onValuesChange) return;
+        if (disabled || option.disabled || type !== 'multiple' || !onValuesChange) {
+          return;
+        }
         const next = selectedSet.has(option.id)
           ? selectedValues.filter((value) => value !== option.id)
           : [...selectedValues, option.id];
@@ -228,15 +247,19 @@ export const LumenToggleGroup = React.forwardRef<HTMLDivElement, LumenToggleGrou
 
     const handleSingleKeyDown = React.useCallback(
       (event: React.KeyboardEvent<HTMLButtonElement>, option: LumenToggleOption) => {
-        if (disabled || option.disabled || type !== 'single') return;
+        if (disabled || option.disabled || type !== 'single') {
+          return;
+        }
         const currentIndex = availableIds.indexOf(option.id);
         let nextId: string | null = null;
         if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
           event.preventDefault();
-          nextId = availableIds[(currentIndex + 1 + availableIds.length) % availableIds.length] ?? null;
+          nextId =
+            availableIds[(currentIndex + 1 + availableIds.length) % availableIds.length] ?? null;
         } else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
           event.preventDefault();
-          nextId = availableIds[(currentIndex - 1 + availableIds.length) % availableIds.length] ?? null;
+          nextId =
+            availableIds[(currentIndex - 1 + availableIds.length) % availableIds.length] ?? null;
         } else if (event.key === 'Home') {
           event.preventDefault();
           nextId = availableIds[0] ?? null;
@@ -251,7 +274,9 @@ export const LumenToggleGroup = React.forwardRef<HTMLDivElement, LumenToggleGrou
         if (nextId !== null) {
           focusOption(nextId);
           const nextOption = options.find((candidate) => candidate.id === nextId);
-          if (nextOption) activateSingle(nextOption);
+          if (nextOption) {
+            activateSingle(nextOption);
+          }
         }
       },
       [activateSingle, availableIds, disabled, focusOption, options, type],
@@ -259,7 +284,9 @@ export const LumenToggleGroup = React.forwardRef<HTMLDivElement, LumenToggleGrou
 
     const handleMultipleKeyDown = React.useCallback(
       (event: React.KeyboardEvent<HTMLButtonElement>, option: LumenToggleOption) => {
-        if (disabled || option.disabled || type !== 'multiple') return;
+        if (disabled || option.disabled || type !== 'multiple') {
+          return;
+        }
         if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') {
           event.preventDefault();
           toggleMultiple(option);
@@ -268,11 +295,8 @@ export const LumenToggleGroup = React.forwardRef<HTMLDivElement, LumenToggleGrou
       [disabled, toggleMultiple, type],
     );
 
-    const hiddenValueEntries = isSingle
-      ? [selectedValue ?? '']
-      : selectedValues.length > 0
-        ? selectedValues
-        : [''];
+    const multipleValueEntries = selectedValues.length > 0 ? selectedValues : [''];
+    const hiddenValueEntries = isSingle ? [selectedValue ?? ''] : multipleValueEntries;
     const describedBy = rootProps['aria-describedby'];
     const rootAriaLabel =
       rootProps['aria-label'] ?? (rootProps['aria-labelledby'] ? undefined : label);
@@ -285,7 +309,7 @@ export const LumenToggleGroup = React.forwardRef<HTMLDivElement, LumenToggleGrou
         className={['lumen-toggle-group', className].filter(Boolean).join(' ')}
         data-size={resolvedSize}
         data-type={type}
-        data-value={isSingle ? selectedValue ?? '' : undefined}
+        data-value={isSingle ? (selectedValue ?? '') : undefined}
         data-stale={selectedIsStale || undefined}
         data-invalid={invalid || undefined}
         data-disabled={disabled || undefined}
@@ -301,6 +325,7 @@ export const LumenToggleGroup = React.forwardRef<HTMLDivElement, LumenToggleGrou
             const selected = isSingle ? selectedValue === option.id : selectedSet.has(option.id);
             const optionLabel = option.label;
             const optionAttributes = optionAria(option);
+            const optionTabIndex = !isSingle || option.id === tabStopId ? 0 : -1;
             return (
               <button
                 {...optionAttributes}
@@ -318,23 +343,38 @@ export const LumenToggleGroup = React.forwardRef<HTMLDivElement, LumenToggleGrou
                 aria-pressed={!isSingle ? selected : undefined}
                 aria-disabled={optionDisabled || undefined}
                 disabled={optionDisabled}
-                tabIndex={isSingle ? (option.id === tabStopId ? 0 : -1) : 0}
+                tabIndex={optionTabIndex}
                 onFocus={() => {
-                  if (isSingle && !optionDisabled) setActiveId(option.id);
+                  if (isSingle && !optionDisabled) {
+                    setActiveId(option.id);
+                  }
                 }}
                 onClick={() => {
-                  if (isSingle) activateSingle(option);
-                  else toggleMultiple(option);
+                  if (isSingle) {
+                    activateSingle(option);
+                  } else {
+                    toggleMultiple(option);
+                  }
                 }}
                 onKeyDown={(event) => {
-                  if (isSingle) handleSingleKeyDown(event, option);
-                  else handleMultipleKeyDown(event, option);
+                  if (isSingle) {
+                    handleSingleKeyDown(event, option);
+                  } else {
+                    handleMultipleKeyDown(event, option);
+                  }
                 }}
               >
                 <span className="lumen-toggle-option-copy">
-                  <span className="lumen-toggle-option-label">{optionLabel}</span>
+                  <LumenContentText context="control.label" className="lumen-toggle-option-label">
+                    {optionLabel}
+                  </LumenContentText>
                   {option.detail ? (
-                    <span className="lumen-toggle-option-detail">{option.detail}</span>
+                    <LumenContentText
+                      context="form.description"
+                      className="lumen-toggle-option-detail"
+                    >
+                      {option.detail}
+                    </LumenContentText>
                   ) : null}
                 </span>
               </button>

@@ -47,8 +47,8 @@ export function resolveLumenColors(
   const foreground = overrides.foreground ?? (dark ? '#eeeeee' : '#171717');
   const background = overrides.background ?? (dark ? '#090909' : '#f5f5f5');
   const customized = overrides.foreground !== undefined || overrides.background !== undefined;
-  let muted = dark ? '#aaaaaa' : '#666666';
-  let subtle = dark ? '#858585' : '#737373';
+  let muted = dark ? '#aaaaaa' : '#5e5e5e';
+  let subtle = dark ? '#858585' : '#666666';
   if (customized) {
     muted = `color-mix(in srgb, ${foreground} 72%, ${background})`;
     subtle = `color-mix(in srgb, ${foreground} 62%, ${background})`;
@@ -60,7 +60,7 @@ export function resolveLumenColors(
     muted: overrides.muted ?? muted,
     subtle: overrides.subtle ?? subtle,
     info: overrides.info ?? (dark ? '#81b5ff' : '#285bc3'),
-    success: overrides.success ?? (dark ? '#77deb0' : '#1a7c56'),
+    success: overrides.success ?? (dark ? '#77deb0' : '#16724e'),
     warning: overrides.warning ?? (dark ? '#efd17a' : '#996500'),
     danger: overrides.danger ?? (dark ? '#ff969b' : '#b73548'),
   };
