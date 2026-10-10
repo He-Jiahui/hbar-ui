@@ -1,11 +1,11 @@
 ---
 name: lumen-design-language
-description: Design, implement, and review Lumen UI primitives and App UI compositions using dark light strips, light ink strips, flat surfaces, and explicit information hierarchy. Use in the Lumen package and its host previews when adapting MUI component concepts or refining shared controls.
+description: Design, implement, and review Lumen UI primitives and App UI compositions using contour glow, quiet surfaces, semantic text and explicit information hierarchy. Use in the Lumen package and its host previews when adapting MUI component concepts or refining shared controls.
 ---
 
 # Lumen · 墨光
 
-Lumen 的基础表面透明，黑色或白色背景由宿主提供。在黑色背景上用灯带指示动作与状态，在白色背景上用墨条承担同一职责。两种模式都有外发光：白光向外散射，黑墨向外扩散。纯色用于文字、线芯、墨条和强调状态。MUI 提供组件概念与交互契约，Lumen 决定视觉表达。
+Lumen 的基础表面透明，背景由宿主提供。控件保留 MUI 的实色、描边和文本变体，发光遵循原有轮廓；进行中使用蓝色呼吸。基础规则见 [组件包设计规范](../../../packages/lumen-app-ui/DESIGN.md)。MUI 提供组件概念与交互契约，Lumen 决定视觉表达。
 
 黑白是默认预设，不是固定配色限制。主题通过 `LumenAppearance.colors` 独立配置 foreground（前景、灯条及外发光）、background（宿主背景）、contrast（强调填充上的反差文字）及可选的辅助/语义色。组件从这些颜色派生边界和扩散；不在变体内部写死白灯或黑墨。`LumenProvider` 自身不涂背景，宿主显式使用 `--lumen-canvas`。
 
@@ -36,9 +36,9 @@ Lumen 的基础表面透明，黑色或白色背景由宿主提供。在黑色�
 
 ## 验收依据
 
-灯条首先表达交互，不是结构装饰。以对齐、margin、padding 组织界面；小结构尽量无边界，大结构的静态边界低对比。可拖动的滚动条、可伸缩的分隔边界必须保留可辨识的操作范围；表格已有的必要网格线也不能为了“无界”删除。按钮在适合布局的一条边上发光（优先下边，允许上/左/右），静态标签不冒充按钮。禁用和接近零的进度用减弱亮度、不发光表达；接近满值的进度可以增强光感。
+发光首先表达交互，不是结构装饰。以对齐、margin、padding 组织界面；小结构尽量无边界，大结构的静态边界低对比。可拖动的滚动条、可伸缩的分隔边界必须保留可辨识的操作范围；表格已有的必要网格线也不能为了“无界”删除。发光遵循控件轮廓，不指定某一条边。禁用和接近零的进度用减弱亮度、不发光表达；接近满值的进度可以增强光感。
 
-相邻灯条的美感来自对齐和统一尺度。先给同组控件建立匹配的尺寸，再按状态变化；不让短文本和长文本任意决定一排灯条的长度。线芯保持直线，不沿圆角折弯，也不把每个卡片描成发光框。弹窗/主要浮层是例外：用模糊、玻璃、外发光和可见外边界与下层拉开层次，正文仍然锐利。
+同组控件使用一致的文字、图标、gap 与 padding；内容宽度由文字自然决定。标签保持完整单行，空间不足由工具栏的优先级和更多菜单承接。普通卡片不持续发光。弹窗与主要浮层用材质和可见外边界与下层拉开层次，正文仍然锐利。
 
 所有有意设计的状态动画必须平滑：灯条长度、亮度、颜色、光晕、滑块位置和进度值连续插值；快速反向操作从当前呈现值继续，不先跳到端点。选中/取消、运行/停止和禁用不能靠条件卸载灯条或 `display: none` 跳变。呼吸动画与状态过渡分层，淡入淡出时不抢写同一个 opacity。禁止 `transition: all`；列明实际变化的属性。减少动态效果偏好和宿主 motion 关闭是明确的无障碍例外，不强迫用户观看动画。
 

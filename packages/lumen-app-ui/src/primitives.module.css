@@ -172,6 +172,9 @@
 .text[data-tone='muted'] {
   color: var(--lumen-muted);
 }
+.text[data-tone='info'] {
+  color: var(--lumen-info);
+}
 
 .text[data-tone='subtle'] {
   color: var(--lumen-subtle);

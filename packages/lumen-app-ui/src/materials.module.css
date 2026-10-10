@@ -30,6 +30,30 @@
 .surface[data-shape='square'] {
   border-radius: 0;
 }
+.surface:is([data-surface-role='canvas'], [data-surface-role='reading']) {
+  border-color: transparent;
+  border-radius: 0;
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+.surface[data-surface-role='navigation'] {
+  border-color: transparent;
+  border-radius: 0;
+  background: var(--lumen-surface-navigation);
+  backdrop-filter: none;
+  box-shadow: none;
+}
+.surface[data-surface-role='raised'] {
+  border-color: var(--lumen-line);
+  background: var(--lumen-surface-raised);
+  backdrop-filter: none;
+  box-shadow: none;
+}
+.surface[data-surface-role='overlay'] {
+  border-color: var(--lumen-overlay-edge);
+  background: var(--lumen-frost);
+}
 .surface:is(:not([data-boundary='none']), [data-interactive='true']) {
   border-color: var(--lumen-edge);
 }

@@ -1,10 +1,12 @@
 'use client';
 
 import * as React from 'react';
+import { LumenContentText } from './content-text';
 import { LumenActionMenu, LumenIcon, type LumenIconProps } from './workbench';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 
 export interface LumenPageHeaderProps {
+  layout?: 'workspace' | 'page' | undefined;
   title: string;
   context?: string | undefined;
   leading?: React.ReactNode;
@@ -19,6 +21,7 @@ export interface LumenPageHeaderProps {
 }
 
 export function LumenPageHeader({
+  layout = 'workspace',
   title,
   context,
   leading,
@@ -27,16 +30,19 @@ export function LumenPageHeader({
   actions,
 }: LumenPageHeaderProps) {
   return (
-    <header className="lumen-page-header">
+    <header className="lumen-page-header" data-header-layout={layout}>
       {leading ? <div className="lumen-page-header-leading">{leading}</div> : null}
       <div className="lumen-page-heading">
-        <LumenText as="h1" variant="title" title={title}>
+        <LumenContentText
+          context={layout === 'page' ? 'page.title' : 'workspace.title'}
+          title={title}
+        >
           {title}
-        </LumenText>
+        </LumenContentText>
         {context ? (
-          <LumenText as="p" tone="muted" title={context}>
+          <LumenContentText context="section.description" tone="muted" title={context}>
             {context}
-          </LumenText>
+          </LumenContentText>
         ) : null}
       </div>
       <div className="lumen-page-header-end">
@@ -138,19 +144,17 @@ export function LumenToolPane({
           {icon ? <LumenIcon icon={icon} tier="md" className="lumen-tool-pane-icon" /> : null}
           <div className="lumen-tool-pane-copy">
             <div className="lumen-tool-pane-heading">
-              <LumenText as="h2" variant="heading">
-                {title}
-              </LumenText>
+              <LumenContentText context="tool.title">{title}</LumenContentText>
               {targetLabel ? (
-                <LumenText as="span" tone="subtle" title={targetLabel}>
+                <LumenContentText context="section.description" tone="muted" title={targetLabel}>
                   {targetLabel}
-                </LumenText>
+                </LumenContentText>
               ) : null}
             </div>
             {description ? (
-              <LumenText as="p" tone="muted" variant="supporting">
+              <LumenContentText context="section.description" tone="muted">
                 {description}
-              </LumenText>
+              </LumenContentText>
             ) : null}
           </div>
         </div>

@@ -25,7 +25,7 @@ import {
 import './workbench.css';
 import { LumenFloatingSurface, useFloatingTrigger } from './floating-surface';
 
-export type LumenIconTier = 'sm' | 'md' | 'lg';
+export type LumenIconTier = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 export interface LumenIconProps extends React.SVGAttributes<SVGSVGElement> {
   icon: React.ElementType<React.SVGAttributes<SVGSVGElement>>;

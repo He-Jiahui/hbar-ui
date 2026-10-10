@@ -1,0 +1,27 @@
+# Lumen application design
+
+Lumen provides a quiet, content-first workbench. Hosts supply localized copy, real records and controlled actions. Production pages use shared primitives; reference variants retain their independently observed brand layouts.
+
+## Hierarchy
+
+`LumenSurface.surfaceRole` separates canvas, navigation, reading, raised and overlay roles from glass, frost and solid materials. Existing calls without a role retain their appearance. Reading shares the canvas; navigation uses a restrained neutral tone; overlays retain a visible, readable boundary. Avoid nested cards around ordinary prose.
+
+`LumenContentText.context` defines content flow. Control labels and status text stay complete on one line. Dialog bodies and descriptions wrap. Navigation records are left aligned and clip at the trailing edge without ellipses. Code preserves source whitespace and owns local scrolling. Font and spacing derive from Lumen tokens and host appearance settings.
+
+## Composition and interaction
+
+`LumenPageHeader` groups the title, context and actions. Page titles may wrap; workspace titles own a local single-line reading area. `LumenToolPane` owns a header, scrollable body and optional footer. `LumenRecordRow` and `LumenMetricRow` express compact information without another card. Large collections remain host-paged or virtualized.
+
+`LumenAdaptiveToolbar` measures complete controls, retains higher-priority actions inline and moves others to the shared More surface. A trailing mandatory action remains visible. It never abbreviates a label or clones interactive controls. Item IDs are stable; the host owns business state and callbacks.
+
+## Color and motion
+
+Contained, outlined and text controls preserve MUI interaction semantics. Glow follows the existing control contour. Blue indicates active work, green success, amber no result or attention, and red failure. Category accents are separate from result status. Body text is sharp and never glows.
+
+State transitions and breathing use separate effect layers. Geometry stays stable; rapid reversal continues from the presented value. Reduced motion, motion off, zero glow and forced colors retain understandable states. Default text contrast is at least 4.5:1 and visible focus remains independent of glow.
+
+## References and validation
+
+Structure: [ReactBits App Shell 9](https://pro.reactbits.dev/docs/app-ui/app-shell/app-shell-9). Interaction: [Prompt Input 1](https://pro.reactbits.dev/docs/app-ui/prompt-input/prompt-input-1). Raycast and Cursor inform compact navigation and tool chronology; Apple and Runway inform quiet reading; MiniMax informs model metadata. All are translated into Lumen semantics rather than copied palettes.
+
+Verify light/dark, desktop/narrow, long multilingual copy, empty and paged collections, keyboard focus, source copying, state transitions and reduced motion. A static screenshot does not prove interaction or capacity.

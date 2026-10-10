@@ -12,6 +12,14 @@
   overflow-wrap: anywhere;
   word-break: normal;
 }
+.clipped {
+  display: block;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-align: start;
+  white-space: nowrap;
+  text-overflow: clip;
+}
 
 .inlineCode {
   white-space: pre-wrap;

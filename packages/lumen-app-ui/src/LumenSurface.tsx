@@ -7,8 +7,11 @@ import { type LumenState, type LumenTone } from './LumenIndicator';
 import styles from './materials.module.css';
 
 export type LumenSurfaceElement = 'article' | 'aside' | 'div' | 'form' | 'main' | 'nav' | 'section';
+export type LumenSurfaceRole = 'canvas' | 'navigation' | 'reading' | 'raised' | 'overlay';
 
 interface LumenSurfaceOwnProps {
+  /** Information hierarchy is independent of the chosen material. Omission preserves legacy surfaces. */
+  surfaceRole?: LumenSurfaceRole | undefined;
   /** @deprecated The boundary is continuous; direction no longer selects a lamp edge. */
   boundary?: 'none' | 'horizontal' | 'vertical' | undefined;
   contentClassName?: string | undefined;
@@ -28,6 +31,7 @@ export type LumenSurfaceProps<Element extends LumenSurfaceElement = 'div'> = Lum
 
 export default function LumenSurface<Element extends LumenSurfaceElement = 'div'>({
   as: suppliedElement,
+  surfaceRole,
   boundary = 'none',
   contentClassName,
   material = 'glass',
@@ -56,6 +60,7 @@ export default function LumenSurface<Element extends LumenSurfaceElement = 'div'
     if (
       !element ||
       material !== 'glass' ||
+      (surfaceRole !== undefined && surfaceRole !== 'overlay') ||
       !/Chrome|Chromium|Edg\//.test(navigator.userAgent) ||
       !CSS.supports('backdrop-filter', `url(#${id})`)
     ) {
@@ -84,8 +89,11 @@ export default function LumenSurface<Element extends LumenSurfaceElement = 'div'
       observer.disconnect();
       cancelAnimationFrame(frame);
     };
-  }, [id, material]);
+  }, [id, material, surfaceRole]);
   const hasLens = material === 'glass' && Boolean(map) && glassStrength > 0;
+  let lens = 'frost';
+  if (material === 'solid') {lens = 'none';}
+  else if (hasLens) {lens = 'refractive';}
   const lensStyle = hasLens
     ? { backdropFilter: `url(#${id}) blur(${0.12 + glassStrength * 0.002}rem)` }
     : undefined;
@@ -103,10 +111,11 @@ export default function LumenSurface<Element extends LumenSurfaceElement = 'div'
       data-lumen-tone={state === 'failed' ? 'danger' : tone}
       data-boundary={boundary}
       data-material={material}
+      data-surface-role={surfaceRole}
       data-elevation={elevation}
       data-interactive={interactive}
       data-shape={shape}
-      data-lens={material === 'solid' ? 'none' : hasLens ? 'refractive' : 'frost'}
+      data-lens={lens}
     >
       {hasLens && (
         <svg className={styles.filter} aria-hidden="true" focusable="false">

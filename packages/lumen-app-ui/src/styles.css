@@ -52,6 +52,7 @@
 @import './toggle-group.css';
 @import './control-effects.css';
 @import './empty-state-reference.css';
+@import './workbench-compositions.css';
 
 /* Canonical defaults also serve compatibility class names without a hbar host. */
 :root {
@@ -111,6 +112,13 @@
 
 html:has([data-lumen-mode]),
 [data-lumen-mode] {
+  --lumen-surface-navigation: color-mix(in srgb, var(--lumen-ink) 3%, var(--lumen-canvas));
+  --lumen-surface-raised: color-mix(in srgb, var(--lumen-ink) 4%, var(--lumen-canvas));
+  --lumen-space-inline: 0.5rem;
+  --lumen-space-group: 1rem;
+  --lumen-space-section: 1.5rem;
+  --lumen-reading-line-height: 1.7;
+  --lumen-reading-width: 52rem;
   --lumen-motion-duration: 260ms;
   --lumen-motion-easing: cubic-bezier(0.2, 0.8, 0.2, 1);
   /* prettier-ignore */

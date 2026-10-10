@@ -6,7 +6,7 @@ import styles from './content-text.module.css';
 interface TextDefinition {
   readonly element: NonNullable<LumenTextProps['as']>;
   readonly variant: NonNullable<LumenTextProps['variant']>;
-  readonly flow: 'single' | 'reading' | 'inlineCode' | 'code';
+  readonly flow: 'single' | 'reading' | 'inlineCode' | 'code' | 'clipped';
 }
 
 /** Location and purpose are explicit; neither string length nor an HTML tag selects the policy. */
@@ -15,6 +15,15 @@ export const LUMEN_TEXT_CONTEXTS = {
   'control.status': { element: 'span', variant: 'body', flow: 'single' },
   'navigation.caption': { element: 'span', variant: 'body', flow: 'single' },
   'navigation.title': { element: 'h2', variant: 'heading', flow: 'single' },
+  'navigation.item': { element: 'span', variant: 'body', flow: 'clipped' },
+  'page.title': { element: 'h1', variant: 'title', flow: 'reading' },
+  'section.title': { element: 'h2', variant: 'heading', flow: 'reading' },
+  'section.description': { element: 'p', variant: 'supporting', flow: 'reading' },
+  'metric.label': { element: 'dt', variant: 'supporting', flow: 'single' },
+  'metric.value': { element: 'dd', variant: 'body', flow: 'single' },
+  'record.title': { element: 'strong', variant: 'body', flow: 'reading' },
+  'record.description': { element: 'span', variant: 'supporting', flow: 'reading' },
+  'message.inline': { element: 'span', variant: 'body', flow: 'reading' },
   'workspace.title': { element: 'h1', variant: 'title', flow: 'single' },
   'workspace.context': { element: 'p', variant: 'body', flow: 'single' },
   'tool.title': { element: 'h2', variant: 'heading', flow: 'single' },

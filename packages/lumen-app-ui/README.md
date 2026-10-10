@@ -7,6 +7,13 @@ import `@lumen/app-ui/styles.css` once in the host application. Material UI
 provides the interaction primitives. The package does not depend on hbar's
 runtime or preview application.
 
+The [application design contract](DESIGN.md) defines production surface roles,
+semantic text flow and compact compositions. `LumenSurface.surfaceRole` opts
+into canvas/navigation/reading/raised/overlay hierarchy independently of material.
+`LumenAdaptiveToolbar` accepts host-labeled items with stable IDs and numeric
+priority, retaining its mandatory trailing action outside the More surface.
+`LumenRecordRow` and `LumenMetricRow` render host-owned records without demo data.
+
 `LumenUsageOverviewContent.chart` opts into a stacked input/output chart. The
 host supplies localized labels, accessible point names, detail text, formatted
 metrics and normalized visual proportions through `LumenUsageOverviewChart`

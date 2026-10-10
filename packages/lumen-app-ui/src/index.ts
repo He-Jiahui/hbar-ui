@@ -4,7 +4,15 @@ export type { LumenProviderProps } from './LumenProvider';
 
 export { default as LumenSurface } from './LumenSurface';
 
-export type { LumenSurfaceProps } from './LumenSurface';
+export type { LumenSurfaceProps, LumenSurfaceRole } from './LumenSurface';
+
+export { LumenRecordRow, LumenMetricRow, LumenAdaptiveToolbar } from './workbench-compositions';
+export type {
+  LumenRecordRowProps,
+  LumenMetricRowProps,
+  LumenToolbarItem,
+  LumenAdaptiveToolbarProps,
+} from './workbench-compositions';
 
 export { default as LumenIndicator } from './LumenIndicator';
 
