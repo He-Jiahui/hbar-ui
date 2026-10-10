@@ -16,6 +16,8 @@ Lumen provides a quiet, content-first workbench. Hosts supply localized copy, re
 
 Toolbar items keep their mounted portal containers when moving between inline and More locations. A programmatic reveal request can expose a lower-priority action without opening a second copy. Composer send, stop and background stop actions stay outside capacity-managed controls. `LumenActionMenu.labelVisible` exposes a full single-line trigger label when an icon alone is insufficient.
 
+When supported, the foundation moves connected containers with `Element.moveBefore` to preserve focus, open popovers and animation state. It skips moves into the current parent. `focusLumenControl` asks the owning toolbar to reveal an overflowed control before restoring focus; hosts do not reach into toolbar internals. `LumenFloatingSurface.contentRef` exposes the shared surface container for stable docking and focus ownership. See [Chrome's state-preserving move API](https://developer.chrome.com/blog/movebefore-api).
+
 `LumenAppShell` supports split and drawer tool presentation. The host chooses widths and preserves the panel identity; the shared floating surface supports a persistent dock target, backdrop, dismissal and focus return. Allocate a reading budget before opening a side-by-side tool. The navigation footer owns bounded scrolling in short windows so the record tree remains usable.
 
 `LumenProvider.surfaceRole` sets an optional default for surfaces in a production scope. References that omit it keep their existing material and appearance. Do not apply a production migration to independent brand references.
