@@ -1,14 +1,14 @@
 # 视觉原语
 
-## 黑底灯带 / 白底墨条
+## 明暗主题与轮廓发光
 
 这些是主题预设。`LumenAppearance.colors` 可覆盖 foreground、background、contrast、muted、subtle、info、success、warning、danger。前景与背景改变时，辅助文字自动混合派生；contrast 未指定时跟随背景。若宿主选择自定义配色，重新验证真实文本/状态对比度，不因默认黑白通过而假定任意配色均通过。当前颜色契约使用 MUI 可解析的具体 hex/rgb/hsl 颜色。
 
 两种模式共享位置、长度、状态与文字语义。深色以近黑背景、近白正文和白色线芯构成；浅色以白色背景、近黑正文和黑色线芯构成。两者均有柔和外发光：深色散射白光，浅色扩散黑墨。成功、警告、错误、信息色只表达语义，并始终搭配文本、图标或控件状态。
 
-使用共享变量：`--lumen-canvas`、`--lumen-ink`、`--lumen-muted`、`--lumen-subtle`、`--lumen-line`、`--lumen-edge`、`--lumen-glow-near`、`--lumen-glow-far`。宿主的 `--lumen-glow` 控制共享灯条在两种模式的扩散强度，`data-lumen-motion` 通过 appearance 控制动态效果。没有光晕时仍须可识别选中和焦点。MUI 适配层保留已确认的默认光晕，自定义配色路径才使用派生配色。
+使用共享变量：`--lumen-canvas`、`--lumen-ink`、`--lumen-muted`、`--lumen-subtle`、`--lumen-line`、`--lumen-edge`、`--lumen-glow-near`、`--lumen-glow-far`。宿主的 `--lumen-glow` 控制轮廓在两种模式的扩散强度，`data-lumen-motion` 通过 appearance 控制动态效果。没有光晕时仍须可识别选中和焦点。MUI 适配层保留已确认的默认光晕，自定义配色路径才使用派生配色。
 
-`LumenIndicator` 的结构是线芯加可选光晕。水平条适合动作、页签、输入边界；垂直条适合列表/导航选择。idle 微弱，hover 增强，selected 明确，running 可缓慢呼吸，failed 使用语义色与错误文字，disabled 停止动态。灯带本身 `aria-hidden`，真实状态由按钮、输入或宿主状态文本提供。
+普通控件保留 MUI 的实色、描边和文本轮廓，发光跟随该轮廓，不增加单边灯管。`LumenIndicator` 的线芯与可选光晕仅用于明确的位置或进度指示。idle 微弱，hover 增强，selected 明确，running 使用蓝色呼吸，failed 使用危险色与错误文字，disabled 停止动态。装饰本身 `aria-hidden`，真实状态由按钮、输入或宿主状态文本提供。
 
 ## 表面与框架
 
@@ -18,7 +18,7 @@
 
 ## 连续动态
 
-线芯长度/透明度和光晕强度分开插值，建议复用 `--lumen-motion-duration` 与 `--lumen-motion-easing`。拖动反馈使用较短过渡，避免输入滞后；仍须连续跟随，结束拖动不能跳到最终值。运行呼吸放在独立子层，外层负责状态淡入淡出。保留节点，不能以变更 key、条件卸载或重建 DOM 代替退出过渡。复杂菜单、对话框与列表插入/删除需要各自验证生命周期，不把基础灯条验证推论为所有 App UI 动画都已通过。
+状态强度与光晕分开插值，复用 `--lumen-state-duration` 与 `--lumen-state-easing`。拖动反馈使用较短过渡，避免输入滞后；仍须连续跟随，结束拖动不能跳到最终值。运行呼吸与状态淡入淡出分层。保留节点，不能以变更 key、条件卸载或重建 DOM 代替退出过渡。复杂菜单、对话框与列表插入/删除需要各自验证生命周期，不把基础控件验证推论为所有 App UI 动画都已通过。
 
 对长短标签并排、从 0 到满值、快速反向、运行中取消、禁用切换分别采样。静止端点必须匹配原版参照；动画是端点间连续变化，不是重新设计端点。无障碍 motion off/reduced motion 路径取消动画，但保留清晰状态。
 

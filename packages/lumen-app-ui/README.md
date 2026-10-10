@@ -47,17 +47,15 @@ without persisting any preference itself. It installs the MUI theme and an
 optional transparent `CssBaseline`, leaving the window or browser host in
 control of the actual app background.
 
-The project skill at `.agents/skills/lumen-design-language/SKILL.md` describes
-the Lumen language: a sharp light strip on dark canvas and a solid ink strip on
-white canvas. Basic surfaces are transparent and rely on the host background;
-solid color is used for text, strip cores and emphasis. The established
-`LumenSurface` default remains translucent `glass`; `frost` is an explicit option.
-The existing default button, field, list, badge, and surface skins are preserved.
-Both themes diffuse around the strip: white light on black, black ink on white.
-Setting glow to zero or disabling motion preserves the strip and keyboard focus.
+The [package design contract](./DESIGN.md) and project skill at
+`.agents/skills/lumen-design-language/SKILL.md` describe a quiet reading language
+with MUI contained, outlined and text variants. Glow follows the control contour;
+blue breathing represents active work. Surface roles are independent of glass,
+frost and solid materials. Existing calls without a role keep their appearance.
+Setting glow to zero or disabling motion retains readable states and keyboard focus.
 
 Black and white are defaults, not fixed palettes. Set `appearance.colors` to
-override `foreground` (text, strip and diffusion), `background` (host canvas),
+override `foreground` (text, contour and diffusion), `background` (host canvas),
 and `contrast` (text on solid emphasis). `muted`, `subtle`, `info`, `success`,
 `warning`, and `danger` are optional overrides. Use concrete hex/rgb/hsl colors.
 The provider shares resolved colors with its CSS properties and MUI theme;

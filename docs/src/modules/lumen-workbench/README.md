@@ -36,7 +36,7 @@ by the example.
 
 The task navigation, main content, and context share one seamless glass window.
 Reading areas use a more opaque overlay and stronger background blur to keep
-text clear. The black and white base supports semantic light strips: blue for
+text clear. The black and white base supports semantic contour feedback: blue for
 information and running work, green for success, amber for cancellation or
 warnings, and red for failure. These colors retain explicit status labels.
 

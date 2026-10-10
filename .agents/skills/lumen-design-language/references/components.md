@@ -4,9 +4,9 @@
 
 | 概念 | Lumen API | 表现和行为 |
 | --- | --- | --- |
-| Button / IconButton | LumenButton / LumenIconButton | text 是轻动作，outlined 是需要边界的次动作，solid 是少量主动作。以线芯反馈交互；loading 禁止重复提交并保留名称。 |
+| Button / IconButton | LumenButton / LumenIconButton | text 是轻动作，outlined 是需要边界的次动作，contained（兼容 solid）是少量主动作。轮廓发光表达交互，蓝色呼吸表达进行中；loading 禁止重复提交并保留名称。 |
 | Autocomplete / Combo box | LumenComboBox | 保留已有输入参照及独立下拉面。方向键只移动高亮，Enter 提交，Escape 取消展开；active descendant 与 selected value 分开。宿主筛选并提供分页。 |
-| TextField / Select | LumenFormField + LumenInput / LumenSelect | 可见标签、说明、错误分别呈现。保留现有输入边界，需要方向灯带时组合 LumenField，焦点增加清晰指示。原生 select 保留平台选择行为。 |
+| TextField / Select | LumenFormField + LumenInput / LumenPopupSelect | 可见标签、说明、错误分别呈现。保留输入边界和独立可见焦点，程序内选择使用共享浮层。LumenSelect 仍保留明确需要平台表单行为的兼容接口。 |
 | List / ListItemButton | LumenList | 文本主次、行尾辅助信息。当前 trailing 位于行按钮内，只放非交互信息；未来扩展独立操作时须放在行按钮之外并单测，不能嵌套按钮。短列表随内容增长，大列表由宿主管理分页。 |
 | Chip / Tag | LumenChip | 短标签或过滤条件，透明底面与局部边界，无胶囊外观依赖。可选选择与删除；删除有独立宿主标签，避免让删除同时触发选择。 |
 | Badge | LumenBadge | 简短状态或计数，线芯/点与文字组合；可附着到图标旁，提供可访问名称。数值格式、上限和复数由宿主决定。 |

@@ -7,7 +7,7 @@ description: Design, implement, and review Lumen UI primitives and App UI compos
 
 Lumen 的基础表面透明，背景由宿主提供。控件保留 MUI 的实色、描边和文本变体，发光遵循原有轮廓；进行中使用蓝色呼吸。基础规则见 [组件包设计规范](../../../packages/lumen-app-ui/DESIGN.md)。MUI 提供组件概念与交互契约，Lumen 决定视觉表达。
 
-黑白是默认预设，不是固定配色限制。主题通过 `LumenAppearance.colors` 独立配置 foreground（前景、灯条及外发光）、background（宿主背景）、contrast（强调填充上的反差文字）及可选的辅助/语义色。组件从这些颜色派生边界和扩散；不在变体内部写死白灯或黑墨。`LumenProvider` 自身不涂背景，宿主显式使用 `--lumen-canvas`。
+黑白是默认预设，不是固定配色限制。主题通过 `LumenAppearance.colors` 独立配置 foreground（前景、轮廓及外发光）、background（宿主背景）、contrast（强调填充上的反差文字）及可选的辅助/语义色。组件从这些颜色派生边界和扩散；不在变体内部写死白灯或黑墨。`LumenProvider` 自身不涂背景，宿主显式使用 `--lumen-canvas`。
 
 ## 设计判断
 
