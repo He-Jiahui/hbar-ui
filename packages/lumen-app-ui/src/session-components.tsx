@@ -574,7 +574,6 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
             </div>
             <div className="lumen-composer-trailing-controls">
               {props.modelPicker}
-              {props.backgroundAction}
               {runningActions?.submit === 'queue' ? (
                 <LumenButton
                   type="submit"
@@ -591,6 +590,7 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
             </div>
           </div>
           <div className="lumen-composer-primary-actions">
+            {props.backgroundAction}
             {props.canStop ? (
               <LumenIconButton
                 label={props.labels.stop}
