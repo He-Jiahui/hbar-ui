@@ -9,6 +9,9 @@ import styles from './materials.module.css';
 export type LumenSurfaceElement = 'article' | 'aside' | 'div' | 'form' | 'main' | 'nav' | 'section';
 export type LumenSurfaceRole = 'canvas' | 'navigation' | 'reading' | 'raised' | 'overlay';
 
+/** Internal provider default; explicit component roles always take precedence. */
+export const LumenSurfaceRoleContext = React.createContext<LumenSurfaceRole | undefined>(undefined);
+
 interface LumenSurfaceOwnProps {
   /** Information hierarchy is independent of the chosen material. Omission preserves legacy surfaces. */
   surfaceRole?: LumenSurfaceRole | undefined;
@@ -31,7 +34,7 @@ export type LumenSurfaceProps<Element extends LumenSurfaceElement = 'div'> = Lum
 
 export default function LumenSurface<Element extends LumenSurfaceElement = 'div'>({
   as: suppliedElement,
-  surfaceRole,
+  surfaceRole: suppliedSurfaceRole,
   boundary = 'none',
   contentClassName,
   material = 'glass',
@@ -46,6 +49,9 @@ export default function LumenSurface<Element extends LumenSurfaceElement = 'div'
   style,
   ...props
 }: LumenSurfaceProps<Element>) {
+  const inheritedSurfaceRole = React.useContext(LumenSurfaceRoleContext);
+  const surfaceRole =
+    suppliedSurfaceRole ?? (elevation === 'overlay' ? 'overlay' : inheritedSurfaceRole);
   const element = suppliedElement ?? 'div';
   const Component = element as unknown as React.ComponentType<
     React.HTMLAttributes<HTMLElement> & React.RefAttributes<HTMLElement>
@@ -90,10 +96,17 @@ export default function LumenSurface<Element extends LumenSurfaceElement = 'div'
       cancelAnimationFrame(frame);
     };
   }, [id, material, surfaceRole]);
-  const hasLens = material === 'glass' && Boolean(map) && glassStrength > 0;
+  const hasLens =
+    material === 'glass' &&
+    (surfaceRole === undefined || surfaceRole === 'overlay') &&
+    Boolean(map) &&
+    glassStrength > 0;
   let lens = 'frost';
-  if (material === 'solid') {lens = 'none';}
-  else if (hasLens) {lens = 'refractive';}
+  if (material === 'solid') {
+    lens = 'none';
+  } else if (hasLens) {
+    lens = 'refractive';
+  }
   const lensStyle = hasLens
     ? { backdropFilter: `url(#${id}) blur(${0.12 + glassStrength * 0.002}rem)` }
     : undefined;

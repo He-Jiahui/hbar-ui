@@ -4,10 +4,37 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { MoreHorizontal } from 'lucide-react';
 import { LumenContentText } from './content-text';
-import { LumenIconButton } from './primitives';
+import { LumenButton, LumenIconButton, type LumenButtonProps } from './primitives';
 import { LumenFloatingSurface, useFloatingTrigger } from './floating-surface';
 import { LumenIcon } from './workbench';
 import './workbench-compositions.css';
+
+export interface LumenReadingMarkerProps extends Omit<LumenButtonProps, 'children' | 'aria-label'> {
+  readonly label: string;
+  readonly current?: boolean | undefined;
+}
+
+/** A compact reading anchor with stable geometry and the shared focus/action contract. */
+export function LumenReadingMarker({
+  label,
+  current,
+  className,
+  ...props
+}: LumenReadingMarkerProps) {
+  return (
+    <LumenButton
+      {...props}
+      variant="text"
+      indicator="none"
+      size="s"
+      aria-label={label}
+      aria-current={current ? 'location' : undefined}
+      className={['lumen-reading-marker', className].filter(Boolean).join(' ')}
+    >
+      <span className="lumen-reading-marker-ink" aria-hidden="true" />
+    </LumenButton>
+  );
+}
 
 export interface LumenRecordRowProps {
   readonly as?: 'div' | 'span' | undefined;

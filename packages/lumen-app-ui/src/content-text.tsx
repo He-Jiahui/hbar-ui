@@ -18,6 +18,7 @@ export const LUMEN_TEXT_CONTEXTS = {
   'navigation.item': { element: 'span', variant: 'body', flow: 'clipped' },
   'page.title': { element: 'h1', variant: 'title', flow: 'reading' },
   'section.title': { element: 'h2', variant: 'heading', flow: 'reading' },
+  'section.subtitle': { element: 'h3', variant: 'heading', flow: 'reading' },
   'section.description': { element: 'p', variant: 'supporting', flow: 'reading' },
   'metric.label': { element: 'dt', variant: 'supporting', flow: 'single' },
   'metric.value': { element: 'dd', variant: 'body', flow: 'single' },
@@ -39,6 +40,7 @@ export const LUMEN_TEXT_CONTEXTS = {
   'choice.title': { element: 'strong', variant: 'body', flow: 'reading' },
   'choice.description': { element: 'small', variant: 'supporting', flow: 'reading' },
   'feedback.detail': { element: 'span', variant: 'body', flow: 'reading' },
+  'feedback.message': { element: 'p', variant: 'body', flow: 'reading' },
   'message.body': { element: 'p', variant: 'body', flow: 'reading' },
   'code.inline': { element: 'code', variant: 'code', flow: 'inlineCode' },
   'code.block': { element: 'pre', variant: 'code', flow: 'code' },
@@ -53,11 +55,14 @@ export interface LumenContentTextProps extends Omit<LumenTextProps, 'as' | 'vari
 }
 
 /** Host-owned content with a typed semantic slot and a shared reading/overflow policy. */
-export function LumenContentText({ context, className, ...other }: LumenContentTextProps) {
+export function LumenContentText({ context, className, tone, ...other }: LumenContentTextProps) {
   const definition = LUMEN_TEXT_CONTEXTS[context];
   return (
     <LumenText
       {...other}
+      tone={
+        tone ?? (context === 'feedback.message' && other.role === 'alert' ? 'danger' : undefined)
+      }
       as={definition.element}
       variant={definition.variant}
       data-text-context={context}

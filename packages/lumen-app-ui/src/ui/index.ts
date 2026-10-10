@@ -2,12 +2,15 @@ export { default as LumenProvider } from '../LumenProvider';
 export type { LumenProviderProps } from '../LumenProvider';
 export { default as LumenSurface } from '../LumenSurface';
 export type { LumenSurfaceProps, LumenSurfaceRole } from '../LumenSurface';
-export { LumenRecordRow, LumenMetricRow, LumenAdaptiveToolbar } from '../workbench-compositions';
+export { LumenContentText, LUMEN_TEXT_CONTEXTS } from '../content-text';
+export type { LumenContentTextProps, LumenTextContext } from '../content-text';
+export { LumenRecordRow, LumenMetricRow, LumenAdaptiveToolbar, LumenReadingMarker } from '../workbench-compositions';
 export type {
   LumenRecordRowProps,
   LumenMetricRowProps,
   LumenToolbarItem,
   LumenAdaptiveToolbarProps,
+  LumenReadingMarkerProps,
 } from '../workbench-compositions';
 export { default as LumenField } from '../LumenField';
 export type { LumenFieldProps } from '../LumenField';

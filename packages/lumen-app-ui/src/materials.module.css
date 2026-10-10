@@ -54,7 +54,11 @@
   border-color: var(--lumen-overlay-edge);
   background: var(--lumen-frost);
 }
-.surface:is(:not([data-boundary='none']), [data-interactive='true']) {
+.surface:not(
+    [data-surface-role='canvas'],
+    [data-surface-role='reading'],
+    [data-surface-role='navigation']
+  ):is(:not([data-boundary='none']), [data-interactive='true']) {
   border-color: var(--lumen-edge);
 }
 .surfaceContent {

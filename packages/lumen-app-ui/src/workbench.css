@@ -414,6 +414,11 @@
   flex: 0 0 auto;
 }
 
+.lumen-action-menu-trigger-label {
+  justify-content: flex-start;
+  gap: var(--lumen-space-inline);
+}
+
 .lumen-action-menu-trigger {
   appearance: none;
   display: inline-flex;

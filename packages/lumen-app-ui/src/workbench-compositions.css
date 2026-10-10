@@ -76,3 +76,22 @@
   flex: 0 0 auto;
   inline-size: max-content;
 }
+.lumen-reading-marker {
+  min-inline-size: 0;
+  min-block-size: 1.25rem;
+  inline-size: 100%;
+  padding: 2px 4px;
+  color: var(--lumen-muted);
+}
+.lumen-reading-marker-ink {
+  inline-size: 0.75rem;
+  block-size: 0.125rem;
+  border-radius: var(--lumen-radius-control);
+  background: currentColor;
+  opacity: 0.6;
+  transition: opacity var(--lumen-state-duration) var(--lumen-state-easing);
+}
+.lumen-reading-marker:is(:hover, :focus-visible, [aria-current='location'])
+  .lumen-reading-marker-ink {
+  opacity: 1;
+}

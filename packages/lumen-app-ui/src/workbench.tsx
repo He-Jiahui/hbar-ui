@@ -490,15 +490,19 @@ export interface LumenActionMenuItem<ActionId extends string = string> {
 
 export interface LumenActionMenuProps<ActionId extends string = string> {
   label: string;
+  /** Show a complete text action when a destination needs a discoverable name. */
+  labelVisible?: boolean | undefined;
   items: readonly LumenActionMenuItem<ActionId>[];
   onAction: (actionId: ActionId) => void;
 }
 
 export function LumenActionMenu<ActionId extends string = string>({
   label,
+  labelVisible = false,
   items,
   onAction,
 }: LumenActionMenuProps<ActionId>) {
+  const Trigger = labelVisible ? LumenButton : 'button';
   const [open, setOpen] = React.useState(false);
   const menuId = `lumen-action-menu-${React.useId().replaceAll(':', '')}`;
   const triggerRef = React.useRef<HTMLButtonElement>(null);
@@ -543,10 +547,11 @@ export function LumenActionMenu<ActionId extends string = string>({
 
   return (
     <div className="lumen-action-menu hbar-app-ui-action-menu" data-open={open || undefined}>
-      <button
+      <Trigger
         ref={triggerRef}
         type="button"
-        className="lumen-action-menu-trigger"
+        {...(labelVisible ? { variant: 'text' as const } : {})}
+        className={labelVisible ? 'lumen-action-menu-trigger-label' : 'lumen-action-menu-trigger'}
         aria-label={label}
         title={label}
         aria-haspopup="menu"
@@ -572,7 +577,8 @@ export function LumenActionMenu<ActionId extends string = string>({
           <i />
           <i />
         </span>
-      </button>
+        {labelVisible ? label : null}
+      </Trigger>
       <LumenFloatingSurface
         open={open}
         onClose={() => setOpen(false)}

@@ -5,6 +5,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
 import { normalizeLumenGlow, type LumenAppearance, getLumenColorProperties } from './appearance';
 import createLumenTheme from './theme';
+import { LumenSurfaceRoleContext, type LumenSurfaceRole } from './LumenSurface';
 import styles from './provider.module.css';
 import './styles.css';
 
@@ -12,12 +13,15 @@ export interface LumenProviderProps extends Omit<React.HTMLAttributes<HTMLDivEle
   appearance: Readonly<LumenAppearance>;
   children: React.ReactNode;
   withCssBaseline?: boolean | undefined;
+  /** Default hierarchy for contained surfaces; omission keeps reference rendering compatible. */
+  surfaceRole?: LumenSurfaceRole | undefined;
 }
 
 export default function LumenProvider({
   appearance,
   children,
   withCssBaseline = true,
+  surfaceRole,
   className,
   style,
   ...other
@@ -47,7 +51,9 @@ export default function LumenProvider({
         data-lumen-motion={motion ? 'on' : 'off'}
         style={providerStyle}
       >
-        {children}
+        <LumenSurfaceRoleContext.Provider value={surfaceRole}>
+          {children}
+        </LumenSurfaceRoleContext.Provider>
       </div>
     </ThemeProvider>
   );

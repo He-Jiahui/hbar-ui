@@ -6,6 +6,7 @@ import { LumenActionMenu, LumenIcon, type LumenIconProps } from './workbench';
 import { LumenButton, LumenIconButton, LumenStatus, LumenText } from './primitives';
 
 export interface LumenPageHeaderProps {
+  className?: string | undefined;
   layout?: 'workspace' | 'page' | undefined;
   title: string;
   context?: string | undefined;
@@ -21,6 +22,7 @@ export interface LumenPageHeaderProps {
 }
 
 export function LumenPageHeader({
+  className,
   layout = 'workspace',
   title,
   context,
@@ -30,7 +32,10 @@ export function LumenPageHeader({
   actions,
 }: LumenPageHeaderProps) {
   return (
-    <header className="lumen-page-header" data-header-layout={layout}>
+    <header
+      className={['lumen-page-header', className].filter(Boolean).join(' ')}
+      data-header-layout={layout}
+    >
       {leading ? <div className="lumen-page-header-leading">{leading}</div> : null}
       <div className="lumen-page-heading">
         <LumenContentText
