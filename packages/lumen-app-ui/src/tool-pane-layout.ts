@@ -1,11 +1,12 @@
 /** Descriptor-owned dimensions; available width is the body after sidebar allocation. */
 export interface LumenToolLayout {
+  constrainedPresentation?: 'page' | 'drawer' | undefined;
   mainMinWidthRem: number;
   minWidthRem: number;
   maxWidthRem: number;
 }
 
-export type LumenToolPresentation = 'none' | 'split' | 'page';
+export type LumenToolPresentation = 'none' | 'split' | 'page' | 'drawer';
 
 export interface LumenToolPaneGeometry {
   availableInlineSizePx: number;
@@ -36,7 +37,7 @@ function positive(value: number): boolean {
 
 /** One sizing decision drives CSS and accessibility; no competing viewport breakpoint. */
 export function resolveLumenToolPaneLayout(input: LumenToolPaneLayoutInput): LumenToolPaneLayout {
-  const notSplit = (presentation: 'none' | 'page'): LumenToolPaneLayout => ({
+  const notSplit = (presentation: 'none' | 'page' | 'drawer'): LumenToolPaneLayout => ({
     presentation,
     widthRem: null,
     minWidthRem: null,
@@ -55,7 +56,7 @@ export function resolveLumenToolPaneLayout(input: LumenToolPaneLayoutInput): Lum
     !positive(layout.maxWidthRem) ||
     layout.maxWidthRem < layout.minWidthRem
   ) {
-    return notSplit('page');
+    return notSplit(layout.constrainedPresentation ?? 'page');
   }
   const availableRem = geometry.availableInlineSizePx / geometry.rootFontSizePx;
   const maximum = Math.min(
@@ -63,7 +64,7 @@ export function resolveLumenToolPaneLayout(input: LumenToolPaneLayoutInput): Lum
     availableRem - layout.mainMinWidthRem - LUMEN_TOOL_SEPARATOR_WIDTH_REM,
   );
   if (!Number.isFinite(maximum) || maximum < layout.minWidthRem) {
-    return notSplit('page');
+    return notSplit(layout.constrainedPresentation ?? 'page');
   }
   const preferred = positive(input.preferredWidthRem)
     ? input.preferredWidthRem

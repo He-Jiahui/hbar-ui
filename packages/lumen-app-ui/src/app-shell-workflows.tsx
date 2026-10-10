@@ -146,6 +146,7 @@ export interface LumenAppShellWorkflowsProps {
   readonly toolRef?: LumenAppShellProps['toolRef'];
   readonly resizeRef?: LumenAppShellProps['resizeRef'];
   readonly onToolPresentationChange?: LumenAppShellProps['onToolPresentationChange'];
+  readonly onCloseTool?: LumenAppShellProps['onCloseTool'];
   readonly toolResize?: LumenAppShellProps['toolResize'];
   readonly sidebarOpen?: LumenAppShellProps['sidebarOpen'];
   readonly closeSidebarLabel?: LumenAppShellProps['closeSidebarLabel'];
@@ -948,6 +949,7 @@ export function LumenAppShellWorkflows(props: LumenAppShellWorkflowsProps) {
             toolRef={props.toolRef}
             resizeRef={props.resizeRef}
             onToolPresentationChange={props.onToolPresentationChange}
+            onCloseTool={props.onCloseTool}
             toolResize={props.toolResize}
             sidebarOpen={props.sidebarOpen ?? true}
             closeSidebarLabel={props.closeSidebarLabel ?? 'Close navigation'}
@@ -1123,6 +1125,7 @@ function AppShellWorkflowView(
             toolRef={props.toolRef}
             resizeRef={props.resizeRef}
             onToolPresentationChange={props.onToolPresentationChange}
+            onCloseTool={props.onCloseTool}
             toolResize={props.toolResize}
             sidebarOpen={props.sidebarOpen ?? true}
             closeSidebarLabel={props.closeSidebarLabel ?? content.labels.closeNavigation}
@@ -1168,6 +1171,7 @@ function AppShellWorkflowView(
           toolRef={props.toolRef}
           resizeRef={props.resizeRef}
           onToolPresentationChange={props.onToolPresentationChange}
+          onCloseTool={props.onCloseTool}
           toolResize={props.toolResize}
           sidebarOpen={props.sidebarOpen ?? true}
           closeSidebarLabel={props.closeSidebarLabel ?? content.labels.closeNavigation}

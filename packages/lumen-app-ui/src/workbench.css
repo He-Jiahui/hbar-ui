@@ -22,6 +22,16 @@
   min-block-size: 0;
   flex: 1 1 auto;
 }
+.lumen-app-tool-content {
+  display: flex;
+  min-inline-size: 0;
+  min-block-size: 0;
+  flex: 1;
+  flex-direction: column;
+}
+.lumen-app-tool-drawer[hidden] {
+  display: none;
+}
 
 .lumen-window-titlebar {
   display: flex;
@@ -290,8 +300,7 @@
   min-block-size: 0;
   flex-direction: column;
   border-inline-end: 0.0625rem solid var(--lumen-edge);
-  background: var(--lumen-frost);
-  backdrop-filter: blur(1.25rem);
+  background: var(--lumen-surface-navigation);
 }
 
 .lumen-app-sidebar > header,
@@ -305,7 +314,7 @@
 .lumen-app-sidebar > footer {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--lumen-space-inline);
   overflow-x: auto;
 }
 

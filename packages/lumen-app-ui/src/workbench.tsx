@@ -65,6 +65,7 @@ export interface LumenAppShellProps {
   header?: React.ReactNode;
   tool?: React.ReactNode;
   toolLabel?: string | undefined;
+  onCloseTool?: (() => void) | undefined;
   overlay?: React.ReactNode;
   children: React.ReactNode;
 }
@@ -90,6 +91,7 @@ export function LumenAppShell({
   header,
   tool,
   toolLabel,
+  onCloseTool,
   overlay,
   children,
 }: LumenAppShellProps) {
@@ -120,6 +122,7 @@ export function LumenAppShell({
     sidebarLayout?.defaultWidthRem,
   ]);
   const toolPresent = Boolean(tool);
+  const toolDock = React.useRef<HTMLDivElement>(null);
   const paneLayout = toolLayout
     ? resolveLumenToolPaneLayout({
         toolPresent,
@@ -215,7 +218,7 @@ export function LumenAppShell({
             >
               {children}
             </main>
-            {tool && paneLayout ? (
+            {tool && paneLayout?.presentation === 'split' ? (
               toolResize ? (
                 <LumenToolPaneResizer
                   resize={toolResize}
@@ -228,7 +231,13 @@ export function LumenAppShell({
                 <div className="lumen-app-tool-separator" aria-hidden="true" />
               )
             ) : null}
-            {tool ? (
+            {tool && toolLayout?.constrainedPresentation === 'drawer' ? (
+              <div
+                ref={toolDock}
+                className="lumen-app-tool-drawer"
+                hidden={paneLayout?.presentation !== 'split'}
+              />
+            ) : tool ? (
               <aside
                 ref={toolRef}
                 className="lumen-app-tool-drawer hbar-app-ui-app-tool-drawer"
@@ -241,6 +250,29 @@ export function LumenAppShell({
           </div>
         </div>
       </div>
+      {tool && toolLayout?.constrainedPresentation === 'drawer' ? (
+        <LumenFloatingSurface
+          mode="modal"
+          open={paneLayout?.presentation === 'drawer'}
+          docked={paneLayout?.presentation === 'split'}
+          dockRef={toolDock}
+          keepMounted
+          label={toolLabel}
+          onClose={onCloseTool ?? (() => {})}
+          className="lumen-tool-drawer-surface"
+          backdropClassName="lumen-tool-drawer-root"
+          style={{ '--lumen-tool-size': `${toolWidthRem}rem` } as React.CSSProperties}
+        >
+          <aside
+            ref={toolRef}
+            className="lumen-app-tool-content"
+            aria-label={toolLabel}
+            tabIndex={-1}
+          >
+            {tool}
+          </aside>
+        </LumenFloatingSurface>
+      ) : null}
       {overlay}
     </div>
   );

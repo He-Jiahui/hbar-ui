@@ -164,3 +164,54 @@
     backdrop-filter: none;
   }
 }
+.lumen-floating-portal-host {
+  display: contents;
+}
+.lumen-floating-modal-root[data-lumen-floating-root][data-docked='true'] {
+  position: static;
+  display: flex;
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: none;
+  max-block-size: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  backdrop-filter: none;
+}
+.lumen-floating-modal-root[data-docked='true'] > .lumen-floating-modal-backdrop {
+  display: none;
+}
+.lumen-floating-modal-root > .lumen-floating-surface[data-docked='true'] {
+  position: static;
+  display: flex;
+  flex: 1;
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: none;
+  max-block-size: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  overflow: hidden;
+  visibility: visible;
+}
+.lumen-floating-modal-root.lumen-tool-drawer-root:not([data-docked='true']) {
+  justify-content: flex-end;
+  padding: 0;
+}
+.lumen-floating-modal-root > .lumen-tool-drawer-surface:not([data-docked='true']) {
+  display: flex;
+  flex-direction: column;
+  inline-size: min(var(--lumen-tool-size, 24rem), 100vw);
+  max-inline-size: 100vw;
+  block-size: 100dvh;
+  max-block-size: 100dvh;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+  overflow: hidden;
+}
