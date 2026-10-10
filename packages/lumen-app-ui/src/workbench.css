@@ -362,6 +362,11 @@
 }
 
 .lumen-app-sidebar > footer {
+  min-block-size: 0;
+  max-block-size: 40%;
+  flex: 0 1 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border-block-start: 0.0625rem solid var(--lumen-edge);
 }
 
