@@ -82,12 +82,16 @@
 .lumen-file-document-title {
   display: flex;
   flex-direction: column;
+  overflow-x: auto;
 }
 
 .lumen-file-document-title > * {
-  overflow: hidden;
-  text-overflow: ellipsis;
+  min-inline-size: max-content;
   white-space: nowrap;
+}
+
+.lumen-file-document-title:focus-visible {
+  outline: 0.125rem solid var(--lumen-info);
 }
 
 .lumen-file-document-body {
@@ -99,7 +103,7 @@
   overflow: auto;
 }
 
-.lumen-file-document-body > * {
+:where(.lumen-file-document-body > *) {
   min-block-size: 0;
   flex: 1 1 auto;
 }

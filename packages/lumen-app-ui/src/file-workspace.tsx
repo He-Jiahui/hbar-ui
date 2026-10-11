@@ -197,7 +197,7 @@ export function LumenFileDocument({
           </LumenIconButton>
         ) : null}
         <FileGlyph name="file" />
-        <div className="lumen-file-document-title">
+        <div className="lumen-file-document-title" role="group" aria-label={path} tabIndex={0}>
           <LumenText as="strong" variant="label" title={path}>
             {name ?? path}
           </LumenText>
