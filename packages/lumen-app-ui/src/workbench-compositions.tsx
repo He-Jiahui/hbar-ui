@@ -278,8 +278,16 @@ function MeasuredToolbar({
       const gap = Number.parseFloat(style.columnGap) || 0;
       let measuredNewLabel = false;
       for (const item of unique) {
-        const node = docks.current.get(item.id)?.control;
-        if (node?.isConnected && node.getClientRects().length) {
+        const dock = docks.current.get(item.id);
+        const node = dock?.control;
+        // Overflow can use a different content flow. Only the inline dock can
+        // measure the width needed on this rail; reusing overflow width would
+        // move the same control between both docks on every observer frame.
+        if (
+          node?.isConnected &&
+          node.parentElement === dock?.inline.current &&
+          node.getClientRects().length
+        ) {
           measuredNewLabel ||= widths.current.get(item.id)?.label !== item.label;
           widths.current.set(item.id, {
             width: node.getBoundingClientRect().width,

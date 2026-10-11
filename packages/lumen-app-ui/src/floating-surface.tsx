@@ -567,8 +567,12 @@ export function LumenFloatingSurface(props: FloatingSurfaceProps) {
   const [topLayer, setTopLayer] = React.useState(false);
   const [mobileSheet, setMobileSheet] = React.useState(false);
   closeRef.current = onClose;
+  // A stable toolbar portal can move under a surface without changing React context.
+  const anchorParentId = anchorRef?.current
+    ?.closest<HTMLElement>('[data-lumen-floating-surface="true"][data-lumen-floating-open="true"]')
+    ?.getAttribute('data-lumen-floating-id');
   const resolvedParentId =
-    parentId ?? (nested === false ? undefined : (contextParentId ?? undefined));
+    parentId ?? (nested === false ? undefined : (anchorParentId ?? contextParentId ?? undefined));
   const materialKind =
     typeof material === 'string' ? material : (material.kind ?? material.mode ?? 'frost');
   let materialBlur = '1.2rem';
