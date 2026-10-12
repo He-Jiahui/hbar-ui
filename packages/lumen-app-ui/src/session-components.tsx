@@ -470,6 +470,7 @@ export function LumenPromptComposer(props: LumenPromptComposerProps) {
         <LumenAdaptiveToolbar
           label={props.labels.input}
           moreLabel={props.toolbar.moreLabel}
+          placement="above"
           revealRequest={props.toolbar.revealRequest}
           className="lumen-composer-toolbar"
           items={[

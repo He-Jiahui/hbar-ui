@@ -12,6 +12,10 @@ semantic text flow and compact compositions. `LumenSurface.surfaceRole` opts
 into canvas/navigation/reading/raised/overlay hierarchy independently of material.
 `LumenAdaptiveToolbar` accepts host-labeled items with stable IDs and numeric
 priority, retaining its mandatory trailing action outside the More surface.
+Its optional `placement` selects the preferred overflow direction through the
+shared floating surface, which keeps viewport bounds and focus ownership.
+Prompt composers prefer `above` so their controls have room at the bottom of
+the workbench; other toolbars retain the shared surface's default placement.
 `LumenRecordRow` and `LumenMetricRow` render host-owned records without demo data.
 
 `LumenUsageOverviewContent.chart` opts into a stacked input/output chart. The

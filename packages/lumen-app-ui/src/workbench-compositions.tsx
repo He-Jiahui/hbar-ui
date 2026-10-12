@@ -5,7 +5,11 @@ import * as ReactDOM from 'react-dom';
 import { MoreHorizontal } from 'lucide-react';
 import { LumenContentText } from './content-text';
 import { LumenButton, LumenIconButton, type LumenButtonProps } from './primitives';
-import { LumenFloatingSurface, useFloatingTrigger } from './floating-surface';
+import {
+  LumenFloatingSurface,
+  useFloatingTrigger,
+  type FloatingPlacement,
+} from './floating-surface';
 import { LumenIcon } from './workbench';
 import './workbench-compositions.css';
 
@@ -107,6 +111,8 @@ export interface LumenAdaptiveToolbarProps {
   readonly label: string;
   readonly moreLabel: string;
   readonly items: readonly LumenToolbarItem[];
+  /** Preferred overflow direction; the shared surface still enforces viewport bounds. */
+  readonly placement?: FloatingPlacement | undefined;
   /** Send/stop or another mandatory action remains outside the overflow group. */
   readonly trailing?: React.ReactNode;
   readonly className?: string | undefined;
@@ -209,6 +215,7 @@ function MeasuredToolbar({
   label,
   moreLabel,
   items,
+  placement,
   trailing,
   className,
   revealRequest,
@@ -369,6 +376,7 @@ function MeasuredToolbar({
         open={open && overflow.length > 0}
         keepMounted
         mode="anchored"
+        placement={placement}
         anchorRef={more}
         initialFocusRef={focusDestination}
         onClose={() => setOpen(false)}
